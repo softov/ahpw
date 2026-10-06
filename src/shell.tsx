@@ -3,7 +3,10 @@ import type { Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { registerThemeController } from '@softov/scena/styles';
 import { registerCommands } from './commands/index.js';
-import { registerSessions } from './ahp/index.js';
+import { registerConnection } from './connection/index.js';
+import { registerSessions } from './sessions/index.js';
+import { registerAutomations } from './automations/index.js';
+import { registerHost } from './host/index.js';
 import { THEME_ID_KEY, THEME_MODE_KEY } from './theme-keys.js';
 
 function AppTitle({ text }: { text?: string }): ReactElement {
@@ -60,7 +63,10 @@ export function registerShell(scena: Scena): Disposable {
       resource: { component: 'ButtonBar', icon: '\u{25E7}\u{FE0E}', title: 'Toggle sidebar', command: 'sidebar.toggleLeft' },
     }),
 
+    registerConnection(scena),
     registerSessions(scena),
+    registerAutomations(scena),
+    registerHost(scena),
     registerCommands(scena),
   );
 }

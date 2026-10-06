@@ -40,9 +40,4 @@ describe('sectionsOf', () => {
     const declared = { ...manifest, groups: [{ name: 'user', title: 'People', icon: '☺' }] };
     expect(sectionsOf(declared)[1]).toMatchObject({ title: 'People', icon: '☺' });
   });
-
-  it('keeps a group off the letters of a reserved entry', () => {
-    const secrets = { ...manifest, commands: [command('secrets.list'), command('daemon.status')] };
-    expect(sectionsOf(secrets, ['sessions']).map((section) => section.icon)).toEqual(['Sec', 'D']);
-  });
 });

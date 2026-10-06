@@ -2,9 +2,11 @@ import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
 import { PRESENTATION } from '../presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { ACTIVE_SESSION, AHP_SESSIONS, ahpProvider } from './data.js';
+import { AHP_SESSIONS } from '../connection/data.js';
+import { ACTIVE_SESSION } from './state.js';
 import SessionExplorer from './Explorer.js';
 import SessionPage from './Page.js';
+import NewSessionPage from './New.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -12,16 +14,21 @@ const MODUS_CLASS = '$/modus/class' as BindingPath;
 /** The sidebar section the sessions list shows in. */
 export const SESSIONS_SECTION = 'ahp:sessions';
 
+/** A sidebar lifted over the page is put away once it has done its job. */
+export function hideOverlaidSidebar(scena: Scena, modus: ModusClass): void {
+  if (!isOverlaid(resolveSurfacePresentation('sidebar:left', modus, PRESENTATION))) return;
+  const current = scena.layout.get().surfaces['sidebar:left'];
+  scena.layout.setSurface('sidebar:left', { ...current, visible: false });
+}
+
 /** Arguments of `ahp.openSession`. */
 export interface OpenSessionArgs {
   resource: string;
 }
 
-/** The AHP connection, the sessions list and the session page. */
+/** The sessions list and the session page. */
 export function registerSessions(scena: Scena): Disposable {
   return combineDisposables(
-    scena.store.registerDataProvider(ahpProvider),
-
     scena.components.register({
       component: 'SessionExplorer',
       category: 'page',
@@ -33,6 +40,19 @@ export function registerSessions(scena: Scena): Disposable {
       renderer: { kind: 'react', load: async () => ({ default: SessionPage as unknown }) },
     }),
 
+    scena.components.register({
+      component: 'NewSessionPage',
+      category: 'page',
+      renderer: { kind: 'react', load: async () => ({ default: NewSessionPage as unknown }) },
+    }),
+    scena.commands.register({
+      id: 'ahp.newSession',
+      title: 'New session',
+      run: (ctx) => {
+        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage' }, props: { title: 'New session' } });
+        hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+      },
+    }),
     scena.commands.register({
       id: 'ahp.openSession',
       title: 'Open session',
@@ -47,18 +67,14 @@ export function registerSessions(scena: Scena): Disposable {
           resource: { component: 'SessionPage', resource },
           props: { title: title === undefined || title === '' ? 'Untitled' : title },
         });
-        const modus = ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large';
-        if (isOverlaid(resolveSurfacePresentation('sidebar:left', modus, PRESENTATION))) {
-          const current = ctx.scena.layout.get().surfaces['sidebar:left'];
-          ctx.scena.layout.setSurface('sidebar:left', { ...current, visible: false });
-        }
+        hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
 
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'sessions:nav',
-      resource: { component: 'ActivityBarItem', icon: 'S', label: 'Sessions', section: SESSIONS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: '\u{1F4AC}', label: 'Sessions', section: SESSIONS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'sidebar:left',

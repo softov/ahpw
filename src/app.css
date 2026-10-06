@@ -1,5 +1,11 @@
 /* Theme tokens only, so every theme applies. */
 
+/* The activity bar pinned to the bottom edge overlays main; keep main clear of it. */
+.oo-shell:has(.oo-surface--activitybar[data-presentation='bar']) .oo-surface--main {
+  padding-bottom: var(--oo-surface-bar-size);
+  box-sizing: border-box;
+}
+
 .web-title {
   font-weight: 600;
   padding: 0 var(--oo-spacing-sm);
@@ -93,4 +99,193 @@
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* A session: the transcript scrolls, the composer stays at the bottom. */
+
+.web-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  max-width: 72rem;
+}
+
+.web-chat__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  padding: var(--oo-spacing-lg) var(--oo-spacing-lg) var(--oo-spacing-sm);
+}
+
+.web-chat__turns {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-lg);
+  padding: var(--oo-spacing-sm) var(--oo-spacing-lg);
+}
+
+.web-turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-turn__ask {
+  align-self: flex-end;
+  max-width: 80%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: var(--oo-spacing-sm) var(--oo-spacing-md);
+  border-radius: var(--oo-radius-md);
+  background: var(--oo-color-surface-raised, var(--oo-color-surface));
+  border: 1px solid var(--oo-color-border);
+}
+
+.web-turn__answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.web-note {
+  margin: 0;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-reasoning summary {
+  cursor: pointer;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-tool,
+.web-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+  padding: var(--oo-spacing-sm) var(--oo-spacing-md);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md);
+}
+
+.web-tool__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-tool__name {
+  font-weight: 600;
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-tool__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-input__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.web-input__row {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-input__label {
+  font-weight: 600;
+}
+
+.web-input__hint {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-field,
+.web-composer__text {
+  font: inherit;
+  color: inherit;
+  background: var(--oo-color-canvas);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+  padding: var(--oo-spacing-sm);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.web-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  padding: var(--oo-spacing-sm) var(--oo-spacing-lg) var(--oo-spacing-lg);
+  border-top: 1px solid var(--oo-color-border);
+}
+
+.web-composer__text {
+  resize: vertical;
+  min-height: 3.5rem;
+}
+
+.web-composer__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-composer__queue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-composer__queue li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oo-spacing-sm);
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-explorer__head {
+  display: flex;
+  padding: var(--oo-spacing-sm);
+}
+
+.web-explorer__head > * {
+  flex: 1;
+}
+
+.web-runs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-runs li {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
 }

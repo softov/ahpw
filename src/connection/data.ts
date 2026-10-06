@@ -13,10 +13,6 @@ export const AHP_SESSIONS = '$/ahp/sessions' as BindingPath;
 export const AHP_AGENTS = '$/ahp/agents' as BindingPath;
 /** The folder the daemon names as its default, or null. */
 export const AHP_DEFAULT_DIRECTORY = '$/ahp/defaultDirectory' as BindingPath;
-/** The resource of the session open in `main`. */
-export const ACTIVE_SESSION = '$/ahp/active' as BindingPath;
-/** The resource of the automation open in `main`. */
-export const ACTIVE_AUTOMATION = '$/ahp/activeAutomation' as BindingPath;
 
 /** Where a followed channel's state is kept. */
 export const channelPath = (uri: string): BindingPath => `$/ahp/channels/${encodeURIComponent(uri)}` as BindingPath;

@@ -8,7 +8,7 @@ import type {
   StateAction,
   ToolCallState,
 } from '@microsoft/agent-host-protocol';
-import { textOf } from './words.js';
+import { textOf } from '../connection/words.js';
 
 /** Sends one action on the chat this transcript shows. */
 export type Send = (action: StateAction) => void;
@@ -44,7 +44,7 @@ function toolLine(call: ToolCallState): string {
   return textOf(call.invocationMessage) || call.displayName;
 }
 
-function ToolCall({ call, send, live }: { call: ToolCallState; send: Send; live: boolean }): ReactElement {
+function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Send; live: boolean; turnId: string }): ReactElement {
   const failed = call.status === 'completed' && !call.success;
   const status = String(call.status);
   return (
@@ -54,11 +54,11 @@ function ToolCall({ call, send, live }: { call: ToolCallState; send: Send; live:
         <Badge tone={failed ? 'danger' : TOOL_TONE[status] ?? 'default'} text={failed ? 'Failed' : TOOL_LABEL[status] ?? status} />
       </div>
       <Markdown text={toolLine(call)} />
-      {live && status === PENDING_CONFIRMATION ? <Confirm call={call} send={send} /> : null}
+      {live && status === PENDING_CONFIRMATION ? <Confirm call={call} send={send} turnId={turnId} /> : null}
       {live && status === PENDING_RESULT_CONFIRMATION ? (
         <div className="web-tool__actions">
-          <Button label="Accept result" variant="primary" onClick={() => send({ type: 'chat/toolCallResultConfirmed', toolCallId: call.toolCallId, approved: true } as StateAction)} />
-          <Button label="Reject" onClick={() => send({ type: 'chat/toolCallResultConfirmed', toolCallId: call.toolCallId, approved: false } as StateAction)} />
+          <Button label="Accept result" variant="primary" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: true } as StateAction)} />
+          <Button label="Reject" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: false } as StateAction)} />
         </div>
       ) : null}
     </div>
@@ -66,9 +66,10 @@ function ToolCall({ call, send, live }: { call: ToolCallState; send: Send; live:
 }
 
 /** The host's options for a call awaiting approval, or approve and deny when it offers none. */
-function Confirm({ call, send }: { call: ToolCallState; send: Send }): ReactElement {
+function Confirm({ call, send, turnId }: { call: ToolCallState; send: Send; turnId: string }): ReactElement {
   const approve = (optionId?: string): void => send({
     type: 'chat/toolCallConfirmed',
+    turnId,
     toolCallId: call.toolCallId,
     approved: true,
     confirmed: 'user-action',
@@ -76,6 +77,7 @@ function Confirm({ call, send }: { call: ToolCallState; send: Send }): ReactElem
   } as StateAction);
   const deny = (optionId?: string): void => send({
     type: 'chat/toolCallConfirmed',
+    turnId,
     toolCallId: call.toolCallId,
     approved: false,
     reason: 'denied',
@@ -211,7 +213,7 @@ function InputRequest({ request, send, live, answered }: { request: ChatInputReq
 }
 
 /** One part of an agent's response. `live` is true while its turn still runs. */
-export function Part({ part, send, live }: { part: ResponsePart; send: Send; live: boolean }): ReactElement | null {
+export function Part({ part, send, live, turnId }: { part: ResponsePart; send: Send; live: boolean; turnId: string }): ReactElement | null {
   switch (String(part.kind)) {
     case 'markdown':
       return 'content' in part ? <Markdown text={part.content as string} /> : null;
@@ -223,7 +225,7 @@ export function Part({ part, send, live }: { part: ResponsePart; send: Send; liv
         </details>
       ) : null;
     case 'toolCall':
-      return 'toolCall' in part ? <ToolCall call={part.toolCall} send={send} live={live} /> : null;
+      return 'toolCall' in part ? <ToolCall call={part.toolCall} send={send} live={live} turnId={turnId} /> : null;
     case 'inputRequest':
       return 'request' in part ? <InputRequest request={part.request} send={send} live={live} answered={'response' in part && part.response !== undefined} /> : null;
     case 'error':

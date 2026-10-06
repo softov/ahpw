@@ -8,10 +8,8 @@ import { sectionId, sectionsOf } from '../manifest/sections.js';
 import type { ProgramManifest } from '../manifest/types.js';
 import CommandExplorer from './Explorer.js';
 import CommandPage from './Page.js';
-import { SESSIONS_SECTION } from '../ahp/index.js';
+import { SESSIONS_SECTION } from '../sessions/index.js';
 
-/** The activity bar entries that are not manifest groups, by the name their letters come from. */
-const OTHER_ENTRIES = ['sessions'];
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -106,7 +104,7 @@ function registerSections(scena: Scena): Disposable {
     mounted?.dispose();
     mounted = undefined;
     if (manifest === undefined) return;
-    const sections = sectionsOf(manifest, OTHER_ENTRIES);
+    const sections = sectionsOf(manifest);
     mounted = combineDisposables(...sections.flatMap((section) => [
       scena.surfaces.mount({
         surface: 'activitybar',

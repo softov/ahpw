@@ -1,8 +1,9 @@
 import { useEffect, useMemo, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Badge, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
+import { Alert, Badge, Button, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { ACTIVE_SESSION, AHP_CONNECTION, AHP_SESSIONS, type Connection } from './data.js';
+import { AHP_CONNECTION, AHP_SESSIONS, type Connection } from '../connection/data.js';
+import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isArchived } from './status.js';
 
 const sameDay = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
@@ -44,15 +45,19 @@ export default function SessionExplorer(): ReactElement {
 
   if (connection?.status === 'failed') return <Alert tone="danger" title="Not connected" message={connection.error ?? 'The daemon refused the connection.'} />;
   if (connection?.status !== 'connected' && sessions === undefined) return <Spinner label="Connecting to the daemon" />;
-  if (nodes.length === 0) return <Alert tone="info" message="No sessions yet." />;
+  const create = <div className="web-explorer__head"><Button label="New session" variant="primary" onClick={() => void scena.commands.execute('ahp.newSession')} /></div>;
+  if (nodes.length === 0) return <>{create}<Alert tone="info" message="No sessions yet." /></>;
   return (
-    <Tree<SessionSummary>
-      nodes={nodes}
-      title="Sessions"
-      selectedKey={active ?? null}
-      onSelect={(node) => {
-        if (node.data !== undefined) void scena.commands.execute('ahp.openSession', { resource: node.data.resource });
-      }}
-    />
+    <>
+      {create}
+      <Tree<SessionSummary>
+        nodes={nodes}
+        title="Sessions"
+        selectedKey={active ?? null}
+        onSelect={(node) => {
+          if (node.data !== undefined) void scena.commands.execute('ahp.openSession', { resource: node.data.resource });
+        }}
+      />
+    </>
   );
 }

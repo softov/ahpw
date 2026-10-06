@@ -28,13 +28,8 @@ export function shortNames(names: readonly string[]): Map<string, string> {
   return short;
 }
 
-/**
- * Every group the manifest's commands fall in, in the order they first appear.
- *
- * `reserved` names other activity bar entries, so no group's letters match
- * theirs: with `sessions` reserved, a group `secrets` is `Sec`, not `S`.
- */
-export function sectionsOf(manifest: ProgramManifest, reserved: readonly string[] = []): Section[] {
+/** Every group the manifest's commands fall in, in the order they first appear. */
+export function sectionsOf(manifest: ProgramManifest): Section[] {
   const declared = new Map((manifest.groups ?? []).map((group) => [group.name, group]));
   const sections = new Map<string, Section>();
   for (const command of manifest.commands) {
@@ -46,7 +41,7 @@ export function sectionsOf(manifest: ProgramManifest, reserved: readonly string[
     }
     section.commands.push(command);
   }
-  const letters = shortNames([...sections.keys(), ...reserved]);
+  const letters = shortNames([...sections.keys()]);
   for (const section of sections.values()) section.icon = declared.get(section.name)?.icon ?? letters.get(section.name) ?? section.name;
   return [...sections.values()];
 }

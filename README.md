@@ -53,7 +53,10 @@ ahpd run --plugin /path/to/ahpd-web
 | `plugin/` | The ahpd plugin: one route serving `dist/app` |
 | `src/manifest/` | The manifest's types, commands to forms and requests, the store provider |
 | `src/commands/` | The command list, the command page, the result view |
-| `src/ahp/` | The AHP connection, the sessions list and the session page |
+| `src/connection/` | The AHP connection: one client for the daemon, followed channels, the socket address |
+| `src/sessions/` | The sessions list, a new session, and a session's chat |
+| `src/automations/` | The automations list and an automation's page |
+| `src/host/` | The host's settings |
 | `src/token-provider.ts` | Sign-in with a token |
 
 ## License
