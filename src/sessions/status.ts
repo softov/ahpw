@@ -12,6 +12,8 @@ const ERROR = 1 << 1;
 const IN_PROGRESS = 1 << 3;
 /** A turn is running and waits for a person. */
 const INPUT_NEEDED = IN_PROGRESS | (1 << 4);
+/** The client has read the session since it last changed. */
+const IS_READ = 1 << 5;
 /** The session is archived. */
 const IS_ARCHIVED = 1 << 6;
 
@@ -23,6 +25,10 @@ export function activityOf(status: number): Activity {
   if ((status & IN_PROGRESS) !== 0) return 'running';
   if ((status & ERROR) !== 0) return 'error';
   return 'idle';
+}
+
+export function isRead(status: number): boolean {
+  return (status & IS_READ) !== 0;
 }
 
 export function isArchived(status: number): boolean {

@@ -1,10 +1,13 @@
-import { useEffect, useMemo, type ReactElement } from 'react';
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Badge, Button, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
-import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_CONNECTION, AHP_SESSIONS, type Connection } from '../connection/data.js';
+import { Alert, Spinner } from '@softov/scena/ui';
+import type { PickerAction } from '@softov/scena/types';
+import type { AgentInfo, SessionSummary, StateAction } from '@microsoft/agent-host-protocol';
+import { AHP_AGENTS, AHP_CONNECTION, AHP_SESSIONS, dispatch, reloadSessions, request, type Connection } from '../connection/data.js';
+import { folderLabel } from '../connection/words.js';
+import { ExplorerList, type Dot, type Row } from '../explorer/ExplorerList.js';
 import { ACTIVE_SESSION } from './state.js';
-import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isArchived } from './status.js';
+import { ACTIVITY_LABEL, activityOf, isArchived, isRead, type Activity } from './status.js';
 
 const sameDay = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
 const otherDay = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
@@ -16,48 +19,115 @@ function changedAt(iso: string, now = new Date()): string {
   return (date.toDateString() === now.toDateString() ? sameDay : otherDay).format(date);
 }
 
-/** The sidebar: the daemon's sessions, newest change first, archived ones left out. */
+const DOT: Record<Activity, Dot> = { input: 'attention', running: 'working', error: 'failed', idle: 'quiet' };
+
+/** A folder's last segment, which is what tells two sessions apart. */
+const baseOf = (uri: string): string => folderLabel(uri).replace(/\/+$/, '').split('/').pop() ?? uri;
+
+/** What a session's menu offers. */
+function menuOf(session: SessionSummary, open: () => void): PickerAction[] {
+  const read = isRead(session.status);
+  const archived = isArchived(session.status);
+  const say = (action: StateAction): void => dispatch(session.resource, action);
+  return [
+    { title: 'Open', onSelect: (host) => { host.closeMenu(); open(); } },
+    {
+      title: 'Rename',
+      onSelect: (host) => {
+        host.closeMenu();
+        const title = window.prompt('Rename the session', session.title)?.trim();
+        if (title !== undefined && title !== '' && title !== session.title) say({ type: 'session/titleChanged', title } as StateAction);
+      },
+    },
+    { title: read ? 'Mark as unread' : 'Mark as read', onSelect: (host) => { host.closeMenu(); say({ type: 'session/isReadChanged', isRead: !read } as StateAction); } },
+    { title: archived ? 'Unarchive' : 'Archive', onSelect: (host) => { host.closeMenu(); say({ type: 'session/isArchivedChanged', isArchived: !archived } as StateAction); } },
+    { title: 'Copy link', group: 'more', onSelect: (host) => { host.closeMenu(); void navigator.clipboard?.writeText(session.resource).catch(() => undefined); } },
+    {
+      title: 'Delete',
+      group: 'more',
+      color: 'red',
+      onSelect: (host) => {
+        host.closeMenu();
+        if (window.confirm(`Delete "${session.title || 'Untitled'}"? Its history goes with it.`)) {
+          void request('disposeSession', { channel: session.resource }).catch((error: unknown) => window.alert(error instanceof Error ? error.message : String(error)));
+        }
+      },
+    },
+  ];
+}
+
+/** The sidebar: the daemon's sessions, newest change first. */
 export default function SessionExplorer(): ReactElement {
   const scena = useScena();
   const connection = useStore<Connection>(AHP_CONNECTION);
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
+  const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const active = useStore<string>(ACTIVE_SESSION);
-  const nodes = useMemo<TreeNode<SessionSummary>[]>(
-    () => (sessions ?? []).filter((one) => !isArchived(one.status)).map((one) => {
+  const [archived, setArchived] = useState(false);
+  const [reloading, setReloading] = useState(false);
+
+  const open = (resource: string): void => void scena.commands.execute('ahp.openSession', { resource });
+  const rows = useMemo<Row[]>(
+    () => (sessions ?? []).filter((one) => archived || !isArchived(one.status)).map((one) => {
       const activity = activityOf(one.status);
+      const unread = activity === 'idle' && !isRead(one.status);
+      const agent = agents.find((candidate) => candidate.provider === one.provider)?.displayName ?? one.provider;
+      const folder = one.workingDirectories?.[0];
+      const second = [agent, folder === undefined ? undefined : baseOf(folder)].filter((bit) => bit !== undefined).join(' \u{00B7} ');
+      const changes = one.changes;
+      const third = activity !== 'idle'
+        ? `${ACTIVITY_LABEL[activity]}${one.activity === undefined || one.activity === '' ? '' : ` \u{00B7} ${one.activity}`}`
+        : changes !== undefined && (changes.additions ?? 0) + (changes.deletions ?? 0) > 0
+          ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${changes.files} files`}</>
+          : undefined;
       return {
         key: one.resource,
-        label: one.title === '' ? 'Untitled' : one.title,
-        trailing: activity === 'idle'
-          ? <span className="web-method">{changedAt(one.modifiedAt)}</span>
-          : <Badge tone={ACTIVITY_TONE[activity]} text={ACTIVITY_LABEL[activity]} />,
-        data: one,
+        dot: isArchived(one.status) ? 'off' : unread ? 'fresh' : DOT[activity],
+        dotLabel: isArchived(one.status) ? 'Archived' : unread ? 'Unread' : ACTIVITY_LABEL[activity],
+        title: one.title === '' ? 'Untitled' : one.title,
+        time: changedAt(one.modifiedAt),
+        lines: third === undefined ? [second] : [second, third],
+        menu: menuOf(one, () => open(one.resource)),
+        strong: unread,
       };
     }),
-    [sessions],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sessions, agents, archived],
   );
 
   // The first session opens when the list arrives and nothing is open.
   useEffect(() => {
-    const first = nodes[0]?.data;
-    if (active === undefined && first !== undefined) void scena.commands.execute('ahp.openSession', { resource: first.resource });
-  }, [nodes, active, scena]);
+    const first = rows[0];
+    if (active === undefined && first !== undefined) open(first.key);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, active]);
 
-  if (connection?.status === 'failed') return <Alert tone="danger" title="Not connected" message={connection.error ?? 'The daemon refused the connection.'} />;
-  if (connection?.status !== 'connected' && sessions === undefined) return <Spinner label="Connecting to the daemon" />;
-  const create = <div className="web-explorer__head"><Button label="New session" variant="primary" onClick={() => void scena.commands.execute('ahp.newSession')} /></div>;
-  if (nodes.length === 0) return <>{create}<Alert tone="info" message="No sessions yet." /></>;
+  const reload = (): void => {
+    setReloading(true);
+    void reloadSessions().catch(() => undefined).finally(() => setReloading(false));
+  };
+
+  const notice = connection?.status === 'failed'
+    ? <Alert tone="danger" title="Not connected" message={connection.error ?? 'The daemon refused the connection.'} />
+    : connection?.status !== 'connected' && sessions === undefined
+      ? <Spinner label="Connecting to the daemon" />
+      : reloading
+        ? <Spinner label="Reloading" />
+        : rows.length === 0 ? <p className="web-note web-explorer__empty">{archived ? 'No sessions.' : 'No sessions yet.'}</p> : null;
+
   return (
-    <>
-      {create}
-      <Tree<SessionSummary>
-        nodes={nodes}
-        title="Sessions"
-        selectedKey={active ?? null}
-        onSelect={(node) => {
-          if (node.data !== undefined) void scena.commands.execute('ahp.openSession', { resource: node.data.resource });
-        }}
-      />
-    </>
+    <ExplorerList
+      title="Sessions"
+      actions={[
+        { icon: '+', label: 'New session', run: () => void scena.commands.execute('ahp.newSession') },
+        { icon: '\u{21BB}', label: 'Reload', run: reload },
+        { icon: '\u{25A4}', label: archived ? 'Hide archived' : 'Show archived', run: () => setArchived(!archived), on: archived },
+      ]}
+      rows={rows}
+      selected={active ?? null}
+      onOpen={open}
+      notice={notice}
+      filterLabel="Filter sessions"
+    />
   );
 }

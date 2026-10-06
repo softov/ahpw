@@ -7,6 +7,8 @@ import { registerConnection } from './connection/index.js';
 import { registerSessions } from './sessions/index.js';
 import { registerAutomations } from './automations/index.js';
 import { registerHost } from './host/index.js';
+import { registerView } from './view/index.js';
+import { registerThemes } from './view/themes.js';
 import { THEME_ID_KEY, THEME_MODE_KEY } from './theme-keys.js';
 
 function AppTitle({ text }: { text?: string }): ReactElement {
@@ -15,6 +17,8 @@ function AppTitle({ text }: { text?: string }): ReactElement {
 
 /** Everything that exists while somebody is signed in. */
 export function registerShell(scena: Scena): Disposable {
+  // Before the controller, so a saved theme is one it knows.
+  registerThemes();
   return combineDisposables(
     registerThemeController(scena, { idKey: THEME_ID_KEY, modeKey: THEME_MODE_KEY }),
 
@@ -47,6 +51,7 @@ export function registerShell(scena: Scena): Disposable {
       key: 'chrome:title',
       resource: { component: 'AppTitle', slot: 'left', text: 'ahpd' },
     }),
+    registerView(scena),
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:theme-mode',

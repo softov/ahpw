@@ -1,8 +1,9 @@
+import { registerComposerCommands } from './composer-commands.js';
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
 import { PRESENTATION } from '../presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS } from '../connection/data.js';
+import { AHP_SESSIONS, titlePath } from '../connection/data.js';
 import { ACTIVE_SESSION } from './state.js';
 import SessionExplorer from './Explorer.js';
 import SessionPage from './Page.js';
@@ -29,6 +30,7 @@ export interface OpenSessionArgs {
 /** The sessions list and the session page. */
 export function registerSessions(scena: Scena): Disposable {
   return combineDisposables(
+    registerComposerCommands(scena),
     scena.components.register({
       component: 'SessionExplorer',
       category: 'page',
@@ -60,12 +62,11 @@ export function registerSessions(scena: Scena): Disposable {
         const resource = (args as OpenSessionArgs | undefined)?.resource;
         if (resource === undefined) return;
         ctx.store.set(ACTIVE_SESSION, resource);
-        const title = ctx.store.get<SessionSummary[]>(AHP_SESSIONS)?.find((one) => one.resource === resource)?.title;
         ctx.surfaces.open({
           surface: 'main',
           key: `session:${resource}`,
           resource: { component: 'SessionPage', resource },
-          props: { title: title === undefined || title === '' ? 'Untitled' : title },
+          props: { title: { path: titlePath(resource) } },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },

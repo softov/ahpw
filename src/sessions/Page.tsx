@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, Spinner, Text } from '@softov/scena/ui';
 import {
@@ -6,100 +6,138 @@ import {
   sessionReducer,
   type ActiveTurn,
   type ChatState,
-  type Message,
   type SessionState,
   type SessionSummary,
   type StateAction,
   type Turn,
 } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS, dispatch } from '../connection/data.js';
+import { AHP_SESSIONS, dispatch, request } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
-import { folderLabel, newId } from '../connection/words.js';
+import { elapsed, folderLabel } from '../connection/words.js';
 import { Part, type Send } from './Parts.js';
-import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf } from './status.js';
+import { Composer } from './Composer.js';
+import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
+import { factsOf, tokens, totalsOf, type TurnFacts } from './turn.js';
 
 /** How a turn ended, in words, when it did not end well. */
-const ENDED: Record<string, string> = { cancelled: 'Stopped.', error: 'The turn ended with an error.' };
+const ENDED: Record<string, string> = { cancelled: 'Stopped', error: 'Ended with an error' };
 
-const userMessage = (text: string): Message => ({ text, origin: { kind: 'user' } } as Message);
-
-function TurnView({ id, message, parts, ended, live, send }: {
-  id: string;
-  message: Message;
-  parts: Turn['responseParts'];
-  ended?: string | undefined;
-  live: boolean;
-  send: Send;
-}): ReactElement {
-  return (
-    <article className="web-turn">
-      <div className="web-turn__ask">{message.text}</div>
-      <div className="web-turn__answer">
-        {parts.map((part, index) => <Part key={index} part={part} send={send} live={live} turnId={id} />)}
-        {live && parts.length === 0 ? <Spinner label="Working" /> : null}
-        {ended === undefined ? null : <p className="web-note">{ENDED[ended] ?? ''}</p>}
-      </div>
-    </article>
-  );
+/** A date as a short local time, with the day when it is not today. */
+function when(at: number | string): string {
+  const date = new Date(at);
+  const today = new Date().toDateString() === date.toDateString();
+  return today
+    ? date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+    : date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-function Composer({ chat, send }: { chat: ChatState; send: Send }): ReactElement {
-  const [text, setText] = useState('');
-  const active: ActiveTurn | undefined = chat.activeTurn;
-  const queued = chat.queuedMessages ?? [];
+/** A clock that moves once a second while `on`. */
+function useNow(on: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!on) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [on]);
+  return now;
+}
 
-  const submit = (): void => {
-    const said = text.trim();
-    if (said === '') return;
-    if (active === undefined) {
-      send({ type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message: userMessage(said) } as StateAction);
-    } else {
-      // The host starts a queued message as its own turn once this one ends.
-      send({ type: 'chat/pendingMessageSet', kind: 'queued', id: newId(), message: userMessage(said) } as StateAction);
-    }
-    setText('');
-  };
-  const stop = (): void => {
-    if (active === undefined) return;
-    const started = Date.parse(active.startedAt);
-    send({ type: 'chat/turnCancelled', turnId: active.id, duration: Number.isNaN(started) ? 0 : Math.max(0, Date.now() - started) } as StateAction);
-  };
-  const onKey = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-      event.preventDefault();
-      submit();
-    }
-  };
-
+/** The line under a turn: when, how long, the tokens, the model and the tools it called. */
+function FactLine({ facts, state, live }: { facts: TurnFacts; state?: string; live: boolean }): ReactElement {
+  const now = useNow(live);
+  const took = live ? (facts.startedAt === undefined ? undefined : now - facts.startedAt) : facts.duration;
+  const bits: string[] = [];
+  if (facts.startedAt !== undefined) bits.push(when(facts.startedAt));
+  if (took !== undefined) bits.push(live ? `${elapsed(took)} so far` : elapsed(took));
+  if (facts.input !== undefined || facts.output !== undefined) bits.push(`\u{2191}${tokens(facts.input ?? 0)} \u{2193}${tokens(facts.output ?? 0)}`);
+  if (facts.cacheRead !== undefined && facts.cacheRead > 0) bits.push(`${tokens(facts.cacheRead)} cached`);
+  if (facts.model !== undefined) bits.push(facts.model);
+  if (facts.tools > 0) bits.push(facts.tools === 1 ? '1 tool call' : `${facts.tools} tool calls`);
   return (
-    <div className="web-composer">
-      {queued.length === 0 ? null : (
-        <ul className="web-composer__queue">
-          {queued.map((one) => (
-            <li key={one.id}>
-              <span>{one.message.text}</span>
-              <Button label="Remove" onClick={() => send({ type: 'chat/pendingMessageRemoved', kind: 'queued', id: one.id } as StateAction)} />
-            </li>
-          ))}
-        </ul>
-      )}
-      <textarea
-        className="web-composer__text"
-        rows={3}
-        value={text}
-        placeholder={active === undefined ? 'Message the agent' : 'Queue a message for after this turn'}
-        onChange={(event) => setText(event.target.value)}
-        onKeyDown={onKey}
-      />
-      <div className="web-composer__actions">
-        {active === undefined ? null : <Button label="Stop" onClick={stop} />}
-        <Button label={active === undefined ? 'Send' : 'Queue'} variant="primary" disabled={text.trim() === ''} onClick={submit} />
-      </div>
+    <div className="web-turn__facts">
+      {bits.join(' \u{00B7} ')}
+      {state === undefined || ENDED[state] === undefined ? null : <span className="web-turn__ended" data-state={state}>{ENDED[state]}</span>}
     </div>
   );
 }
 
-/** One session: its chat, and a composer to talk to it. */
+function TurnView({ turn, live, send }: { turn: Turn | ActiveTurn; live: boolean; send: Send }): ReactElement {
+  const state = 'state' in turn ? String(turn.state) : undefined;
+  const parts = turn.responseParts;
+  return (
+    <article className="web-turn">
+      <div className="web-turn__ask">{turn.message.text}</div>
+      <div className="web-turn__answer">
+        {parts.map((part, index) => <Part key={index} part={part} send={send} live={live} turnId={turn.id} />)}
+        {live && parts.length === 0 ? <Spinner label="Working" /> : null}
+      </div>
+      <FactLine facts={factsOf(turn)} {...(state === undefined ? {} : { state })} live={live} />
+    </article>
+  );
+}
+
+/** The facts the session header carries. */
+function SessionFacts({ summary, session, chat }: { summary: SessionSummary; session: SessionState | undefined; chat: ChatState | undefined }): ReactElement {
+  const totals = totalsOf(chat?.turns ?? []);
+  const folder = summary.workingDirectories?.[0];
+  const changes = summary.changes;
+  const origin = summary.origin;
+  const facts: [string, ReactElement | string][] = [
+    ['Agent', summary.provider],
+  ];
+  if (totals.models.length > 0) facts.push(['Model', totals.models.join(', ')]);
+  if (folder !== undefined) facts.push(['Folder', <code key="f">{folderLabel(folder)}</code>]);
+  if (summary.project !== undefined) facts.push(['Project', summary.project.displayName]);
+  facts.push(['Started', when(summary.createdAt)], ['Changed', when(summary.modifiedAt)]);
+  if (totals.turns > 0) {
+    facts.push(['Turns', `${totals.turns}${chat?.turnsNextCursor === undefined ? '' : '+'}`]);
+    facts.push(['Working', elapsed(totals.working)]);
+    facts.push(['Tokens', `\u{2191}${tokens(totals.input)} \u{2193}${tokens(totals.output)}`]);
+    if (totals.tools > 0) facts.push(['Tool calls', String(totals.tools)]);
+  }
+  if (changes !== undefined && (changes.additions !== undefined || changes.deletions !== undefined)) {
+    facts.push(['Changes', (
+      <span key="c">
+        <span className="web-diff--add">+{changes.additions ?? 0}</span>{' '}
+        <span className="web-diff--remove">-{changes.deletions ?? 0}</span>
+        {changes.files === undefined ? '' : ` in ${changes.files} files`}
+      </span>
+    )]);
+  }
+  if (origin !== undefined && String(origin.kind) === 'automation') facts.push(['From', 'An automation run']);
+  if ((session?.activeClients.length ?? 0) > 0) facts.push(['Watching', String(session?.activeClients.length)]);
+  return (
+    <dl className="web-chat__facts">
+      {facts.map(([name, value]) => (
+        <div key={name}>
+          <dt>{name}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** Asks the host for the page of turns before the oldest one shown. */
+function OlderTurns({ chatUri, cursor }: { chatUri: string; cursor: string }): ReactElement {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const load = (): void => {
+    setBusy(true);
+    setError(null);
+    request('fetchTurns', { channel: chatUri, cursor })
+      .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : String(caught)))
+      .finally(() => setBusy(false));
+  };
+  return (
+    <div className="web-chat__older">
+      <Button label={busy ? 'Loading' : 'Load older turns'} disabled={busy} onClick={load} />
+      {error === null ? null : <span className="web-note">{error}</span>}
+    </div>
+  );
+}
+
+/** One session: what it is, its chat, and a composer to talk to it. */
 export default function SessionPage({ resource }: { resource?: string }): ReactElement {
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const summary = sessions?.find((one) => one.resource === resource);
@@ -107,47 +145,63 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
   const chatUri = session.state?.defaultChat ?? summary?.defaultChat;
   const chat = useChannel<ChatState>(chatUri, chatReducer);
   const end = useRef<HTMLDivElement>(null);
+  // Following the newest turn, until a person scrolls up to read an older one.
+  const following = useRef(true);
   const send: Send = (action) => {
     if (chatUri !== undefined) dispatch(chatUri, action);
   };
 
   const turns = chat.state?.turns.length ?? 0;
-  const streamed = chat.state?.activeTurn?.responseParts.length ?? 0;
+  // Grows with every delta, so the view follows text as it streams, not only new parts.
+  const streamed = (chat.state?.activeTurn?.responseParts ?? []).reduce((total, part) => total + 1 + ('content' in part && typeof part.content === 'string' ? part.content.length : 0), 0);
   useEffect(() => {
-    end.current?.scrollIntoView({ block: 'end' });
+    if (following.current) end.current?.scrollIntoView({ block: 'end' });
   }, [turns, streamed]);
+
+  // Opening a session is reading it, as far as the unread dot is concerned.
+  const unread = summary !== undefined && !isRead(summary.status);
+  useEffect(() => {
+    if (unread && resource !== undefined) dispatch(resource, { type: 'session/isReadChanged', isRead: true } as StateAction);
+  }, [unread, resource, turns]);
 
   if (summary === undefined) return <Alert tone="warning" message="This session is gone." />;
   const activity = activityOf(summary.status);
-  const folder = summary.workingDirectories?.[0];
+  const lifecycle = String(session.state?.lifecycle ?? 'ready');
+  const doing = chat.state?.activity ?? summary.activity;
 
   return (
     <div className="web-chat">
       <header className="web-chat__head">
-        <Text variant="h2" text={summary.title === '' ? 'Untitled' : summary.title} />
-        <div className="web-page__route">
+        <div className="web-chat__title">
+          <Text variant="h2" text={summary.title === '' ? 'Untitled' : summary.title} />
           <Badge tone={ACTIVITY_TONE[activity]} text={ACTIVITY_LABEL[activity]} />
-          <span className="web-method">{summary.provider}</span>
-          {folder === undefined ? null : <code>{folderLabel(folder)}</code>}
+          {doing === undefined || doing === '' ? null : <span className="web-note">{doing}</span>}
         </div>
+        <SessionFacts summary={summary} session={session.state} chat={chat.state} />
       </header>
 
-      <div className="web-chat__turns">
+      <div
+        className="web-chat__turns"
+        onScroll={(event) => {
+          const box = event.currentTarget;
+          following.current = box.scrollHeight - box.scrollTop - box.clientHeight < 48;
+        }}
+      >
+        {lifecycle === 'creating' ? <Spinner label="Starting the session" /> : null}
+        {lifecycle === 'failed' ? <Alert tone="danger" title="The session did not start" message={session.state?.creationError?.message ?? 'No reason given.'} /> : null}
         {session.error === null ? null : <Alert tone="danger" title="Session not readable" message={session.error} />}
         {chat.error === null ? null : <Alert tone="danger" title="Chat not readable" message={chat.error} />}
         {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label="Reading the chat" /> : null}
-        {chat.state?.turnsNextCursor === undefined ? null : <p className="web-note">Older turns are not shown.</p>}
-        {chat.state?.turns.map((turn) => (
-          <TurnView key={turn.id} id={turn.id} message={turn.message} parts={turn.responseParts} ended={String(turn.state) === 'complete' ? undefined : String(turn.state)} live={false} send={send} />
-        ))}
-        {chat.state?.activeTurn === undefined ? null : (
-          <TurnView id={chat.state.activeTurn.id} message={chat.state.activeTurn.message} parts={chat.state.activeTurn.responseParts} live send={send} />
-        )}
+        {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
+        {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
+        {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} />}
         {chat.state !== undefined && turns === 0 && chat.state.activeTurn === undefined ? <p className="web-note">No messages yet.</p> : null}
         <div ref={end} />
       </div>
 
-      {chat.state === undefined ? null : <Composer chat={chat.state} send={send} />}
+      {chat.state === undefined || chatUri === undefined ? null : (
+        <Composer chat={chat.state} chatUri={chatUri} session={session.state} summary={summary} send={send} />
+      )}
     </div>
   );
 }

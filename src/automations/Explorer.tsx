@@ -1,39 +1,78 @@
 import { useMemo, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Badge, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
-import { automationReducer, type AutomationEntry, type AutomationState } from '@microsoft/agent-host-protocol';
-import { AUTOMATIONS } from '../connection/data.js';
+import { Alert, Spinner } from '@softov/scena/ui';
+import { automationReducer, type AutomationCapabilities, type AutomationState as Catalogue } from '@microsoft/agent-host-protocol';
+import { AHP_AUTOMATION_CAPS, AUTOMATIONS, refresh } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
+import { ExplorerList, type Dot, type Row } from '../explorer/ExplorerList.js';
+import { menuOf } from './actions.js';
 import { ACTIVE_AUTOMATION } from './state.js';
-import { titleOf } from './words.js';
+import { runFacts, runsByTime, stateOf, titleOf, whenLine, type AutomationState } from './words.js';
 
-/** The sidebar: the daemon's automations, by title. */
+const DOT: Record<AutomationState, Dot> = { running: 'working', failed: 'failed', on: 'ok', off: 'off' };
+const WORD: Record<AutomationState, string> = { running: 'Running', failed: 'Last run failed', on: 'On', off: 'Off' };
+const RUN_WORD: Record<string, string> = { pending: 'waiting', running: 'running', completed: 'done', failed: 'failed', cancelled: 'stopped' };
+
+const short = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+const at = (iso: string | undefined): string => {
+  if (iso === undefined) return '';
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? '' : short.format(date);
+};
+
+/** The sidebar: the daemon's automations, by title, with when they run and how the last run went. */
 export default function AutomationExplorer(): ReactElement {
   const scena = useScena();
-  const { state, error } = useChannel<AutomationState>(AUTOMATIONS, automationReducer);
+  const { state, error } = useChannel<Catalogue>(AUTOMATIONS, automationReducer);
+  const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
   const active = useStore<string>(ACTIVE_AUTOMATION);
-  const nodes = useMemo<TreeNode<AutomationEntry>[]>(
+  const open = (resource: string): void => void scena.commands.execute('ahp.openAutomation', { resource });
+  const edit = (resource: string): void => void scena.commands.execute('ahp.editAutomation', { resource });
+
+  const rows = useMemo<Row[]>(
     () => [...(state?.entries ?? [])]
       .sort((a, b) => titleOf(a).localeCompare(titleOf(b)))
-      .map((entry) => ({
-        key: entry.resource,
-        label: titleOf(entry),
-        trailing: entry.definition.enabled ? undefined : <Badge tone="default" text="Off" />,
-        data: entry,
-      })),
+      .map((entry) => {
+        const now = stateOf(entry);
+        const last = runsByTime(entry)[0];
+        const facts = last === undefined ? undefined : runFacts(last);
+        const agent = entry.definition.session.provider;
+        const runs = entry.runCount ?? entry.runs.length;
+        return {
+          key: entry.resource,
+          dot: DOT[now],
+          dotLabel: WORD[now],
+          title: titleOf(entry),
+          ...(entry.nextRunAt === undefined || !entry.definition.enabled ? {} : { time: at(entry.nextRunAt) }),
+          lines: [
+            [whenLine(entry), agent].filter((bit) => bit !== undefined).join(' \u{00B7} '),
+            facts === undefined ? 'Never run' : `${runs} ${runs === 1 ? 'run' : 'runs'} \u{00B7} last ${RUN_WORD[facts.status] ?? facts.status} ${at(facts.at)}`,
+          ],
+          menu: menuOf(entry, () => open(entry.resource), () => edit(entry.resource)),
+        };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [state],
   );
-  if (error !== null) return <Alert tone="danger" title="No automations" message={error} />;
-  if (state === undefined) return <Spinner label="Reading the automations" />;
-  if (nodes.length === 0) return <Alert tone="info" message="No automations yet." />;
+
+  const notice = error !== null
+    ? <Alert tone="danger" title="No automations" message={error} />
+    : state === undefined
+      ? <Spinner label="Reading the automations" />
+      : rows.length === 0 ? <p className="web-note web-explorer__empty">No automations yet.</p> : null;
+
   return (
-    <Tree<AutomationEntry>
-      nodes={nodes}
+    <ExplorerList
       title="Automations"
-      selectedKey={active ?? null}
-      onSelect={(node) => {
-        if (node.data !== undefined) void scena.commands.execute('ahp.openAutomation', { resource: node.data.resource });
-      }}
+      actions={[
+        ...(caps?.create === undefined ? [] : [{ icon: '+', label: 'New automation', run: () => void scena.commands.execute('ahp.newAutomation') }]),
+        { icon: '\u{21BB}', label: 'Reload', run: () => void refresh(AUTOMATIONS) },
+      ]}
+      rows={rows}
+      selected={active ?? null}
+      onOpen={open}
+      notice={notice}
+      filterLabel="Filter automations"
     />
   );
 }

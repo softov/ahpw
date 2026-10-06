@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import { Alert, Badge, Button, Markdown } from '@softov/scena/ui';
+import { Alert, Button, Markdown } from '@softov/scena/ui';
 import type {
   ChatInputAnswer,
   ChatInputQuestion,
@@ -8,7 +8,8 @@ import type {
   StateAction,
   ToolCallState,
 } from '@microsoft/agent-host-protocol';
-import { textOf } from '../connection/words.js';
+import { elapsed, textOf } from '../connection/words.js';
+import { durationOf, inputText, lineOf, outcomeOf, outputOf, type Outcome, type Output } from './tool.js';
 
 /** Sends one action on the chat this transcript shows. */
 export type Send = (action: StateAction) => void;
@@ -17,48 +18,97 @@ export type Send = (action: StateAction) => void;
 const PENDING_CONFIRMATION = 'pending-confirmation';
 const PENDING_RESULT_CONFIRMATION = 'pending-result-confirmation';
 
-const TOOL_LABEL: Record<string, string> = {
-  streaming: 'Preparing',
-  'pending-confirmation': 'Needs approval',
-  running: 'Running',
-  'auth-required': 'Needs sign-in',
-  'pending-result-confirmation': 'Review result',
-  completed: 'Done',
-  cancelled: 'Cancelled',
+/** The mark a call carries collapsed, and the word behind it. */
+const MARK: Record<Outcome, { glyph: string; label: string }> = {
+  preparing: { glyph: '\u{25CC}', label: 'Preparing' },
+  approval: { glyph: '\u{25D0}', label: 'Needs approval' },
+  running: { glyph: '\u{25CF}', label: 'Running' },
+  'sign-in': { glyph: '\u{25D0}', label: 'Needs sign-in' },
+  review: { glyph: '\u{25D0}', label: 'Review result' },
+  done: { glyph: '\u{2713}', label: 'Done' },
+  failed: { glyph: '\u{2715}', label: 'Failed' },
+  cancelled: { glyph: '\u{2715}', label: 'Cancelled' },
 };
 
-const TOOL_TONE: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'info'> = {
-  streaming: 'info',
-  'pending-confirmation': 'warning',
-  running: 'info',
-  'auth-required': 'warning',
-  'pending-result-confirmation': 'warning',
-  completed: 'success',
-  cancelled: 'default',
-};
+/** Text a person may want elsewhere, with a button that copies it. */
+function Block({ title, text }: { title: string; text: string }): ReactElement {
+  const [copied, setCopied] = useState(false);
+  const copy = (): void => {
+    void navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    }).catch(() => undefined);
+  };
+  return (
+    <section className="web-tool__block">
+      <div className="web-tool__block-head">
+        <span>{title}</span>
+        <button type="button" className="web-tool__copy" onClick={copy}>{copied ? 'Copied' : 'Copy'}</button>
+      </div>
+      <pre className="web-tool__pre">{text}</pre>
+    </section>
+  );
+}
 
-/** What a tool call says it does or did. */
-function toolLine(call: ToolCallState): string {
-  if (call.status === 'completed') return textOf(call.pastTenseMessage) || textOf(call.invocationMessage);
-  if (call.status === 'streaming') return call.displayName;
-  return textOf(call.invocationMessage) || call.displayName;
+function OutputView({ out }: { out: Output }): ReactElement {
+  switch (out.kind) {
+    case 'text':
+      return <Block title="Output" text={out.text} />;
+    case 'terminal':
+      return (
+        <Block
+          title={`${out.title}${out.exitCode === undefined ? '' : ` \u{00B7} exit ${out.exitCode}`}${out.truncated ? ' \u{00B7} cut short' : ''}`}
+          text={out.text === '' ? 'No output.' : out.text}
+        />
+      );
+    case 'file':
+      return (
+        <p className="web-tool__file">
+          <code>{out.path}</code>
+          {out.added === undefined ? null : <span className="web-diff--add">+{out.added}</span>}
+          {out.removed === undefined ? null : <span className="web-diff--remove">-{out.removed}</span>}
+        </p>
+      );
+    case 'note':
+      return <p className="web-note">{out.text}</p>;
+  }
 }
 
 function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Send; live: boolean; turnId: string }): ReactElement {
-  const failed = call.status === 'completed' && !call.success;
-  const status = String(call.status);
+  const outcome = outcomeOf(call);
+  const waiting = live && (outcome === 'approval' || outcome === 'review' || outcome === 'sign-in');
+  const [open, setOpen] = useState(false);
+  const shown = open || waiting;
+  const duration = durationOf(call);
+  const input = inputText(call);
+  const output = outputOf(call);
+  const name = call.displayName || call.toolName;
+  const risk = call.status === PENDING_CONFIRMATION ? call.riskAssessment : undefined;
   return (
-    <div className="web-tool">
-      <div className="web-tool__head">
-        <span className="web-tool__name">{call.displayName}</span>
-        <Badge tone={failed ? 'danger' : TOOL_TONE[status] ?? 'default'} text={failed ? 'Failed' : TOOL_LABEL[status] ?? status} />
-      </div>
-      <Markdown text={toolLine(call)} />
-      {live && status === PENDING_CONFIRMATION ? <Confirm call={call} send={send} turnId={turnId} /> : null}
-      {live && status === PENDING_RESULT_CONFIRMATION ? (
-        <div className="web-tool__actions">
-          <Button label="Accept result" variant="primary" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: true } as StateAction)} />
-          <Button label="Reject" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: false } as StateAction)} />
+    <div className="web-tool" data-outcome={outcome}>
+      <button type="button" className="web-tool__row" aria-expanded={shown} onClick={() => setOpen(!open)}>
+        <span className="web-tool__mark" title={MARK[outcome].label} aria-label={MARK[outcome].label}>{MARK[outcome].glyph}</span>
+        <span className="web-tool__line">{lineOf(call)}</span>
+        {duration === undefined ? null : <span className="web-tool__time">{elapsed(duration)}</span>}
+        <span className="web-tool__chevron" aria-hidden="true">{shown ? '\u{25BE}' : '\u{25B8}'}</span>
+      </button>
+      {shown ? (
+        <div className="web-tool__body">
+          <dl className="web-tool__facts">
+            <dt>Tool</dt><dd><code>{call.toolName}</code>{name === call.toolName ? null : ` (${name})`}</dd>
+            <dt>Status</dt><dd>{MARK[outcome].label}</dd>
+            {call.intention === undefined ? null : <><dt>Why</dt><dd>{call.intention}</dd></>}
+            {risk === undefined || risk.status !== 'complete' ? null : <><dt>Risk</dt><dd>{`${risk.safety}/10 safe \u{00B7} ${risk.reason}`}</dd></>}
+          </dl>
+          {input === '' ? null : <Block title="Arguments" text={input} />}
+          {output.map((one, index) => <OutputView key={index} out={one} />)}
+          {live && call.status === PENDING_CONFIRMATION ? <Confirm call={call} send={send} turnId={turnId} /> : null}
+          {live && call.status === PENDING_RESULT_CONFIRMATION ? (
+            <div className="web-tool__actions">
+              <Button label="Accept result" variant="primary" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: true } as StateAction)} />
+              <Button label="Reject" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: false } as StateAction)} />
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

@@ -16,6 +16,10 @@ export const AHP_DEFAULT_DIRECTORY = '$/ahp/defaultDirectory' as BindingPath;
 
 /** Where a followed channel's state is kept. */
 export const channelPath = (uri: string): BindingPath => `$/ahp/channels/${encodeURIComponent(uri)}` as BindingPath;
+/** What the host lets clients do with automations, as `initialize` said, or null. */
+export const AHP_AUTOMATION_CAPS = '$/ahp/automationCaps' as BindingPath;
+/** A session's title as a tab shows it, kept current as the host renames it. */
+export const titlePath = (resource: string): BindingPath => `$/ahp/titles/${encodeURIComponent(resource)}` as BindingPath;
 /** Why a followed channel could not be read, or null. */
 export const channelErrorPath = (uri: string): BindingPath => `$/ahp/channelErrors/${encodeURIComponent(uri)}` as BindingPath;
 
@@ -27,11 +31,12 @@ export const AUTOMATIONS = 'ahp-automations://';
 /** The one host this page talks to: the daemon that served it. */
 const HOST = 'daemon';
 
-/** The connection's state, the reason it last failed, and how many times it has connected. */
+/** The connection's state, the reason it last failed, how many times it has connected, and the retry it is on. */
 export interface Connection {
   status: HostState['status'];
   error: string | null;
   generation: number;
+  attempt?: number;
 }
 
 /** Folds one action into a channel's state. */
@@ -63,7 +68,11 @@ async function snapshot(uri: string): Promise<void> {
   try {
     const result = await multi.subscribe(HOST, uri);
     if (!followed.has(uri)) return;
-    if (result.snapshot !== undefined) store.set(channelPath(uri), result.snapshot.state);
+    if (result.snapshot !== undefined) {
+      // A snapshot is newer than anything folded before it.
+      pending.delete(channelPath(uri));
+      store.set(channelPath(uri), result.snapshot.state);
+    }
     store.set(channelErrorPath(uri), null);
   } catch (error) {
     store.set(channelErrorPath(uri), reasonOf(error));
@@ -95,6 +104,20 @@ export function follow(uri: string, reducer: Reducer): () => void {
   };
 }
 
+/** Read a followed channel again from the host. */
+export async function refresh(uri: string): Promise<void> {
+  if (followed.has(uri)) await snapshot(uri);
+}
+
+/** Ask the host for its sessions again, rather than wait for it to say they changed. */
+export async function reloadSessions(): Promise<void> {
+  const store = held;
+  if (store === undefined) return;
+  const result = await request('listSessions', { channel: ROOT } as never) as { items: SessionSummary[] };
+  store.set(AHP_SESSIONS, sessionsByChange(result.items));
+  for (const summary of result.items) store.set(titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
+}
+
 /** Send one action on a channel. */
 export function dispatch(channel: string, action: StateAction): void {
   client?.dispatch(HOST, channel, action);
@@ -107,18 +130,32 @@ export async function request<M extends keyof CommandMap>(method: M, params: Com
   return raw.request(method, params);
 }
 
+/** Write a value only when it differs, so an unchanged title wakes no tab. */
+function setIfChanged(store: ReactiveStore, path: BindingPath, value: unknown): void {
+  if (store.get(path) !== value) store.set(path, value);
+}
+
 function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
-  store.set(AHP_SESSIONS, sessionsByChange(multi.aggregatedSessions().map((one) => one.summary)));
+  const summaries = sessionsByChange(multi.aggregatedSessions().map((one) => one.summary));
+  store.set(AHP_SESSIONS, summaries);
+  for (const summary of summaries) setIfChanged(store, titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
   const host = multi.host(HOST);
   store.set(AHP_AGENTS, (host?.agents ?? []) as AgentInfo[]);
   store.set(AHP_DEFAULT_DIRECTORY, host?.defaultDirectory ?? null);
+  store.set(AHP_AUTOMATION_CAPS, host?.automations ?? null);
 }
 
 async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<void> {
   let generation = 0;
   for await (const event of multi.hostEvents()) {
     if (event.type === 'stateChanged') {
-      store.set(AHP_CONNECTION, { status: event.state.status, error: event.lastError?.message ?? null, generation } satisfies Connection);
+      const state = event.state;
+      store.set(AHP_CONNECTION, {
+        status: state.status,
+        error: state.status === 'failed' ? state.error.message : event.lastError?.message ?? null,
+        generation,
+        ...(state.status === 'reconnecting' ? { attempt: state.attempt } : {}),
+      } satisfies Connection);
     }
     if (event.type === 'connected') {
       generation = event.generation;
@@ -130,27 +167,94 @@ async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<
   }
 }
 
+/**
+ * Channel states folded but not yet written, and whether the host's lists are due.
+ *
+ * A streaming turn sends dozens of frames a second. Each is folded here as it
+ * arrives, and the store is written once per frame, so the page renders at the
+ * screen's rate rather than the socket's.
+ */
+const pending = new Map<string, unknown>();
+let hostDue = false;
+let flushing: number | undefined;
+
+function flush(store: ReactiveStore, multi: MultiHostClient): void {
+  flushing = undefined;
+  if (held !== store) return;
+  for (const [path, state] of pending) store.set(path as BindingPath, state);
+  pending.clear();
+  if (hostDue) {
+    hostDue = false;
+    publishHost(store, multi);
+  }
+}
+
+/** Write what is pending on the next frame; a hidden page, which gets no frames, on a timer. */
+function schedule(store: ReactiveStore, multi: MultiHostClient): void {
+  if (flushing !== undefined) return;
+  flushing = document.hidden
+    ? window.setTimeout(() => flush(store, multi), 100)
+    : window.requestAnimationFrame(() => flush(store, multi));
+}
+
 async function watchChannels(store: ReactiveStore, multi: MultiHostClient): Promise<void> {
   for await (const tagged of multi.events()) {
     const event = tagged.event;
     if (event.type === 'sessionAdded' || event.type === 'sessionRemoved' || event.type === 'sessionSummaryChanged') {
-      publishHost(store, multi);
+      hostDue = true;
+      schedule(store, multi);
       continue;
     }
     if (event.type !== 'action') continue;
     const { channel, action } = event.params;
-    if (channel === ROOT && action.type === 'root/agentsChanged') publishHost(store, multi);
+    if (channel === ROOT && action.type === 'root/agentsChanged') {
+      hostDue = true;
+      schedule(store, multi);
+    }
     const entry = followed.get(channel);
     if (entry === undefined) continue;
     const path = channelPath(channel);
-    const state = store.get(path);
+    const state = pending.has(path) ? pending.get(path) : store.get(path);
     if (state === undefined) continue;
     try {
-      store.set(path, entry.reducer(state as never, action as never));
+      pending.set(path, entry.reducer(state as never, action as never));
+      schedule(store, multi);
     } catch {
       // A reducer that refuses one action leaves the state as it was.
     }
   }
+}
+
+async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<void> {
+  try {
+    await multi.addHost({
+      id: HOST,
+      label: 'ahpd',
+      transportFactory: () => WebSocketTransport.connect(socketUrl(readToken(), window.location, import.meta.env.DEV)),
+    });
+  } catch (error) {
+    store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);
+  }
+}
+
+/** Try the daemon again now, rather than when the backoff says. */
+export async function reconnect(): Promise<void> {
+  const multi = client;
+  const store = held;
+  if (multi === undefined || store === undefined) return;
+  if (multi.host(HOST) === undefined) {
+    await connect(store, multi);
+    return;
+  }
+  store.set(AHP_CONNECTION, { ...(store.get(AHP_CONNECTION) as Connection), status: 'connecting' } satisfies Connection);
+  await multi.reconnectHost(HOST).catch(() => undefined);
+}
+
+/** A page coming back into view, or the network coming back, retries at once. */
+function wake(): void {
+  if (document.visibilityState !== 'visible') return;
+  const status = client?.host(HOST)?.state.status;
+  if (status === undefined || status === 'reconnecting' || status === 'failed' || status === 'disconnected') void reconnect();
 }
 
 export const ahpProvider: DataProviderDefinition = {
@@ -164,21 +268,19 @@ export const ahpProvider: DataProviderDefinition = {
       store.set(AHP_CONNECTION, { status: 'connecting', error: null, generation: 0 } satisfies Connection);
       void watchHost(store, multi);
       void watchChannels(store, multi);
-      try {
-        await multi.addHost({
-          id: HOST,
-          label: 'ahpd',
-          transportFactory: () => WebSocketTransport.connect(socketUrl(readToken(), window.location, import.meta.env.DEV)),
-        });
-      } catch (error) {
-        store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);
-      }
+      window.addEventListener('online', wake);
+      document.addEventListener('visibilitychange', wake);
+      await connect(store, multi);
     },
     async unload(store) {
+      window.removeEventListener('online', wake);
+      document.removeEventListener('visibilitychange', wake);
       const multi = client;
       client = undefined;
       held = undefined;
       followed.clear();
+      pending.clear();
+      hostDue = false;
       store.clearNamespace('ahp');
       await multi?.shutdown();
     },

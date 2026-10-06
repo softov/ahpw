@@ -3,6 +3,7 @@ import { combineDisposables, type ModusClass } from '@softov/scena';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import AutomationExplorer from './Explorer.js';
 import AutomationPage from './Page.js';
+import AutomationEditPage from './Edit.js';
 import { ACTIVE_AUTOMATION } from './state.js';
 import { titleOf } from './words.js';
 import { AUTOMATIONS, channelPath } from '../connection/data.js';
@@ -26,6 +27,35 @@ export function registerAutomations(scena: Scena): Disposable {
       component: 'AutomationPage',
       category: 'page',
       renderer: { kind: 'react', load: async () => ({ default: AutomationPage as unknown }) },
+    }),
+    scena.components.register({
+      component: 'AutomationEditPage',
+      category: 'page',
+      renderer: { kind: 'react', load: async () => ({ default: AutomationEditPage as unknown }) },
+    }),
+    scena.commands.register({
+      id: 'ahp.newAutomation',
+      title: 'New automation',
+      run: (ctx) => {
+        ctx.surfaces.open({ surface: 'main', key: 'automation:new', resource: { component: 'AutomationEditPage' }, props: { title: 'New automation' } });
+        hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+      },
+    }),
+    scena.commands.register({
+      id: 'ahp.editAutomation',
+      title: 'Edit automation',
+      run: (ctx, args) => {
+        const resource = (args as { resource?: string } | undefined)?.resource;
+        if (resource === undefined) return;
+        const entry = ctx.store.get<AutomationState>(channelPath(AUTOMATIONS))?.entries.find((one) => one.resource === resource);
+        ctx.surfaces.open({
+          surface: 'main',
+          key: `automation:edit:${resource}`,
+          resource: { component: 'AutomationEditPage', resource },
+          props: { title: `Edit ${entry === undefined ? 'automation' : titleOf(entry)}` },
+        });
+        hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+      },
     }),
     scena.commands.register({
       id: 'ahp.openAutomation',

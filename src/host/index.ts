@@ -18,13 +18,13 @@ export function registerHost(scena: Scena): Disposable {
       id: 'ahp.openSettings',
       title: 'Host settings',
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'host:settings', resource: { component: 'HostSettingsPage' }, props: { title: 'Settings' } });
+        ctx.surfaces.open({ surface: 'main', key: 'host:settings:page', resource: { component: 'HostSettingsPage' }, props: { title: 'Settings' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
-      key: 'host:settings',
+      key: 'host:settings:nav',
       resource: { component: 'ActivityBarItem', icon: '\u{2699}\u{FE0F}', label: 'Settings', pos: 'bottom', command: 'ahp.openSettings' },
     }),
   );

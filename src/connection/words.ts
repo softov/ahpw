@@ -35,3 +35,16 @@ export function textOf(value: string | { markdown: string } | undefined): string
   if (value === undefined) return '';
   return typeof value === 'string' ? value : value.markdown;
 }
+
+/** A length of time as `13s`, `5m13s`, `2h5m` or `3d2h`. */
+export function elapsed(ms: number): string {
+  const seconds = Math.max(0, Math.floor(ms / 1000));
+  const s = seconds % 60;
+  const m = Math.floor(seconds / 60) % 60;
+  const h = Math.floor(seconds / 3600) % 24;
+  const d = Math.floor(seconds / 86400);
+  if (d > 0) return `${d}d${h}h`;
+  if (h > 0) return `${h}h${m}m`;
+  if (m > 0) return `${m}m${s}s`;
+  return `${s}s`;
+}

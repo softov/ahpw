@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { folderLabel, folderUri, newId, textOf } from './words.js';
+import { elapsed, folderLabel, folderUri, newId, textOf } from './words.js';
 
 describe('newId', () => {
   it('is a version 4 UUID', () => {
@@ -37,5 +37,19 @@ describe('textOf', () => {
     expect(textOf('plain')).toBe('plain');
     expect(textOf({ markdown: '**bold**' })).toBe('**bold**');
     expect(textOf(undefined)).toBe('');
+  });
+});
+
+describe('elapsed', () => {
+  it('keeps the two largest units', () => {
+    expect(elapsed(13_000)).toBe('13s');
+    expect(elapsed(313_000)).toBe('5m13s');
+    expect(elapsed(7_500_000)).toBe('2h5m');
+    expect(elapsed(266_400_000)).toBe('3d2h');
+  });
+
+  it('reads a negative or partial second as whole seconds from zero', () => {
+    expect(elapsed(-5)).toBe('0s');
+    expect(elapsed(999)).toBe('0s');
   });
 });
