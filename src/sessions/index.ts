@@ -67,8 +67,11 @@ export function registerSessions(scena: Scena): Disposable {
       title: 'New session',
       category: 'Sessions',
       slots: [PALETTE_SLOT],
-      run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage' }, props: { title: 'New session' } });
+      run: (ctx, args) => {
+        // A page already open keeps its own choices, so one asked for an agent starts afresh.
+        const provider = (args as { provider?: string } | undefined)?.provider;
+        if (provider !== undefined) ctx.scena.surfaces.close('session:new');
+        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),

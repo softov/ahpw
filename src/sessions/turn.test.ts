@@ -33,6 +33,8 @@ describe('tokens', () => {
     expect(tokens(1234)).toBe('1.2k');
     expect(tokens(45_600)).toBe('46k');
     expect(tokens(1_250_000)).toBe('1.3M');
+    expect(tokens(8000)).toBe('8k');
+    expect(tokens(2_000_000)).toBe('2M');
   });
 });
 

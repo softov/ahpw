@@ -5,6 +5,7 @@ import { registerThemeController } from '@softov/scena/styles';
 import { registerCommands } from './commands/index.js';
 import { registerConnection } from './connection/index.js';
 import { registerSessions } from './sessions/index.js';
+import { registerAgents } from './agents/index.js';
 import { registerAutomations } from './automations/index.js';
 import { registerHost } from './host/index.js';
 import { registerView } from './view/index.js';
@@ -134,6 +135,7 @@ export function registerShell(scena: Scena): Disposable {
 
     registerConnection(scena),
     registerSessions(scena),
+    registerAgents(scena),
     registerChanges(scena),
     registerAutomations(scena),
     registerHost(scena),

@@ -790,10 +790,10 @@
 }
 
 @media (max-width: 600px) {
-  .web-runs th:nth-child(2),
-  .web-runs td:nth-child(2),
-  .web-runs th:nth-child(5),
-  .web-runs td:nth-child(5) {
+  .web-runs:not(.web-table) th:nth-child(2),
+  .web-runs:not(.web-table) td:nth-child(2),
+  .web-runs:not(.web-table) th:nth-child(5),
+  .web-runs:not(.web-table) td:nth-child(5) {
     display: none;
   }
 }

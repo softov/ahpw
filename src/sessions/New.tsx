@@ -43,11 +43,11 @@ function SettingPill({ name, schema, value, choices, set }: {
 }
 
 /** A new session, started the way a chat is: say something, with the agent, model, folder and settings above the box. */
-export default function NewSessionPage(): ReactElement {
+export default function NewSessionPage({ provider: offered }: { provider?: string }): ReactElement {
   const scena = useScena();
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const home = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
-  const [provider, setProvider] = useState('');
+  const [provider, setProvider] = useState(offered ?? '');
   const [folder, setFolder] = useState('');
   const [model, setModel] = useState('');
   const [text, setText] = useState('');

@@ -1,7 +1,7 @@
 import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov/scena/types';
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
-import type { AgentInfo, CommandMap, SessionSummary, StateAction } from '@microsoft/agent-host-protocol';
+import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
 import { readToken } from '../api.js';
 import { socketUrl } from './socket.js';
 
@@ -18,6 +18,20 @@ export const AHP_DEFAULT_DIRECTORY = '$/ahp/defaultDirectory' as BindingPath;
 export const channelPath = (uri: string): BindingPath => `$/ahp/channels/${encodeURIComponent(uri)}` as BindingPath;
 /** What the host lets clients do with automations, as `initialize` said, or null. */
 export const AHP_AUTOMATION_CAPS = '$/ahp/automationCaps' as BindingPath;
+/** What the connection to the daemon says about it, as `HostFacts`. */
+export const AHP_HOST = '$/ahp/host' as BindingPath;
+
+/** The connection's facts: the handshake's answers and what the host counts now. */
+export interface HostFacts {
+  label: string;
+  clientId: string;
+  protocolVersion: string | null;
+  serverSeq: number;
+  connectedAt: number | null;
+  activeSessions: number | null;
+  terminals: readonly TerminalInfo[];
+  subscriptions: number;
+}
 /** A session's title as a tab shows it, kept current as the host renames it. */
 export const titlePath = (resource: string): BindingPath => `$/ahp/titles/${encodeURIComponent(resource)}` as BindingPath;
 /** Why a followed channel could not be read, or null. */
@@ -177,6 +191,16 @@ function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   store.set(AHP_AGENTS, (host?.agents ?? []) as AgentInfo[]);
   store.set(AHP_DEFAULT_DIRECTORY, host?.defaultDirectory ?? null);
   store.set(AHP_AUTOMATION_CAPS, host?.automations ?? null);
+  store.set(AHP_HOST, host === undefined ? null : {
+    label: host.label,
+    clientId: host.clientId,
+    protocolVersion: host.protocolVersion,
+    serverSeq: host.serverSeq,
+    connectedAt: host.lastConnectedAt,
+    activeSessions: host.activeSessions,
+    terminals: host.terminals ?? [],
+    subscriptions: host.subscriptions.length,
+  } satisfies HostFacts);
 }
 
 async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<void> {

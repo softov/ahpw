@@ -32,8 +32,8 @@ export function factsOf(turn: Turn | ActiveTurn): TurnFacts {
 /** A token count as `950`, `12.3k` or `1.2M`. */
 export function tokens(count: number): string {
   if (count < 1000) return String(count);
-  if (count < 1_000_000) return `${(count / 1000).toFixed(count < 10_000 ? 1 : 0)}k`;
-  return `${(count / 1_000_000).toFixed(1)}M`;
+  if (count < 1_000_000) return `${(count / 1000).toFixed(count < 10_000 ? 1 : 0).replace(/\.0$/, '')}k`;
+  return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
 }
 
 /** What every loaded turn adds up to. */
