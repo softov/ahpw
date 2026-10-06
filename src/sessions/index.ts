@@ -3,7 +3,7 @@ import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
 import { PRESENTATION } from '../presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS, titlePath } from '../connection/data.js';
+import { AHP_SESSIONS, AHP_SESSIONS_OPEN, AHP_SESSIONS_WORKING, titlePath } from '../connection/data.js';
 import { ACTIVE_SESSION } from './state.js';
 import SessionExplorer from './Explorer.js';
 import SessionPage from './Page.js';
@@ -102,7 +102,18 @@ export function registerSessions(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'sessions:nav',
-      resource: { component: 'ActivityBarItem', icon: '\u{1F4AC}', label: 'Sessions', section: SESSIONS_SECTION },
+      resource: {
+        component: 'ActivityBarItem',
+        icon: '\u{1F4AC}',
+        label: 'Sessions',
+        section: SESSIONS_SECTION,
+        badge: { path: AHP_SESSIONS_OPEN },
+        badgeTone: 'muted',
+        badgeLabel: 'open',
+        secondBadge: { path: AHP_SESSIONS_WORKING },
+        secondBadgeTone: 'info',
+        secondBadgeLabel: 'working',
+      },
     }),
     scena.surfaces.mount({
       surface: 'sidebar:left',

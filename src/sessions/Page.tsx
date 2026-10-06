@@ -5,6 +5,7 @@ import {
   chatReducer,
   sessionReducer,
   type ActiveTurn,
+  type ChatInputRequest,
   type ChatState,
   type SessionState,
   type SessionSummary,
@@ -15,6 +16,7 @@ import { AHP_SESSIONS, dispatch, request } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
 import { elapsed } from '../connection/words.js';
 import { Part, type Send } from './Parts.js';
+import { InputRequest } from './Question.js';
 import { Composer } from './Composer.js';
 import { WorkspaceContext } from './workspace.js';
 import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
@@ -53,8 +55,16 @@ function FactLine({ facts, state, live }: { facts: TurnFacts; state?: string; li
   );
 }
 
+const NONE: readonly ChatInputRequest[] = [];
+
 /** A finished turn renders once: the reducer keeps its object while later turns stream. */
-const TurnView = memo(function TurnView({ turn, live, send }: { turn: Turn | ActiveTurn; live: boolean; send: Send }): ReactElement {
+const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
+  turn: Turn | ActiveTurn;
+  live: boolean;
+  send: Send;
+  /** Questions the session waits on that no part of this turn holds: what a page opened mid-question reads. */
+  open?: readonly ChatInputRequest[];
+}): ReactElement {
   const state = 'state' in turn ? String(turn.state) : undefined;
   const parts = turn.responseParts;
   return (
@@ -62,6 +72,7 @@ const TurnView = memo(function TurnView({ turn, live, send }: { turn: Turn | Act
       <div className="web-turn__ask">{turn.message.text}</div>
       <div className="web-turn__answer">
         {parts.map((part, index) => <Part key={index} part={part} send={send} live={live} turnId={turn.id} />)}
+        {live ? open.map((request) => <InputRequest key={request.id} request={request} send={send} live response={undefined} />) : null}
         {live && parts.length === 0 ? <Spinner label="Working" /> : null}
       </div>
       <FactLine facts={factsOf(turn)} {...(state === undefined ? {} : { state })} live={live} />
@@ -88,6 +99,24 @@ function OlderTurns({ chatUri, cursor }: { chatUri: string; cursor: string }): R
   );
 }
 
+/**
+ * The questions this chat waits on that its running turn does not hold as a
+ * part. A page opened mid-question finds them only in the session's
+ * `inputNeeded`. One stays listed after the host drops it, until the turn
+ * ends, so an answer sent from here stays on screen.
+ */
+function useOpenQuestions(needed: SessionState['inputNeeded'], chatUri: string | undefined, active: ActiveTurn | undefined): readonly ChatInputRequest[] {
+  const kept = useRef<{ turn: string | undefined; requests: Map<string, ChatInputRequest> }>({ turn: undefined, requests: new Map() });
+  if (kept.current.turn !== active?.id) kept.current = { turn: active?.id, requests: new Map() };
+  if (active === undefined) return NONE;
+  for (const entry of needed ?? []) {
+    if (String(entry.kind) === 'chatInput' && entry.chat === chatUri && 'request' in entry) kept.current.requests.set(entry.id, entry.request);
+  }
+  const held = new Set(active.responseParts.flatMap((part) => ('request' in part ? [part.request.id] : [])));
+  const out = [...kept.current.requests.values()].filter((request) => !held.has(request.id));
+  return out.length === 0 ? NONE : out;
+}
+
 /** One session: what it is, its chat, and a composer to talk to it. */
 export default function SessionPage({ resource }: { resource?: string }): ReactElement {
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
@@ -103,6 +132,7 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
   }, [chatUri]);
 
   const turns = chat.state?.turns.length ?? 0;
+  const open = useOpenQuestions(session.state?.inputNeeded, chatUri, chat.state?.activeTurn);
   // Grows with every delta, so the view follows text as it streams, not only new parts.
   const streamed = (chat.state?.activeTurn?.responseParts ?? []).reduce((total, part) => total + 1 + ('content' in part && typeof part.content === 'string' ? part.content.length : 0), 0);
   useEffect(() => {
@@ -145,7 +175,7 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
         {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
         <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
           {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
-          {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} />}
+          {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
         </WorkspaceContext.Provider>
         {chat.state !== undefined && turns === 0 && chat.state.activeTurn === undefined ? <p className="web-note">No messages yet.</p> : null}
         <div ref={end} />

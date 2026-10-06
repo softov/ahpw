@@ -8,6 +8,27 @@ import { folderLabel } from '../connection/words.js';
 import { ExplorerList, type Dot, type Row } from '../explorer/ExplorerList.js';
 import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, activityOf, isArchived, isRead, type Activity } from './status.js';
+import { GROUPINGS, arrange, groupOf, type Grouping } from './grouping.js';
+
+/** Where the chosen grouping is kept, per browser. */
+const GROUPING_KEY = 'ahpd-web.session-grouping';
+
+function readGrouping(): Grouping {
+  try {
+    const held = localStorage.getItem(GROUPING_KEY);
+    return GROUPINGS.some((one) => one.id === held) ? held as Grouping : 'none';
+  } catch {
+    return 'none';
+  }
+}
+
+function writeGrouping(grouping: Grouping): void {
+  try {
+    localStorage.setItem(GROUPING_KEY, grouping);
+  } catch {
+    // Not kept, which only means the next visit starts ungrouped.
+  }
+}
 
 const sameDay = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
 const otherDay = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
@@ -64,35 +85,43 @@ export default function SessionExplorer(): ReactElement {
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const active = useStore<string>(ACTIVE_SESSION);
   const [archived, setArchived] = useState(false);
+  const [grouping, setGrouping] = useState<Grouping>(readGrouping);
+  const group = (next: Grouping): void => { setGrouping(next); writeGrouping(next); };
   const [reloading, setReloading] = useState(false);
 
   const open = (resource: string): void => void scena.commands.execute('ahp.openSession', { resource });
   const rows = useMemo<Row[]>(
-    () => (sessions ?? []).filter((one) => archived || !isArchived(one.status)).map((one) => {
-      const activity = activityOf(one.status);
-      const unread = activity === 'idle' && !isRead(one.status);
-      const agent = agents.find((candidate) => candidate.provider === one.provider)?.displayName ?? one.provider;
-      const folder = one.workingDirectories?.[0];
-      const second = [agent, folder === undefined ? undefined : baseOf(folder)].filter((bit) => bit !== undefined).join(' \u{00B7} ');
-      const changes = one.changes;
-      const third = activity !== 'idle'
-        ? `${ACTIVITY_LABEL[activity]}${one.activity === undefined || one.activity === '' ? '' : ` \u{00B7} ${one.activity}`}`
-        : changes !== undefined && (changes.additions ?? 0) + (changes.deletions ?? 0) > 0
-          ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${changes.files} files`}</>
-          : undefined;
-      return {
-        key: one.resource,
-        dot: isArchived(one.status) ? 'off' : unread ? 'fresh' : DOT[activity],
-        dotLabel: isArchived(one.status) ? 'Archived' : unread ? 'Unread' : ACTIVITY_LABEL[activity],
-        title: one.title === '' ? 'Untitled' : one.title,
-        time: changedAt(one.modifiedAt),
-        lines: third === undefined ? [second] : [second, third],
-        menu: menuOf(one, () => open(one.resource)),
-        strong: unread,
-      };
-    }),
+    () => {
+      const agentName = (provider: string): string => agents.find((candidate) => candidate.provider === provider)?.displayName ?? provider;
+      const kept = (sessions ?? []).filter((one) => archived || !isArchived(one.status));
+      return arrange(kept, (one) => groupOf(one, grouping, agentName), grouping).map((one): Row => {
+        const activity = activityOf(one.status);
+        const unread = activity === 'idle' && !isRead(one.status);
+        const agent = agentName(one.provider);
+        const inGroup = groupOf(one, grouping, agentName);
+        const folder = one.workingDirectories?.[0];
+        const second = [agent, folder === undefined ? undefined : baseOf(folder)].filter((bit) => bit !== undefined).join(' \u{00B7} ');
+        const changes = one.changes;
+        const third = activity !== 'idle'
+          ? `${ACTIVITY_LABEL[activity]}${one.activity === undefined || one.activity === '' ? '' : ` \u{00B7} ${one.activity}`}`
+          : changes !== undefined && (changes.additions ?? 0) + (changes.deletions ?? 0) > 0
+            ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${changes.files} files`}</>
+            : undefined;
+        return {
+          key: one.resource,
+          dot: isArchived(one.status) ? 'off' : unread ? 'fresh' : DOT[activity],
+          dotLabel: isArchived(one.status) ? 'Archived' : unread ? 'Unread' : ACTIVITY_LABEL[activity],
+          title: one.title === '' ? 'Untitled' : one.title,
+          time: changedAt(one.modifiedAt),
+          lines: third === undefined ? [second] : [second, third],
+          menu: menuOf(one, () => open(one.resource)),
+          strong: unread,
+          ...(inGroup === undefined ? {} : { group: inGroup }),
+        };
+      });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sessions, agents, archived],
+    [sessions, agents, archived, grouping],
   );
 
   // The first session opens when the list arrives and nothing is open.
@@ -122,6 +151,16 @@ export default function SessionExplorer(): ReactElement {
         { icon: '+', label: 'New session', run: () => void scena.commands.execute('ahp.newSession') },
         { icon: '\u{21BB}', label: 'Reload', run: reload },
         { icon: '\u{25A4}', label: archived ? 'Hide archived' : 'Show archived', run: () => setArchived(!archived), on: archived },
+        {
+          icon: '\u{2637}',
+          label: 'Group sessions',
+          on: grouping !== 'none',
+          menu: GROUPINGS.map((one) => ({
+            title: one.label,
+            ...(one.id === grouping ? { description: 'Current' } : {}),
+            onSelect: (host) => { host.closeMenu(); group(one.id); },
+          })),
+        },
       ]}
       rows={rows}
       selected={active ?? null}

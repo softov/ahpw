@@ -1,4 +1,4 @@
-import { useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import { Fragment, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 
@@ -16,13 +16,17 @@ export interface Row {
   menu: PickerAction[];
   /** Drawn bold: something a person has not looked at yet. */
   strong?: boolean;
+  /** The group the row is listed under; rows come grouped already, in order. */
+  group?: { key: string; label: string };
 }
 
 /** An icon button in the explorer's title. */
 export interface HeadAction {
   icon: string;
   label: string;
-  run: () => void;
+  run?: () => void;
+  /** A menu the button opens instead of running. */
+  menu?: PickerAction[];
   on?: boolean;
 }
 
@@ -44,6 +48,12 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
 }): ReactElement {
   const [menu, setMenu] = useState<Menu | null>(null);
   const [filter, setFilter] = useState('');
+  const [folded, setFolded] = useState<ReadonlySet<string>>(new Set());
+  const fold = (key: string): void => setFolded((held) => {
+    const next = new Set(held);
+    if (!next.delete(key)) next.add(key);
+    return next;
+  });
   const needle = filter.trim().toLowerCase();
   const shown = needle === '' ? rows : rows.filter((row) => row.title.toLowerCase().includes(needle));
 
@@ -66,7 +76,11 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
               aria-label={action.label}
               aria-pressed={action.on}
               data-on={action.on === true ? 'true' : 'false'}
-              onClick={action.run}
+              onClick={(event) => {
+                if (action.menu === undefined) return action.run?.();
+                const box = event.currentTarget.getBoundingClientRect();
+                setMenu({ x: box.left, y: box.bottom, items: action.menu });
+              }}
             >
               {action.icon}
             </button>
@@ -86,38 +100,56 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
       <div className="web-explorer__scroll">
         {notice}
         <ul className="web-explorer__list" role="listbox" aria-label={title}>
-          {shown.map((row) => (
-            <li
-              key={row.key}
-              role="option"
-              aria-selected={row.key === selected}
-              tabIndex={0}
-              className="web-row"
-              data-selected={row.key === selected ? 'true' : 'false'}
-              onClick={() => onOpen(row.key)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  onOpen(row.key);
-                }
-                if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
-                  event.preventDefault();
-                  const box = event.currentTarget.getBoundingClientRect();
-                  setMenu({ x: box.left + 24, y: box.bottom, items: row.menu });
-                }
-              }}
-              onContextMenu={(event) => openMenu(event, row)}
-            >
-              <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel} />
-              <span className="web-row__body">
-                <span className="web-row__head">
-                  <span className="web-row__title" data-strong={row.strong === true ? 'true' : 'false'}>{row.title}</span>
-                  {row.time === undefined ? null : <span className="web-row__time">{row.time}</span>}
-                </span>
-                {row.lines.map((line, index) => <span key={index} className="web-row__line">{line}</span>)}
-              </span>
-            </li>
-          ))}
+          {shown.map((row, index) => {
+            const group = row.group;
+            const opens = group !== undefined && shown[index - 1]?.group?.key !== group.key;
+            const count = opens ? shown.filter((one) => one.group?.key === group.key).length : 0;
+            const hidden = group !== undefined && folded.has(group.key);
+            return (
+              <Fragment key={row.key}>
+                {opens ? (
+                  <li className="web-explorer__group" role="presentation">
+                    <button type="button" aria-expanded={!hidden} onClick={() => fold(group.key)}>
+                      <span className="web-explorer__fold" aria-hidden="true">{hidden ? '\u{25B8}' : '\u{25BE}'}</span>
+                      <span className="web-explorer__group-label">{group.label}</span>
+                      <span className="web-explorer__count">{count}</span>
+                    </button>
+                  </li>
+                ) : null}
+                {hidden ? null : (
+                  <li
+                    role="option"
+                    aria-selected={row.key === selected}
+                    tabIndex={0}
+                    className="web-row"
+                    data-selected={row.key === selected ? 'true' : 'false'}
+                    onClick={() => onOpen(row.key)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onOpen(row.key);
+                      }
+                      if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+                        event.preventDefault();
+                        const box = event.currentTarget.getBoundingClientRect();
+                        setMenu({ x: box.left + 24, y: box.bottom, items: row.menu });
+                      }
+                    }}
+                    onContextMenu={(event) => openMenu(event, row)}
+                  >
+                    <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel} />
+                    <span className="web-row__body">
+                      <span className="web-row__head">
+                        <span className="web-row__title" data-strong={row.strong === true ? 'true' : 'false'}>{row.title}</span>
+                        {row.time === undefined ? null : <span className="web-row__time">{row.time}</span>}
+                      </span>
+                      {row.lines.map((line, index) => <span key={index} className="web-row__line">{line}</span>)}
+                    </span>
+                  </li>
+                )}
+              </Fragment>
+            );
+          })}
         </ul>
         {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">Nothing matches.</p> : null}
       </div>

@@ -4,6 +4,7 @@ import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
 import { readToken } from '../api.js';
 import { socketUrl } from './socket.js';
+import { countsOf } from '../sessions/status.js';
 
 /** The connection to the daemon, as `Connection`. */
 export const AHP_CONNECTION = '$/ahp/connection' as BindingPath;
@@ -18,6 +19,10 @@ export const AHP_DEFAULT_DIRECTORY = '$/ahp/defaultDirectory' as BindingPath;
 export const channelPath = (uri: string): BindingPath => `$/ahp/channels/${encodeURIComponent(uri)}` as BindingPath;
 /** What the host lets clients do with automations, as `initialize` said, or null. */
 export const AHP_AUTOMATION_CAPS = '$/ahp/automationCaps' as BindingPath;
+/** How many sessions are open, not archived. */
+export const AHP_SESSIONS_OPEN = '$/ahp/sessionCounts/open' as BindingPath;
+/** How many open sessions have a turn running. */
+export const AHP_SESSIONS_WORKING = '$/ahp/sessionCounts/working' as BindingPath;
 /** What the connection to the daemon says about it, as `HostFacts`. */
 export const AHP_HOST = '$/ahp/host' as BindingPath;
 
@@ -187,6 +192,9 @@ function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   const summaries = sessionsByChange(multi.aggregatedSessions().map((one) => one.summary));
   store.set(AHP_SESSIONS, summaries);
   for (const summary of summaries) setIfChanged(store, titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
+  const counts = countsOf(summaries.map((one) => one.status));
+  setIfChanged(store, AHP_SESSIONS_OPEN, counts.open);
+  setIfChanged(store, AHP_SESSIONS_WORKING, counts.working);
   const host = multi.host(HOST);
   store.set(AHP_AGENTS, (host?.agents ?? []) as AgentInfo[]);
   store.set(AHP_DEFAULT_DIRECTORY, host?.defaultDirectory ?? null);

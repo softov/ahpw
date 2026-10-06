@@ -50,3 +50,15 @@ export const ACTIVITY_TONE: Record<Activity, 'warning' | 'info' | 'danger' | 'de
   error: 'danger',
   idle: 'default',
 };
+
+/** The counts the Sessions icon carries: sessions not archived, and those with a turn running. */
+export function countsOf(statuses: readonly number[]): { open: number; working: number } {
+  let open = 0;
+  let working = 0;
+  for (const status of statuses) {
+    if (isArchived(status)) continue;
+    open += 1;
+    if (activityOf(status) === 'running' || activityOf(status) === 'input') working += 1;
+  }
+  return { open, working };
+}

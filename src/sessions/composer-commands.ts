@@ -69,6 +69,20 @@ function share(scena: Scena, command: Command): Disposable {
 /** `Approval Mode` as `/approval-mode`. */
 export const slashOf = (title: string): string => `/${title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
 
+/** A value as a short phrase: a list by its items or its count, an object by what it holds. */
+export function valueWords(value: unknown): string {
+  if (value === undefined || value === null) return 'default';
+  if (Array.isArray(value)) {
+    if (value.length === 0) return 'none';
+    return value.length <= 2 && value.every((one) => typeof one === 'string') ? value.join(', ') : `${value.length} items`;
+  }
+  if (typeof value === 'object') {
+    const held = Object.entries(value as Record<string, unknown>).filter(([, one]) => one !== undefined && !(Array.isArray(one) && one.length === 0));
+    return held.length === 0 ? 'none' : held.map(([key, one]) => `${key} ${valueWords(one)}`).join(', ');
+  }
+  return String(value);
+}
+
 /** A setting's value as a person reads it: its enum label, or the value. */
 export function optionLabel(option: Option): string {
   const { schema, value } = option;
@@ -76,7 +90,7 @@ export function optionLabel(option: Option): string {
   if (schema.type === 'boolean') return current === true ? 'on' : 'off';
   const index = schema.enum?.findIndex((one) => one === current) ?? -1;
   if (index >= 0) return schema.enumLabels?.[index] ?? String(current);
-  return current === undefined || current === null ? 'default' : String(current);
+  return valueWords(current);
 }
 
 /** Whether a setting can be changed from the picker: a choice or a switch. */
