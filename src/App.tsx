@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import type { Disposable, Scena, ScopeBackendFactory } from '@softov/scena/types';
 import { createLocalStorageLayoutStorage, createModusBackend, registerLayoutCommands } from '@softov/scena';
+import { DEFAULT_SURFACE_LAYOUTS } from '@softov/scena/core';
 import { Scena as ScenaRoot, useScena } from '@softov/scena/react/core';
 import { DefaultShell } from '@softov/scena/react';
 import { Limen, PortaContextProvider, SIGILLUM_PATHS, createPorta, registerPortaBlocks, useSession } from '@softov/scena/porta';
@@ -15,8 +16,11 @@ const backendFactories: ScopeBackendFactory[] = [
   { scope: 'modus', create: () => createModusBackend() },
 ];
 
+/** scena's surfaces, with the right sidebar open: it holds the open session's details. */
+const surfaceDefaults = { ...DEFAULT_SURFACE_LAYOUTS, 'sidebar:right': { visible: true, layout: 'stack', size: 300 } };
+
 // Module scope: a new object per render would re-initialise scena.
-const options = { layoutStorage, backendFactories };
+const options = { layoutStorage, backendFactories, surfaceDefaults };
 
 /**
  * Sign-in, and the shell for as long as a session lasts.

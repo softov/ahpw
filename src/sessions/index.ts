@@ -8,6 +8,8 @@ import { ACTIVE_SESSION } from './state.js';
 import SessionExplorer from './Explorer.js';
 import SessionPage from './Page.js';
 import NewSessionPage from './New.js';
+import SessionDetails from './Details.js';
+import { PALETTE_SLOT } from '../view/Palette.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -16,10 +18,11 @@ const MODUS_CLASS = '$/modus/class' as BindingPath;
 export const SESSIONS_SECTION = 'ahp:sessions';
 
 /** A sidebar lifted over the page is put away once it has done its job. */
-export function hideOverlaidSidebar(scena: Scena, modus: ModusClass): void {
-  if (!isOverlaid(resolveSurfacePresentation('sidebar:left', modus, PRESENTATION))) return;
-  const current = scena.layout.get().surfaces['sidebar:left'];
-  scena.layout.setSurface('sidebar:left', { ...current, visible: false });
+export function hideOverlaidSidebar(scena: Scena, modus: ModusClass, surface: 'sidebar:left' | 'sidebar:right' = 'sidebar:left'): void {
+  if (!isOverlaid(resolveSurfacePresentation(surface, modus, PRESENTATION))) return;
+  const current = scena.layout.get().surfaces[surface];
+  if (current?.visible === false) return;
+  scena.layout.setSurface(surface, { ...current, visible: false });
 }
 
 /** Arguments of `ahp.openSession`. */
@@ -47,9 +50,23 @@ export function registerSessions(scena: Scena): Disposable {
       category: 'page',
       renderer: { kind: 'react', load: async () => ({ default: NewSessionPage as unknown }) },
     }),
+    scena.components.register({
+      component: 'SessionDetails',
+      category: 'page',
+      renderer: { kind: 'react', load: async () => ({ default: SessionDetails as unknown }) },
+    }),
+    scena.commands.register({
+      id: 'ahp.showSessions',
+      title: 'Show sessions',
+      category: 'Sessions',
+      slots: [PALETTE_SLOT],
+      run: (ctx) => ctx.commands.execute('sidebar.activate', { section: SESSIONS_SECTION }),
+    }),
     scena.commands.register({
       id: 'ahp.newSession',
       title: 'New session',
+      category: 'Sessions',
+      slots: [PALETTE_SLOT],
       run: (ctx) => {
         ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage' }, props: { title: 'New session' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
@@ -69,9 +86,16 @@ export function registerSessions(scena: Scena): Disposable {
           props: { title: { path: titlePath(resource) } },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+        hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large', 'sidebar:right');
       },
     }),
 
+    scena.surfaces.mount({
+      surface: 'sidebar:right',
+      key: 'session:details',
+      resource: { component: 'SessionDetails' },
+      props: { title: 'Session' },
+    }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'sessions:nav',

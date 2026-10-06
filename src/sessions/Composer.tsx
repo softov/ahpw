@@ -1,19 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
 import { Button, useChatPicker } from '@softov/scena/ui';
 import type { HostCtx, PickerAction } from '@softov/scena/types';
 import type {
   AgentInfo,
-  ChatState,
   Message,
   MessageAttachment,
-  SessionState,
+  PendingMessage,
+  SessionConfigState,
   SessionSummary,
   StateAction,
 } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS, dispatch, request } from '../connection/data.js';
 import { folderLabel, newId } from '../connection/words.js';
 import type { Send } from './Parts.js';
+import { Pill } from './pills.js';
 import {
   attachComposer,
   COMPOSER_SLOT,
@@ -34,28 +35,10 @@ const PREFIXES = ['/', '@'];
 const DRAFT_DELAY = 800;
 
 /** Grow the box to its text, up to the ceiling. The height is cleared first, or it only ever grows. */
-function fitToText(area: HTMLTextAreaElement | null): void {
+export function fitToText(area: HTMLTextAreaElement | null): void {
   if (area === null) return;
   area.style.height = 'auto';
   area.style.height = `${Math.min(area.scrollHeight, COMPOSER_MAX)}px`;
-}
-
-/** A small rounded control in the row above the box. */
-function Pill({ label, title, onOpen, on }: { label: string; title?: string; onOpen?: () => void; on?: boolean }): ReactElement {
-  return (
-    <button
-      type="button"
-      className="web-chip"
-      data-on={on === true ? 'true' : 'false'}
-      title={title}
-      disabled={onOpen === undefined}
-      onClick={onOpen}
-      {...(onOpen === undefined ? {} : { 'aria-haspopup': 'menu' as const })}
-    >
-      {label}
-      {onOpen === undefined ? null : <span aria-hidden="true">{'\u{25BE}'}</span>}
-    </button>
-  );
 }
 
 /** A user message, with the model and attachments when there are any. */
@@ -69,10 +52,15 @@ function messageOf(text: string, model: string | undefined, attachments: Message
 }
 
 /** The composer of one chat: the box, its `/` and `@` picker, the settings row, and send, queue, steer and stop. */
-export function Composer({ chat, chatUri, session, summary, send }: {
-  chat: ChatState;
+export const Composer = memo(function Composer({ chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, config, summary, send }: {
   chatUri: string;
-  session: SessionState | undefined;
+  activeId: string | undefined;
+  activeStart: string | undefined;
+  queued: PendingMessage[] | undefined;
+  steering: PendingMessage | undefined;
+  draft: Message | undefined;
+  lastModel: string | undefined;
+  config: SessionConfigState | undefined;
   summary: SessionSummary;
   send: Send;
 }): ReactElement {
@@ -81,15 +69,14 @@ export function Composer({ chat, chatUri, session, summary, send }: {
   const agent = agents.find((one) => one.provider === summary.provider);
   const path = useMemo(() => composerPath(chatUri), [chatUri]);
 
-  const [text, setText] = useState(() => chat.draft?.text ?? '');
+  const [text, setText] = useState(() => draft?.text ?? '');
   const [caret, setCaret] = useState<number | null>(null);
-  const [model, setModel] = useState<string | undefined>(() => chat.draft?.model?.id ?? chat.turns.at(-1)?.message.model?.id);
-  const [attachments, setAttachments] = useState<MessageAttachment[]>(() => chat.draft?.attachments ?? []);
+  const [model, setModel] = useState<string | undefined>(() => draft?.model?.id ?? lastModel);
+  const [attachments, setAttachments] = useState<MessageAttachment[]>(() => draft?.attachments ?? []);
   const area = useRef<HTMLTextAreaElement>(null);
 
-  const active = chat.activeTurn;
-  const queued = chat.queuedMessages ?? [];
-  const steering = chat.steeringMessage;
+  const active = activeId === undefined ? undefined : { id: activeId, startedAt: activeStart ?? '' };
+  const queued = held ?? [];
 
   useEffect(() => fitToText(area.current), [text]);
 
@@ -98,8 +85,8 @@ export function Composer({ chat, chatUri, session, summary, send }: {
   useEffect(() => {
     if (!typed.current) return;
     const timer = window.setTimeout(() => {
-      const draft = text.trim() === '' && attachments.length === 0 ? undefined : messageOf(text, model, attachments);
-      dispatch(chatUri, { type: 'chat/draftChanged', draft } as StateAction);
+      const next = text.trim() === '' && attachments.length === 0 ? undefined : messageOf(text, model, attachments);
+      dispatch(chatUri, { type: 'chat/draftChanged', draft: next } as StateAction);
     }, DRAFT_DELAY);
     return () => window.clearTimeout(timer);
   }, [text, model, attachments, chatUri]);
@@ -148,16 +135,15 @@ export function Composer({ chat, chatUri, session, summary, send }: {
   });
 
   // The settings the host lets change mid-session, read fresh whenever a command asks.
-  const config = session?.config;
   const options: Option[] = useMemo(() => Object.entries(config?.schema.properties ?? {})
     .filter(([, schema]) => schema.sessionMutable === true && schema.readOnly !== true)
     .map(([key, schema]) => ({ key, schema, value: config?.values[key] })), [config]);
 
   const stop = useCallback((): void => {
-    if (active === undefined) return;
-    const started = Date.parse(active.startedAt);
-    send({ type: 'chat/turnCancelled', turnId: active.id, duration: Number.isNaN(started) ? 0 : Math.max(0, Date.now() - started) } as StateAction);
-  }, [active, send]);
+    if (activeId === undefined) return;
+    const started = Date.parse(activeStart ?? '');
+    send({ type: 'chat/turnCancelled', turnId: activeId, duration: Number.isNaN(started) ? 0 : Math.max(0, Date.now() - started) } as StateAction);
+  }, [activeId, activeStart, send]);
 
   const models = useMemo(() => (agent?.models ?? []).map((one) => ({ id: one.id, name: one.name })), [agent]);
   const api = useRef<ComposerApi | null>(null);
@@ -170,7 +156,7 @@ export function Composer({ chat, chatUri, session, summary, send }: {
     },
     options: () => options,
     setOption: (key, value) => {
-      if (session !== undefined) dispatch(summary.resource, { type: 'session/configChanged', config: { [key]: value } } as StateAction);
+      dispatch(summary.resource, { type: 'session/configChanged', config: { [key]: value } } as StateAction);
     },
     running: () => active !== undefined,
     stop,
@@ -305,4 +291,4 @@ export function Composer({ chat, chatUri, session, summary, send }: {
       </div>
     </div>
   );
-}
+});

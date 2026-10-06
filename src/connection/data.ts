@@ -118,6 +118,40 @@ export async function reloadSessions(): Promise<void> {
   for (const summary of result.items) store.set(titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
 }
 
+/** A channel's state read once, without holding the subscription unless a page follows it. */
+export async function readOnce<S>(uri: string): Promise<S | undefined> {
+  const multi = client;
+  if (multi === undefined) throw new Error('Not connected to the daemon.');
+  const result = await multi.subscribe(HOST, uri);
+  if (!followed.has(uri)) void multi.unsubscribe(HOST, uri).catch(() => undefined);
+  return result.snapshot?.state as S | undefined;
+}
+
+/** A file's text, or null when it is not text. */
+export interface FileText {
+  text: string | null;
+  contentType?: string;
+}
+
+/** Read a file, or the content behind a `ContentRef`, as text. */
+export async function readText(uri: string): Promise<FileText> {
+  const result = await request('resourceRead', { channel: ROOT, uri, encoding: 'utf-8' } as never) as { data: string; encoding: string; contentType?: string };
+  return {
+    text: String(result.encoding) === 'utf-8' ? result.data : null,
+    ...(result.contentType === undefined ? {} : { contentType: result.contentType }),
+  };
+}
+
+/** Whether a URI is a file, a folder, or nothing the host knows. */
+export async function kindOfResource(uri: string): Promise<'file' | 'directory' | 'symlink' | null> {
+  try {
+    const result = await request('resourceResolve', { channel: ROOT, uri } as never) as { type: 'file' | 'directory' | 'symlink' };
+    return result.type;
+  } catch {
+    return null;
+  }
+}
+
 /** Send one action on a channel. */
 export function dispatch(channel: string, action: StateAction): void {
   client?.dispatch(HOST, channel, action);

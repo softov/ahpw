@@ -1,4 +1,5 @@
-import { useState, type ReactElement } from 'react';
+import { memo, useContext, useState, type MouseEvent, type ReactElement } from 'react';
+import { useScena } from '@softov/scena/react';
 import { Alert, Button, Markdown } from '@softov/scena/ui';
 import type {
   ChatInputAnswer,
@@ -8,8 +9,11 @@ import type {
   StateAction,
   ToolCallState,
 } from '@microsoft/agent-host-protocol';
-import { elapsed, textOf } from '../connection/words.js';
-import { durationOf, inputText, lineOf, outcomeOf, outputOf, type Outcome, type Output } from './tool.js';
+import { kindOfResource } from '../connection/data.js';
+import { elapsed, folderLabel, textOf } from '../connection/words.js';
+import { codePath, fileLink } from '../files/link.js';
+import { WorkspaceContext } from './workspace.js';
+import { durationOf, fileOf, inputText, kindOf, lineOf, outcomeOf, outputOf, segmentsOf, type Outcome, type Output, type ToolKind } from './tool.js';
 
 /** Sends one action on the chat this transcript shows. */
 export type Send = (action: StateAction) => void;
@@ -29,6 +33,77 @@ const MARK: Record<Outcome, { glyph: string; label: string }> = {
   failed: { glyph: '\u{2715}', label: 'Failed' },
   cancelled: { glyph: '\u{2715}', label: 'Cancelled' },
 };
+
+/**
+ * Clicks inside an agent's text: a link or a code span that names a file opens
+ * it in a tab, and a web link opens in a new browser tab.
+ */
+function useLinkClicks(): (event: MouseEvent<HTMLElement>) => void {
+  const scena = useScena();
+  const workspace = useContext(WorkspaceContext);
+  return (event) => {
+    const element = event.target as HTMLElement;
+    const anchor = element.closest('a');
+    if (anchor !== null) {
+      const href = anchor.getAttribute('href') ?? '';
+      const target = fileLink(href, workspace);
+      event.preventDefault();
+      if (target !== null) void scena.commands.execute('ahp.openFile', { uri: target.uri, line: target.line, end: target.end });
+      else if (/^(https?|mailto):/i.test(href)) window.open(href, '_blank', 'noopener');
+      return;
+    }
+    const code = element.closest('code');
+    if (code === null || code.closest('pre') !== null) return;
+    const target = codePath(code.textContent ?? '', workspace);
+    if (target === null) return;
+    void kindOfResource(target.uri).then((kind) => {
+      if (kind === 'file') void scena.commands.execute('ahp.openFile', { uri: target.uri, line: target.line, end: target.end });
+    });
+  };
+}
+
+/** The icon of each kind of call. */
+const KIND_ICON: Record<ToolKind, string> = {
+  terminal: '\u{276F}',
+  read: '\u{2261}',
+  search: '\u{2315}',
+  edit: '\u{270E}',
+  subagent: '\u{25C8}',
+  web: '\u{2295}',
+  other: '\u{2022}',
+};
+
+/** A call's line, each file it names a link that opens the file and leaves the row closed. */
+function ToolLine({ line, file }: { line: string; file: string | undefined }): ReactElement {
+  const scena = useScena();
+  const workspace = useContext(WorkspaceContext);
+  return (
+    <span className="web-tool__line">
+      {segmentsOf(line, file).map((segment, index) => {
+        const target = segment.href === undefined ? null : segment.code === true ? codePath(segment.href, workspace) : fileLink(segment.href, workspace);
+        if (target === null) return segment.code === true ? <code key={index}>{segment.text}</code> : <span key={index}>{segment.text}</span>;
+        const open = (event: { stopPropagation: () => void; preventDefault: () => void }): void => {
+          event.stopPropagation();
+          event.preventDefault();
+          void scena.commands.execute('ahp.openFile', { uri: target.uri, line: target.line, end: target.end });
+        };
+        return (
+          <span
+            key={index}
+            role="link"
+            tabIndex={0}
+            className="web-tool__ref"
+            title={`Open ${folderLabel(target.uri)}`}
+            onClick={open}
+            onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') open(event); }}
+          >
+            {segment.text}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
 
 /** Text a person may want elsewhere, with a button that copies it. */
 function Block({ title, text }: { title: string; text: string }): ReactElement {
@@ -51,6 +126,7 @@ function Block({ title, text }: { title: string; text: string }): ReactElement {
 }
 
 function OutputView({ out }: { out: Output }): ReactElement {
+  const scena = useScena();
   switch (out.kind) {
     case 'text':
       return <Block title="Output" text={out.text} />;
@@ -64,7 +140,16 @@ function OutputView({ out }: { out: Output }): ReactElement {
     case 'file':
       return (
         <p className="web-tool__file">
-          <code>{out.path}</code>
+          <button
+            type="button"
+            className="web-link"
+            title={out.before === undefined && out.after === undefined ? 'Open the file' : 'Open the change'}
+            onClick={() => void (out.before === undefined && out.after === undefined
+              ? scena.commands.execute('ahp.openFile', { uri: out.file })
+              : scena.commands.execute('ahp.openDiff', { file: out.file, ...(out.before === undefined ? {} : { before: out.before }), ...(out.after === undefined ? {} : { after: out.after }) }))}
+          >
+            {out.path}
+          </button>
           {out.added === undefined ? null : <span className="web-diff--add">+{out.added}</span>}
           {out.removed === undefined ? null : <span className="web-diff--remove">-{out.removed}</span>}
         </p>
@@ -84,19 +169,24 @@ function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Sen
   const output = outputOf(call);
   const name = call.displayName || call.toolName;
   const risk = call.status === PENDING_CONFIRMATION ? call.riskAssessment : undefined;
+  const file = fileOf(call);
+  const scena = useScena();
   return (
     <div className="web-tool" data-outcome={outcome}>
-      <button type="button" className="web-tool__row" aria-expanded={shown} onClick={() => setOpen(!open)}>
-        <span className="web-tool__mark" title={MARK[outcome].label} aria-label={MARK[outcome].label}>{MARK[outcome].glyph}</span>
-        <span className="web-tool__line">{lineOf(call)}</span>
+      <button type="button" className="web-tool__row" aria-expanded={shown} title={MARK[outcome].label} onClick={() => setOpen(!open)}>
+        <span className="web-tool__mark" aria-label={MARK[outcome].label}>{KIND_ICON[kindOf(call)]}</span>
+        <ToolLine line={lineOf(call)} file={file} />
+        {outcome === 'failed' || outcome === 'cancelled' ? <span className="web-tool__state">{MARK[outcome].label}</span> : null}
         {duration === undefined ? null : <span className="web-tool__time">{elapsed(duration)}</span>}
-        <span className="web-tool__chevron" aria-hidden="true">{shown ? '\u{25BE}' : '\u{25B8}'}</span>
       </button>
       {shown ? (
         <div className="web-tool__body">
           <dl className="web-tool__facts">
             <dt>Tool</dt><dd><code>{call.toolName}</code>{name === call.toolName ? null : ` (${name})`}</dd>
             <dt>Status</dt><dd>{MARK[outcome].label}</dd>
+            {file === undefined ? null : (
+              <><dt>File</dt><dd><button type="button" className="web-link" onClick={() => void scena.commands.execute('ahp.openFile', { uri: file })}>{folderLabel(file)}</button></dd></>
+            )}
             {call.intention === undefined ? null : <><dt>Why</dt><dd>{call.intention}</dd></>}
             {risk === undefined || risk.status !== 'complete' ? null : <><dt>Risk</dt><dd>{`${risk.safety}/10 safe \u{00B7} ${risk.reason}`}</dd></>}
           </dl>
@@ -262,11 +352,21 @@ function InputRequest({ request, send, live, answered }: { request: ChatInputReq
   );
 }
 
-/** One part of an agent's response. `live` is true while its turn still runs. */
-export function Part({ part, send, live, turnId }: { part: ResponsePart; send: Send; live: boolean; turnId: string }): ReactElement | null {
+/** One part of an agent's response. `live` is true while its turn still runs. A part the reducer did not touch renders once. */
+export const Part = memo(function Part({ part, send, live, turnId }: { part: ResponsePart; send: Send; live: boolean; turnId: string }): ReactElement | null {
+  const clicks = useLinkClicks();
+  const scena = useScena();
   switch (String(part.kind)) {
     case 'markdown':
-      return 'content' in part ? <Markdown text={part.content as string} /> : null;
+      return 'content' in part ? <div className="web-md" onClick={clicks}><Markdown text={part.content as string} /></div> : null;
+    case 'contentRef': {
+      const uri = 'uri' in part ? String(part.uri) : '';
+      return (
+        <button type="button" className="web-chip" onClick={() => void scena.commands.execute('ahp.openFile', { uri })}>
+          {`\u{1F4C4}\u{FE0E} ${folderLabel(uri).split('/').pop() ?? uri}`}
+        </button>
+      );
+    }
     case 'reasoning':
       return 'content' in part && part.content !== '' ? (
         <details className="web-reasoning">
@@ -285,4 +385,4 @@ export function Part({ part, send, live, turnId }: { part: ResponsePart; send: S
     default:
       return null;
   }
-}
+});

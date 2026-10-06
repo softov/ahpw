@@ -1,4 +1,5 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
+import { PALETTE_SLOT } from '../view/Palette.js';
 import { combineDisposables, type ModusClass } from '@softov/scena';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import AutomationExplorer from './Explorer.js';
@@ -36,10 +37,19 @@ export function registerAutomations(scena: Scena): Disposable {
     scena.commands.register({
       id: 'ahp.newAutomation',
       title: 'New automation',
+      category: 'Automations',
+      slots: [PALETTE_SLOT],
       run: (ctx) => {
         ctx.surfaces.open({ surface: 'main', key: 'automation:new', resource: { component: 'AutomationEditPage' }, props: { title: 'New automation' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
+    }),
+    scena.commands.register({
+      id: 'ahp.showAutomations',
+      title: 'Show automations',
+      category: 'Automations',
+      slots: [PALETTE_SLOT],
+      run: (ctx) => ctx.commands.execute('sidebar.activate', { section: AUTOMATIONS_SECTION }),
     }),
     scena.commands.register({
       id: 'ahp.editAutomation',

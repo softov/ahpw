@@ -60,3 +60,12 @@ export function totalsOf(turns: readonly Turn[]): Totals {
   totals.models = [...models];
   return totals;
 }
+
+/** A date as a short local time, with the day when it is not today. */
+export function when(at: number | string): string {
+  const date = new Date(at);
+  const today = new Date().toDateString() === date.toDateString();
+  return today
+    ? date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+    : date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
