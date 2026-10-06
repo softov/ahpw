@@ -28,6 +28,8 @@ export interface HeadAction {
   /** A menu the button opens instead of running. */
   menu?: PickerAction[];
   on?: boolean;
+  /** Running: the icon turns and the button takes no clicks. */
+  busy?: boolean;
 }
 
 interface Menu {
@@ -76,13 +78,15 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
               aria-label={action.label}
               aria-pressed={action.on}
               data-on={action.on === true ? 'true' : 'false'}
+              data-busy={action.busy === true ? 'true' : undefined}
+              disabled={action.busy === true}
               onClick={(event) => {
                 if (action.menu === undefined) return action.run?.();
                 const box = event.currentTarget.getBoundingClientRect();
                 setMenu({ x: box.left, y: box.bottom, items: action.menu });
               }}
             >
-              {action.icon}
+              <span className="web-explorer__icon">{action.icon}</span>
             </button>
           ))}
         </span>
@@ -98,7 +102,7 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
         />
       )}
       <div className="web-explorer__scroll">
-        {notice}
+        {notice === undefined || notice === null ? null : <div className="web-explorer__notice">{notice}</div>}
         <ul className="web-explorer__list" role="listbox" aria-label={title}>
           {shown.map((row, index) => {
             const group = row.group;

@@ -140,16 +140,14 @@ export default function SessionExplorer(): ReactElement {
     ? <Alert tone="danger" title="Not connected" message={connection.error ?? 'The daemon refused the connection.'} />
     : connection?.status !== 'connected' && sessions === undefined
       ? <Spinner label="Connecting to the daemon" />
-      : reloading
-        ? <Spinner label="Reloading" />
-        : rows.length === 0 ? <p className="web-note web-explorer__empty">{archived ? 'No sessions.' : 'No sessions yet.'}</p> : null;
+      : rows.length === 0 ? <p className="web-note">{archived ? 'No sessions.' : 'No sessions yet.'}</p> : null;
 
   return (
     <ExplorerList
       title="Sessions"
       actions={[
         { icon: '+', label: 'New session', run: () => void scena.commands.execute('ahp.newSession') },
-        { icon: '\u{21BB}', label: 'Reload', run: reload },
+        { icon: '\u{21BB}', label: reloading ? 'Reloading' : 'Reload', run: reload, busy: reloading },
         { icon: '\u{25A4}', label: archived ? 'Hide archived' : 'Show archived', run: () => setArchived(!archived), on: archived },
         {
           icon: '\u{2637}',

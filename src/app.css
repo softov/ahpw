@@ -639,8 +639,40 @@
   overflow-y: auto;
 }
 
+.web-explorer__notice {
+  padding: var(--oo-spacing-sm) var(--oo-spacing-md);
+}
+
 .web-explorer__empty {
   padding: var(--oo-spacing-sm) var(--oo-spacing-md);
+}
+
+.web-explorer__notice > .web-note {
+  margin: 0;
+  padding: 0;
+}
+
+.web-explorer__icon {
+  display: inline-block;
+}
+
+.web-explorer__action[data-busy='true'] {
+  color: var(--oo-color-accent);
+  cursor: progress;
+}
+
+.web-explorer__action[data-busy='true'] .web-explorer__icon {
+  animation: web-turn 0.9s linear infinite;
+}
+
+@keyframes web-turn {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web-explorer__action[data-busy='true'] .web-explorer__icon {
+    animation: none;
+  }
 }
 
 .web-explorer__list {
@@ -1362,4 +1394,12 @@
 
 .web-ask[data-done='true'] .web-ask__icon {
   background: var(--oo-color-muted);
+}
+
+/* scena 0.4.0's Spinner sets `oo-r-wrap` while its stylesheet styles `oo-spinner-wrap`. */
+.oo-r-wrap[role='status'] {
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
 }
