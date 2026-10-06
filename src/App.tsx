@@ -1,0 +1,79 @@
+import { useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import type { Disposable, Scena, ScopeBackendFactory } from '@softov/scena/types';
+import { createLocalStorageLayoutStorage, createModusBackend, registerLayoutCommands } from '@softov/scena';
+import { Scena as ScenaRoot, useScena } from '@softov/scena/react/core';
+import { DefaultShell } from '@softov/scena/react';
+import { Limen, PortaContextProvider, SIGILLUM_PATHS, createPorta, registerPortaBlocks, useSession } from '@softov/scena/porta';
+import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/builtins';
+import { PRESENTATION } from './presentation.js';
+import { registerShell } from './shell.js';
+import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './token-provider.js';
+
+const layoutStorage = createLocalStorageLayoutStorage({ key: 'ahpd-web.layout.v1' });
+
+const backendFactories: ScopeBackendFactory[] = [
+  { scope: 'modus', create: () => createModusBackend() },
+];
+
+// Module scope: a new object per render would re-initialise scena.
+const options = { layoutStorage, backendFactories };
+
+/**
+ * Sign-in, and the shell for as long as a session lasts.
+ *
+ * The shell is registered after sign-in because its providers call the API
+ * with the token; it is disposed on sign-out with everything it put in the store.
+ */
+function PortaBridge({ children }: { children: ReactNode }): ReactElement {
+  const scena = useScena();
+  const session = useSession();
+  const porta = useMemo(() => createPorta(scena, { providers: [tokenProvider()] }), [scena]);
+  const restored = useRef(false);
+  const [restoring, setRestoring] = useState(true);
+
+  useEffect(() => {
+    const sub = registerPortaBlocks(scena);
+    return () => sub.dispose();
+  }, [scena]);
+
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+    void (async () => {
+      const recovered = await restoreSession();
+      if (recovered !== null) scena.store.set(SIGILLUM_PATHS.session, { ...recovered, _providerId: TOKEN_PROVIDER_ID });
+      setRestoring(false);
+    })();
+  }, [scena]);
+
+  useEffect(() => {
+    if (session === null || session === undefined) return;
+    let shell: Disposable | undefined;
+    try {
+      shell = registerShell(scena);
+    } catch (error) {
+      console.error('[ahpd-web] registerShell failed:', error);
+    }
+    return () => shell?.dispose();
+  }, [session, scena]);
+
+  return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading">Loading…</div> : children}</PortaContextProvider>;
+}
+
+export default function App(): ReactElement {
+  function onRender(scena: Scena): void {
+    registerLayoutCommands(scena);
+    registerBuiltins(scena);
+    registerBuiltinLayouts(scena);
+  }
+
+  return (
+    <ScenaRoot options={options} onRender={onRender}>
+      <PortaBridge>
+        <Limen permission={SIGNED_IN} title="ahpd" subtitle="Sign in with a token this daemon accepts.">
+          <DefaultShell presentation={PRESENTATION} />
+        </Limen>
+      </PortaBridge>
+    </ScenaRoot>
+  );
+}

@@ -1,0 +1,59 @@
+{
+  "name": "@ahpd/web",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A browser UI for an ahpd daemon, served by the daemon as a plugin route",
+  "keywords": [
+    "ahp",
+    "agent-host-protocol",
+    "ahpd",
+    "plugin",
+    "web",
+    "admin"
+  ],
+  "author": "Luiz Fernando Softov <lfs@softov.dev>",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/plugin/index.js",
+  "types": "./dist/plugin/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/plugin/index.d.ts",
+      "default": "./dist/plugin/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build && tsc -p tsconfig.plugin.json",
+    "typecheck": "tsc -b",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@ahpd/sdk": ">=0.9"
+  },
+  "devDependencies": {
+    "@ahpd/sdk": "^0.9.0",
+    "@microsoft/agent-host-protocol": "^1.0.0",
+    "@softov/scena": "^0.4.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.0"
+  },
+  "ahpd": {
+    "entry": "./dist/plugin/index.js",
+    "title": "Web"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "rootDir": "plugin",
+    "outDir": "dist/plugin",
+    "declaration": true,
+    "sourceMap": true
+  },
+  "include": ["plugin"],
+  "exclude": ["plugin/**/*.test.ts"]
+}
