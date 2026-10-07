@@ -17,6 +17,8 @@ import { useChannel } from '../connection/channel.js';
 import { elapsed } from '../connection/words.js';
 import { Part, type Send } from './Parts.js';
 import { InputRequest } from './Question.js';
+import { Activity } from './Activity.js';
+import { groupParts } from './activity.js';
 import { Composer } from './Composer.js';
 import { WorkspaceContext } from './workspace.js';
 import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
@@ -71,7 +73,9 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
     <article className="web-turn">
       <div className="web-turn__ask">{turn.message.text}</div>
       <div className="web-turn__answer">
-        {parts.map((part, index) => <Part key={index} part={part} send={send} live={live} turnId={turn.id} />)}
+        {groupParts(parts, live, factsOf(turn).duration).map((shown) => shown.kind === 'activity'
+          ? <Activity key={shown.id} group={shown} send={send} turnId={turn.id} />
+          : <Part key={shown.index} part={shown.part} send={send} live={live} turnId={turn.id} />)}
         {live ? open.map((request) => <InputRequest key={request.id} request={request} send={send} live response={undefined} />) : null}
         {live && parts.length === 0 ? <Spinner label="Working" /> : null}
       </div>

@@ -157,7 +157,8 @@ function OutputView({ out }: { out: Output }): ReactElement {
   }
 }
 
-function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Send; live: boolean; turnId: string }): ReactElement {
+/** One tool call: its line, opened to what went in and came out. */
+export function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Send; live: boolean; turnId: string }): ReactElement {
   const outcome = outcomeOf(call);
   const waiting = live && (outcome === 'approval' || outcome === 'review' || outcome === 'sign-in');
   const [open, setOpen] = useState(false);
@@ -175,7 +176,7 @@ function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Sen
         <span className="web-tool__mark" aria-label={MARK[outcome].label}>{KIND_ICON[kindOf(call)]}</span>
         <ToolLine line={lineOf(call)} file={file} />
         {outcome === 'failed' || outcome === 'cancelled' ? <span className="web-tool__state">{MARK[outcome].label}</span> : null}
-        {duration === undefined ? null : <span className="web-tool__time">{elapsed(duration)}</span>}
+        {duration === undefined || duration < 1000 ? null : <span className="web-tool__time">{elapsed(duration)}</span>}
       </button>
       {shown ? (
         <div className="web-tool__body">
@@ -199,6 +200,21 @@ function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Sen
           ) : null}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+/** One stretch of thinking: its opening words on the line, opened to the whole text. */
+export function Reasoning({ text, running }: { text: string; running: boolean }): ReactElement {
+  const [open, setOpen] = useState(false);
+  const opening = text.replace(/[*_`#>]/g, '').replace(/\s+/g, ' ').trim();
+  return (
+    <div className="web-tool" data-outcome={running ? 'running' : 'thought'}>
+      <button type="button" className="web-tool__row" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span className="web-tool__mark" aria-hidden="true">{'\u{2234}'}</span>
+        <span className="web-tool__line">Thinking: {opening}</span>
+      </button>
+      {open ? <div className="web-tool__body web-md"><Markdown text={text} /></div> : null}
     </div>
   );
 }
@@ -261,12 +277,7 @@ export const Part = memo(function Part({ part, send, live, turnId }: { part: Res
       );
     }
     case 'reasoning':
-      return 'content' in part && part.content !== '' ? (
-        <details className="web-reasoning">
-          <summary>Thinking</summary>
-          <Markdown text={part.content as string} />
-        </details>
-      ) : null;
+      return 'content' in part && part.content !== '' ? <Reasoning text={part.content as string} running={false} /> : null;
     case 'toolCall':
       return 'toolCall' in part ? <ToolCall call={part.toolCall} send={send} live={live} turnId={turnId} /> : null;
     case 'inputRequest':
