@@ -57,7 +57,7 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
     return next;
   });
   const needle = filter.trim().toLowerCase();
-  const shown = needle === '' ? rows : rows.filter((row) => row.title.toLowerCase().includes(needle));
+  const shown = needle === '' ? rows : rows.filter((row) => [row.title, ...row.lines.filter((line) => typeof line === 'string')].join(' ').toLowerCase().includes(needle));
 
   const openMenu = (event: MouseEvent, row: Row): void => {
     event.preventDefault();

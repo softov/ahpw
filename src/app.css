@@ -1434,3 +1434,15 @@
 .web-ask[data-done='true'] .web-ask__icon {
   background: var(--oo-color-muted);
 }
+
+.web-result__ask {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-method[data-effect='remove'] {
+  color: var(--oo-color-danger);
+}

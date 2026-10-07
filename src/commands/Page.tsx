@@ -2,43 +2,51 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, Markdown, SchemaForm, Spinner, Text } from '@softov/scena/ui';
 import { MANIFEST, runPath, type Run } from '../manifest/data.js';
-import { fieldsOf, needsInput, schemaOf } from '../manifest/input.js';
+import { fieldsOf, schemaOf } from '../manifest/input.js';
+import { canRunWith, removalQuestion, runsOnOpening } from '../manifest/roles.js';
 import type { ProgramManifest } from '../manifest/types.js';
 import Result from './Result.js';
+
+/** What a command's effect looks like on its badge. */
+const EFFECT_TONE: Record<string, 'info' | 'success' | 'warning' | 'danger'> = { read: 'info', add: 'success', change: 'warning', remove: 'danger' };
 
 /** How a run's time is shown. */
 const clock = new Intl.DateTimeFormat(undefined, { timeStyle: 'medium' });
 
 /** One command: what it is, its inputs as a form, and its last answer. */
-export default function CommandPage({ commandId }: { commandId?: string }): ReactElement {
+export default function CommandPage({ commandId, initial }: { commandId?: string; initial?: Record<string, unknown> }): ReactElement {
   const scena = useScena();
   const manifest = useStore<ProgramManifest>(MANIFEST);
   const command = manifest?.commands.find((one) => one.id === commandId);
   const run = useStore<Run>(runPath(commandId ?? ''));
-  const [values, setValues] = useState<Record<string, unknown>>({});
+  const [values, setValues] = useState<Record<string, unknown>>(() => initial ?? {});
+  const [asking, setAsking] = useState(false);
   const schema = useMemo(() => (command === undefined ? undefined : schemaOf(command)), [command]);
   const hasFields = command !== undefined && fieldsOf(command).length > 0;
 
   const execute = (): void => {
+    setAsking(false);
     if (command !== undefined) void scena.commands.execute('ahpd.run', { id: command.id, values });
   };
-
-  // A read that takes nothing is run on opening, once.
+  // A read with every value it needs is run on opening, once.
   useEffect(() => {
-    if (command !== undefined && run === undefined && command.http.method === 'GET' && !needsInput(command)) execute();
+    if (command !== undefined && run === undefined && runsOnOpening(command, values)) execute();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [command?.id]);
 
   if (manifest === undefined) return <Spinner label="Reading the manifest" />;
   if (command === undefined) return <Alert tone="warning" message={`This daemon has no command ${commandId ?? ''}.`} />;
 
-  const reads = command.http.method === 'GET';
+  const reads = command.effect === undefined ? command.http.method === 'GET' : command.effect === 'read';
+  const removes = command.effect === 'remove';
   return (
     <div className="web-page">
       <header className="web-page__head">
         <Text variant="h2" text={command.summary} />
         <div className="web-page__route">
-          <Badge label={command.http.method} tone={reads ? 'info' : 'warning'} />
+          {command.effect === undefined
+            ? <Badge label={command.http.method} tone={reads ? 'info' : 'warning'} />
+            : <Badge label={command.resource === undefined ? command.effect : `${command.effect} ${command.resource.kind}`} tone={EFFECT_TONE[command.effect] ?? 'info'} />}
           <code>{command.pattern.join(' ')}</code>
         </div>
         {command.description === undefined ? null : <Markdown text={command.description} />}
@@ -49,12 +57,20 @@ export default function CommandPage({ commandId }: { commandId?: string }): Reac
       ) : null}
 
       <div className="web-page__actions">
-        <Button
-          label={reads ? 'Run' : command.summary}
-          variant="primary"
-          disabled={run?.state === 'running'}
-          onClick={execute}
-        />
+        {asking ? (
+          <span className="web-result__ask">
+            {removalQuestion(command, values)}
+            <Button label="Remove" variant="danger" onClick={execute} />
+            <Button label="Cancel" onClick={() => setAsking(false)} />
+          </span>
+        ) : (
+          <Button
+            label={reads ? (run !== undefined && canRunWith(command, {}) ? 'Reload' : 'Run') : command.summary}
+            variant={removes ? 'danger' : 'primary'}
+            disabled={run?.state === 'running'}
+            onClick={removes ? () => setAsking(true) : execute}
+          />
+        )}
         {run !== undefined && run.state !== 'running' ? (
           <Text muted variant="caption" text={`Last run ${clock.format(run.at)}`} />
         ) : null}

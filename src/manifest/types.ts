@@ -32,6 +32,20 @@ export interface ManifestCommand {
   arguments?: Record<string, { schema: JsonSchemaField; description?: string }>;
   options?: readonly ManifestOption[];
   http: HttpBinding;
+  /** What running it does. */
+  effect?: Effect;
+  /** What it acts on. */
+  resource?: ManifestResource;
+}
+
+/** What a command does: one of the four a program may declare. */
+export type Effect = 'read' | 'add' | 'change' | 'remove';
+
+/** The kind of thing a command acts on, and the input that names one of them. */
+export interface ManifestResource {
+  kind: string;
+  /** The input field that names one item, which each row of a list of this kind also carries. */
+  key?: string;
 }
 
 /** One `--flag` of a command. */

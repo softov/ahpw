@@ -4,12 +4,20 @@ import { Alert, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import { ACTIVE_COMMAND, MANIFEST, MANIFEST_ERROR } from '../manifest/data.js';
 import { sectionsOf } from '../manifest/sections.js';
 import type { ManifestCommand, ProgramManifest } from '../manifest/types.js';
+import { listOf } from '../manifest/roles.js';
+import ItemExplorer from './Items.js';
 
 /** A command's id after its group: `plugin.config.set` is listed as `config set`. */
 function labelOf(command: ManifestCommand, group: string): string {
   const parts = command.id.split('.');
   const rest = parts[0] === group ? parts.slice(1) : parts;
   return (rest.length === 0 ? parts : rest).join(' ');
+}
+
+/** What a command does, beside its name: nothing for a read, its effect otherwise, or its method when it declares none. */
+function markOf(command: ManifestCommand): ReactElement | undefined {
+  if (command.effect !== undefined) return command.effect === 'read' ? undefined : <span className="web-method" data-effect={command.effect}>{command.effect}</span>;
+  return command.http.method === 'GET' ? undefined : <span className="web-method">{command.http.method}</span>;
 }
 
 /** The sidebar: the commands of one group. */
@@ -26,7 +34,7 @@ export default function CommandExplorer({ group }: { group?: string }): ReactEle
     () => (section?.commands ?? []).map((command) => ({
       key: command.id,
       label: labelOf(command, section?.name ?? ''),
-      trailing: command.http.method === 'GET' ? undefined : <span className="web-method">{command.http.method}</span>,
+      trailing: markOf(command),
       data: command,
     })),
     [section],
@@ -41,6 +49,9 @@ export default function CommandExplorer({ group }: { group?: string }): ReactEle
   if (error) return <Alert tone="danger" title="No manifest" message={error} />;
   if (manifest === undefined) return <Spinner label="Reading the manifest" />;
   if (section === undefined) return <Alert tone="warning" message={`This daemon has no ${group ?? ''} commands.`} />;
+  // A group that lists a kind of thing shows the things.
+  const list = listOf(section.commands);
+  if (list !== undefined) return <ItemExplorer manifest={manifest} title={section.title} list={list} commands={section.commands} />;
   return (
     <Tree<ManifestCommand>
       nodes={nodes}

@@ -7,6 +7,8 @@ export const MANIFEST = '$/ahpd/manifest' as BindingPath;
 export const MANIFEST_ERROR = '$/ahpd/manifestError' as BindingPath;
 /** The id of the command open in `main`. */
 export const ACTIVE_COMMAND = '$/ahpd/active' as BindingPath;
+/** The item open in `main`, as `kind:title`. */
+export const ACTIVE_ITEM = '$/ahpd/activeItem' as BindingPath;
 
 /** Where one command's last run is kept. */
 export const runPath = (id: string): BindingPath => `$/ahpd/runs/${id}` as BindingPath;
