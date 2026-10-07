@@ -139,23 +139,36 @@ export interface Summary {
 const time = (ms: number | undefined, words: (ms: number) => string): string | undefined =>
   ms === undefined || ms < 1000 ? undefined : words(ms);
 
-/** The folded line: `Completed 5 steps in 12s · Working on Bash for 3s`. */
-export function summaryLine(summary: Summary, words: (ms: number) => string): string {
-  const parts: string[] = [];
+/** One piece of the folded line; `failed` is the count of failed calls, drawn in the warning colour. */
+export interface SummaryPiece {
+  text: string;
+  failed?: true;
+}
+
+/** The folded line as pieces: `Completed 5 steps`, ` (2 failed)`, ` in 12s · Working on Bash for 3s`. */
+export function summaryPieces(summary: Summary, words: (ms: number) => string): SummaryPiece[] {
+  const pieces: SummaryPiece[] = [];
   if (summary.done > 0) {
-    let done = summary.done === 1 ? 'Completed 1 step' : `Completed ${summary.done} steps`;
-    if (summary.failed > 0) done += ` (${summary.failed} failed)`;
+    pieces.push({ text: summary.done === 1 ? 'Completed 1 step' : `Completed ${summary.done} steps` });
+    if (summary.failed > 0) pieces.push({ text: ` (${summary.failed} failed)`, failed: true });
     const took = time(summary.took, words);
-    parts.push(took === undefined ? done : `${done} in ${took}`);
+    if (took !== undefined) pieces.push({ text: ` in ${took}` });
   }
   const doing = summary.doing;
   if (doing !== undefined) {
-    if (doing.what === 'thinking') parts.push('Thinking');
+    let text: string;
+    if (doing.what === 'thinking') text = 'Thinking';
     else {
       const line = `${doing.what === 'waiting' ? 'Waiting on' : 'Working on'} ${doing.name}`;
       const long = time(doing.for, words);
-      parts.push(long === undefined ? line : `${line} for ${long}`);
+      text = long === undefined ? line : `${line} for ${long}`;
     }
+    pieces.push({ text: pieces.length > 0 ? ` \u{00B7} ${text}` : text });
   }
-  return parts.join(' \u{00B7} ');
+  return pieces;
+}
+
+/** The folded line: `Completed 5 steps in 12s · Working on Bash for 3s`. */
+export function summaryLine(summary: Summary, words: (ms: number) => string): string {
+  return summaryPieces(summary, words).map((piece) => piece.text).join('');
 }

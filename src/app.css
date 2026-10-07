@@ -190,6 +190,11 @@
   background: none;
 }
 
+.web-activity__failed {
+  color: var(--oo-color-warning);
+  font-style: italic;
+}
+
 .web-activity__chev {
   font-size: var(--oo-font-size-xs);
   visibility: hidden;

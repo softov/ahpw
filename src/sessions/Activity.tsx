@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { elapsed } from '../connection/words.js';
-import { hostSpan, stepDone, stepFailed, stepWaits, summaryLine, type Group, type Doing, type Step } from './activity.js';
+import { hostSpan, stepDone, stepFailed, stepWaits, summaryPieces, type Group, type Doing, type Step } from './activity.js';
 import { Reasoning, ToolCall, type Send } from './Parts.js';
 
 /**
@@ -59,7 +59,7 @@ export function Activity({ group, send, turnId }: { group: Group; send: Send; tu
   const took = group.live
     ? (start === undefined || until === undefined ? undefined : until - start)
     : hostSpan(group.steps) ?? spanOf(group.id, now) ?? group.turnMs;
-  const line = summaryLine({
+  const line = summaryPieces({
     done: count,
     failed: group.steps.filter(stepFailed).length,
     ...(took === undefined ? {} : { took }),
@@ -69,7 +69,11 @@ export function Activity({ group, send, turnId }: { group: Group; send: Send; tu
   return (
     <div className="web-activity" data-live={running !== undefined}>
       <button type="button" className="web-activity__line" aria-expanded={shown} onClick={() => setOpen(!open)}>
-        <span>{line}</span>
+        <span>
+          {line.map((piece, index) => piece.failed
+            ? <span key={index} className="web-activity__failed">{piece.text}</span>
+            : piece.text)}
+        </span>
         <span className="web-activity__chev" aria-hidden="true">{shown ? '\u{25BE}' : '\u{25B8}'}</span>
       </button>
       {shown ? (

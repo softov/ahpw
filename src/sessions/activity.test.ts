@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ResponsePart } from '@microsoft/agent-host-protocol';
-import { groupParts, hostSpan, stepDone, summaryLine, type Group } from './activity.js';
+import { groupParts, hostSpan, stepDone, summaryLine, summaryPieces, type Group } from './activity.js';
 
 const tool = (id: string, status = 'completed', fields: Record<string, unknown> = {}): ResponsePart =>
   ({ kind: 'toolCall', toolCall: { toolCallId: id, toolName: 'Bash', displayName: 'Bash', status, success: true, ...fields } }) as unknown as ResponsePart;
@@ -58,5 +58,16 @@ describe('summaryLine', () => {
     expect(summaryLine({ done: 2, failed: 0, doing: { what: 'working', name: 'Bash', for: 3000 } }, words)).toBe('Completed 2 steps \u{00B7} Working on Bash for 3s');
     expect(summaryLine({ done: 0, failed: 0, doing: { what: 'waiting', name: 'Edit' } }, words)).toBe('Waiting on Edit');
     expect(summaryLine({ done: 0, failed: 0, doing: { what: 'thinking' } }, words)).toBe('Thinking');
+  });
+});
+
+describe('summaryPieces', () => {
+  it('marks only the failed count', () => {
+    expect(summaryPieces({ done: 5, failed: 2, took: 12000 }, words)).toEqual([
+      { text: 'Completed 5 steps' },
+      { text: ' (2 failed)', failed: true },
+      { text: ' in 12s' },
+    ]);
+    expect(summaryPieces({ done: 5, failed: 0 }, words).some((piece) => piece.failed)).toBe(false);
   });
 });
