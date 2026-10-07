@@ -6,6 +6,8 @@ const daemon = process.env['AHPD_URL'] ?? 'http://127.0.0.1:9187';
 
 export default defineConfig({
   plugins: [react()],
+  // One React, whether scena is installed or linked from a checkout with its own.
+  resolve: { dedupe: ['react', 'react-dom'] },
   // Relative, because the daemon serves the page under /plugins/ahpd-web/.
   base: './',
   build: { outDir: 'dist/app', emptyOutDir: true },
@@ -34,5 +36,7 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts', 'plugin/**/*.test.ts'],
+    // Linked or installed, scena's components import their own CSS.
+    server: { deps: { inline: ['@softov/scena'] } },
   },
 });

@@ -1434,11 +1434,3 @@
 .web-ask[data-done='true'] .web-ask__icon {
   background: var(--oo-color-muted);
 }
-
-/* scena 0.4.0's Spinner sets `oo-r-wrap` while its stylesheet styles `oo-spinner-wrap`. */
-.oo-r-wrap[role='status'] {
-  align-items: center;
-  gap: var(--oo-spacing-sm);
-  font-size: var(--oo-font-size-sm);
-  color: var(--oo-color-muted);
-}

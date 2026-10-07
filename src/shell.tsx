@@ -11,7 +11,7 @@ import { registerHost } from './host/index.js';
 import { registerView } from './view/index.js';
 import { registerFiles } from './files/index.js';
 import { registerChanges } from './changes/index.js';
-import { registerThemes } from './view/themes.js';
+import { registerBuiltinThemes } from '@softov/scena/themes';
 import { attachKeys } from './view/keys.js';
 import Palette, { PALETTE_OPEN, PALETTE_SLOT } from './view/Palette.js';
 import { hideOverlaidSidebar } from './sessions/index.js';
@@ -45,7 +45,7 @@ function onceKnown(scena: Scena, then: (modus: ModusClass) => void): Disposable 
 /** Everything that exists while somebody is signed in. */
 export function registerShell(scena: Scena): Disposable {
   // Before the controller, so a saved theme is one it knows.
-  registerThemes();
+  registerBuiltinThemes();
   return combineDisposables(
     registerThemeController(scena, { idKey: THEME_ID_KEY, modeKey: THEME_MODE_KEY }),
 

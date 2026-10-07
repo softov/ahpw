@@ -1,0 +1,3 @@
+# scena from the checkout beside this one, until its next release. Remove, reinstall and run the suite before tagging.
+overrides:
+  '@softov/scena': link:../scena/packages/scena
