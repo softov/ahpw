@@ -1,6 +1,6 @@
 {
   "name": "@ahpd/web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "packageManager": "pnpm@11.21.0",
   "description": "A web UI for an AHP server, as an ahpd plugin or on its own with ahpw serve",
