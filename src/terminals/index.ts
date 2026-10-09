@@ -7,6 +7,7 @@ import { onPanel, onPanelTab, openInPanel, PANEL, redrawPanel, STRIP_SLOT } from
 import { TERMINAL_ICON } from './rows.js';
 import { clientClaim, newTerminalUri } from './terminal.js';
 import { EMOJIcon } from '../emojis.js';
+import { folderName } from '../connection/words.js';
 
 /** Arguments of the terminal commands; without one, the panel's active tab. */
 export interface TerminalArgs {
@@ -69,7 +70,7 @@ export function registerTerminals(scena: Scena): Disposable {
     }
   };
 
-  /** A terminal in `folder`, else in the host's default directory. */
+  /** A terminal in `folder`, else in the host's default directory, named for that folder. */
   const create = async (folder?: string): Promise<void> => {
     const host = scena.store.get<HostFacts | null>(AHP_HOST);
     if (host === null || host === undefined) throw new Error('Not connected to the server.');
@@ -78,7 +79,7 @@ export function registerTerminals(scena: Scena): Disposable {
     await request('createTerminal', {
       channel: uri,
       claim: clientClaim(host.clientId),
-      name: 'Terminal',
+      name: cwd === null || cwd === undefined ? 'Terminal' : folderName(cwd),
       ...(cwd === null || cwd === undefined ? {} : { cwd }),
     } as never);
     open(uri);

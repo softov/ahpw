@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { elapsed, folderLabel, folderUri, newId, textOf } from './words.js';
+import { elapsed, folderLabel, folderName, folderUri, newId, textOf } from './words.js';
 
 describe('newId', () => {
   it('is a version 4 UUID', () => {
@@ -51,5 +51,12 @@ describe('elapsed', () => {
   it('reads a negative or partial second as whole seconds from zero', () => {
     expect(elapsed(-5)).toBe('0s');
     expect(elapsed(999)).toBe('0s');
+  });
+});
+
+describe('folderName', () => {
+  it('reads the last part of a folder URI', () => {
+    expect(folderName('file:///github/ahpd.worktrees/build-agents-4fc42cbd')).toBe('build-agents-4fc42cbd');
+    expect(folderName('file:///home/me/my%20app/')).toBe('my app');
   });
 });

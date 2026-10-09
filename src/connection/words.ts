@@ -20,6 +20,16 @@ export function folderUri(folder: string): string {
   return `file://${trimmed.split('/').map(encodeURIComponent).join('/')}`;
 }
 
+/** A folder's own name, the last part of its URI. */
+export function folderName(uri: string): string {
+  const last = uri.replace(/\/+$/, '').split('/').pop() ?? '';
+  try {
+    return decodeURIComponent(last) || uri;
+  } catch {
+    return last || uri;
+  }
+}
+
 /** A folder URI as a person reads it: a `file://` URI becomes its path. */
 export function folderLabel(uri: string): string {
   if (!uri.startsWith('file://')) return uri;
