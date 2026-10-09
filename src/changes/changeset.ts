@@ -31,6 +31,14 @@ const ICON: Record<string, string> = {
   'git-pull-request-create': EMOJIcon.pullRequest,
 };
 
+/** The colour the host's icon hint gives an operation: blue for a commit, yellow for a pull request. */
+export function toneOf(operation: ChangesetOperation): 'blue' | 'yellow' | 'red' | null {
+  const icon = operation.icon ?? '';
+  if (icon === 'git-commit') return 'blue';
+  if (icon.startsWith('git-pull-request')) return 'yellow';
+  return operation.confirmation === undefined ? null : 'red';
+}
+
 /** The glyph an operation's button shows. */
 export const iconOf = (operation: ChangesetOperation): string => ICON[operation.icon ?? ''] ?? operation.label.charAt(0);
 

@@ -8,7 +8,7 @@ import { useChannel } from '../connection/channel.js';
 import { ACTIVE_SESSION } from '../sessions/state.js';
 import { openAsItems, viewersOf } from '../files/viewers.js';
 import { EMOJIcon } from '../emojis.js';
-import { iconOf, openChange, scoped, useChangeset } from './changeset.js';
+import { iconOf, openChange, scoped, toneOf, useChangeset } from './changeset.js';
 import { ChangesetForms } from './Forms.js';
 import { firstScope, folderTree, groupChanges, letterOf, relativeDir, scopesOf, type Change, type ChangeFolder, type ChangeGrouping } from './words.js';
 
@@ -84,7 +84,6 @@ export default function ChangesExplorer(): ReactElement {
       items.push({
         title: operation.label,
         group: 'file',
-        ...(operation.description === undefined ? {} : { description: operation.description }),
         ...(operation.confirmation === undefined ? {} : { color: 'red' }),
         onSelect: (host) => { host.closeMenu(); void changes.run(operation, change); },
       });
@@ -206,7 +205,7 @@ export default function ChangesExplorer(): ReactElement {
     </>
   );
 
-  const headButton = (icon: string, label: string, run: (event: MouseEvent<HTMLButtonElement>) => void, extra?: { on?: boolean; busy?: boolean; disabled?: boolean; danger?: boolean }): ReactElement => (
+  const headButton = (icon: string, label: string, run: (event: MouseEvent<HTMLButtonElement>) => void, extra?: { on?: boolean; busy?: boolean; disabled?: boolean; tone?: string | null }): ReactElement => (
     <button
       key={label}
       type="button"
@@ -216,7 +215,7 @@ export default function ChangesExplorer(): ReactElement {
       aria-pressed={extra?.on}
       data-on={extra?.on === true ? 'true' : 'false'}
       data-busy={extra?.busy === true ? 'true' : 'false'}
-      data-danger={extra?.danger === true ? 'true' : 'false'}
+      data-tone={extra?.tone ?? undefined}
       disabled={extra?.disabled}
       onClick={run}
     >
@@ -232,10 +231,21 @@ export default function ChangesExplorer(): ReactElement {
   const openOptions = (event: MouseEvent<HTMLButtonElement>): void => {
     const box = event.currentTarget.getBoundingClientRect();
     const mark = (on: boolean): { icon: string } => ({ icon: on ? EMOJIcon.check : '' });
-    const items: PickerAction[] = [
+    const items: PickerAction[] = whole.map((operation) => {
+      const tone = toneOf(operation);
+      return {
+        title: operation.label,
+        group: 'changes',
+        icon: iconOf(operation),
+        ...(tone === null ? {} : { color: tone }),
+        disabled: busy(operation),
+        onSelect: (host) => { host.closeMenu(); void changes.run(operation); },
+      };
+    });
+    items.push(
       { title: 'Show as a list', group: 'view', ...mark(view === 'list'), onSelect: (host) => { host.closeMenu(); showAs('list'); } },
       { title: 'Show as a tree', group: 'view', ...mark(view === 'tree'), onSelect: (host) => { host.closeMenu(); showAs('tree'); } },
-    ];
+    );
     if (groupings.length > 1) {
       for (const one of groupings) {
         items.push({ title: GROUPING_LABEL[one], group: 'group', ...mark(one === grouping), onSelect: (host) => { host.closeMenu(); setPicked(one); keep(GROUPING_KEY, one); } });
@@ -260,7 +270,7 @@ export default function ChangesExplorer(): ReactElement {
             {whole.map((operation) => headButton(iconOf(operation), operation.label, () => void changes.run(operation), {
               busy: busy(operation),
               disabled: busy(operation),
-              danger: operation.confirmation !== undefined,
+              tone: toneOf(operation),
             }))}
             {whole.length === 0 ? null : <span className="web-explorer__sep" aria-hidden="true" />}
             {headButton(EMOJIcon.reload, 'Reload', () => void refresh(scope.uri))}
