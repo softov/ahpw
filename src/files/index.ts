@@ -32,18 +32,21 @@ export function registerFiles(scena: Scena): Disposable {
     scena.components.register({
       component: TEXT_VIEWER,
       category: 'page',
+      props: { icon: EMOJIcon.file },
       renderer: { kind: 'react', load: () => import('./FilePage.js') },
       opens: { resourceKinds: [FILE_KIND], title: 'Text', icon: EMOJIcon.file, priority: 10 },
     }),
     scena.components.register({
       component: 'MarkdownPage',
       category: 'page',
+      props: { icon: EMOJIcon.markdown },
       renderer: { kind: 'react', load: () => import('./MarkdownPage.js') },
       opens: { resourceKinds: [FILE_KIND], title: 'Markdown', icon: EMOJIcon.markdown, priority: 20, selector: '$/resource/ext == "md" || $/resource/ext == "markdown"' },
     }),
     scena.components.register({
       component: 'DiffPage',
       category: 'page',
+      props: { icon: EMOJIcon.diff },
       renderer: { kind: 'react', load: () => import('./DiffPage.js') },
     }),
     scena.commands.register({
@@ -60,7 +63,7 @@ export function registerFiles(scena: Scena): Disposable {
           surface: 'main',
           key: `file:${component}:${target.uri}`,
           resource: { component, uri: target.uri, line: target.line ?? null, end: target.end ?? null },
-          props: { title: nameOf(target.uri), icon: viewer?.opens?.icon ?? EMOJIcon.file },
+          props: { title: nameOf(target.uri) },
         });
       },
     }),
@@ -87,7 +90,7 @@ export function registerFiles(scena: Scena): Disposable {
             ...(target.after === undefined ? {} : { after: target.after }),
             ...(target.changeset === undefined ? {} : { changeset: target.changeset, change: target.change ?? null, review: target.review === true }),
           },
-          props: { title: nameOf(target.file), icon: EMOJIcon.diff },
+          props: { title: nameOf(target.file) },
         });
       },
     }),

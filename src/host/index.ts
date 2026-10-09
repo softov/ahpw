@@ -13,11 +13,13 @@ export function registerHost(scena: Scena): Disposable {
     scena.components.register({
       component: 'HostSettingsPage',
       category: 'page',
+      props: { icon: EMOJIcon.settings },
       renderer: { kind: 'react', load: () => import('./Settings.js') },
     }),
     scena.components.register({
       component: 'HostInfoPage',
       category: 'page',
+      props: { icon: EMOJIcon.host },
       renderer: { kind: 'react', load: () => import('./Info.js') },
     }),
     scena.commands.register({
@@ -26,7 +28,7 @@ export function registerHost(scena: Scena): Disposable {
       category: 'Host',
       slots: [PALETTE_SLOT],
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'host:info:page', resource: { component: 'HostInfoPage' }, props: { title: 'Host', icon: EMOJIcon.host } });
+        ctx.surfaces.open({ surface: 'main', key: 'host:info:page', resource: { component: 'HostInfoPage' }, props: { title: 'Host' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
@@ -36,7 +38,7 @@ export function registerHost(scena: Scena): Disposable {
       category: 'Host',
       slots: [PALETTE_SLOT],
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'host:settings:page', resource: { component: 'HostSettingsPage' }, props: { title: 'Settings', icon: EMOJIcon.settings } });
+        ctx.surfaces.open({ surface: 'main', key: 'host:settings:page', resource: { component: 'HostSettingsPage' }, props: { title: 'Settings' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),

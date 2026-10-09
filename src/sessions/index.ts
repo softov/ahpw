@@ -41,12 +41,14 @@ export function registerSessions(scena: Scena): Disposable {
     scena.components.register({
       component: 'SessionPage',
       category: 'page',
+      props: { icon: EMOJIcon.sessions },
       renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
 
     scena.components.register({
       component: 'NewSessionPage',
       category: 'page',
+      props: { icon: EMOJIcon.sessions },
       renderer: { kind: 'react', load: () => import('./New.js') },
     }),
     scena.components.register({
@@ -70,7 +72,7 @@ export function registerSessions(scena: Scena): Disposable {
         // A page already open keeps its own choices, so one asked for an agent starts afresh.
         const provider = (args as { provider?: string } | undefined)?.provider;
         if (provider !== undefined) ctx.scena.surfaces.close('session:new');
-        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session', icon: EMOJIcon.sessions } });
+        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
@@ -85,7 +87,7 @@ export function registerSessions(scena: Scena): Disposable {
           surface: 'main',
           key: `session:${resource}`,
           resource: { component: 'SessionPage', resource },
-          props: { title: { path: titlePath(resource) }, icon: EMOJIcon.sessions },
+          props: { title: { path: titlePath(resource) } },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large', 'sidebar:right');

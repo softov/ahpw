@@ -25,11 +25,13 @@ export function registerAutomations(scena: Scena): Disposable {
     scena.components.register({
       component: 'AutomationPage',
       category: 'page',
+      props: { icon: EMOJIcon.automations },
       renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
     scena.components.register({
       component: 'AutomationEditPage',
       category: 'page',
+      props: { icon: EMOJIcon.automations },
       renderer: { kind: 'react', load: () => import('./Edit.js') },
     }),
     scena.commands.register({
@@ -38,7 +40,7 @@ export function registerAutomations(scena: Scena): Disposable {
       category: 'Automations',
       slots: [PALETTE_SLOT],
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'automation:new', resource: { component: 'AutomationEditPage' }, props: { title: 'New automation', icon: EMOJIcon.automations } });
+        ctx.surfaces.open({ surface: 'main', key: 'automation:new', resource: { component: 'AutomationEditPage' }, props: { title: 'New automation' } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
@@ -60,7 +62,7 @@ export function registerAutomations(scena: Scena): Disposable {
           surface: 'main',
           key: `automation:edit:${resource}`,
           resource: { component: 'AutomationEditPage', resource },
-          props: { title: `Edit ${entry === undefined ? 'automation' : titleOf(entry)}`, icon: EMOJIcon.automations },
+          props: { title: `Edit ${entry === undefined ? 'automation' : titleOf(entry)}` },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
@@ -77,7 +79,7 @@ export function registerAutomations(scena: Scena): Disposable {
           surface: 'main',
           key: `automation:${resource}`,
           resource: { component: 'AutomationPage', resource },
-          props: { title: entry === undefined ? 'Automation' : titleOf(entry), icon: EMOJIcon.automations },
+          props: { title: entry === undefined ? 'Automation' : titleOf(entry) },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },

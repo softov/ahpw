@@ -24,6 +24,7 @@ export function registerAgents(scena: Scena): Disposable {
     scena.components.register({
       component: 'AgentPage',
       category: 'page',
+      props: { icon: EMOJIcon.agents },
       renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
     scena.commands.register({
@@ -45,7 +46,7 @@ export function registerAgents(scena: Scena): Disposable {
           surface: 'main',
           key: `agent:${provider}`,
           resource: { component: 'AgentPage', provider },
-          props: { title: agent?.displayName ?? provider, icon: EMOJIcon.agents },
+          props: { title: agent?.displayName ?? provider },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
