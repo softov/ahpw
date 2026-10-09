@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode
 import type { Disposable, Scena, ScopeBackendFactory } from '@softov/scena/types';
 import { createLocalStorageLayoutStorage, createModusBackend, registerLayoutCommands } from '@softov/scena';
 import { DEFAULT_SURFACE_LAYOUTS } from '@softov/scena/core';
-import { Scena as ScenaRoot, useScena } from '@softov/scena/react/core';
+import { Scena as ScenaRoot, SurfaceLoading, useScena } from '@softov/scena/react/core';
 import { DefaultShell } from '@softov/scena/react';
 import { Limen, PortaContextProvider, SIGILLUM_PATHS, createPorta, registerPortaBlocks, useSession } from '@softov/scena/porta';
 import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/builtins';
@@ -61,7 +61,7 @@ function PortaBridge({ children }: { children: ReactNode }): ReactElement {
     return () => shell?.dispose();
   }, [session, scena]);
 
-  return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading">Loading…</div> : children}</PortaContextProvider>;
+  return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading"><SurfaceLoading /></div> : children}</PortaContextProvider>;
 }
 
 export default function App(): ReactElement {
