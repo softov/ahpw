@@ -106,6 +106,9 @@ export function optionLabel(option: Option): string {
 /** Whether a setting can be changed from the picker: a choice or a switch. */
 export const pickable = (schema: SessionConfigPropertySchema): boolean => schema.type === 'boolean' || (schema.enum?.length ?? 0) > 0;
 
+/** Whether a setting gets a pill: one that holds nothing and cannot be changed has nothing to show. */
+export const showsPill = (option: Option): boolean => pickable(option.schema) || optionLabel(option) !== 'none';
+
 /** The command id behind a setting's pill and its `/` shortcut. */
 export const optionCommandId = (key: string): string => `ahp.composer.option.${key}`;
 

@@ -447,6 +447,14 @@
   padding: 0 var(--web-composer-gutter, 0) var(--oo-spacing-md);
 }
 
+/* Where the session runs: its folder and its agent, above the box. */
+.web-composer__where {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
 /* The box around the attachments, the text and the controls. */
 .web-composer__box,
 .web-new__composer {
@@ -616,6 +624,28 @@
   flex: 1;
   min-width: 0;
   padding: 0;
+}
+
+/* Send, or Stop while a turn runs: a round icon button at the end of the row. */
+.web-composer__round {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--oo-color-primary);
+  color: var(--oo-color-surface);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.web-composer__round:hover {
+  background: rgb(from var(--oo-color-primary) r g b / 0.85);
+  color: var(--oo-color-surface);
 }
 
 .web-composer__add {
@@ -2222,6 +2252,7 @@
 
 .web-change__action:hover {
   background: var(--oo-color-hover, var(--oo-color-selected));
+  color: inherit;
 }
 
 .web-change__action[aria-pressed='true'] {

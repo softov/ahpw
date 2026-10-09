@@ -23,6 +23,7 @@ import {
   optionLabel,
   pickable,
   registerOptionCommands,
+  showsPill,
   type ComposerApi,
   type Option,
 } from './composer-commands.js';
@@ -319,6 +320,11 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         </ul>
       )}
 
+      <div className="web-composer__where">
+        {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title="The folder this session works in" />}
+        <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
+      </div>
+
       <div
         className="web-composer__box"
         data-drop={dropping ?? undefined}
@@ -380,12 +386,10 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
           <button type="button" className="web-composer__add" aria-label="Add context" title="Add context" onClick={() => openCommand('ahp.composer.attach')}>+</button>
           <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
           <div className="web-composer__chips">
-            {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title="The folder this session works in" />}
-            <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
             {models.length === 0 ? null : (
               <Pill label={`Model: ${modelName ?? 'default'}`} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
             )}
-            {options.map((option) => (
+            {options.filter(showsPill).map((option) => (
               <Pill
                 key={option.key}
                 label={`${option.schema.title || option.key}: ${optionLabel(option)}`}
@@ -395,11 +399,13 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
               />
             ))}
           </div>
-          {active === undefined ? null : <Button label="Stop" size="sm" onClick={stop} />}
-          {active === undefined ? null : <Button label="Steer" size="sm" disabled={text.trim() === ''} onClick={() => submit('steer')} />}
-          <span title={active === undefined ? 'Enter sends, Shift+Enter breaks the line' : 'Enter queues, Alt+Enter steers, Esc stops'}>
-            <Button label={active === undefined ? 'Send' : 'Queue'} variant="primary" size="sm" disabled={text.trim() === ''} onClick={() => submit('send')} />
-          </span>
+          {active === undefined || text.trim() === '' ? null : <Button label="Steer" size="sm" title="Alt+Enter steers" onClick={() => submit('steer')} />}
+          {active === undefined || text.trim() === '' ? null : <Button label="Queue" variant="primary" size="sm" title="Enter queues" onClick={() => submit('send')} />}
+          {active === undefined ? (
+            <button type="button" className="web-composer__round" aria-label="Send" title="Enter sends, Shift+Enter breaks the line" disabled={text.trim() === ''} onClick={() => submit('send')}>{EMOJIcon.send}</button>
+          ) : (
+            <button type="button" className="web-composer__round" aria-label="Stop" title="Esc stops" onClick={stop}>{EMOJIcon.stop}</button>
+          )}
         </div>
       </div>
     </div>
