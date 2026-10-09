@@ -1189,6 +1189,19 @@
   background: color-mix(in srgb, var(--oo-color-info) 8%, transparent);
 }
 
+.web-changeset-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  width: min(36rem, calc(100vw - 4rem));
+}
+
+.web-changeset-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--oo-spacing-sm);
+}
+
 .web-changes__bar {
   display: flex;
   align-items: center;

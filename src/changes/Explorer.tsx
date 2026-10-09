@@ -9,6 +9,7 @@ import { ACTIVE_SESSION } from '../sessions/state.js';
 import { openAsItems, viewersOf } from '../files/viewers.js';
 import { EMOJIcon } from '../emojis.js';
 import { iconOf, openChange, scoped, useChangeset } from './changeset.js';
+import { ChangesetForms } from './Forms.js';
 import { firstScope, folderTree, groupChanges, letterOf, relativeDir, scopesOf, type Change, type ChangeFolder, type ChangeGrouping } from './words.js';
 
 /** How the files are drawn: one row each with its folder beside it, or under their folders. */
@@ -65,7 +66,9 @@ export default function ChangesExplorer(): ReactElement {
   const [menu, setMenu] = useState<{ x: number; y: number; items: PickerAction[] } | null>(null);
 
   const fileOps = operations.filter((one) => scoped(one, 'resource'));
-  const whole = operations.filter((one) => scoped(one, 'changeset'));
+  // Create PR prepares before it asks, so Prepare PR beside it would open the same form.
+  const offersCreate = operations.some((one) => one.id === 'create-pr');
+  const whole = operations.filter((one) => scoped(one, 'changeset') && !(offersCreate && one.id === 'prepare-pull-request'));
   const busy = (operation: ChangesetOperation): boolean => String(operation.status) === 'running';
 
   const menuOf = (change: Change): PickerAction[] => {
@@ -318,6 +321,7 @@ export default function ChangesExplorer(): ReactElement {
         />
         {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">Nothing matches.</p> : null}
       </div>
+      <ChangesetForms form={changes.form} files={files} onCommit={changes.commit} onPullRequest={changes.pullRequest} onClose={changes.closeForm} />
       {menu === null ? null : <ContextMenu spec={{ items: menu.items }} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
     </div>
   );

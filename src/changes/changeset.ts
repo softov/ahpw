@@ -8,6 +8,7 @@ import { textOf } from '../connection/words.js';
 import { confirm } from '../notify/index.js';
 import { EMOJIcon } from '../emojis.js';
 import { changeOf, type Change } from './words.js';
+import { commitMeta, createPrMeta, EMPTY_DRAFT, externalFollowUp, operationForm, pullRequestDraft, type PullRequestDraft } from './followup.js';
 
 /** Whether an operation applies to the whole changeset, or to one file. */
 export const scoped = (operation: ChangesetOperation, scope: 'changeset' | 'resource'): boolean => operation.scopes.map(String).includes(scope);
@@ -43,6 +44,11 @@ export function openChange(scena: Scena, change: Change, changeset: string | und
   });
 }
 
+/** The form open for a verb that takes words before it runs. */
+export type ChangesetForm =
+  | { kind: 'commit'; operation: ChangesetOperation }
+  | { kind: 'pull-request'; create: ChangesetOperation | null; draft: PullRequestDraft; preparing: boolean };
+
 /** One changeset: its files and operations, a way to run them, and what the last one said. */
 export function useChangeset(uri: string | undefined): {
   state: ChangesetState | undefined;
@@ -50,37 +56,105 @@ export function useChangeset(uri: string | undefined): {
   files: Change[];
   operations: ChangesetOperation[];
   said: Said | null;
+  form: ChangesetForm | null;
   run: (operation: ChangesetOperation, target?: Change) => Promise<void>;
+  commit: (message: string) => void;
+  pullRequest: (draft: PullRequestDraft, isDraft: boolean) => void;
+  closeForm: () => void;
   review: (changes: readonly Change[], reviewed: boolean) => void;
 } {
   const scena = useScena();
   const channel = useChannel<ChangesetState>(uri, changesetReducer);
   const [said, setSaid] = useState<Said | null>(null);
-  useEffect(() => setSaid(null), [uri]);
+  const [form, setForm] = useState<ChangesetForm | null>(null);
+  useEffect(() => {
+    setSaid(null);
+    setForm(null);
+  }, [uri]);
   const files = useMemo(() => (channel.state?.files ?? []).map(changeOf), [channel.state?.files]);
+  const operations = channel.state?.operations ?? [];
+
+  /** Invoke as offered; the answer's follow-up, or `undefined` once a failure has been said. */
+  const invoke = async (operation: ChangesetOperation, target?: Change, meta?: Record<string, unknown>): Promise<{ followUp?: unknown } | undefined> => {
+    if (uri === undefined) return undefined;
+    setSaid(null);
+    try {
+      const result = await request('invokeChangesetOperation', {
+        channel: uri,
+        operationId: operation.id,
+        ...(target === undefined ? {} : { target: { kind: 'resource', resource: target.file } }),
+        ...(meta === undefined ? {} : { _meta: meta }),
+      } as never);
+      const answer = result as unknown as { message?: string | { markdown: string }; followUp?: unknown } | null;
+      if (answer?.message !== undefined) setSaid({ tone: 'info', text: textOf(answer.message) });
+      return { followUp: answer?.followUp };
+    } catch (error) {
+      setSaid({ tone: 'danger', text: error instanceof Error ? error.message : String(error) });
+      return undefined;
+    }
+  };
+
+  /** Open what a follow-up names: a link out in a new tab, a host file in its viewer. */
+  const follow = (followUp: unknown): void => {
+    const external = externalFollowUp(followUp);
+    if (external !== null) {
+      window.open(external, '_blank', 'noopener');
+      return;
+    }
+    const content = (followUp as { content?: { uri?: unknown } } | undefined)?.content?.uri;
+    if (typeof content === 'string' && !content.startsWith('data:')) void scena.commands.execute('ahp.openFile', { uri: content });
+  };
+
+  /** The pull request form, filled by `prepare-pull-request` when the host offers it. */
+  const openPullRequest = async (operation: ChangesetOperation): Promise<void> => {
+    const create = operations.find((one) => one.id === 'create-pr') ?? (operation.id === 'create-pr' ? operation : null);
+    const prepare = operations.find((one) => one.id === 'prepare-pull-request') ?? (operation.id === 'prepare-pull-request' ? operation : null);
+    setForm({ kind: 'pull-request', create, draft: EMPTY_DRAFT, preparing: prepare !== null });
+    if (prepare === null) return;
+    const answer = await invoke(prepare);
+    if (answer === undefined) {
+      setForm(null);
+      return;
+    }
+    const draft = pullRequestDraft(answer.followUp);
+    setSaid(null);
+    setForm((held) => (held?.kind === 'pull-request' ? { ...held, preparing: false, draft: draft ?? held.draft } : held));
+  };
 
   const run = async (operation: ChangesetOperation, target?: Change): Promise<void> => {
     if (uri === undefined) return;
+    const kind = target === undefined ? operationForm(operation) : null;
+    if (kind === 'commit') {
+      setForm({ kind: 'commit', operation });
+      return;
+    }
     const question = textOf(operation.confirmation);
     if (question !== '' && !(await confirm({ title: question, confirmLabel: operation.label, tone: 'danger' }))) return;
-    setSaid(null);
-    request('invokeChangesetOperation', {
-      channel: uri,
-      operationId: operation.id,
-      ...(target === undefined ? {} : { target: { kind: 'resource', resource: target.file } }),
-    } as never)
-      .then((result) => {
-        const answer = result as unknown as { message?: string | { markdown: string }; followUp?: { content?: { uri: string }; external?: string } } | null;
-        if (answer?.message !== undefined) setSaid({ tone: 'info', text: textOf(answer.message) });
-        if (answer?.followUp?.external !== undefined) window.open(answer.followUp.external, '_blank', 'noopener');
-        else if (answer?.followUp?.content !== undefined) void scena.commands.execute('ahp.openFile', { uri: answer.followUp.content.uri });
-      })
-      .catch((error: unknown) => setSaid({ tone: 'danger', text: error instanceof Error ? error.message : String(error) }));
+    if (kind === 'pull-request') {
+      await openPullRequest(operation);
+      return;
+    }
+    const answer = await invoke(operation, target);
+    if (answer !== undefined) follow(answer.followUp);
+  };
+
+  const commit = (message: string): void => {
+    if (form?.kind !== 'commit') return;
+    const { operation } = form;
+    setForm(null);
+    void invoke(operation, undefined, commitMeta(message)).then((answer) => { if (answer !== undefined) follow(answer.followUp); });
+  };
+
+  const pullRequest = (draft: PullRequestDraft, isDraft: boolean): void => {
+    if (form?.kind !== 'pull-request' || form.create === null) return;
+    const { create } = form;
+    setForm(null);
+    void invoke(create, undefined, createPrMeta(draft, isDraft)).then((answer) => { if (answer !== undefined) follow(answer.followUp); });
   };
 
   const review = (changes: readonly Change[], reviewed: boolean): void => {
     if (uri !== undefined && changes.length > 0) dispatch(uri, { type: 'changeset/filesReviewChanged', files: changes.map((one) => one.id), reviewed } as StateAction);
   };
 
-  return { state: channel.state, error: channel.error, files, operations: channel.state?.operations ?? [], said, run, review };
+  return { state: channel.state, error: channel.error, files, operations, said, form, run, commit, pullRequest, closeForm: () => setForm(null), review };
 }
