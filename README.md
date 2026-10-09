@@ -1,4 +1,4 @@
-# @ahpd/web
+# @softov/ahpw
 
 A browser UI for an [ahpd](https://github.com/softov/ahpd) daemon, served by the daemon itself as a plugin. It talks to that one daemon two ways: its administration API, and the Agent Host Protocol.
 
@@ -15,7 +15,7 @@ The API has to be on, and on the daemon's own port, so the page and `/api` share
 ```json
 {
   "http": true,
-  "plugins": ["@ahpd/web"]
+  "plugins": ["@softov/ahpw"]
 }
 ```
 

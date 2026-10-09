@@ -2,7 +2,8 @@ import type { ReactElement } from 'react';
 import type { Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { registerThemeController } from '@softov/scena/styles';
-import { registerCommands } from './commands/index.js';
+// ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
+// import { registerCommands } from './commands/index.js';
 import { registerConnection } from './connection/index.js';
 import { registerSessions } from './sessions/index.js';
 import { registerAgents } from './agents/index.js';
@@ -140,6 +141,6 @@ export function registerShell(scena: Scena): Disposable {
     registerAutomations(scena),
     registerHost(scena),
     registerFiles(scena),
-    registerCommands(scena),
+    // registerCommands(scena),
   );
 }

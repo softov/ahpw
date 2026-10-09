@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { useStore } from '@softov/scena/react';
-import { call } from '../api.js';
+// import { call } from '../api.js';
 import { AHP_CONNECTION, reconnect, type Connection } from './data.js';
 import { elapsed } from './words.js';
 
@@ -21,18 +21,20 @@ function useStartedAt(generation: number, connected: boolean): number | null {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   useEffect(() => {
     if (!connected) return;
-    let alive = true;
-    call({ method: 'GET', path: '/status' })
-      .then((answer) => {
-        const at = Date.parse(String((answer as { startedAt?: unknown } | null)?.startedAt ?? ''));
-        if (alive) setStartedAt(Number.isNaN(at) ? null : at);
-      })
-      .catch(() => {
-        if (alive) setStartedAt(null);
-      });
-    return () => {
-      alive = false;
-    };
+    // ahpd's GET /api/status; off while ahpw is AHP only.
+    setStartedAt(null);
+    // let alive = true;
+    // call({ method: 'GET', path: '/status' })
+    //   .then((answer) => {
+    //     const at = Date.parse(String((answer as { startedAt?: unknown } | null)?.startedAt ?? ''));
+    //     if (alive) setStartedAt(Number.isNaN(at) ? null : at);
+    //   })
+    //   .catch(() => {
+    //     if (alive) setStartedAt(null);
+    //   });
+    // return () => {
+    //   alive = false;
+    // };
   }, [generation, connected]);
   return startedAt;
 }

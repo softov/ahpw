@@ -1,5 +1,5 @@
 {
-  "name": "@ahpd/web",
+  "name": "@softov/ahpw",
   "version": "0.1.0",
   "type": "module",
   "description": "A browser UI for an ahpd daemon, served by the daemon as a plugin route",

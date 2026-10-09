@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, AutomationCapabilities } from '@microsoft/agent-host-protocol';
-import { call } from '../api.js';
+// import { call } from '../api.js';
 import { AHP_AGENTS, AHP_AUTOMATION_CAPS, AHP_CONNECTION, AHP_DEFAULT_DIRECTORY, AHP_HOST, reconnect, type Connection, type HostFacts } from '../connection/data.js';
 import { elapsed, folderLabel } from '../connection/words.js';
 import { when } from '../sessions/turn.js';
@@ -32,11 +32,14 @@ function useDaemonStatus(generation: number): { status: DaemonStatus | null; err
   const [status, setStatus] = useState<DaemonStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    let alive = true;
-    call({ method: 'GET', path: '/status' })
-      .then((answer) => { if (alive) { setStatus(answer as DaemonStatus); setError(null); } })
-      .catch((caught: unknown) => { if (alive) setError(caught instanceof Error ? caught.message : String(caught)); });
-    return () => { alive = false; };
+    // ahpd's GET /api/status; off while ahpw is AHP only.
+    setStatus(null);
+    setError(null);
+    // let alive = true;
+    // call({ method: 'GET', path: '/status' })
+    //   .then((answer) => { if (alive) { setStatus(answer as DaemonStatus); setError(null); } })
+    //   .catch((caught: unknown) => { if (alive) setError(caught instanceof Error ? caught.message : String(caught)); });
+    // return () => { alive = false; };
   }, [generation]);
   return { status, error };
 }
@@ -120,7 +123,7 @@ export default function HostInfoPage(): ReactElement {
       <Text variant="h3" text="Connection" />
       <DetailList items={link} columns={2} />
 
-      <Text variant="h3" text="Daemon" />
+      {status === null && error === null ? null : <Text variant="h3" text="Daemon" />}
       {error === null ? null : <Alert tone="warning" message={`The daemon's status is not readable: ${error}`} />}
       {daemon.length === 0 ? null : <DetailList items={daemon} columns={2} />}
 

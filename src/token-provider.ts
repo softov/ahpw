@@ -1,6 +1,7 @@
 import type { PortaProvider, Session } from '@softov/scena/porta';
-import { ApiError, call, readManifest, readToken, writeToken } from './api.js';
-import { needsInput, requestOf } from './manifest/input.js';
+import { readToken, writeToken } from './api.js';
+// import { ApiError, call, readManifest } from './api.js';
+// import { needsInput, requestOf } from './manifest/input.js';
 
 export const TOKEN_PROVIDER_ID = 'ahpd-token';
 
@@ -8,30 +9,44 @@ export const TOKEN_PROVIDER_ID = 'ahpd-token';
 export const SIGNED_IN = 'ahpd.signed-in';
 
 /**
- * Whether the daemon accepts a token.
- *
- * Asked with the first read the manifest offers that takes no input. A 401 is
- * a token the daemon does not know; any other answer, a 403 included, is one
- * it knows, whose grants each command checks for itself.
+ * Keeps the token for the AHP socket, which is what accepts or refuses it:
+ * a refused token shows as a connection that failed.
  */
 async function check(token: string): Promise<Session> {
-  const manifest = await readManifest();
-  const probe = manifest.commands.find((command) => command.http.method === 'GET' && !needsInput(command));
-  if (probe !== undefined) {
-    try {
-      await call(requestOf(probe, {}), token);
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) throw new Error('That token was refused.');
-      if (!(error instanceof ApiError) || error.status === 0) throw error;
-    }
-  }
   writeToken(token);
   return {
     userId: 'token',
-    displayName: `${manifest.program.name} ${manifest.program.version}`,
+    displayName: 'AHP',
     permissions: [SIGNED_IN],
   };
 }
+
+// ahpd's check, through /api/cli-manifest; off while ahpw is AHP only.
+// /**
+//  * Whether the daemon accepts a token.
+//  *
+//  * Asked with the first read the manifest offers that takes no input. A 401 is
+//  * a token the daemon does not know; any other answer, a 403 included, is one
+//  * it knows, whose grants each command checks for itself.
+//  */
+// async function check(token: string): Promise<Session> {
+//   const manifest = await readManifest();
+//   const probe = manifest.commands.find((command) => command.http.method === 'GET' && !needsInput(command));
+//   if (probe !== undefined) {
+//     try {
+//       await call(requestOf(probe, {}), token);
+//     } catch (error) {
+//       if (error instanceof ApiError && error.status === 401) throw new Error('That token was refused.');
+//       if (!(error instanceof ApiError) || error.status === 0) throw error;
+//     }
+//   }
+//   writeToken(token);
+//   return {
+//     userId: 'token',
+//     displayName: `${manifest.program.name} ${manifest.program.version}`,
+//     permissions: [SIGNED_IN],
+//   };
+// }
 
 export function tokenProvider(): PortaProvider {
   return {
