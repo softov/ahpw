@@ -69,10 +69,11 @@ export function registerTerminals(scena: Scena): Disposable {
     }
   };
 
-  const create = async (): Promise<void> => {
+  /** A terminal in `folder`, else in the host's default directory. */
+  const create = async (folder?: string): Promise<void> => {
     const host = scena.store.get<HostFacts | null>(AHP_HOST);
     if (host === null || host === undefined) throw new Error('Not connected to the server.');
-    const cwd = scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY);
+    const cwd = folder ?? scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY);
     const uri = newTerminalUri();
     await request('createTerminal', {
       channel: uri,
@@ -159,7 +160,7 @@ export function registerTerminals(scena: Scena): Disposable {
       icon: '+',
       slots: [PALETTE_SLOT, STRIP_SLOT],
       when: onPanel,
-      run: () => create().catch((error: unknown) => failed('The terminal could not be created', error, { source: 'ahp.newTerminal' })),
+      run: (_ctx, args) => create((args as { cwd?: string } | undefined)?.cwd).catch((error: unknown) => failed('The terminal could not be created', error, { source: 'ahp.newTerminal' })),
     }),
     // A terminal tab's menu. Closing the tab only hides it; the process keeps running.
     scena.mountMenus.register('tab:context', (mount) => {

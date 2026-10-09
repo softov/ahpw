@@ -101,3 +101,10 @@ export function deltaOf(drawn: string, next: string): { reset: boolean; text: st
 export function terminalTitle(info: { title?: string; resource?: string }): string {
   return info.title !== undefined && info.title !== '' ? info.title : 'Terminal';
 }
+
+/** Whether a terminal's directory is `folder` or under it; both are URIs. */
+export function inFolder(cwd: string | undefined, folder: string): boolean {
+  if (cwd === undefined) return false;
+  const root = folder.replace(/\/+$/, '');
+  return cwd.replace(/\/+$/, '') === root || cwd.startsWith(`${root}/`);
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deltaOf, foldTerminal, holderOf, joinParts, newTerminalUri, normalizeState } from './terminal.js';
+import { deltaOf, foldTerminal, holderOf, inFolder, joinParts, newTerminalUri, normalizeState } from './terminal.js';
 
 describe('terminal', () => {
   it('joins parts by their type', () => {
@@ -35,5 +35,14 @@ describe('terminal', () => {
   it('mints distinct terminal URIs', () => {
     expect(newTerminalUri()).not.toBe(newTerminalUri());
     expect(newTerminalUri()).toMatch(/^ahp-terminal:\//);
+  });
+});
+
+describe('inFolder', () => {
+  it('takes the folder and what is under it, not a sibling that shares its prefix', () => {
+    expect(inFolder('file:///work/app', 'file:///work/app')).toBe(true);
+    expect(inFolder('file:///work/app/src', 'file:///work/app/')).toBe(true);
+    expect(inFolder('file:///work/app-2', 'file:///work/app')).toBe(false);
+    expect(inFolder(undefined, 'file:///work/app')).toBe(false);
   });
 });

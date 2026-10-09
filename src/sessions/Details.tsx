@@ -1,14 +1,30 @@
 import { useMemo, type ReactElement } from 'react';
-import { useStore } from '@softov/scena/react';
+import type { TerminalState } from '@microsoft/agent-host-protocol';
+import { useScena, useStore } from '@softov/scena/react';
 import { chatReducer, sessionReducer, type ChatState, type SessionState, type SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS } from '../connection/data.js';
+import { AHP_HOST, AHP_SESSIONS, type HostFacts } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
 import { elapsed, folderLabel } from '../connection/words.js';
 import { ACTIVE_SESSION } from './state.js';
+import { foldTerminal, inFolder } from '../terminals/terminal.js';
 import { tokens, totalsOf, when } from './turn.js';
+
+/** A terminal, as a link that opens it, while its directory is in the session's folder. */
+function FolderTerminal({ uri, folder }: { uri: string; folder: string }): ReactElement | null {
+  const scena = useScena();
+  const { state } = useChannel<TerminalState>(uri, foldTerminal);
+  if (!inFolder(state?.cwd, folder)) return null;
+  return (
+    <button type="button" className="web-link" title="Open the terminal" onClick={() => void scena.commands.execute('ahp.openTerminal', { uri })}>
+      {state?.title === '' || state?.title === undefined ? 'Terminal' : state.title}
+    </button>
+  );
+}
 
 /** The open session's facts, for the right sidebar. */
 export default function SessionDetails(): ReactElement {
+  const scena = useScena();
+  const host = useStore<HostFacts | null>(AHP_HOST);
   const resource = useStore<string>(ACTIVE_SESSION);
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const summary = sessions?.find((one) => one.resource === resource);
@@ -22,9 +38,26 @@ export default function SessionDetails(): ReactElement {
   const changes = summary.changes;
   const origin = summary.origin;
   const watching = session.state?.activeClients.length ?? 0;
-  const facts: [string, ReactElement | string][] = [['Session', summary.title === '' ? 'Untitled' : summary.title], ['Agent', summary.provider]];
+  const chatUri = session.state?.defaultChat ?? summary.defaultChat;
+  const facts: [string, ReactElement | string][] = [['Session', summary.title === '' ? 'Untitled' : summary.title], ['Session id', <code key="s">{summary.resource}</code>]];
+  if (chatUri !== undefined) facts.push(['Chat id', <code key="h">{chatUri}</code>]);
+  facts.push(['Agent', summary.provider]);
   if (totals.models.length > 0) facts.push(['Model', totals.models.join(', ')]);
-  if (folder !== undefined) facts.push(['Folder', <code key="f">{folderLabel(folder)}</code>]);
+  if (folder !== undefined) {
+    facts.push(['Folder', (
+      <button key="f" type="button" className="web-link" title="Show the folder in the explorer" onClick={() => void scena.commands.execute('ahp.revealFolder', { uri: folder })}>
+        <code>{folderLabel(folder)}</code>
+      </button>
+    )]);
+  }
+  facts.push(['Terminal', (
+    <span key="t" className="web-details__list">
+      {folder === undefined ? null : (host?.terminals ?? []).map((terminal) => <FolderTerminal key={terminal.resource} uri={terminal.resource} folder={folder} />)}
+      <button type="button" className="web-link" title={folder === undefined ? 'A new terminal' : 'A new terminal in the session\'s folder'} onClick={() => void scena.commands.execute('ahp.newTerminal', folder === undefined ? undefined : { cwd: folder })}>
+        + New terminal
+      </button>
+    </span>
+  )]);
   if (summary.project !== undefined) facts.push(['Project', summary.project.displayName]);
   facts.push(['Started', when(summary.createdAt)], ['Changed', when(summary.modifiedAt)]);
   if (totals.turns > 0) {
