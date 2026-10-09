@@ -17,7 +17,6 @@ import { registerChanges } from './changes/index.js';
 import { registerNotifications } from './notify/index.js';
 import { registerPanel, registerPanelHide } from './panel/index.js';
 import { registerTerminals } from './terminals/index.js';
-import LayoutToggles from './view/LayoutToggles.js';
 import { registerBuiltinThemes } from '@softov/scena/themes';
 import { attachKeys } from './view/keys.js';
 import Palette, { PALETTE_OPEN, PALETTE_SLOT } from './view/Palette.js';
@@ -132,15 +131,20 @@ export function registerShell(scena: Scena): Disposable {
       resource: { component: 'ButtonBar', slot: 'right', label: 'Sign out', command: 'sigillum.signout' },
     }),
     // The layout toggles last, at the title bar's far end: left sidebar, panel, right sidebar.
-    scena.components.register({
-      component: 'LayoutToggles',
-      category: 'inline',
-      renderer: { kind: 'react', load: async () => ({ default: LayoutToggles as unknown }) },
+    scena.surfaces.mount({
+      surface: 'titlebar',
+      key: 'chrome:toggle-left',
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: '\u{25E7}\u{FE0E}', title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft', active: { path: '$/layout/surfaces/sidebar:left/visible' } },
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
-      key: 'chrome:toggles',
-      resource: { component: 'LayoutToggles', slot: 'right' },
+      key: 'chrome:toggle-panel',
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: '\u{2B13}\u{FE0E}', title: 'Toggle panel (Ctrl+J)', command: 'panel.toggle', active: { path: '$/layout/surfaces/panel:bottom/visible' } },
+    }),
+    scena.surfaces.mount({
+      surface: 'titlebar',
+      key: 'chrome:toggle-right',
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: '\u{25E8}\u{FE0E}', title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight', active: { path: '$/layout/surfaces/sidebar:right/visible' } },
     }),
 
     // The activity bar, in this order: mount order is the rail's order within each end.

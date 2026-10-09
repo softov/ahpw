@@ -24,6 +24,9 @@ describe('panel', () => {
     expect(buttons.map((one) => one.id)).toEqual(['log.clear', 'panel.hide']);
     expect(onPanelTab('LogPage')({ '$/surface/name': 'panel:bottom', '$/tab/component': 'LogPage' })).toBe(true);
     expect(onPanelTab('LogPage')({ '$/surface/name': 'panel:bottom', '$/tab/component': 'TerminalPage' })).toBe(false);
+    // An empty strip has no active tab.
+    expect(onPanelTab('LogPage')({ '$/surface/name': 'panel:bottom', '$/tab/component': undefined })).toBe(false);
+    expect(onPanelTab('LogPage')({})).toBe(true);
     expect(onPanel({ '$/surface/name': 'panel:bottom' })).toBe(true);
     expect(onPanel({ '$/surface/name': 'main' })).toBe(false);
     // The palette asks without a surface, and still runs it.

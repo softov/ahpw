@@ -16,9 +16,9 @@ export const STRIP_SLOT = 'surface/title';
 /** Whether a strip button belongs to this panel: on the panel's strip, and anywhere a strip does not ask. */
 export const onPanel = (ctx: ContextSnapshot): boolean => (ctx['$/surface/name'] ?? PANEL) === PANEL;
 
-/** Whether a strip button belongs to the panel's active tab: on the panel, with a tab of this component active, or where a strip does not ask. */
+/** Whether a strip button belongs to the panel's active tab: on the panel, with a tab of this component active. Where no strip asks, as in the palette, it does. */
 export const onPanelTab = (component: string) => (ctx: ContextSnapshot): boolean =>
-  onPanel(ctx) && (ctx['$/tab/component'] ?? component) === component;
+  !('$/surface/name' in ctx) || (onPanel(ctx) && ctx['$/tab/component'] === component);
 
 /** Show or hide the panel. */
 export function showPanel(scena: Scena, visible = true): void {
@@ -62,6 +62,8 @@ export function openInPanel(
 
 /** The bottom panel: shown and hidden from the title bar or a key, with the log as its first tab. */
 export function registerPanel(scena: Scena): Disposable {
+  // A panel the saved layout shows opens with its log.
+  if (scena.layout.get().surfaces[PANEL]?.visible === true) ensureLog(scena);
   return combineDisposables(
     scena.components.register({
       component: 'LogPage',

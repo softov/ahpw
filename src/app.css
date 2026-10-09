@@ -1862,29 +1862,16 @@
   user-select: text;
 }
 
-/* The title bar's layout toggles. */
-.web-toggles {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
-.web-toggles__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 22px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--oo-radius-sm, 4px);
+/* The title bar's layout toggles: the glyphs at a size where the marked side reads. */
+/* No background when active: bar.css colours an active glyph with the background's token, which hides it. Shown reads as the text colour, hidden as muted. */
+.oo-bar__slot .oo-button-bar.web-layout-toggle,
+.oo-bar__slot .oo-button-bar.web-layout-toggle[data-active] {
+  font-size: 15px;
+  line-height: 1;
   background: transparent;
   color: var(--oo-color-muted);
-  cursor: pointer;
 }
-.web-toggles__button:hover {
-  background: var(--oo-color-hover, rgba(127, 127, 127, 0.15));
-  color: var(--oo-color-text);
-}
-.web-toggles__button[aria-pressed='true'] {
+.oo-bar__slot .oo-button-bar.web-layout-toggle[data-active='true'],
+.oo-bar__slot .oo-button-bar.web-layout-toggle:hover {
   color: var(--oo-color-text);
 }
