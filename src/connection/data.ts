@@ -5,6 +5,8 @@ import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo }
 import { readToken } from '../api.js';
 import { socketUrl } from './socket.js';
 import { countsOf } from '../sessions/status.js';
+import { logEvent } from '../log/log.js';
+import { forgetFrames, observing } from '../log/wire.js';
 
 /** The connection to the daemon, as `Connection`. */
 export const AHP_CONNECTION = '$/ahp/connection' as BindingPath;
@@ -25,6 +27,8 @@ export const AHP_SESSIONS_OPEN = '$/ahp/sessionCounts/open' as BindingPath;
 export const AHP_SESSIONS_WORKING = '$/ahp/sessionCounts/working' as BindingPath;
 /** What the connection to the daemon says about it, as `HostFacts`. */
 export const AHP_HOST = '$/ahp/host' as BindingPath;
+/** The terminals this page has stopped following; their tabs stay, showing what they last drew. */
+export const AHP_DETACHED = '$/ahp/terminals/detached' as BindingPath;
 
 /** The connection's facts: the handshake's answers and what the host counts now. */
 export interface HostFacts {
@@ -212,11 +216,20 @@ function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   } satisfies HostFacts);
 }
 
+/** A connection status as a line of the log; a socket that dropped will not answer what it was asked. */
+function noteStatus(state: HostState): void {
+  if (state.status !== 'connected') forgetFrames();
+  if (state.status === 'failed') logEvent({ scope: 'connection', level: 'error', text: `failed: ${state.error.message}` });
+  else if (state.status === 'reconnecting') logEvent({ scope: 'connection', level: 'warn', text: `reconnecting (attempt ${state.attempt})` });
+  else logEvent({ scope: 'connection', level: 'info', text: state.status });
+}
+
 async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<void> {
   let generation = 0;
   for await (const event of multi.hostEvents()) {
     if (event.type === 'stateChanged') {
       const state = event.state;
+      noteStatus(state);
       store.set(AHP_CONNECTION, {
         status: state.status,
         error: state.status === 'failed' ? state.error.message : event.lastError?.message ?? null,
@@ -298,7 +311,7 @@ async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<vo
     await multi.addHost({
       id: HOST,
       label: window.location.host,
-      transportFactory: () => WebSocketTransport.connect(socketUrl(readToken(), window.location, import.meta.env.DEV)),
+      transportFactory: async () => observing(await WebSocketTransport.connect(socketUrl(readToken(), window.location, import.meta.env.DEV))),
     });
   } catch (error) {
     store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);

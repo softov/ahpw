@@ -6,7 +6,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import '@xterm/xterm/css/xterm.css';
 import type { StateAction } from '@microsoft/agent-host-protocol';
-import { AHP_HOST, channelErrorPath, channelPath, dispatch, follow, type HostFacts } from '../connection/data.js';
+import { AHP_DETACHED, AHP_HOST, channelErrorPath, channelPath, dispatch, follow, type HostFacts } from '../connection/data.js';
 import { clientClaim, deltaOf, foldTerminal, holderOf, joinParts, normalizeState } from './terminal.js';
 
 /** A CSS custom property's value on an element, or the fallback. */
@@ -31,12 +31,13 @@ export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
   const state = raw === undefined ? null : normalizeState(raw);
   const owner = state === null ? null : holderOf(state.claim, clientId);
   const exited = state?.lifecycle.status === 'exited';
-  /** Whether typing reaches the terminal: it is ours and still running. */
-  const typing = owner?.kind === 'you' && !exited;
+  const detached = (useStore<string[]>(AHP_DETACHED) ?? []).includes(uri ?? '');
+  /** Whether typing reaches the terminal: it is ours, still running, and followed. */
+  const typing = owner?.kind === 'you' && !exited && !detached;
   const typingRef = useRef(typing);
   typingRef.current = typing;
 
-  useEffect(() => (uri === undefined ? undefined : follow(uri, foldTerminal)), [uri]);
+  useEffect(() => (uri === undefined || detached ? undefined : follow(uri, foldTerminal)), [uri, detached]);
 
   useEffect(() => {
     const container = holder.current;
@@ -113,7 +114,12 @@ export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
   return (
     <div className="web-terminal">
       {error === null || error === undefined ? null : <Alert tone="danger" title="Not readable" message={error} />}
-      {state === null || typing ? null : (
+      {detached ? (
+        <div className="web-terminal__note">
+          Disconnected. The terminal keeps running on the host.
+          <button type="button" className="web-tool__copy" onClick={() => void scena.commands.execute('ahp.connectTerminal', { uri })}>Connect</button>
+        </div>
+      ) : state === null || typing ? null : (
         <div className="web-terminal__note">
           {exited
             ? `Exited${typeof (state.lifecycle as { exitCode?: number }).exitCode === 'number' ? ` with ${(state.lifecycle as { exitCode: number }).exitCode}` : ''}.`

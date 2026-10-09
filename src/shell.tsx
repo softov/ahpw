@@ -15,7 +15,9 @@ import { registerView } from './view/index.js';
 import { registerFiles } from './files/index.js';
 import { registerChanges } from './changes/index.js';
 import { registerNotifications } from './notify/index.js';
+import { registerPanel, registerPanelHide } from './panel/index.js';
 import { registerTerminals } from './terminals/index.js';
+import LayoutToggles from './view/LayoutToggles.js';
 import { registerBuiltinThemes } from '@softov/scena/themes';
 import { attachKeys } from './view/keys.js';
 import Palette, { PALETTE_OPEN, PALETTE_SLOT } from './view/Palette.js';
@@ -115,11 +117,6 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
-      key: 'chrome:toggle-left',
-      resource: { component: 'ButtonBar', slot: 'left', icon: '\u{25E7}\u{FE0E}', title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft' },
-    }),
-    scena.surfaces.mount({
-      surface: 'titlebar',
       key: 'chrome:title',
       resource: { component: 'AppTitle', slot: 'left', text: 'ahpd' },
     }),
@@ -134,11 +131,16 @@ export function registerShell(scena: Scena): Disposable {
       key: 'chrome:sign-out',
       resource: { component: 'ButtonBar', slot: 'right', label: 'Sign out', command: 'sigillum.signout' },
     }),
-    // The right toggle last, at the title bar's far end, above the right sidebar.
+    // The layout toggles last, at the title bar's far end: left sidebar, panel, right sidebar.
+    scena.components.register({
+      component: 'LayoutToggles',
+      category: 'inline',
+      renderer: { kind: 'react', load: async () => ({ default: LayoutToggles as unknown }) },
+    }),
     scena.surfaces.mount({
       surface: 'titlebar',
-      key: 'chrome:toggle-right',
-      resource: { component: 'ButtonBar', slot: 'right', icon: '\u{25E8}\u{FE0E}', title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight' },
+      key: 'chrome:toggles',
+      resource: { component: 'LayoutToggles', slot: 'right' },
     }),
 
     // The activity bar, in this order: mount order is the rail's order within each end.
@@ -186,7 +188,9 @@ export function registerShell(scena: Scena): Disposable {
     registerAutomations(scena),
     registerHost(scena),
     registerFiles(scena),
+    registerPanel(scena),
     registerTerminals(scena),
+    registerPanelHide(scena),
     // registerCommands(scena),
   );
 }
