@@ -22,8 +22,8 @@ export const AHP_DEFAULT_DIRECTORY = '$/ahp/defaultDirectory' as BindingPath;
 export const channelPath = (uri: string): BindingPath => `$/ahp/channels/${encodeURIComponent(uri)}` as BindingPath;
 /** What the host lets clients do with automations, as `initialize` said, or null. */
 export const AHP_AUTOMATION_CAPS = '$/ahp/automationCaps' as BindingPath;
-/** How many sessions are open, not archived. */
-export const AHP_SESSIONS_OPEN = '$/ahp/sessionCounts/open' as BindingPath;
+/** How many sessions are idle and not read, archived ones left out. */
+export const AHP_SESSIONS_UNREAD = '$/ahp/sessionCounts/unread' as BindingPath;
 /** How many open sessions have a turn running. */
 export const AHP_SESSIONS_WORKING = '$/ahp/sessionCounts/working' as BindingPath;
 /** What the connection to the daemon says about it, as `HostFacts`. */
@@ -210,7 +210,7 @@ function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   store.set(AHP_SESSIONS, summaries);
   for (const summary of summaries) setIfChanged(store, titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
   const counts = countsOf(summaries.map((one) => one.status));
-  setIfChanged(store, AHP_SESSIONS_OPEN, counts.open);
+  setIfChanged(store, AHP_SESSIONS_UNREAD, counts.unread);
   setIfChanged(store, AHP_SESSIONS_WORKING, counts.working);
   const host = multi.host(HOST);
   store.set(AHP_AGENTS, (host?.agents ?? []) as AgentInfo[]);

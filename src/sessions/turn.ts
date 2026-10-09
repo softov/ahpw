@@ -29,6 +29,15 @@ export function factsOf(turn: Turn | ActiveTurn): TurnFacts {
   };
 }
 
+/** What a turn answered, as the markdown its text parts carry, tools and thinking left out. */
+export function replyText(turn: Turn | ActiveTurn): string {
+  return turn.responseParts
+    .filter((part) => String(part.kind) === 'markdown' && 'content' in part && typeof part.content === 'string')
+    .map((part) => (part as { content: string }).content.trim())
+    .filter((text) => text !== '')
+    .join('\n\n');
+}
+
 /** A token count as `950`, `12.3k` or `1.2M`. */
 export function tokens(count: number): string {
   if (count < 1000) return String(count);

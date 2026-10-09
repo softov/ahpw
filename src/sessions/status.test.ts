@@ -21,8 +21,8 @@ describe('activityOf', () => {
 });
 
 describe('countsOf', () => {
-  it('counts sessions not archived, and those working', () => {
-    // idle, running, needs input, archived and running.
-    expect(countsOf([0, 8, 24, 64 | 8])).toEqual({ open: 3, working: 2 });
+  it('counts sessions idle and not read, and those working', () => {
+    // idle, idle and read, running, needs input, archived and running, archived and idle.
+    expect(countsOf([0, 32, 8, 24, 64 | 8, 64])).toEqual({ unread: 1, working: 2 });
   });
 });

@@ -1,0 +1,49 @@
+/*
+ * The mark's motion. Transforms sit on children of the <svg>, where
+ * `transform-box: view-box` reads `transform-origin` in grid units.
+ */
+
+.ahpw-mark__art,
+.ahpw-mark__echo {
+  transform-box: view-box;
+}
+
+/* Set: rises off its baseline and settles just past true, once, on mount. */
+@keyframes ahpw-mark-set {
+  from { transform: scaleY(0); }
+  60%  { transform: scaleY(1.06); }
+  to   { transform: scaleY(1); }
+}
+
+.ahpw-mark--set .ahpw-mark__art {
+  transform-origin: 32px 52px;
+  animation: ahpw-mark-set 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.06) both;
+}
+
+/* Echo: three copies of the A leave it, a third of a cycle apart. */
+@keyframes ahpw-mark-echo {
+  0%   { transform: scale(1); opacity: 0.6; }
+  75%  { opacity: 0; }
+  100% { transform: scale(1.95); opacity: 0; }
+}
+
+.ahpw-mark__echo {
+  transform-origin: 32px 32px;
+  opacity: 0;
+  animation: ahpw-mark-echo 1.5s cubic-bezier(0.25, 0.6, 0.3, 1) infinite;
+}
+
+.ahpw-mark__echo--second {
+  animation-delay: 0.5s;
+}
+
+.ahpw-mark__echo--third {
+  animation-delay: 1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ahpw-mark--set .ahpw-mark__art,
+  .ahpw-mark__echo {
+    animation: none;
+  }
+}

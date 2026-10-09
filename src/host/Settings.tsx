@@ -31,7 +31,7 @@ export default function SettingsPage(): ReactElement {
   return (
     <div className="web-page">
       <Text variant="h2" text="Host settings" />
-      <SchemaForm schema={config.schema as unknown as JsonSchemaObject} value={values} onChange={(next) => { setValues(next); setSaved(false); }} jsonTextRoot={false} />
+      <SchemaForm schema={config.schema as unknown as JsonSchemaObject} value={values} onChange={(next) => { setValues(next); setSaved(false); }} baseline={held} />
       <div className="web-page__actions">
         <Button label="Save" variant="primary" disabled={!dirty} onClick={save} />
         <Button label="Reset" disabled={!dirty} onClick={() => setValues(held)} />

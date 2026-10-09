@@ -51,14 +51,15 @@ export const ACTIVITY_TONE: Record<Activity, 'warning' | 'info' | 'danger' | 'de
   idle: 'default',
 };
 
-/** The counts the Sessions icon carries: sessions not archived, and those with a turn running. */
-export function countsOf(statuses: readonly number[]): { open: number; working: number } {
-  let open = 0;
+/** The counts the Sessions icon carries: sessions idle and not read, and those with a turn running. Archived ones count for neither. */
+export function countsOf(statuses: readonly number[]): { unread: number; working: number } {
+  let unread = 0;
   let working = 0;
   for (const status of statuses) {
     if (isArchived(status)) continue;
-    open += 1;
-    if (activityOf(status) === 'running' || activityOf(status) === 'input') working += 1;
+    const activity = activityOf(status);
+    if (activity === 'idle' && !isRead(status)) unread += 1;
+    if (activity === 'running' || activity === 'input') working += 1;
   }
-  return { open, working };
+  return { unread, working };
 }

@@ -8,7 +8,7 @@ import { registerConnection } from './connection/index.js';
 import { SESSIONS_SECTION, registerSessions } from './sessions/index.js';
 import { AGENTS_SECTION, registerAgents } from './agents/index.js';
 import { AUTOMATIONS_SECTION, registerAutomations } from './automations/index.js';
-import { AHP_SESSIONS_OPEN, AHP_SESSIONS_WORKING } from './connection/data.js';
+import { AHP_SESSIONS_UNREAD, AHP_SESSIONS_WORKING } from './connection/data.js';
 import { EMOJIcon } from './emojis.js';
 import { registerHost } from './host/index.js';
 import { registerView } from './view/index.js';
@@ -156,9 +156,9 @@ export function registerShell(scena: Scena): Disposable {
         icon: EMOJIcon.sessions,
         label: 'Sessions',
         section: SESSIONS_SECTION,
-        badge: { path: AHP_SESSIONS_OPEN },
+        badge: { path: AHP_SESSIONS_UNREAD },
         badgeTone: 'muted',
-        badgeLabel: 'open',
+        badgeLabel: 'unread',
         secondBadge: { path: AHP_SESSIONS_WORKING },
         secondBadgeTone: 'info',
         secondBadgeLabel: 'working',

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Turn } from '@microsoft/agent-host-protocol';
-import { factsOf, tokens, totalsOf } from './turn.js';
+import { factsOf, replyText, tokens, totalsOf } from './turn.js';
 
 const turn = (fields: Record<string, unknown>): Turn => ({
   id: 't',
@@ -45,5 +45,13 @@ describe('totalsOf', () => {
       turn({ duration: 2000, usage: { inputTokens: 5, outputTokens: 2, model: 'a' } }),
     ]);
     expect(totals).toEqual({ turns: 2, working: 3000, input: 15, output: 3, tools: 0, models: ['a'] });
+  });
+});
+
+describe('replyText', () => {
+  it('joins the text parts and leaves tools and thinking out', () => {
+    expect(replyText(turn({
+      responseParts: [{ kind: 'markdown', content: 'First.\n' }, { kind: 'toolCall' }, { kind: 'reasoning', content: 'hmm' }, { kind: 'markdown', content: '  ' }, { kind: 'markdown', content: 'Second.' }],
+    }))).toBe('First.\n\nSecond.');
   });
 });

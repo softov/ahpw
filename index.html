@@ -3,10 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="./ahpw.svg" />
     <title>ahpw</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --boot-bg: #ffffff;
+        --boot-muted: #6b7280;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --boot-bg: #020617;
+          --boot-muted: #94a3b8;
+        }
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--boot-bg);
+      }
+
+      /*
+       * The boot loader. It sits inside #root, so React's first render clears it.
+       * It shows after a quarter second, so a warm boot never flashes it.
+       */
+      .boot-loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--boot-bg);
+        opacity: 0;
+        animation: boot-in 0.35s 0.25s ease-out forwards;
+      }
+
+      .boot-mark {
+        display: block;
+        overflow: visible;
+      }
+
+      /* Three copies of the A leave the mark, a third of a cycle apart; the same motion as src/ahpw-mark.css. */
+      .boot-echo {
+        transform-box: view-box;
+        transform-origin: 32px 32px;
+        opacity: 0;
+        animation: boot-echo 1.5s cubic-bezier(0.25, 0.6, 0.3, 1) infinite;
+      }
+
+      .boot-echo--second {
+        animation-delay: 0.5s;
+      }
+
+      .boot-echo--third {
+        animation-delay: 1s;
+      }
+
+      @keyframes boot-echo {
+        0% { transform: scale(1); opacity: 0.6; }
+        75% { opacity: 0; }
+        100% { transform: scale(1.95); opacity: 0; }
+      }
+
+      @keyframes boot-in {
+        to { opacity: 1; }
+      }
+
+      .boot-noscript {
+        font: 14px/1.5 system-ui, sans-serif;
+        color: var(--boot-muted);
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .boot-loading {
+          opacity: 1;
+          animation: none;
+        }
+
+        .boot-echo {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-loading" role="status" aria-label="Loading ahpw">
+        <svg class="boot-mark" width="72" height="72" viewBox="0 0 64 64" aria-hidden="true">
+          <path class="boot-echo" fill="#62c9b0" d="M29.84 8 L34.16 8 L47.62 52 L38.4 52 L32 31.06 L25.6 52 L16.38 52 Z" />
+          <path class="boot-echo boot-echo--second" fill="#62c9b0" d="M29.84 8 L34.16 8 L47.62 52 L38.4 52 L32 31.06 L25.6 52 L16.38 52 Z" />
+          <path class="boot-echo boot-echo--third" fill="#62c9b0" d="M29.84 8 L34.16 8 L47.62 52 L38.4 52 L32 31.06 L25.6 52 L16.38 52 Z" />
+          <rect x="26" y="43" width="12" height="4.4" fill="#356b5e" />
+          <path fill="#356b5e" d="M5.38 18 L14.62 18 L20.88 37.34 L16.38 52 Z" />
+          <path fill="#356b5e" d="M58.62 18 L49.38 18 L43.12 37.34 L47.62 52 Z" />
+          <path fill="#62c9b0" d="M29.84 8 L34.16 8 L47.62 52 L38.4 52 L32 31.06 L25.6 52 L16.38 52 Z" />
+        </svg>
+      </div>
+      <noscript>
+        <p class="boot-noscript">ahpw needs JavaScript to run.</p>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -7,6 +7,7 @@ import {
   type ActiveTurn,
   type ChatInputRequest,
   type ChatState,
+  type MessageAttachment,
   type SessionState,
   type SessionSummary,
   type StateAction,
@@ -23,7 +24,9 @@ import { Composer } from './Composer.js';
 import { WorkspaceContext } from './workspace.js';
 import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
-import { factsOf, tokens, when, type TurnFacts } from './turn.js';
+import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
+import { attachmentIcon, attachmentLabel } from './attachments.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** How a turn ended, in words, when it did not end well. */
 const ENDED: Record<string, string> = { cancelled: 'Stopped', error: 'Ended with an error' };
@@ -39,8 +42,24 @@ function useNow(on: boolean): number {
   return now;
 }
 
-/** The line under a turn: when, how long, the tokens, the model and the tools it called. */
-function FactLine({ facts, state, live }: { facts: TurnFacts; state?: string; live: boolean }): ReactElement {
+/** The reply's text to the clipboard, saying so for a moment. */
+function CopyReply({ text }: { text: string }): ReactElement {
+  const [copied, setCopied] = useState(false);
+  const copy = (): void => {
+    void navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    }).catch(() => undefined);
+  };
+  return (
+    <button type="button" className="web-turn__copy" title={copied ? 'Copied' : 'Copy'} aria-label={copied ? 'Copied' : 'Copy the reply'} onClick={copy}>
+      {copied ? EMOJIcon.check : EMOJIcon.copy}
+    </button>
+  );
+}
+
+/** The line under a turn: a copy of its reply, when, how long, the tokens, the model and the tools it called. */
+function FactLine({ facts, state, live, text }: { facts: TurnFacts; state?: string; live: boolean; text: string }): ReactElement {
   const now = useNow(live);
   const took = live ? (facts.startedAt === undefined ? undefined : now - facts.startedAt) : facts.duration;
   const bits: string[] = [];
@@ -52,6 +71,7 @@ function FactLine({ facts, state, live }: { facts: TurnFacts; state?: string; li
   if (facts.tools > 0) bits.push(facts.tools === 1 ? '1 tool call' : `${facts.tools} tool calls`);
   return (
     <div className="web-turn__facts">
+      {live || text === '' ? null : <CopyReply text={text} />}
       {bits.join(' \u{00B7} ')}
       {state === undefined || ENDED[state] === undefined ? null : <span className="web-turn__ended" data-state={state}>{ENDED[state]}</span>}
     </div>
@@ -59,6 +79,24 @@ function FactLine({ facts, state, live }: { facts: TurnFacts; state?: string; li
 }
 
 const NONE: readonly ChatInputRequest[] = [];
+
+/** What a message carried along with its text, a file opening where it is one. */
+function SentAttachments({ attachments }: { attachments: readonly MessageAttachment[] }): ReactElement {
+  const scena = useScena();
+  return (
+    <div className="web-turn__attached">
+      {attachments.map((attachment, index) => {
+        const held = attachment as { uri?: unknown; displayKind?: unknown };
+        const uri = typeof held.uri === 'string' && held.displayKind !== 'directory' ? held.uri : undefined;
+        const label = attachmentLabel(attachment);
+        const body = <><span className="web-attachment__icon">{attachmentIcon(attachment)}</span><span className="web-attachment__label">{label}</span></>;
+        return uri === undefined
+          ? <span key={index} className="web-attachment" title={label}>{body}</span>
+          : <button key={index} type="button" className="web-attachment" title={`Open ${label}`} onClick={() => void scena.commands.execute('ahp.openFile', { uri })}>{body}</button>;
+      })}
+    </div>
+  );
+}
 
 /** A finished turn renders once: the reducer keeps its object while later turns stream. */
 const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
@@ -72,7 +110,10 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
   const parts = turn.responseParts;
   return (
     <article className="web-turn">
-      <div className="web-turn__ask">{turn.message.text}</div>
+      <div className="web-turn__ask">
+        {turn.message.text}
+        {turn.message.attachments === undefined || turn.message.attachments.length === 0 ? null : <SentAttachments attachments={turn.message.attachments} />}
+      </div>
       <div className="web-turn__answer">
         {groupParts(parts, live, factsOf(turn).duration).map((shown) => shown.kind === 'activity'
           ? <Activity key={shown.id} group={shown} send={send} turnId={turn.id} />
@@ -80,7 +121,7 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
         {live ? open.map((request) => <InputRequest key={request.id} request={request} send={send} live response={undefined} />) : null}
         {live && parts.length === 0 ? <Spinner label="Working" /> : null}
       </div>
-      <FactLine facts={factsOf(turn)} {...(state === undefined ? {} : { state })} live={live} />
+      <FactLine facts={factsOf(turn)} {...(state === undefined ? {} : { state })} live={live} text={replyText(turn)} />
     </article>
   );
 });
