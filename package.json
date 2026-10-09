@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "packageManager": "pnpm@11.21.0",
-  "description": "A browser UI for an ahpd daemon, served by the daemon as a plugin route",
+  "description": "A web UI for an AHP server, as an ahpd plugin or on its own with ahpw serve",
   "keywords": [
     "ahp",
     "agent-host-protocol",

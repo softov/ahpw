@@ -2,7 +2,7 @@
 
 A web UI for an AHP server.
 
-Run it inside [ahpd](https://github.com/softov/ahpd) as a plugin, or on its own with `ahpw serve` in front of any daemon.
+Run it inside [ahpd](https://github.com/softov/ahpd) as a plugin, or on its own with `ahpw serve` in front of any AHP server.
 
 What you get:
 
@@ -11,8 +11,9 @@ What you get:
 - **Automations** for running tasks and scripts automatically based on session events.
 - **Terminals** and a log in a bottom panel.
 - **Host Information**, shows details about the server and its environment.
-- **Agents**, list and manage the `harness` processes running on the server.
+- **Agents**, the ones the host offers: their models, customizations and sign-in, and a new session with one.
 - **Settings**, configure the host server and its plugins.
+- **Administration screens** for every ahpd command (ahpd only). They are built from the daemon's `/api/cli-manifest`, so a new command shows up here with no change to this package.
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/media/shot-01-light.jpeg">
@@ -75,7 +76,7 @@ Then open `http://127.0.0.1:5190/`.
 
 | Option | What it does |
 | --- | --- |
-| `--connect URL` | The daemon's socket: `ws://`, `wss://`, `http://`, `https://` or `HOST:PORT` |
+| `--connect URL` | The server's socket: `ws://`, `wss://`, `http://`, `https://` or `HOST:PORT` |
 | `--token SECRET` | The token to add to the socket |
 | `--token-file PATH` | Read the token from a file |
 | `--host ADDR` | Bind here, default `127.0.0.1` |
@@ -97,7 +98,7 @@ Every option can go in `~/.config/ahpw/config.json`, without the dashes:
 
 With no `connect` anywhere, `ahpw serve` reads the environment:
 
-1. `AHPD_URL`, else `AHPD_HOST`, for the daemon
+1. `AHPD_URL`, else `AHPD_HOST`, for the server
 2. the `tkn=` in that URL, else `AHPD_TOKEN`, for the token
 
 ```sh
@@ -108,7 +109,7 @@ A flag beats the file, and the file beats the environment.
 
 ### Security
 
-- The server binds `127.0.0.1` by default. Anyone who reaches it uses the daemon with your token, so it warns when `--host` opens it up.
+- The server binds `127.0.0.1` by default. Anyone who reaches it uses the AHP server with your token, so it warns when `--host` opens it up.
 - It takes a socket only from a page it served, at an IP address or `localhost`.
 - It warns when the token goes in cleartext (`ws://`) to another machine.
 
@@ -116,9 +117,9 @@ A flag beats the file, and the file beats the environment.
 
 ## Sign-in
 
-Without a token from `ahpw serve`, sign in with one the daemon accepts: the deployment's token, or a person's token.
+Without a token from `ahpw serve`, sign in with one the server accepts: the deployment's token, or a person's token.
 
-Each ahpd command checks its own grants. A token that may not run one gets the daemon's refusal.
+Each ahpd command checks its own grants. A token that may not run one gets ahpd's refusal.
 
 The socket carries the token as `?tkn=`, because a browser cannot set a header on a WebSocket.
 
@@ -149,6 +150,22 @@ ahpd run --plugin /path/to/ahpd-web
 
 ---
 
+## Release
+
+CI runs on every push to `main`: typecheck, tests, build, and the packed package installed and served once.
+
+A `v*` tag releases. It must match `version` in `package.json`:
+
+```sh
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+The release workflow runs the same checks and stages `@ahpd/web` on npm with provenance. Nothing is installable until it is approved on the package's npm page.
+
+npm sets a trusted publisher on a package that exists, so the first version is published once by hand with `pnpm build && npm publish --access public`, and the trusted publisher (`softov/ahpw`, `release.yml`) is added after it.
+
+---
+
 ## Layout
 
 | Path | What it is |
@@ -157,10 +174,10 @@ ahpd run --plugin /path/to/ahpd-web
 | `cli/` | `ahpw serve`: the same route on its own server, and the socket proxy |
 | `src/connection/` | The AHP connection, the socket address, the protocol versions offered |
 | `src/sessions/` | The sessions list, a new session, a session's chat and details |
-| `src/agents/` | The agents the daemon offers |
+| `src/agents/` | The agents the server offers |
 | `src/changes/` | What a session changed |
 | `src/files/` | File, Markdown and diff viewers |
-| `src/terminals/` | The daemon's terminals |
+| `src/terminals/` | The server's terminals |
 | `src/log/` | The log page |
 | `src/panel/` | The bottom panel |
 | `src/automations/` | The automations list and an automation's page |
@@ -169,6 +186,8 @@ ahpd run --plugin /path/to/ahpd-web
 | `src/host/` | The host's settings |
 | `src/notify/` | Toasts, confirm dialogs, browser notifications |
 | `src/view/` | The palette, layouts and key bindings |
+| `src/explorer/` | The list the sidebar sections share |
+| `src/AhpwMark.tsx` | The logo, on the sign-in page and while loading |
 | `src/token-provider.ts` | Sign-in with a token |
 
 ---

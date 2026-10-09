@@ -17,7 +17,7 @@ declareServe(registry, APP);
 const program = new Program({
   name: 'ahpw',
   version,
-  description: 'A web UI for an AHP daemon',
+  description: 'A web UI for an AHP server',
   registry,
   globals: [configGlobal],
 });

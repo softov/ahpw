@@ -19,7 +19,7 @@ export const DEFAULT_HOST = '127.0.0.1';
 export const serveFields = {
   connect: {
     type: 'string',
-    description: 'The daemon\'s AHP socket, as ws://HOST:PORT or wss://HOST:PORT. A tkn in it is the token. Default AHPD_URL, then AHPD_HOST.',
+    description: 'The AHP server\'s socket, as ws://HOST:PORT or wss://HOST:PORT. A tkn in it is the token. Default AHPD_URL, then AHPD_HOST.',
     cli: { value: 'URL' },
   },
   token: {
@@ -130,7 +130,7 @@ export function settingsOf(flags: Readonly<Record<string, unknown>>, file: Reado
   const merged: Layer = { ...layers[1], ...layers[2], connect: layers.findLast((layer) => layer.connect !== undefined)?.connect, token: secretFrom.token, tokenFile: secretFrom.tokenFile };
 
   const connect = merged.connect;
-  if (!(connect instanceof URL)) throw new ArgumentError(`Pass --connect with the daemon's socket, as ws://127.0.0.1:PORT, or set ${ENVIRONMENT.url}.`);
+  if (!(connect instanceof URL)) throw new ArgumentError(`Pass --connect with the AHP server's socket, as ws://127.0.0.1:PORT, or set ${ENVIRONMENT.url}.`);
 
   let held: string | undefined;
   if (typeof merged.tokenFile === 'string') {
@@ -161,7 +161,7 @@ const loopback = (host: string): boolean => host === 'localhost' || host === '::
 export function warningsOf(settings: Settings): string[] {
   const said: string[] = [];
   if (!loopback(settings.host)) {
-    said.push(`ahpw: ${settings.host} is reached over plain http and ws.${settings.token === undefined ? '' : ' Anyone who reaches it uses the daemon with the token this server adds.'}`);
+    said.push(`ahpw: ${settings.host} is reached over plain http and ws.${settings.token === undefined ? '' : ' Anyone who reaches it uses the AHP server with the token ahpw adds.'}`);
   }
   if (settings.token !== undefined && settings.connect.protocol === 'ws:' && !loopback(settings.connect.hostname.replace(/^\[|\]$/g, ''))) {
     said.push(`ahpw: the token travels in cleartext to ${settings.connect.host}.`);
@@ -190,8 +190,8 @@ function openBrowser(url: string): void {
 /** `ahpw serve`: the page, and its socket carried to a daemon. Runs until stopped. */
 export const declareServe = (registry: Registry<object>, app: string): Command => registry.action({
   id: 'serve',
-  summary: 'Serve the page, connected to a daemon',
-  description: 'Serves the web UI and carries its socket to the daemon --connect names. With a token, the page asks for none.',
+  summary: 'Serve the page, connected to an AHP server',
+  description: 'Serves the web UI and carries its socket to the AHP server --connect names. With a token, the page asks for none.',
   surfaces: { cli: { pattern: ['serve'] } },
   input: serveFields,
   run: async (context) => {
