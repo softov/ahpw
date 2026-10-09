@@ -4,6 +4,7 @@ import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
 import { readToken, serverHoldsToken } from '../api.js';
 import { offering } from './protocol-versions.js';
+import { readingServerInfo } from './server-info.js';
 import { socketUrl } from './socket.js';
 import { countsOf } from '../sessions/status.js';
 import { logEvent } from '../log/log.js';
@@ -28,6 +29,8 @@ export const AHP_SESSIONS_UNREAD = '$/ahp/sessionCounts/unread' as BindingPath;
 export const AHP_SESSIONS_WORKING = '$/ahp/sessionCounts/working' as BindingPath;
 /** What the connection to the daemon says about it, as `HostFacts`. */
 export const AHP_HOST = '$/ahp/host' as BindingPath;
+/** The host software's name and version, as its last `initialize` answer said, as `ServerInfo`. */
+export const AHP_SERVER = '$/ahp/server' as BindingPath;
 /** The terminals this page has stopped following; their tabs stay, showing what they last drew. */
 export const AHP_DETACHED = '$/ahp/terminals/detached' as BindingPath;
 
@@ -324,7 +327,7 @@ async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<vo
     await multi.addHost({
       id: HOST,
       label: window.location.host,
-      transportFactory: async () => offering(observing(await WebSocketTransport.connect(socketUrl(serverHoldsToken() ? null : readToken(), window.location, import.meta.env.DEV)))),
+      transportFactory: async () => readingServerInfo(offering(observing(await WebSocketTransport.connect(socketUrl(serverHoldsToken() ? null : readToken(), window.location, import.meta.env.DEV)))), (info) => store.set(AHP_SERVER, info)),
     });
   } catch (error) {
     store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);
