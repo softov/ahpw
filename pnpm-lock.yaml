@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@softov/scena': link:../scena/packages/scena
-
 importers:
 
   .:
@@ -31,8 +28,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@softov/scena':
-        specifier: link:../scena/packages/scena
-        version: link:../scena/packages/scena
+        specifier: ^0.5.0
+        version: 0.5.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.5
@@ -269,6 +266,17 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
+
+  '@softov/scena@0.5.0':
+    resolution: {integrity: sha512-LDAkQvS10nl7HH1V284jXyXdHCnsK6xbIThk7PJqdivuuQpWQ0osPt/8oq1dSeeMgGyoqY1Lmb6do79zTFWekw==}
+    peerDependencies:
+      react: ^19.0.0
+      react-dom: ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -918,6 +926,11 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@softov/scena@0.5.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    optionalDependencies:
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
 
   '@standard-schema/spec@1.1.0': {}
 
