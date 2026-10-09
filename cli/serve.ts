@@ -19,12 +19,12 @@ export const DEFAULT_HOST = '127.0.0.1';
 export const serveFields = {
   connect: {
     type: 'string',
-    description: 'The daemon\'s AHP socket, as ws://HOST:PORT or wss://HOST:PORT.',
+    description: 'The daemon\'s AHP socket, as ws://HOST:PORT or wss://HOST:PORT. A tkn in it is the token. Default AHPD_URL, then AHPD_HOST.',
     cli: { value: 'URL' },
   },
   token: {
     type: 'string',
-    description: 'Add this token to the socket, so the page asks for none.',
+    description: 'Add this token to the socket, so the page asks for none. Default the tkn in the socket, then AHPD_TOKEN.',
     cli: { value: 'SECRET' },
   },
   tokenFile: {
@@ -66,31 +66,72 @@ const KINDS: Readonly<Record<keyof typeof serveFields, string>> = {
 /** `~` at the start of a path, as a shell would read it. A config file has no shell. */
 const expand = (path: string): string => (path === '~' || path.startsWith('~/') ? homedir() + path.slice(1) : path);
 
+/** The variables `serve` reads, below the file. */
+export const ENVIRONMENT = { url: 'AHPD_URL', host: 'AHPD_HOST', token: 'AHPD_TOKEN' } as const;
+
+/** One source of settings: the flags, the file, or the environment. */
+type Layer = Partial<Record<keyof typeof serveFields, unknown>>;
+
 /**
- * The flags over the file, checked, with the defaults filled in.
- *
- * A flag beats the file. `token` and `tokenFile` are one secret: both from the
- * same place are refused, and a flag for either replaces both from the file.
+ * A daemon's socket from what a person wrote. `http` and `https` name the same
+ * port as `ws` and `wss`, and a bare `HOST:PORT` is taken as `ws://HOST:PORT`.
  */
-export function settingsOf(flags: Readonly<Record<string, unknown>>, file: Readonly<Record<string, unknown>>, read: (path: string) => string = (path) => readFileSync(path, 'utf8')): Settings {
+function socketOf(text: string, from: string): URL {
+  let url: URL;
+  try {
+    url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(text) ? text : `ws://${text}`);
+  } catch {
+    throw new ArgumentError(`${from} is not a URL: ${text}.`);
+  }
+  if (url.protocol === 'http:') url.protocol = 'ws:';
+  else if (url.protocol === 'https:') url.protocol = 'wss:';
+  if (url.protocol !== 'ws:' && url.protocol !== 'wss:') throw new ArgumentError(`${from} takes ws://, wss://, http:// or https://, not ${url.protocol}//.`);
+  return url;
+}
+
+/** A layer with its socket read, and the socket's `tkn` taken out as the layer's token. */
+function lifted(layer: Layer, from: string): Layer {
+  if (typeof layer.connect !== 'string') return layer;
+  const url = socketOf(layer.connect, from);
+  const tkn = url.searchParams.get('tkn');
+  if (tkn === null) return { ...layer, connect: url };
+  if (layer.token !== undefined || layer.tokenFile !== undefined) throw new ArgumentError(`${from} has a tkn, and a token is also given. Pass one.`);
+  url.searchParams.delete('tkn');
+  return { ...layer, connect: url, token: tkn };
+}
+
+/** `AHPD_URL` or else `AHPD_HOST`, with the token in its `tkn` or else `AHPD_TOKEN`. */
+function environmentLayer(env: Readonly<Record<string, string | undefined>>): Layer {
+  const named = [ENVIRONMENT.url, ENVIRONMENT.host].find((name) => (env[name] ?? '') !== '');
+  const layer = named === undefined ? {} : lifted({ connect: env[named] }, named);
+  const token = env[ENVIRONMENT.token] ?? '';
+  return layer.token === undefined && token !== '' ? { ...layer, token } : layer;
+}
+
+const holdsSecret = (layer: Layer): boolean => layer.token !== undefined || layer.tokenFile !== undefined;
+
+/**
+ * The flags over the file over the environment, checked, with the defaults filled in.
+ *
+ * A flag beats the file, and the file beats the environment. `token`,
+ * `tokenFile` and a `tkn` in the socket are one secret: two from the same place
+ * are refused, and the highest place that gives one replaces the others.
+ */
+export function settingsOf(flags: Readonly<Record<string, unknown>>, file: Readonly<Record<string, unknown>>, env: Readonly<Record<string, string | undefined>>, read: (path: string) => string = (path) => readFileSync(path, 'utf8')): Settings {
   for (const [key, value] of Object.entries(file)) {
     const kind = KINDS[key as keyof typeof KINDS];
     if (kind === undefined) throw new ConfigurationError(`The configuration has a key serve does not take: ${key}.`);
     if (typeof value !== kind || (key === 'port' && !Number.isInteger(value))) throw new ConfigurationError(`The configuration's ${key} is not a${kind === 'number' ? 'n integer' : ` ${kind}`}.`);
   }
-  const secretFrom = flags['token'] !== undefined || flags['tokenFile'] !== undefined ? flags : file;
-  const merged = { ...file, ...flags, token: secretFrom['token'], tokenFile: secretFrom['tokenFile'] } as Partial<Record<keyof typeof serveFields, unknown>>;
+  if (flags['token'] !== undefined && flags['tokenFile'] !== undefined) throw new ArgumentError('Pass --token or --token-file, not both.');
+  if (file['token'] !== undefined && file['tokenFile'] !== undefined) throw new ConfigurationError('The configuration has token and tokenFile. Keep one.');
+  const layers = [environmentLayer(env), lifted(file, 'The configuration\'s connect'), lifted(flags, '--connect')];
+  const secretFrom = layers.findLast(holdsSecret) ?? {};
+  const merged: Layer = { ...layers[1], ...layers[2], connect: layers.findLast((layer) => layer.connect !== undefined)?.connect, token: secretFrom.token, tokenFile: secretFrom.tokenFile };
 
-  if (typeof merged.connect !== 'string') throw new ArgumentError('Pass --connect with the daemon\'s socket, as ws://127.0.0.1:PORT.');
-  let connect: URL;
-  try {
-    connect = new URL(merged.connect);
-  } catch {
-    throw new ArgumentError(`--connect is not a URL: ${merged.connect}.`);
-  }
-  if (connect.protocol !== 'ws:' && connect.protocol !== 'wss:') throw new ArgumentError(`--connect takes ws:// or wss://, not ${connect.protocol}//.`);
+  const connect = merged.connect;
+  if (!(connect instanceof URL)) throw new ArgumentError(`Pass --connect with the daemon's socket, as ws://127.0.0.1:PORT, or set ${ENVIRONMENT.url}.`);
 
-  if (merged.token !== undefined && merged.tokenFile !== undefined) throw new ArgumentError('Pass --token or --token-file, not both.');
   let held: string | undefined;
   if (typeof merged.tokenFile === 'string') {
     try {
@@ -158,7 +199,7 @@ export const declareServe = (registry: Registry<object>, app: string): Command =
     const file = resolveConfig(typeof named === 'string'
       ? { name: 'ahpw', path: named, user: false, environment: false }
       : { name: 'ahpw' });
-    const settings = settingsOf(context.input, file.values as Record<string, unknown>);
+    const settings = settingsOf(context.input, file.values as Record<string, unknown>, process.env);
     for (const line of warningsOf(settings)) process.stderr.write(`${line}\n`);
 
     const { server, stop } = createWebServer({ app, upstream: settings.connect, token: settings.token });

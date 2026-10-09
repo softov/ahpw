@@ -1,16 +1,16 @@
 # @ahpd/web
 
-A browser UI for an [ahpd](https://github.com/softov/ahpd) daemon, served by the daemon itself as a plugin. It talks to that one daemon two ways: its administration API, and the Agent Host Protocol.
+A web UI for an AHP daemon. Run it inside [ahpd](https://github.com/softov/ahpd) as a plugin, or on its own with `ahpw serve` in front of any daemon.
 
-The sessions come over AHP, on the daemon's own socket: the list stays live as sessions are added, change or end.
+What you get:
 
-Every administration screen is drawn from the daemon's `/api/cli-manifest`: one entry per command, grouped, with a form built from the command's arguments and options, and the answer drawn by its shape. A command ahpd adds shows up here without a change to this package.
+- **Sessions**, live over the Agent Host Protocol: the list, each chat, new sessions, and what they changed.
+- **Terminals** and a log in a bottom panel.
+- **Administration screens** for every ahpd command (ahpd only). They are built from the daemon's `/api/cli-manifest`, so a new command shows up here with no change to this package.
 
-Sign in with a token the daemon accepts: the deployment's connection token, or a person's token. Each command checks its own grants, so a token that may not run one is answered with the daemon's refusal. The socket carries the token as `?tkn=`, because a browser cannot put a header on a WebSocket.
+## Run it in ahpd
 
-## Run it on a daemon
-
-The API has to be on, and on the daemon's own port, so the page and `/api` share an origin:
+Turn on the API on the daemon's own port, and add the plugin:
 
 ```json
 {
@@ -21,29 +21,68 @@ The API has to be on, and on the daemon's own port, so the page and `/api` share
 
 Then open `http://127.0.0.1:9187/plugins/ahpd-web/`.
 
-With `http.port` set, the API is on another origin and this page cannot reach it.
+Keep `http.port` unset. On another port the API is on another origin, and the page cannot reach it.
 
 ## Run it on its own
-
-`ahpw serve` serves the page and carries its socket to any AHP daemon, ahpd or not:
 
 ```sh
 ahpw serve --connect ws://127.0.0.1:37537 --token-file ~/.vscode/cli/agent-host-token
 ```
 
-Then open `http://127.0.0.1:5190/`. With `--token` or `--token-file`, the server adds the token to the socket, the page asks for none, and the browser never sees it. Without one, the page asks for a token as it does on a daemon.
+Then open `http://127.0.0.1:5190/`.
+
+- **With a token**, the server adds it to the socket. The page asks for nothing, and the browser never sees the token.
+- **Without one**, the page asks for a token, as it does in ahpd.
+- The administration screens need ahpd's `/api`, so they are not here.
+
+### Options
 
 | Option | What it does |
 | --- | --- |
-| `--connect URL` | The daemon's AHP socket, `ws://` or `wss://` |
-| `--token SECRET`, `--token-file PATH` | The token the server adds to the socket |
+| `--connect URL` | The daemon's socket: `ws://`, `wss://`, `http://`, `https://` or `HOST:PORT` |
+| `--token SECRET` | The token to add to the socket |
+| `--token-file PATH` | Read the token from a file |
 | `--host ADDR` | Bind here, default `127.0.0.1` |
 | `--port N` | Listen here, default `5190` |
 | `--open` | Open the page in a browser |
 
-Each option can also be a key in `~/.config/ahpw/config.json`, spelled without the dashes (`tokenFile`). A flag beats the file.
+A `tkn=` in the `--connect` URL counts as the token.
 
-The server takes a socket only from a page it served, reached by an address or `localhost`. Anyone who reaches the server uses the daemon with the token it adds, so it binds loopback unless `--host` says otherwise, and warns when it does. The administration screens need ahpd's `/api`, which `ahpw serve` does not carry.
+### Config file and environment
+
+Every option can go in `~/.config/ahpw/config.json`, without the dashes:
+
+```json
+{
+  "connect": "ws://127.0.0.1:37537",
+  "tokenFile": "~/.vscode/cli/agent-host-token"
+}
+```
+
+With no `connect` anywhere, `ahpw serve` reads the environment:
+
+1. `AHPD_URL`, else `AHPD_HOST`, for the daemon
+2. the `tkn=` in that URL, else `AHPD_TOKEN`, for the token
+
+```sh
+AHPD_URL="ws://127.0.0.1:37537/?tkn=$(cat ~/.vscode/cli/agent-host-token)" ahpw serve
+```
+
+A flag beats the file, and the file beats the environment.
+
+### Security
+
+- The server binds `127.0.0.1` by default. Anyone who reaches it uses the daemon with your token, so it warns when `--host` opens it up.
+- It takes a socket only from a page it served, at an IP address or `localhost`.
+- It warns when the token goes in cleartext (`ws://`) to another machine.
+
+## Sign-in
+
+Without a token from `ahpw serve`, sign in with one the daemon accepts: the deployment's token, or a person's token.
+
+Each ahpd command checks its own grants. A token that may not run one gets the daemon's refusal.
+
+The socket carries the token as `?tkn=`, because a browser cannot set a header on a WebSocket.
 
 ## Develop
 
@@ -52,9 +91,9 @@ pnpm install
 pnpm dev
 ```
 
-`pnpm dev` serves on `http://127.0.0.1:5180` and proxies `/api`, and the AHP socket at `/ahp`, to `AHPD_URL`, default `http://127.0.0.1:9187`. The daemon needs `"http": true`.
+`pnpm dev` serves on `http://127.0.0.1:5180`. It proxies `/api` and the socket (at `/ahp`) to `AHPD_URL`, default `http://127.0.0.1:9187`. The daemon needs `"http": true`.
 
-To load a local build into a daemon:
+To try a local build in ahpd:
 
 ```sh
 pnpm build
@@ -66,7 +105,7 @@ ahpd run --plugin /path/to/ahpd-web
 | `pnpm dev` | Vite, with `/api` and the socket proxied to a daemon |
 | `pnpm build` | The page into `dist/app`, the plugin into `dist/plugin`, the CLI into `dist/cli` |
 | `pnpm typecheck` | Every TypeScript project |
-| `pnpm test` | The request mapping, the static route, the socket address and the session status |
+| `pnpm test` | The unit tests, for the page, the plugin and the CLI |
 
 ## Layout
 
@@ -74,12 +113,20 @@ ahpd run --plugin /path/to/ahpd-web
 | --- | --- |
 | `plugin/` | The ahpd plugin: one route serving `dist/app` |
 | `cli/` | `ahpw serve`: the same route on its own server, and the socket proxy |
-| `src/manifest/` | The manifest's types, commands to forms and requests, the store provider |
-| `src/commands/` | The command list, the command page, the result view |
-| `src/connection/` | The AHP connection: one client for the daemon, followed channels, the socket address |
-| `src/sessions/` | The sessions list, a new session, and a session's chat |
+| `src/connection/` | The AHP connection, the socket address, the protocol versions offered |
+| `src/sessions/` | The sessions list, a new session, a session's chat and details |
+| `src/agents/` | The agents the daemon offers |
+| `src/changes/` | What a session changed |
+| `src/files/` | File, Markdown and diff viewers |
+| `src/terminals/` | The daemon's terminals |
+| `src/log/` | The log page |
+| `src/panel/` | The bottom panel |
 | `src/automations/` | The automations list and an automation's page |
+| `src/commands/` | The command list, the command page, the result view |
+| `src/manifest/` | The manifest's types, commands to forms and requests |
 | `src/host/` | The host's settings |
+| `src/notify/` | Toasts, confirm dialogs, browser notifications |
+| `src/view/` | The palette, layouts and key bindings |
 | `src/token-provider.ts` | Sign-in with a token |
 
 ## License
