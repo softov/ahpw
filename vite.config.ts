@@ -35,7 +35,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['src/**/*.test.ts', 'plugin/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'plugin/**/*.test.ts', 'cli/**/*.test.ts'],
     // Linked or installed, scena's components import their own CSS.
     server: { deps: { inline: ['@softov/scena'] } },
   },

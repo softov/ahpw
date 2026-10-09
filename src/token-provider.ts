@@ -1,5 +1,5 @@
 import type { PortaProvider, Session } from '@softov/scena/porta';
-import { readToken, writeToken } from './api.js';
+import { readServer, readToken, writeToken } from './api.js';
 // import { ApiError, call, readManifest } from './api.js';
 // import { needsInput, requestOf } from './manifest/input.js';
 
@@ -73,8 +73,14 @@ export function tokenProvider(): PortaProvider {
   };
 }
 
-/** The session a stored token still stands for, checked again rather than trusted. */
+/**
+ * The session a stored token still stands for, checked again rather than trusted.
+ *
+ * When the server that sent the page adds the token itself, the page is signed
+ * in without one.
+ */
 export async function restoreSession(): Promise<Session | null> {
+  if (await readServer()) return { userId: 'server', displayName: 'AHP', permissions: [SIGNED_IN] };
   const token = readToken();
   if (token === null) return null;
   try {

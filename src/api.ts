@@ -25,6 +25,31 @@ export function writeToken(token: string | null): void {
   }
 }
 
+/** Whether the server that sent this page adds the token to the socket itself. */
+let tokenHeld = false;
+
+/** Whether the server holds the token, as `readServer` found. The page then sends none. */
+export function serverHoldsToken(): boolean {
+  return tokenHeld;
+}
+
+/**
+ * Asks the server that sent this page whether it adds the token itself.
+ *
+ * `ahpw serve` with a token answers `ahpw.json` beside the page; the daemon's
+ * route answers 404, and a dev server its page, so anything but that file is no.
+ */
+export async function readServer(): Promise<boolean> {
+  try {
+    const response = await fetch('./ahpw.json', { headers: { accept: 'application/json' }, cache: 'no-store' });
+    if (!response.ok || !(response.headers.get('content-type') ?? '').includes('application/json')) return false;
+    tokenHeld = (await response.json() as { tokenHeld?: unknown }).tokenHeld === true;
+  } catch {
+    tokenHeld = false;
+  }
+  return tokenHeld;
+}
+
 /** A refused or failed call, with the sentence the daemon answered. */
 export class ApiError extends Error {
   public constructor(public readonly status: number, message: string) {

@@ -1,5 +1,5 @@
 {
-  "name": "@softov/ahpw",
+  "name": "@ahpd/web",
   "version": "0.1.0",
   "type": "module",
   "description": "A browser UI for an ahpd daemon, served by the daemon as a plugin route",
@@ -17,6 +17,9 @@
   "engines": {
     "node": ">=22"
   },
+  "bin": {
+    "ahpw": "./dist/cli/main.js"
+  },
   "main": "./dist/plugin/index.js",
   "types": "./dist/plugin/index.d.ts",
   "exports": {
@@ -31,7 +34,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && tsc -p tsconfig.plugin.json",
+    "build": "tsc -b && vite build && tsc -p tsconfig.plugin.json && tsc -p tsconfig.cli.json && chmod +x dist/cli/main.js",
     "typecheck": "tsc -b",
     "test": "vitest run"
   },
@@ -58,5 +61,11 @@
   "ahpd": {
     "entry": "./dist/plugin/index.js",
     "title": "Web"
+  },
+  "dependencies": {
+    "@cofold/commands": "^0.3.0",
+    "@cofold/config": "^0.3.1",
+    "@cofold/remote": "^0.5.0",
+    "@cofold/terminal": "^0.3.0"
   }
 }

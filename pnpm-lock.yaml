@@ -10,6 +10,19 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      '@cofold/commands':
+        specifier: ^0.3.0
+        version: 0.3.0
+      '@cofold/config':
+        specifier: ^0.3.1
+        version: 0.3.1
+      '@cofold/remote':
+        specifier: ^0.5.0
+        version: 0.5.0
+      '@cofold/terminal':
+        specifier: ^0.3.0
+        version: 0.3.0
     devDependencies:
       '@ahpd/sdk':
         specifier: ^0.9.0
@@ -83,6 +96,26 @@ packages:
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
+
+  '@cofold/commands@0.3.0':
+    resolution: {integrity: sha512-519EMb9ZL679ec/hJdMuVMQo0P2yvvMDCX5W9h4jVYJPqMU1lnhQjN9hvroFSCKqawVus3fXBIJQ5oUrXfe2jQ==}
+    engines: {node: '>=22'}
+
+  '@cofold/config@0.3.1':
+    resolution: {integrity: sha512-2/kqFgagpNKIQLQoRRq4fDWbetHA7bEkQqjutAbTcQbOAK+pEsKjNN1GLVIWpQTp6sa6UB+GkwXFq8JQShDd5g==}
+    engines: {node: '>=22'}
+
+  '@cofold/remote@0.5.0':
+    resolution: {integrity: sha512-Ey2KgiuMTZouSmElVD8WmsS5quKRJMWGz1bN2bNtpdAHHl7td3AOm3Pa0DzWhXgGUtoJf4Xtlr4NFEL8wASuXQ==}
+    engines: {node: '>=22'}
+
+  '@cofold/sdk@0.2.0':
+    resolution: {integrity: sha512-+BJXliKbdRZB4Yt5jydQK/004tPmpiEXwwRvrTjn5wste4ZiJYGuA1kArg18C7HQWiM+zVPB23zhWtKEVySWKg==}
+    engines: {node: '>=22'}
+
+  '@cofold/terminal@0.3.0':
+    resolution: {integrity: sha512-WHzZA7Dhw2glPFvxQUT/2iRlZc/w8ckjPshSMA7LHi+p2D5/lKgyaot74TIKd/HyfxJCdFI4KVACvIgXzPzDLg==}
+    engines: {node: '>=22'}
 
   '@csstools/color-helpers@6.1.2':
     resolution: {integrity: sha512-grhRy3OKmniaAEKXMjua5z/EODX0MSqBGjunw8+j/3HQjOnahs2AGhvEOIYVUWcU6ScApbhLhVrQTX8XqrMrow==}
@@ -781,6 +814,24 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
     optional: true
+
+  '@cofold/commands@0.3.0':
+    dependencies:
+      '@cofold/sdk': 0.2.0
+
+  '@cofold/config@0.3.1':
+    dependencies:
+      '@cofold/commands': 0.3.0
+
+  '@cofold/remote@0.5.0':
+    dependencies:
+      '@cofold/commands': 0.3.0
+
+  '@cofold/sdk@0.2.0': {}
+
+  '@cofold/terminal@0.3.0':
+    dependencies:
+      '@cofold/commands': 0.3.0
 
   '@csstools/color-helpers@6.1.2':
     optional: true

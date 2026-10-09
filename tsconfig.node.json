@@ -8,5 +8,5 @@
     "moduleResolution": "nodenext",
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "plugin"]
+  "include": ["vite.config.ts", "plugin", "cli"]
 }

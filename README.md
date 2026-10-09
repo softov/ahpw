@@ -1,4 +1,4 @@
-# @softov/ahpw
+# @ahpd/web
 
 A browser UI for an [ahpd](https://github.com/softov/ahpd) daemon, served by the daemon itself as a plugin. It talks to that one daemon two ways: its administration API, and the Agent Host Protocol.
 
@@ -15,13 +15,35 @@ The API has to be on, and on the daemon's own port, so the page and `/api` share
 ```json
 {
   "http": true,
-  "plugins": ["@softov/ahpw"]
+  "plugins": ["@ahpd/web"]
 }
 ```
 
 Then open `http://127.0.0.1:9187/plugins/ahpd-web/`.
 
 With `http.port` set, the API is on another origin and this page cannot reach it.
+
+## Run it on its own
+
+`ahpw serve` serves the page and carries its socket to any AHP daemon, ahpd or not:
+
+```sh
+ahpw serve --connect ws://127.0.0.1:37537 --token-file ~/.vscode/cli/agent-host-token
+```
+
+Then open `http://127.0.0.1:5190/`. With `--token` or `--token-file`, the server adds the token to the socket, the page asks for none, and the browser never sees it. Without one, the page asks for a token as it does on a daemon.
+
+| Option | What it does |
+| --- | --- |
+| `--connect URL` | The daemon's AHP socket, `ws://` or `wss://` |
+| `--token SECRET`, `--token-file PATH` | The token the server adds to the socket |
+| `--host ADDR` | Bind here, default `127.0.0.1` |
+| `--port N` | Listen here, default `5190` |
+| `--open` | Open the page in a browser |
+
+Each option can also be a key in `~/.config/ahpw/config.json`, spelled without the dashes (`tokenFile`). A flag beats the file.
+
+The server takes a socket only from a page it served, reached by an address or `localhost`. Anyone who reaches the server uses the daemon with the token it adds, so it binds loopback unless `--host` says otherwise, and warns when it does. The administration screens need ahpd's `/api`, which `ahpw serve` does not carry.
 
 ## Develop
 
@@ -42,7 +64,7 @@ ahpd run --plugin /path/to/ahpd-web
 | Script | What it does |
 | --- | --- |
 | `pnpm dev` | Vite, with `/api` and the socket proxied to a daemon |
-| `pnpm build` | The page into `dist/app`, the plugin into `dist/plugin` |
+| `pnpm build` | The page into `dist/app`, the plugin into `dist/plugin`, the CLI into `dist/cli` |
 | `pnpm typecheck` | Every TypeScript project |
 | `pnpm test` | The request mapping, the static route, the socket address and the session status |
 
@@ -51,6 +73,7 @@ ahpd run --plugin /path/to/ahpd-web
 | Path | What it is |
 | --- | --- |
 | `plugin/` | The ahpd plugin: one route serving `dist/app` |
+| `cli/` | `ahpw serve`: the same route on its own server, and the socket proxy |
 | `src/manifest/` | The manifest's types, commands to forms and requests, the store provider |
 | `src/commands/` | The command list, the command page, the result view |
 | `src/connection/` | The AHP connection: one client for the daemon, followed channels, the socket address |
