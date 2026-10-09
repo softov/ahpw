@@ -14,6 +14,7 @@ What you get:
 
 - **Sessions**, the list, each chat, new sessions and what they changed.
 - **Composer**, supports `@attachments`, `/skills` and `/commands`.
+- **Explorer**, the host's folders as a tree: the default folder first, then each session's. Drag a file to the composer to attach it, or with Shift to write its path.
 - **Automations** for running tasks and scripts automatically based on session events.
 - **Terminals** and a log in a bottom panel.
 - **Host Information**, shows details about the server and its environment.
@@ -182,6 +183,7 @@ npm sets a trusted publisher on a package that exists, so the first version is p
 | `cli/` | `ahpw serve`: the same route on its own server, and the socket proxy |
 | `src/connection/` | The AHP connection, the socket address, the protocol versions offered |
 | `src/sessions/` | The sessions list, a new session, a session's chat and details |
+| `src/folders/` | The explorer: the host's folders, and a host file dragged to the composer |
 | `src/agents/` | The agents the server offers |
 | `src/changes/` | What a session changed |
 | `src/files/` | File, Markdown and diff viewers |

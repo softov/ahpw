@@ -8,6 +8,7 @@ import { registerConnection } from './connection/index.js';
 import { SESSIONS_SECTION, registerSessions } from './sessions/index.js';
 import { AGENTS_SECTION, registerAgents } from './agents/index.js';
 import { AUTOMATIONS_SECTION, registerAutomations } from './automations/index.js';
+import { FOLDERS_SECTION, registerFolders } from './folders/index.js';
 import { AHP_SESSIONS_UNREAD, AHP_SESSIONS_WORKING } from './connection/data.js';
 import { EMOJIcon } from './emojis.js';
 import { registerHost } from './host/index.js';
@@ -166,6 +167,11 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
+      key: 'folders:nav',
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.folder, label: 'Explorer', section: FOLDERS_SECTION },
+    }),
+    scena.surfaces.mount({
+      surface: 'activitybar',
       key: 'automations:nav',
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.automations, label: 'Automations', section: AUTOMATIONS_SECTION },
     }),
@@ -190,6 +196,7 @@ export function registerShell(scena: Scena): Disposable {
     registerAgents(scena),
     registerChanges(scena),
     registerAutomations(scena),
+    registerFolders(scena),
     registerHost(scena),
     registerFiles(scena),
     registerPanel(scena),

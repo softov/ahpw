@@ -1998,3 +1998,19 @@
 .oo-bar__slot .oo-button-bar.web-layout-toggle:hover {
   color: var(--oo-color-text);
 }
+
+/* A host file or this computer's file over the composer: teal attaches it, orange (Shift) writes it in as text. */
+.web-composer__box[data-drop='attach'] {
+  border-color: #6cbcca;
+  background: color-mix(in srgb, #6cbcca 8%, transparent);
+}
+
+.web-composer__box[data-drop='mention'] {
+  border-color: #f97316;
+  background: color-mix(in srgb, #f97316 8%, transparent);
+}
+
+.web-folders__tag {
+  font-size: var(--oo-font-size-xs);
+  color: var(--oo-color-muted);
+}

@@ -22,6 +22,12 @@ export function embeddedAttachment(label: string, data: string, contentType: str
   return { type: 'embeddedResource', label, data, contentType, displayKind: contentType.startsWith('image/') ? 'image' : 'document' } as MessageAttachment;
 }
 
+/** A file or folder on the host, which the agent reads itself. */
+export function resourceAttachment(uri: string, directory: boolean): MessageAttachment {
+  const path = folderLabel(uri).replace(/\/+$/, '');
+  return { type: 'resource', label: path.slice(path.lastIndexOf('/') + 1) || path, uri, displayKind: directory ? 'directory' : 'document' } as MessageAttachment;
+}
+
 /** Another session's chat, which the host reads up to its last finished turn. */
 export function chatAttachment(session: SessionSummary): MessageAttachment {
   return { type: 'chat', label: session.title === '' ? 'Untitled' : session.title, resource: session.defaultChat } as MessageAttachment;
