@@ -143,6 +143,11 @@ pnpm dev
 
 `pnpm dev` serves on `http://127.0.0.1:5180`. It proxies `/api` and the socket (at `/ahp`) to `AHPD_URL`, default `http://127.0.0.1:9187`. The daemon needs `"http": true`.
 
+```sh
+AHPD_URL=http://127.0.0.1:9187 pnpm dev            # another daemon
+AHPD_URL=http://127.0.0.1:9187 pnpm dev --port 5200 # extra args go to Vite
+```
+
 To try a local build in ahpd:
 
 ```sh

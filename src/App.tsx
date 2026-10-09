@@ -9,6 +9,7 @@ import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/built
 import { AhpwMark } from './AhpwMark.js';
 import { PRESENTATION } from './presentation.js';
 import { registerShell } from './shell.js';
+import { keepTabs } from './tabs.js';
 import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './token-provider.js';
 
 const layoutStorage = createLocalStorageLayoutStorage({ key: 'ahpd-web.layout.v1' });
@@ -54,12 +55,23 @@ function PortaBridge({ children }: { children: ReactNode }): ReactElement {
   useEffect(() => {
     if (session === null || session === undefined) return;
     let shell: Disposable | undefined;
+    let tabs: Disposable | null = null;
+    let live = true;
     try {
       shell = registerShell(scena);
+      void keepTabs(scena, () => live).then((kept) => {
+        if (live) tabs = kept;
+        else kept?.dispose();
+      });
     } catch (error) {
       console.error('[ahpd-web] registerShell failed:', error);
     }
-    return () => shell?.dispose();
+    return () => {
+      live = false;
+      tabs?.dispose();
+      scena.setSessionStorage(null);
+      shell?.dispose();
+    };
   }, [session, scena]);
 
   return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading" role="status" aria-label="Loading ahpw"><AhpwMark size={72} echo /></div> : children}</PortaContextProvider>;

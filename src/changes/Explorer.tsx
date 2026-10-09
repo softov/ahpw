@@ -294,7 +294,9 @@ export default function ChangesExplorer(): ReactElement {
             <button type="button" className="web-changes__scope" title={scope.description ?? scope.label} aria-haspopup="menu" onClick={openScopes}>
               {scope.label} <span aria-hidden="true">{EMOJIcon.caretDown}</span>
             </button>
-          ) : null}
+          ) : (
+            <span className="web-changes__scope web-changes__scope--only" title={scope.description ?? scope.label}>{scope.label}</span>
+          )}
           <span className="web-changes__totals">
             {files.length === 0 ? null : (
               <>

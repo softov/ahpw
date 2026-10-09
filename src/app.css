@@ -1272,7 +1272,13 @@
   cursor: pointer;
 }
 
-.web-changes__scope:hover {
+.web-changes__scope--only {
+  border-color: transparent;
+  padding-left: 0;
+  cursor: default;
+}
+
+.web-changes__scope:not(.web-changes__scope--only):hover {
   color: var(--oo-color-text);
   background: color-mix(in srgb, var(--oo-color-accent) 14%, transparent);
 }
