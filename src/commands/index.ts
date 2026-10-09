@@ -150,8 +150,7 @@ export function registerCommands(scena: Scena): Disposable {
  * One activity bar entry and one sidebar list per group, from the manifest.
  *
  * Mounted when the manifest arrives and again if it changes. A sidebar showing
- * neither the sessions nor a group of this manifest, on a first visit or after
- * a group went away, is moved to the sessions.
+ * a group this manifest no longer has is moved to the sessions.
  */
 function registerSections(scena: Scena): Disposable {
   let mounted: Disposable | undefined;
@@ -174,8 +173,8 @@ function registerSections(scena: Scena): Disposable {
       }),
     ]));
     const current = scena.layout.get().surfaces['sidebar:left'];
-    const known = current?.section === SESSIONS_SECTION || sections.some((section) => sectionId(section.name) === current?.section);
-    if (!known) scena.layout.setSurface('sidebar:left', { ...current, section: SESSIONS_SECTION });
+    const gone = current?.section?.startsWith(sectionId('')) === true && !sections.some((section) => sectionId(section.name) === current.section);
+    if (gone) scena.layout.setSurface('sidebar:left', { ...current, section: SESSIONS_SECTION });
   };
   const watching = scena.store.subscribe(MANIFEST, (value) => mount(value as ProgramManifest | undefined));
   mount(scena.store.get<ProgramManifest>(MANIFEST));

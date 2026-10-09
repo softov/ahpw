@@ -53,6 +53,9 @@ function onceKnown(scena: Scena, then: (modus: ModusClass) => void): Disposable 
 export function registerShell(scena: Scena): Disposable {
   // Before the controller, so a saved theme is one it knows.
   registerBuiltinThemes();
+  // A first visit shows the sessions.
+  const left = scena.layout.get().surfaces['sidebar:left'];
+  if (left?.section === undefined) scena.layout.setSurface('sidebar:left', { ...left, section: SESSIONS_SECTION });
   return combineDisposables(
     // First, so anything registered after it can say something.
     registerNotifications(scena),
