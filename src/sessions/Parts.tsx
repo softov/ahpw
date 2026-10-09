@@ -6,9 +6,9 @@ import type {
   StateAction,
   ToolCallState,
 } from '@microsoft/agent-host-protocol';
-import { kindOfResource } from '../connection/data.js';
 import { elapsed, folderLabel, textOf } from '../connection/words.js';
 import { codePath, fileLink } from '../files/link.js';
+import { linkClicks } from '../files/clicks.js';
 import { WorkspaceContext } from './workspace.js';
 import { InputRequest } from './Question.js';
 import { durationOf, fileOf, inputText, kindOf, lineOf, outcomeOf, outputOf, segmentsOf, type Outcome, type Output, type ToolKind } from './tool.js';
@@ -33,32 +33,9 @@ const MARK: Record<Outcome, { glyph: string; label: string }> = {
   cancelled: { glyph: EMOJIcon.cross, label: 'Cancelled' },
 };
 
-/**
- * Clicks inside an agent's text: a link or a code span that names a file opens
- * it in a tab, and a web link opens in a new browser tab.
- */
+/** Clicks inside an agent's text, relative paths from the session's folder. */
 function useLinkClicks(): (event: MouseEvent<HTMLElement>) => void {
-  const scena = useScena();
-  const workspace = useContext(WorkspaceContext);
-  return (event) => {
-    const element = event.target as HTMLElement;
-    const anchor = element.closest('a');
-    if (anchor !== null) {
-      const href = anchor.getAttribute('href') ?? '';
-      const target = fileLink(href, workspace);
-      event.preventDefault();
-      if (target !== null) void scena.commands.execute('ahp.openFile', { uri: target.uri, line: target.line, end: target.end });
-      else if (/^(https?|mailto):/i.test(href)) window.open(href, '_blank', 'noopener');
-      return;
-    }
-    const code = element.closest('code');
-    if (code === null || code.closest('pre') !== null) return;
-    const target = codePath(code.textContent ?? '', workspace);
-    if (target === null) return;
-    void kindOfResource(target.uri).then((kind) => {
-      if (kind === 'file') void scena.commands.execute('ahp.openFile', { uri: target.uri, line: target.line, end: target.end });
-    });
-  };
+  return linkClicks(useScena(), useContext(WorkspaceContext));
 }
 
 /** The icon of each kind of call. */

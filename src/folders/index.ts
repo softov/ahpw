@@ -1,9 +1,17 @@
-import type { Disposable, Scena } from '@softov/scena/types';
+import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { PALETTE_SLOT } from '../view/Palette.js';
 
 /** The sidebar section the folder tree shows in. */
 export const FOLDERS_SECTION = 'ahp:folders';
+
+/** A folder the explorer is asked to show, until it does. */
+export const REVEAL_FOLDER = '$/ahp/folders/reveal' as BindingPath;
+
+/** Arguments of `ahp.revealFolder`. */
+export interface RevealFolderArgs {
+  uri: string;
+}
 
 /** The host's folders, as a tree in the sidebar. */
 export function registerFolders(scena: Scena): Disposable {
@@ -19,6 +27,16 @@ export function registerFolders(scena: Scena): Disposable {
       category: 'Files',
       slots: [PALETTE_SLOT],
       run: (ctx) => ctx.commands.execute('sidebar.activate', { section: FOLDERS_SECTION }),
+    }),
+    scena.commands.register({
+      id: 'ahp.revealFolder',
+      title: 'Show the folder in the explorer',
+      run: (ctx, args) => {
+        const uri = (args as RevealFolderArgs | undefined)?.uri;
+        if (uri === undefined) return;
+        ctx.store.set(REVEAL_FOLDER, uri);
+        return ctx.commands.execute('sidebar.activate', { section: FOLDERS_SECTION });
+      },
     }),
     scena.surfaces.mount({
       surface: 'sidebar:left',

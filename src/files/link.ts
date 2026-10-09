@@ -19,13 +19,13 @@ function normalise(path: string): string {
 
 /**
  * The file a markdown link points at: a `file://` URI, an absolute path, or a
- * path relative to the session's folder, with `#L42` or `#L42-L50`. Any other
- * scheme is not a file, and null says so.
+ * path relative to the session's folder, with `#L42`, `#L42-L50` or a `:42`
+ * suffix. Any other scheme is not a file, and null says so.
  */
 export function fileLink(url: string, workspaceUri: string | null): FileTarget | null {
   const raw = url.trim();
   if (raw === '' || raw.startsWith('#')) return null;
-  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(raw);
+  const scheme = /^([a-z][a-z0-9+.-]*):(?!\d)/i.exec(raw);
   if (scheme !== null && scheme[1]?.toLowerCase() !== 'file') return null;
 
   const hash = raw.indexOf('#');
@@ -39,6 +39,8 @@ export function fileLink(url: string, workspaceUri: string | null): FileTarget |
   } catch {
     return null;
   }
+  const suffix = lines === null ? /^(.+?):(\d+)(?::\d+)?$/.exec(path) : null;
+  if (suffix !== null) path = suffix[1] ?? path;
   if (path === '') return null;
   if (!path.startsWith('/')) {
     if (workspaceUri === null) return null;
@@ -48,7 +50,7 @@ export function fileLink(url: string, workspaceUri: string | null): FileTarget |
   const name = path.split('/').pop() ?? path;
   if (name === '') return null;
 
-  const line = lines === null ? null : Number(lines[1]);
+  const line = lines !== null ? Number(lines[1]) : suffix !== null ? Number(suffix[2]) : null;
   const end = lines === null || lines[2] === undefined ? null : Number(lines[2]);
   return { uri: `file://${path}`, name, line, end: end !== null && line !== null && end > line ? end : null };
 }

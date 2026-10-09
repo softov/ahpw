@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { childUri, orderEntries, rootsOf } from './roots.js';
+import { chainTo, childUri, orderEntries, rootsOf } from './roots.js';
 import { HOST_FILE_TYPE, droppedHostFile } from './drag.js';
 
 const session = (folder?: string): SessionSummary => ({ workingDirectories: folder === undefined ? undefined : [folder] }) as SessionSummary;
@@ -34,4 +34,18 @@ test('a drop gives its host file, and anything else gives null', () => {
   expect(droppedHostFile(data(JSON.stringify({ uri: 'file:///a', directory: false })))).toEqual({ uri: 'file:///a', directory: false });
   expect(droppedHostFile(data(''))).toBeNull();
   expect(droppedHostFile(data(JSON.stringify({ uri: 1 })))).toBeNull();
+});
+
+test('a revealed folder opens from the deepest root that holds it', () => {
+  expect(chainTo(['file:///github', 'file:///github/textui'], 'file:///github/textui/packages/my%20core')).toEqual([
+    'file:///github/textui',
+    'file:///github/textui/packages',
+    'file:///github/textui/packages/my%20core',
+  ]);
+  expect(chainTo(['file:///github/textui/'], 'file:///github/textui')).toEqual(['file:///github/textui/']);
+});
+
+test('a folder outside every root becomes its own', () => {
+  expect(chainTo(['file:///github/textui'], 'file:///github/text')).toEqual(['file:///github/text']);
+  expect(chainTo([], 'file:///tmp/a b')).toEqual(['file:///tmp/a%20b']);
 });
