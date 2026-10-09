@@ -2,8 +2,6 @@ import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { combineDisposables, type ModusClass } from '@softov/scena';
 import { hideOverlaidSidebar } from '../sessions/index.js';
-import SettingsPage from './Settings.js';
-import HostInfoPage from './Info.js';
 import { ICONS } from '../icons.js';
 
 /** The display size class the modus backend publishes. */
@@ -15,12 +13,12 @@ export function registerHost(scena: Scena): Disposable {
     scena.components.register({
       component: 'HostSettingsPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: SettingsPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Settings.js') },
     }),
     scena.components.register({
       component: 'HostInfoPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: HostInfoPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Info.js') },
     }),
     scena.commands.register({
       id: 'ahp.openHostInfo',

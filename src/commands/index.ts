@@ -7,9 +7,6 @@ import { ACTIVE_COMMAND, ACTIVE_ITEM, MANIFEST, manifestProvider, runPath, type 
 import { sectionId, sectionsOf } from '../manifest/sections.js';
 import type { ManifestCommand, ProgramManifest } from '../manifest/types.js';
 import { roleOf } from '../manifest/roles.js';
-import CommandExplorer from './Explorer.js';
-import CommandPage from './Page.js';
-import ItemPage from './Item.js';
 import { SESSIONS_SECTION } from '../sessions/index.js';
 
 
@@ -86,12 +83,12 @@ export function registerCommands(scena: Scena): Disposable {
     scena.components.register({
       component: 'CommandExplorer',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: CommandExplorer as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Explorer.js') },
     }),
     scena.components.register({
       component: 'CommandPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: CommandPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
 
     scena.commands.register({
@@ -118,7 +115,7 @@ export function registerCommands(scena: Scena): Disposable {
     scena.components.register({
       component: 'ItemPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: ItemPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Item.js') },
     }),
     scena.commands.register({
       id: 'ahpd.openItem',

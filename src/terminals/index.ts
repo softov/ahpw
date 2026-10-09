@@ -4,7 +4,6 @@ import { AHP_DEFAULT_DIRECTORY, AHP_DETACHED, AHP_HOST, request, titlePath, type
 import { confirm, failed } from '../notify/index.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { onPanel, onPanelTab, openInPanel, PANEL, redrawPanel, STRIP_SLOT } from '../panel/index.js';
-import TerminalPage from './TerminalPage.js';
 import { TERMINAL_ICON } from './rows.js';
 import { clientClaim, newTerminalUri } from './terminal.js';
 
@@ -99,7 +98,7 @@ export function registerTerminals(scena: Scena): Disposable {
     scena.components.register({
       component: 'TerminalPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: TerminalPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./TerminalPage.js') },
     }),
     scena.commands.register({
       id: 'ahp.openTerminal',

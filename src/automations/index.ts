@@ -2,9 +2,6 @@ import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { combineDisposables, type ModusClass } from '@softov/scena';
 import { hideOverlaidSidebar } from '../sessions/index.js';
-import AutomationExplorer from './Explorer.js';
-import AutomationPage from './Page.js';
-import AutomationEditPage from './Edit.js';
 import { ACTIVE_AUTOMATION } from './state.js';
 import { titleOf } from './words.js';
 import { AUTOMATIONS, channelPath } from '../connection/data.js';
@@ -23,17 +20,17 @@ export function registerAutomations(scena: Scena): Disposable {
     scena.components.register({
       component: 'AutomationExplorer',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: AutomationExplorer as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Explorer.js') },
     }),
     scena.components.register({
       component: 'AutomationPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: AutomationPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
     scena.components.register({
       component: 'AutomationEditPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: AutomationEditPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Edit.js') },
     }),
     scena.commands.register({
       id: 'ahp.newAutomation',

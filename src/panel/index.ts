@@ -1,6 +1,5 @@
 import type { ContextSnapshot, Disposable, MountDisplay, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
-import LogPage from '../log/LogPage.js';
 import { clearLog } from '../log/log.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
 
@@ -68,7 +67,7 @@ export function registerPanel(scena: Scena): Disposable {
     scena.components.register({
       component: 'LogPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: LogPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('../log/LogPage.js') },
     }),
     scena.commands.register({
       id: 'panel.toggle',

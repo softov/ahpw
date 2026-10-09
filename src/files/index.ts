@@ -1,8 +1,5 @@
 import type { Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
-import FilePage from './FilePage.js';
-import MarkdownPage from './MarkdownPage.js';
-import DiffPage from './DiffPage.js';
 import { FILE_KIND, openAsItems, TEXT_VIEWER, viewersOf } from './viewers.js';
 import { ICONS } from '../icons.js';
 
@@ -30,19 +27,19 @@ export function registerFiles(scena: Scena): Disposable {
     scena.components.register({
       component: TEXT_VIEWER,
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: FilePage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./FilePage.js') },
       opens: { resourceKinds: [FILE_KIND], title: 'Text', icon: ICONS.file, priority: 10 },
     }),
     scena.components.register({
       component: 'MarkdownPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: MarkdownPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./MarkdownPage.js') },
       opens: { resourceKinds: [FILE_KIND], title: 'Markdown', icon: ICONS.markdown, priority: 20, selector: '$/resource/ext == "md" || $/resource/ext == "markdown"' },
     }),
     scena.components.register({
       component: 'DiffPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: DiffPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./DiffPage.js') },
     }),
     scena.commands.register({
       id: 'ahp.openFile',

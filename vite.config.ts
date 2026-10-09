@@ -10,7 +10,17 @@ export default defineConfig({
   resolve: { dedupe: ['react', 'react-dom'] },
   // Relative, because the daemon serves the page under /plugins/ahpd-web/.
   base: './',
-  build: { outDir: 'dist/app', emptyOutDir: true },
+  build: {
+    outDir: 'dist/app',
+    emptyOutDir: true,
+    rolldownOptions: {
+      // scena's catalogs lazy-load components this app also imports, so those stay in the main chunk.
+      onLog(level, log, handler) {
+        if (log.code === 'INEFFECTIVE_DYNAMIC_IMPORT' && log.message.includes('/scena/')) return;
+        handler(level, log);
+      },
+    },
+  },
   server: {
     host: '127.0.0.1',
     port: 5180,

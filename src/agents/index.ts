@@ -5,8 +5,6 @@ import { AHP_AGENTS } from '../connection/data.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { ACTIVE_AGENT } from './state.js';
-import AgentExplorer from './Explorer.js';
-import AgentPage from './Page.js';
 import { ICONS } from '../icons.js';
 
 /** The display size class the modus backend publishes. */
@@ -21,12 +19,12 @@ export function registerAgents(scena: Scena): Disposable {
     scena.components.register({
       component: 'AgentExplorer',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: AgentExplorer as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Explorer.js') },
     }),
     scena.components.register({
       component: 'AgentPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: AgentPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
     scena.commands.register({
       id: 'ahp.showAgents',

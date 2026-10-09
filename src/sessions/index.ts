@@ -5,10 +5,6 @@ import { PRESENTATION } from '../presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS, titlePath } from '../connection/data.js';
 import { ACTIVE_SESSION } from './state.js';
-import SessionExplorer from './Explorer.js';
-import SessionPage from './Page.js';
-import NewSessionPage from './New.js';
-import SessionDetails from './Details.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { ICONS } from '../icons.js';
 
@@ -38,23 +34,23 @@ export function registerSessions(scena: Scena): Disposable {
     scena.components.register({
       component: 'SessionExplorer',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: SessionExplorer as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Explorer.js') },
     }),
     scena.components.register({
       component: 'SessionPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: SessionPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Page.js') },
     }),
 
     scena.components.register({
       component: 'NewSessionPage',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: NewSessionPage as unknown }) },
+      renderer: { kind: 'react', load: () => import('./New.js') },
     }),
     scena.components.register({
       component: 'SessionDetails',
       category: 'page',
-      renderer: { kind: 'react', load: async () => ({ default: SessionDetails as unknown }) },
+      renderer: { kind: 'react', load: () => import('./Details.js') },
     }),
     scena.commands.register({
       id: 'ahp.showSessions',
