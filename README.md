@@ -1,6 +1,12 @@
 # @ahpd/web
 
-A web UI for an AHP server.
+[![CI](https://github.com/softov/ahpw/actions/workflows/ci.yml/badge.svg)](https://github.com/softov/ahpw/actions/workflows/ci.yml)
+[![@ahpd/web](https://img.shields.io/npm/v/%40ahpd%2Fweb?label=%40ahpd%2Fweb)](https://www.npmjs.com/package/@ahpd/web)
+![license MIT](https://img.shields.io/badge/license-MIT-blue)
+![node >=22](https://img.shields.io/badge/node-%3E%3D22-5fa04e)
+![Agent Host Protocol 1.0.0](https://img.shields.io/badge/AHP-1.0.0-0b7285)
+
+A web UI for an [Agent Host Protocol](https://microsoft.github.io/agent-host-protocol/) server.
 
 Run it inside [ahpd](https://github.com/softov/ahpd) as a plugin, or on its own with `ahpw serve` in front of any AHP server.
 
@@ -126,6 +132,8 @@ The socket carries the token as `?tkn=`, because a browser cannot set a header o
 ---
 
 ## Develop
+
+ahpw speaks the protocol through [`@microsoft/agent-host-protocol`](https://github.com/microsoft/agent-host-protocol), the spec and its TypeScript SDK.
 
 ```sh
 pnpm install
