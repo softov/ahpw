@@ -104,20 +104,20 @@
 /* A session: the transcript scrolls, the composer stays at the bottom. */
 
 .web-chat {
+  /* The content keeps a readable width; the scroll and the composer span the page. */
+  --web-chat-gutter: max(var(--oo-spacing-lg), calc((100% - 72rem) / 2));
   display: flex;
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
   width: 100%;
-  max-width: 72rem;
-  margin: 0 auto;
 }
 
 .web-chat__head {
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-sm);
-  padding: var(--oo-spacing-lg) var(--oo-spacing-lg) var(--oo-spacing-sm);
+  padding: var(--oo-spacing-lg) var(--web-chat-gutter) var(--oo-spacing-sm);
 }
 
 .web-chat__turns {
@@ -127,7 +127,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-lg);
-  padding: var(--oo-spacing-sm) var(--oo-spacing-lg);
+  padding: var(--oo-spacing-sm) var(--web-chat-gutter);
 }
 
 .web-turn {
@@ -450,11 +450,13 @@
 .web-composer__picker {
   position: absolute;
   bottom: 100%;
-  left: 0;
-  right: 0;
+  left: var(--web-chat-gutter, 0);
+  right: var(--web-chat-gutter, 0);
   z-index: 50;
   overflow: hidden;
-  border-top: 1px solid var(--oo-color-border);
+  border: 1px solid var(--oo-color-border);
+  border-bottom: 0;
+  border-radius: var(--oo-radius-md) var(--oo-radius-md) 0 0;
   background: var(--oo-popup-bg, var(--oo-color-raised));
   box-shadow: 0 -6px 20px rgb(0 0 0 / 0.22);
   animation: web-slide-up 120ms ease-out;
@@ -477,7 +479,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 6px var(--oo-spacing-lg) 0;
+  padding: 6px var(--web-chat-gutter, var(--oo-spacing-lg)) 0;
 }
 
 .web-chip {
@@ -517,7 +519,7 @@
   display: flex;
   align-items: flex-end;
   gap: var(--oo-spacing-sm);
-  padding: var(--oo-spacing-sm) var(--oo-spacing-lg);
+  padding: var(--oo-spacing-sm) var(--web-chat-gutter, var(--oo-spacing-lg));
 }
 
 .web-composer__text {
@@ -545,7 +547,7 @@
   display: flex;
   align-items: center;
   gap: var(--oo-spacing-xs);
-  padding: 0 var(--oo-spacing-lg) var(--oo-spacing-sm);
+  padding: 0 var(--web-chat-gutter, var(--oo-spacing-lg)) var(--oo-spacing-sm);
 }
 
 .web-composer__hint {
@@ -561,7 +563,7 @@
 .web-composer__queue {
   list-style: none;
   margin: 0;
-  padding: var(--oo-spacing-sm) var(--oo-spacing-lg) 0;
+  padding: var(--oo-spacing-sm) var(--web-chat-gutter, var(--oo-spacing-lg)) 0;
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-xs);

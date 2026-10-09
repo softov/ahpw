@@ -27,6 +27,11 @@ import {
   type Option,
 } from './composer-commands.js';
 import { EMOJIcon } from '../emojis.js';
+import { attachmentLabel, attachmentPath, sameAttachment, withRanges, withToken } from './attachments.js';
+import { COMPOSER_FOCUS, hostCommands, registerHostCommands, type HostCommand } from './host-commands.js';
+
+/** Tells one composer from another in the store's focus path. */
+let composers = 0;
 
 /** Where the box stops growing and starts scrolling, in pixels. */
 const COMPOSER_MAX = 260;
@@ -48,7 +53,7 @@ function messageOf(text: string, model: string | undefined, attachments: Message
     text,
     origin: { kind: 'user' },
     ...(model === undefined ? {} : { model: { id: model } }),
-    ...(attachments.length === 0 ? {} : { attachments }),
+    ...(attachments.length === 0 ? {} : { attachments: withRanges(text, attachments) }),
   } as Message;
 }
 
@@ -69,6 +74,8 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const agent = agents.find((one) => one.provider === summary.provider);
   const path = useMemo(() => composerPath(chatUri), [chatUri]);
+  const [focus] = useState(() => `composer-${++composers}`);
+  const folder = summary.workingDirectories?.[0];
 
   const [text, setText] = useState(() => draft?.text ?? '');
   const [caret, setCaret] = useState<number | null>(null);
@@ -111,18 +118,37 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     const said = textRef.current;
     try {
       const found = await request('completions', { kind: 'userMessage', channel: chatUri, text: said, offset: caretRef.current ?? said.length } as never);
-      return (found as { items: { insertText: string; attachment: MessageAttachment }[] }).items.map((item) => ({
-        title: item.insertText.replace(/^@/, ''),
-        onSelect: (ctx: HostCtx) => {
-          ctx.replaceActiveToken(`${item.insertText} `);
-          setAttachments((held) => [...held, item.attachment]);
-        },
-      }));
+      return (found as { items: { insertText: string; attachment: MessageAttachment }[] }).items.map((item) => {
+        const where = attachmentPath(item.attachment, folder);
+        return {
+          title: item.insertText.replace(/^@/, ''),
+          ...(where === undefined ? {} : { description: where }),
+          onSelect: (ctx: HostCtx) => {
+            ctx.replaceActiveToken(`${item.insertText} `);
+            const picked = withToken(item.attachment, item.insertText);
+            setAttachments((held) => (held.some((one) => sameAttachment(one, picked)) ? held : [...held, picked]));
+          },
+        };
+      });
     } catch {
       // A host that cannot answer leaves the path to be typed by hand.
       return [];
     }
+  }, [chatUri, folder]);
+
+  // The host's own `/` commands for this chat, asked once.
+  const [commands, setCommands] = useState<HostCommand[]>([]);
+  useEffect(() => {
+    let alive = true;
+    void request('completions', { kind: 'userMessage', channel: chatUri, text: '/', offset: 1 } as never)
+      .then((found) => { if (alive) setCommands(hostCommands(found)); })
+      .catch(() => { if (alive) setCommands([]); });
+    return () => { alive = false; };
   }, [chatUri]);
+  useEffect(() => {
+    const registration = registerHostCommands(scena, focus, commands);
+    return () => registration.dispose();
+  }, [scena, focus, commands]);
 
   const picker = useChatPicker({
     input: text,
@@ -206,7 +232,6 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     clear();
   }
 
-  const folder = summary.workingDirectories?.[0];
   const modelName = models.find((one) => one.id === model)?.name ?? model;
 
   return (
@@ -247,9 +272,18 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
             {...(pickable(option.schema) ? { onOpen: () => openCommand(optionCommandId(option.key)) } : {})}
           />
         ))}
-        {attachments.length === 0 ? null : (
-          <Pill label={`${EMOJIcon.attach} ${attachments.length} attached`} title="Clear the attachments" onOpen={() => setAttachments([])} />
-        )}
+        {attachments.map((one, index) => (
+          <button
+            key={`${attachmentLabel(one)}-${index}`}
+            type="button"
+            className="web-chip"
+            title={`Remove ${attachmentPath(one, folder) ?? attachmentLabel(one)}`}
+            onClick={() => { typed.current = true; setAttachments((held) => held.filter((_, at) => at !== index)); }}
+          >
+            {`${EMOJIcon.attach} ${attachmentLabel(one)}`}
+            <span aria-hidden="true">{EMOJIcon.close}</span>
+          </button>
+        ))}
       </div>
 
       <div className="web-composer__bar">
@@ -265,6 +299,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
             setText(event.currentTarget.value);
             setCaret(event.currentTarget.selectionStart);
           }}
+          onFocus={() => scena.store.set(COMPOSER_FOCUS, focus)}
           onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
           onClick={(event) => setCaret(event.currentTarget.selectionStart)}
           onKeyDown={(event) => {
