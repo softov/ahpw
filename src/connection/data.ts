@@ -3,6 +3,7 @@ import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/a
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
 import { readToken, serverHoldsToken } from '../api.js';
+import { offering } from './protocol-versions.js';
 import { socketUrl } from './socket.js';
 import { countsOf } from '../sessions/status.js';
 import { logEvent } from '../log/log.js';
@@ -311,7 +312,7 @@ async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<vo
     await multi.addHost({
       id: HOST,
       label: window.location.host,
-      transportFactory: async () => observing(await WebSocketTransport.connect(socketUrl(serverHoldsToken() ? null : readToken(), window.location, import.meta.env.DEV))),
+      transportFactory: async () => offering(observing(await WebSocketTransport.connect(socketUrl(serverHoldsToken() ? null : readToken(), window.location, import.meta.env.DEV)))),
     });
   } catch (error) {
     store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);
