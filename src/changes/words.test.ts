@@ -5,14 +5,14 @@ import { changeOf, firstScope, folderTree, groupChanges, letterOf, relativeDir, 
 const set = (fields: Record<string, unknown>): Changeset => ({ label: 'x', uriTemplate: 'u', changeKind: 'session', ...fields }) as unknown as Changeset;
 
 describe('scopesOf and firstScope', () => {
-  it('drops per-turn templates and prefers the whole session', () => {
+  it('drops per-turn templates and opens on the server\'s first', () => {
     const scopes = scopesOf([
       set({ label: 'Uncommitted', uriTemplate: 's/changeset/uncommitted', changeKind: 'uncommitted' }),
       set({ label: 'Turn', uriTemplate: 's/changeset/turn/{turnId}', changeKind: 'turn' }),
       set({ label: 'Session', uriTemplate: 's/changeset/session', changeKind: 'session', capabilities: { review: {} } }),
     ]);
     expect(scopes.map((one) => one.label)).toEqual(['Uncommitted', 'Session']);
-    expect(firstScope(scopes)).toMatchObject({ label: 'Session', review: true });
+    expect(firstScope(scopes)).toMatchObject({ label: 'Uncommitted', review: false });
   });
 });
 

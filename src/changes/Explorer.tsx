@@ -228,6 +228,16 @@ export default function ChangesExplorer(): ReactElement {
     keep(VIEW_KEY, next);
   };
 
+  const openScopes = (event: MouseEvent<HTMLButtonElement>): void => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const items: PickerAction[] = scopes.map((one) => ({
+      title: one.label,
+      icon: one.uri === scope?.uri ? EMOJIcon.check : '',
+      onSelect: (host) => { host.closeMenu(); setChosen(one.uri); },
+    }));
+    setMenu({ x: box.left, y: box.bottom, items });
+  };
+
   const openOptions = (event: MouseEvent<HTMLButtonElement>): void => {
     const box = event.currentTarget.getBoundingClientRect();
     const mark = (on: boolean): { icon: string } => ({ icon: on ? EMOJIcon.check : '' });
@@ -281,13 +291,9 @@ export default function ChangesExplorer(): ReactElement {
       {scope === undefined ? null : (
         <div className="web-changes__bar">
           {scopes.length > 1 ? (
-            <span className="web-segments" role="group" aria-label="Which changes">
-              {scopes.map((one) => (
-                <button key={one.uri} type="button" className="web-segments__item" aria-pressed={one.uri === scope.uri} onClick={() => setChosen(one.uri)}>
-                  {one.label}
-                </button>
-              ))}
-            </span>
+            <button type="button" className="web-changes__scope" title={scope.description ?? scope.label} aria-haspopup="menu" onClick={openScopes}>
+              {scope.label} <span aria-hidden="true">{EMOJIcon.caretDown}</span>
+            </button>
           ) : null}
           <span className="web-changes__totals">
             {files.length === 0 ? null : (

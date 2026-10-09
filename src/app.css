@@ -1255,6 +1255,28 @@
   background: color-mix(in srgb, var(--oo-color-accent) 14%, transparent);
 }
 
+.web-changes__scope {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+  background: transparent;
+  color: var(--oo-color-text);
+  font: inherit;
+  font-size: var(--oo-font-size-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.web-changes__scope:hover {
+  color: var(--oo-color-text);
+  background: color-mix(in srgb, var(--oo-color-accent) 14%, transparent);
+}
+
 .web-segments__item--icon {
   min-width: 1.6rem;
   padding: 2px 4px;

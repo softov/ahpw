@@ -24,8 +24,8 @@ export function scopesOf(changesets: readonly Changeset[] | undefined): Scope[] 
     }));
 }
 
-/** The scope to show first: all of the session's changes, then whatever comes first. */
-export const firstScope = (scopes: readonly Scope[]): Scope | undefined => scopes.find((one) => one.kind === 'session') ?? scopes[0];
+/** The scope to show first: the server's first. */
+export const firstScope = (scopes: readonly Scope[]): Scope | undefined => scopes[0];
 
 /** A changed file, as a row reads it. */
 export interface Change {
