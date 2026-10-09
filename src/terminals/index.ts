@@ -71,7 +71,7 @@ export function registerTerminals(scena: Scena): Disposable {
 
   const create = async (): Promise<void> => {
     const host = scena.store.get<HostFacts | null>(AHP_HOST);
-    if (host === null || host === undefined) throw new Error('Not connected to the daemon.');
+    if (host === null || host === undefined) throw new Error('Not connected to the server.');
     const cwd = scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY);
     const uri = newTerminalUri();
     await request('createTerminal', {

@@ -10,11 +10,11 @@ import { countsOf } from '../sessions/status.js';
 import { logEvent } from '../log/log.js';
 import { forgetFrames, observing } from '../log/wire.js';
 
-/** The connection to the daemon, as `Connection`. */
+/** The connection to the server, as `Connection`. */
 export const AHP_CONNECTION = '$/ahp/connection' as BindingPath;
-/** The daemon's sessions, newest first. */
+/** The server's sessions, newest first. */
 export const AHP_SESSIONS = '$/ahp/sessions' as BindingPath;
-/** The agents the daemon offers, as `initialize` and `root/agentsChanged` say. */
+/** The agents the server offers, as `initialize` and `root/agentsChanged` say. */
 export const AHP_AGENTS = '$/ahp/agents' as BindingPath;
 /** The folder the daemon names as its default, or null. */
 export const AHP_DEFAULT_DIRECTORY = '$/ahp/defaultDirectory' as BindingPath;
@@ -27,7 +27,7 @@ export const AHP_AUTOMATION_CAPS = '$/ahp/automationCaps' as BindingPath;
 export const AHP_SESSIONS_UNREAD = '$/ahp/sessionCounts/unread' as BindingPath;
 /** How many open sessions have a turn running. */
 export const AHP_SESSIONS_WORKING = '$/ahp/sessionCounts/working' as BindingPath;
-/** What the connection to the daemon says about it, as `HostFacts`. */
+/** What the connection to the server says about it, as `HostFacts`. */
 export const AHP_HOST = '$/ahp/host' as BindingPath;
 /** The host software's name and version, as its last `initialize` answer said, as `ServerInfo`. */
 export const AHP_SERVER = '$/ahp/server' as BindingPath;
@@ -160,7 +160,7 @@ export async function reloadSessions(): Promise<void> {
 /** A channel's state read once, without holding the subscription unless a page follows it. */
 export async function readOnce<S>(uri: string): Promise<S | undefined> {
   const multi = client;
-  if (multi === undefined) throw new Error('Not connected to the daemon.');
+  if (multi === undefined) throw new Error('Not connected to the server.');
   const result = await multi.subscribe(HOST, uri);
   if (!followed.has(uri)) void multi.unsubscribe(HOST, uri).catch(() => undefined);
   return result.snapshot?.state as S | undefined;
@@ -199,7 +199,7 @@ export function dispatch(channel: string, action: StateAction): void {
 /** Ask the daemon one command. */
 export async function request<M extends keyof CommandMap>(method: M, params: CommandMap[M]['params']): Promise<CommandMap[M]['result']> {
   const raw = client?.client(HOST)?.rawClient();
-  if (raw === undefined) throw new Error('Not connected to the daemon.');
+  if (raw === undefined) throw new Error('Not connected to the server.');
   return raw.request(method, params);
 }
 

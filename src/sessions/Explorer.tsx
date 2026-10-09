@@ -79,7 +79,7 @@ function menuOf(session: SessionSummary, open: () => void): PickerAction[] {
   ];
 }
 
-/** The sidebar: the daemon's sessions, newest change first. */
+/** The sidebar: the server's sessions, newest change first. */
 export default function SessionExplorer(): ReactElement {
   const scena = useScena();
   const connection = useStore<Connection>(AHP_CONNECTION);
@@ -132,9 +132,9 @@ export default function SessionExplorer(): ReactElement {
   };
 
   const notice = connection?.status === 'failed'
-    ? <Alert tone="danger" title="Not connected" message={connection.error ?? 'The daemon refused the connection.'} />
+    ? <Alert tone="danger" title="Not connected" message={connection.error ?? 'The server refused the connection.'} />
     : connection?.status !== 'connected' && sessions === undefined
-      ? <Spinner label="Connecting to the daemon" />
+      ? <Spinner label="Connecting to the server" />
       : rows.length === 0 ? <p className="web-note">{archived ? 'No sessions.' : 'No sessions yet.'}</p> : null;
 
   return (

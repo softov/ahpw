@@ -195,7 +195,7 @@ export function registerComposerCommands(scena: Scena): Disposable {
           title: 'Add context',
           sentinel: '/attach',
           items: [
-            { title: `${EMOJIcon.file} Files and folders`, description: 'On the daemon\'s machine', onSelect: close(() => api.type('@')) },
+            { title: `${EMOJIcon.file} Files and folders`, description: 'On the server\'s machine', onSelect: close(() => api.type('@')) },
             { title: `${EMOJIcon.attach} Upload`, description: 'From this computer, up to 5 MB each', onSelect: close(() => api.upload()) },
             {
               title: `${EMOJIcon.sessions} Sessions`,

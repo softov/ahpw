@@ -145,7 +145,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     }
   };
 
-  if (agents.length === 0) return <Alert tone="warning" message="This daemon offers no agent." />;
+  if (agents.length === 0) return <Alert tone="warning" message="This server offers no agent." />;
 
   return (
     <div className="web-new">
@@ -162,7 +162,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
           {modelOptions.length === 0 ? null : (
             <ChoicePill label="Model" value={model} options={[{ value: '', label: 'default' }, ...modelOptions]} onChange={setModel} />
           )}
-          <TextPill label={EMOJIcon.folder} title="A folder on the daemon's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
+          <TextPill label={EMOJIcon.folder} title="A folder on the server's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
           {settings.map(([key, schema]) => (
             <SettingPill
               key={key}

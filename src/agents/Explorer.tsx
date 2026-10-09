@@ -45,7 +45,7 @@ export default function AgentExplorer(): ReactElement {
       rows={rows}
       selected={active ?? null}
       onOpen={open}
-      notice={rows.length === 0 ? <p className="web-note web-explorer__empty">This daemon offers no agent.</p> : null}
+      notice={rows.length === 0 ? <p className="web-note web-explorer__empty">This server offers no agent.</p> : null}
       filterLabel="Filter agents"
     />
   );

@@ -1,4 +1,5 @@
 import { registerComposerCommands } from './composer-commands.js';
+import { watchSessions } from './alerts.js';
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
 import { PRESENTATION } from '../presentation.js';
@@ -31,6 +32,7 @@ export interface OpenSessionArgs {
 export function registerSessions(scena: Scena): Disposable {
   return combineDisposables(
     registerComposerCommands(scena),
+    watchSessions(scena),
     scena.components.register({
       component: 'SessionExplorer',
       category: 'page',

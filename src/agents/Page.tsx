@@ -14,7 +14,7 @@ export default function AgentPage({ provider }: { provider?: string }): ReactEle
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS) ?? [];
   const agent = agents.find((one) => one.provider === provider);
-  if (agent === undefined) return <Alert tone="warning" message="This daemon no longer offers this agent." />;
+  if (agent === undefined) return <Alert tone="warning" message="This server no longer offers this agent." />;
 
   const capabilities = capabilitiesOf(agent);
   const customizations = (agent.customizations ?? []).map(customizationOf);
