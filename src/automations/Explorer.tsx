@@ -5,9 +5,10 @@ import { automationReducer, type AutomationCapabilities, type AutomationState as
 import { AHP_AUTOMATION_CAPS, AUTOMATIONS, refresh } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
 import { ExplorerList, type Dot, type Row } from '../explorer/ExplorerList.js';
-import { menuOf } from './actions.js';
+import { menuOf, runNow } from './actions.js';
 import { ACTIVE_AUTOMATION } from './state.js';
 import { runFacts, runsByTime, stateOf, titleOf, whenLine, type AutomationState } from './words.js';
+import { failed } from '../notify/index.js';
 
 const DOT: Record<AutomationState, Dot> = { running: 'working', failed: 'failed', on: 'ok', off: 'off' };
 const WORD: Record<AutomationState, string> = { running: 'Running', failed: 'Last run failed', on: 'On', off: 'Off' };
@@ -19,6 +20,8 @@ const at = (iso: string | undefined): string => {
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? '' : short.format(date);
 };
+
+const say = (error: unknown): void => failed('The automation could not run', error);
 
 /** The sidebar: the daemon's automations, by title, with when they run and how the last run went. */
 export default function AutomationExplorer(): ReactElement {
@@ -49,6 +52,9 @@ export default function AutomationExplorer(): ReactElement {
             facts === undefined ? 'Never run' : `${runs} ${runs === 1 ? 'run' : 'runs'} \u{00B7} last ${RUN_WORD[facts.status] ?? facts.status} ${at(facts.at)}`,
           ],
           menu: menuOf(entry, () => open(entry.resource), () => edit(entry.resource)),
+          ...(entry.operations.map(String).includes('run')
+            ? { action: { icon: '\u{25B6}\u{FE0E}', label: 'Run now', run: () => void runNow(entry).catch(say) } }
+            : {}),
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

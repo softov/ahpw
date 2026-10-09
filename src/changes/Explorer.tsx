@@ -16,6 +16,8 @@ import { useChannel } from '../connection/channel.js';
 import { textOf } from '../connection/words.js';
 import { ExplorerList, type Dot, type Row } from '../explorer/ExplorerList.js';
 import { ACTIVE_SESSION } from '../sessions/state.js';
+import { openAsItems, viewersOf } from '../files/viewers.js';
+import { confirm } from '../notify/index.js';
 import { changeOf, firstScope, relativeDir, scopesOf, type Change } from './words.js';
 
 const DOT: Record<Change['status'], Dot> = { added: 'ok', modified: 'fresh', deleted: 'failed' };
@@ -40,10 +42,10 @@ export default function ChangesExplorer(): ReactElement {
 
   useEffect(() => setSaid(null), [scope?.uri]);
 
-  const run = (operation: ChangesetOperation, target?: Change): void => {
+  const run = async (operation: ChangesetOperation, target?: Change): Promise<void> => {
     if (scope === undefined) return;
-    const confirm = textOf(operation.confirmation);
-    if (confirm !== '' && !window.confirm(confirm)) return;
+    const question = textOf(operation.confirmation);
+    if (question !== '' && !(await confirm({ title: question, confirmLabel: operation.label }))) return;
     setSaid(null);
     request('invokeChangesetOperation', {
       channel: scope.uri,
@@ -69,7 +71,10 @@ export default function ChangesExplorer(): ReactElement {
   const operations = changes.state?.operations ?? [];
   const rows = useMemo<Row[]>(() => files.map((change) => {
     const menu: PickerAction[] = [{ title: 'Open change', onSelect: (host) => { host.closeMenu(); openChange(change); } }];
-    if (change.status !== 'deleted') menu.push({ title: 'Open file', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.openFile', { uri: change.file }); } });
+    if (change.status !== 'deleted') {
+      menu.push({ title: 'Open file', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.openFile', { uri: change.file }); } });
+      menu.push(...openAsItems(scena, change.file, viewersOf(scena, change.file)[0]?.component ?? null));
+    }
     if (scope?.review === true) {
       menu.push({
         title: change.reviewed ? 'Mark as not reviewed' : 'Mark as reviewed',
@@ -80,7 +85,7 @@ export default function ChangesExplorer(): ReactElement {
       });
     }
     for (const operation of operations.filter((one) => scoped(one, 'resource'))) {
-      menu.push({ title: operation.label, group: 'file', ...(operation.description === undefined ? {} : { description: operation.description }), onSelect: (host) => { host.closeMenu(); run(operation, change); } });
+      menu.push({ title: operation.label, group: 'file', ...(operation.description === undefined ? {} : { description: operation.description }), onSelect: (host) => { host.closeMenu(); void run(operation, change); } });
     }
     const counts = change.added === undefined && change.removed === undefined
       ? LETTER[change.status]
@@ -116,7 +121,7 @@ export default function ChangesExplorer(): ReactElement {
               label={String(operation.status) === 'running' ? `${operation.label}\u{2026}` : operation.label}
               size="sm"
               disabled={String(operation.status) === 'running'}
-              onClick={() => run(operation)}
+              onClick={() => void run(operation)}
             />
           ))}
         </div>

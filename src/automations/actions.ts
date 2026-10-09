@@ -3,6 +3,7 @@ import type { AutomationEntry, StateAction } from '@microsoft/agent-host-protoco
 import { AUTOMATIONS, dispatch, request } from '../connection/data.js';
 import { newId } from '../connection/words.js';
 import { titleOf } from './words.js';
+import { confirm, failed } from '../notify/index.js';
 
 /** Run an automation now, outside its schedule. */
 export function runNow(entry: AutomationEntry): Promise<unknown> {
@@ -15,8 +16,8 @@ export function setEnabled(entry: AutomationEntry, enabled: boolean): void {
 }
 
 /** Delete an automation, once a person has said yes. */
-export function remove(entry: AutomationEntry): void {
-  if (!window.confirm(`Delete "${titleOf(entry)}"? Its run history goes with it.`)) return;
+export async function remove(entry: AutomationEntry): Promise<void> {
+  if (!(await confirm({ title: `Delete "${titleOf(entry)}"?`, body: 'Its run history goes with it.', confirmLabel: 'Delete', tone: 'danger' }))) return;
   dispatch(AUTOMATIONS, { type: 'automation/removed', resource: entry.resource } as StateAction);
 }
 
@@ -25,7 +26,7 @@ export function cancelRun(run: string): void {
   dispatch(run, { type: 'automationRun/cancelRequested' } as StateAction);
 }
 
-const say = (error: unknown): void => window.alert(error instanceof Error ? error.message : String(error));
+const say = (error: unknown): void => failed('The automation could not run', error);
 
 /** What an automation's menu offers, as far as the host allows. */
 export function menuOf(entry: AutomationEntry, open: () => void, edit: () => void): PickerAction[] {
@@ -37,6 +38,6 @@ export function menuOf(entry: AutomationEntry, open: () => void, edit: () => voi
     items.push({ title: 'Edit', onSelect: (host) => { host.closeMenu(); edit(); } });
   }
   items.push({ title: 'Copy link', group: 'more', onSelect: (host) => { host.closeMenu(); void navigator.clipboard?.writeText(entry.resource).catch(() => undefined); } });
-  if (can('remove')) items.push({ title: 'Delete', group: 'more', color: 'red', onSelect: (host) => { host.closeMenu(); remove(entry); } });
+  if (can('remove')) items.push({ title: 'Delete', group: 'more', color: 'red', onSelect: (host) => { host.closeMenu(); void remove(entry); } });
   return items;
 }

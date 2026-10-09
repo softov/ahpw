@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { useScena, useStore } from '@softov/scena/react';
 import { ActionList } from '@softov/scena/ui';
 import type { BindingPath, HostCtx } from '@softov/scena/types';
+import { AHP_HOST } from '../connection/data.js';
+import { terminalItems } from '../terminals/rows.js';
 
 /** True while the palette is open. */
 export const PALETTE_OPEN = '$/ahp/palette/open' as BindingPath;
@@ -15,7 +17,7 @@ interface ListKeys {
   handleKey(event: { key: string; preventDefault: () => void }): boolean;
 }
 
-/** The command palette: type to filter the commands in `PALETTE_SLOT`, Enter runs one. */
+/** The command palette: type to filter the commands in `PALETTE_SLOT` and the host's terminals; Enter runs one. */
 export default function Palette(): ReactElement | null {
   const open = useStore<boolean>(PALETTE_OPEN) === true;
   if (!open) return null;
@@ -40,7 +42,9 @@ function PaletteBox(): ReactElement {
     query: '',
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), []);
-  const spec = useMemo(() => ({ query: { slot: PALETTE_SLOT, q: query } }), [query]);
+  const facts = useStore<unknown>(AHP_HOST);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const spec = useMemo(() => ({ query: { slot: PALETTE_SLOT, q: query }, extraItems: terminalItems(scena, query) }), [scena, query, facts]);
   return (
     <div className="web-palette" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
       <div
@@ -53,7 +57,7 @@ function PaletteBox(): ReactElement {
           className="web-field web-palette__input"
           autoFocus
           value={query}
-          placeholder="Type a command"
+          placeholder="Type a command or a terminal"
           aria-label="Command"
           onChange={(event) => setQuery(event.currentTarget.value)}
           onKeyDown={(event) => {

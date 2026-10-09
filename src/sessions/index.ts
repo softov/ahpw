@@ -3,13 +3,14 @@ import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
 import { PRESENTATION } from '../presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS, AHP_SESSIONS_OPEN, AHP_SESSIONS_WORKING, titlePath } from '../connection/data.js';
+import { AHP_SESSIONS, titlePath } from '../connection/data.js';
 import { ACTIVE_SESSION } from './state.js';
 import SessionExplorer from './Explorer.js';
 import SessionPage from './Page.js';
 import NewSessionPage from './New.js';
 import SessionDetails from './Details.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
+import { ICONS } from '../icons.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -71,7 +72,7 @@ export function registerSessions(scena: Scena): Disposable {
         // A page already open keeps its own choices, so one asked for an agent starts afresh.
         const provider = (args as { provider?: string } | undefined)?.provider;
         if (provider !== undefined) ctx.scena.surfaces.close('session:new');
-        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session' } });
+        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session', icon: ICONS.sessions } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
@@ -86,7 +87,7 @@ export function registerSessions(scena: Scena): Disposable {
           surface: 'main',
           key: `session:${resource}`,
           resource: { component: 'SessionPage', resource },
-          props: { title: { path: titlePath(resource) } },
+          props: { title: { path: titlePath(resource) }, icon: ICONS.sessions },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large', 'sidebar:right');
@@ -98,22 +99,6 @@ export function registerSessions(scena: Scena): Disposable {
       key: 'session:details',
       resource: { component: 'SessionDetails' },
       props: { title: 'Session' },
-    }),
-    scena.surfaces.mount({
-      surface: 'activitybar',
-      key: 'sessions:nav',
-      resource: {
-        component: 'ActivityBarItem',
-        icon: '\u{1F4AC}',
-        label: 'Sessions',
-        section: SESSIONS_SECTION,
-        badge: { path: AHP_SESSIONS_OPEN },
-        badgeTone: 'muted',
-        badgeLabel: 'open',
-        secondBadge: { path: AHP_SESSIONS_WORKING },
-        secondBadgeTone: 'info',
-        secondBadgeLabel: 'working',
-      },
     }),
     scena.surfaces.mount({
       surface: 'sidebar:left',

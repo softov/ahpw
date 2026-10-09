@@ -5,13 +5,17 @@ import { registerThemeController } from '@softov/scena/styles';
 // ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
 // import { registerCommands } from './commands/index.js';
 import { registerConnection } from './connection/index.js';
-import { registerSessions } from './sessions/index.js';
-import { registerAgents } from './agents/index.js';
-import { registerAutomations } from './automations/index.js';
+import { SESSIONS_SECTION, registerSessions } from './sessions/index.js';
+import { AGENTS_SECTION, registerAgents } from './agents/index.js';
+import { AUTOMATIONS_SECTION, registerAutomations } from './automations/index.js';
+import { AHP_SESSIONS_OPEN, AHP_SESSIONS_WORKING } from './connection/data.js';
+import { ICONS } from './icons.js';
 import { registerHost } from './host/index.js';
 import { registerView } from './view/index.js';
 import { registerFiles } from './files/index.js';
 import { registerChanges } from './changes/index.js';
+import { registerNotifications } from './notify/index.js';
+import { registerTerminals } from './terminals/index.js';
 import { registerBuiltinThemes } from '@softov/scena/themes';
 import { attachKeys } from './view/keys.js';
 import Palette, { PALETTE_OPEN, PALETTE_SLOT } from './view/Palette.js';
@@ -48,6 +52,8 @@ export function registerShell(scena: Scena): Disposable {
   // Before the controller, so a saved theme is one it knows.
   registerBuiltinThemes();
   return combineDisposables(
+    // First, so anything registered after it can say something.
+    registerNotifications(scena),
     registerThemeController(scena, { idKey: THEME_ID_KEY, modeKey: THEME_MODE_KEY }),
 
     scena.commands.register({
@@ -109,6 +115,11 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
+      key: 'chrome:toggle-left',
+      resource: { component: 'ButtonBar', slot: 'left', icon: '\u{25E7}\u{FE0E}', title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft' },
+    }),
+    scena.surfaces.mount({
+      surface: 'titlebar',
       key: 'chrome:title',
       resource: { component: 'AppTitle', slot: 'left', text: 'ahpd' },
     }),
@@ -123,15 +134,49 @@ export function registerShell(scena: Scena): Disposable {
       key: 'chrome:sign-out',
       resource: { component: 'ButtonBar', slot: 'right', label: 'Sign out', command: 'sigillum.signout' },
     }),
+    // The right toggle last, at the title bar's far end, above the right sidebar.
     scena.surfaces.mount({
-      surface: 'statusbar',
-      key: 'chrome:toggle-left',
-      resource: { component: 'ButtonBar', icon: '\u{25E7}\u{FE0E}', title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft' },
-    }),
-    scena.surfaces.mount({
-      surface: 'statusbar',
+      surface: 'titlebar',
       key: 'chrome:toggle-right',
       resource: { component: 'ButtonBar', slot: 'right', icon: '\u{25E8}\u{FE0E}', title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight' },
+    }),
+
+    // The activity bar, in this order: mount order is the rail's order within each end.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'sessions:nav',
+      resource: {
+        component: 'ActivityBarItem',
+        icon: ICONS.sessions,
+        label: 'Sessions',
+        section: SESSIONS_SECTION,
+        badge: { path: AHP_SESSIONS_OPEN },
+        badgeTone: 'muted',
+        badgeLabel: 'open',
+        secondBadge: { path: AHP_SESSIONS_WORKING },
+        secondBadgeTone: 'info',
+        secondBadgeLabel: 'working',
+      },
+    }),
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'automations:nav',
+      resource: { component: 'ActivityBarItem', icon: ICONS.automations, label: 'Automations', section: AUTOMATIONS_SECTION },
+    }),
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'host:info:nav',
+      resource: { component: 'ActivityBarItem', icon: ICONS.host, label: 'Host', pos: 'bottom', command: 'ahp.openHostInfo' },
+    }),
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'agents:nav',
+      resource: { component: 'ActivityBarItem', icon: ICONS.agents, label: 'Agents', pos: 'bottom', section: AGENTS_SECTION },
+    }),
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'host:settings:nav',
+      resource: { component: 'ActivityBarItem', icon: ICONS.settings, label: 'Settings', pos: 'bottom', command: 'ahp.openSettings' },
     }),
 
     registerConnection(scena),
@@ -141,6 +186,7 @@ export function registerShell(scena: Scena): Disposable {
     registerAutomations(scena),
     registerHost(scena),
     registerFiles(scena),
+    registerTerminals(scena),
     // registerCommands(scena),
   );
 }

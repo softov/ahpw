@@ -1,13 +1,18 @@
 import type { Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import FilePage from './FilePage.js';
+import MarkdownPage from './MarkdownPage.js';
 import DiffPage from './DiffPage.js';
+import { FILE_KIND, openAsItems, TEXT_VIEWER, viewersOf } from './viewers.js';
+import { ICONS } from '../icons.js';
 
 /** Arguments of `ahp.openFile`. */
 export interface OpenFileArgs {
   uri: string;
   line?: number | null;
   end?: number | null;
+  /** The viewer to open it in; by default the text when lines are named, else the file's first viewer. */
+  viewer?: string;
 }
 
 /** Arguments of `ahp.openDiff`: the file, and the content of each side that exists. */
@@ -23,9 +28,16 @@ const nameOf = (uri: string): string => decodeURIComponent(uri.replace(/\/+$/, '
 export function registerFiles(scena: Scena): Disposable {
   return combineDisposables(
     scena.components.register({
-      component: 'FilePage',
+      component: TEXT_VIEWER,
       category: 'page',
       renderer: { kind: 'react', load: async () => ({ default: FilePage as unknown }) },
+      opens: { resourceKinds: [FILE_KIND], title: 'Text', icon: ICONS.file, priority: 10 },
+    }),
+    scena.components.register({
+      component: 'MarkdownPage',
+      category: 'page',
+      renderer: { kind: 'react', load: async () => ({ default: MarkdownPage as unknown }) },
+      opens: { resourceKinds: [FILE_KIND], title: 'Markdown', icon: ICONS.markdown, priority: 20, selector: '$/resource/ext == "md" || $/resource/ext == "markdown"' },
     }),
     scena.components.register({
       component: 'DiffPage',
@@ -38,13 +50,24 @@ export function registerFiles(scena: Scena): Disposable {
       run: (ctx, args) => {
         const target = args as OpenFileArgs | undefined;
         if (target?.uri === undefined) return;
+        const viewers = viewersOf(scena, target.uri);
+        const named = target.line === undefined || target.line === null ? null : TEXT_VIEWER;
+        const viewer = viewers.find((one) => one.component === (target.viewer ?? named)) ?? viewers[0];
+        const component = viewer?.component ?? TEXT_VIEWER;
         ctx.surfaces.open({
           surface: 'main',
-          key: `file:${target.uri}`,
-          resource: { component: 'FilePage', uri: target.uri, line: target.line ?? null, end: target.end ?? null },
-          props: { title: nameOf(target.uri) },
+          key: `file:${component}:${target.uri}`,
+          resource: { component, uri: target.uri, line: target.line ?? null, end: target.end ?? null },
+          props: { title: nameOf(target.uri), icon: viewer?.opens?.icon ?? ICONS.file },
         });
       },
+    }),
+    // A file tab's menu offers the file's other viewers.
+    scena.mountMenus.register('tab:context', (mount) => {
+      const node = mount.component as { component?: unknown; uri?: unknown };
+      if (typeof node.uri !== 'string' || typeof node.component !== 'string') return [];
+      if (!viewersOf(scena, node.uri).some((viewer) => viewer.component === node.component)) return [];
+      return openAsItems(scena, node.uri, node.component);
     }),
     scena.commands.register({
       id: 'ahp.openDiff',
@@ -61,7 +84,7 @@ export function registerFiles(scena: Scena): Disposable {
             ...(target.before === undefined ? {} : { before: target.before }),
             ...(target.after === undefined ? {} : { after: target.after }),
           },
-          props: { title: `\u{0394} ${nameOf(target.file)}` },
+          props: { title: nameOf(target.file), icon: ICONS.diff },
         });
       },
     }),

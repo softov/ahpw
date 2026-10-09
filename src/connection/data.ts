@@ -199,6 +199,7 @@ function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   store.set(AHP_AGENTS, (host?.agents ?? []) as AgentInfo[]);
   store.set(AHP_DEFAULT_DIRECTORY, host?.defaultDirectory ?? null);
   store.set(AHP_AUTOMATION_CAPS, host?.automations ?? null);
+  for (const terminal of host?.terminals ?? []) setIfChanged(store, titlePath(terminal.resource), terminal.title === '' ? 'Terminal' : terminal.title);
   store.set(AHP_HOST, host === undefined ? null : {
     label: host.label,
     clientId: host.clientId,
@@ -273,7 +274,8 @@ async function watchChannels(store: ReactiveStore, multi: MultiHostClient): Prom
     }
     if (event.type !== 'action') continue;
     const { channel, action } = event.params;
-    if (channel === ROOT && action.type === 'root/agentsChanged') {
+    // Agents, terminals and the active count are the host's facts.
+    if (channel === ROOT) {
       hostDue = true;
       schedule(store, multi);
     }
@@ -295,7 +297,7 @@ async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<vo
   try {
     await multi.addHost({
       id: HOST,
-      label: 'ahpd',
+      label: window.location.host,
       transportFactory: () => WebSocketTransport.connect(socketUrl(readToken(), window.location, import.meta.env.DEV)),
     });
   } catch (error) {

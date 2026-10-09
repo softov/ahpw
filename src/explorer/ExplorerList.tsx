@@ -18,6 +18,8 @@ export interface Row {
   strong?: boolean;
   /** The group the row is listed under; rows come grouped already, in order. */
   group?: { key: string; label: string };
+  /** An icon button on the row, beside its time. */
+  action?: { icon: string; label: string; run: () => void };
 }
 
 /** An icon button in the explorer's title. */
@@ -146,6 +148,21 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
                       <span className="web-row__head">
                         <span className="web-row__title" data-strong={row.strong === true ? 'true' : 'false'}>{row.title}</span>
                         {row.time === undefined ? null : <span className="web-row__time">{row.time}</span>}
+                        {row.action === undefined ? null : (
+                          <button
+                            type="button"
+                            className="web-row__action"
+                            title={row.action.label}
+                            aria-label={row.action.label}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              row.action?.run();
+                            }}
+                            onKeyDown={(event) => event.stopPropagation()}
+                          >
+                            {row.action.icon}
+                          </button>
+                        )}
                       </span>
                       {row.lines.map((line, index) => <span key={index} className="web-row__line">{line}</span>)}
                     </span>

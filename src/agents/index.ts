@@ -7,6 +7,7 @@ import { PALETTE_SLOT } from '../view/Palette.js';
 import { ACTIVE_AGENT } from './state.js';
 import AgentExplorer from './Explorer.js';
 import AgentPage from './Page.js';
+import { ICONS } from '../icons.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -46,15 +47,10 @@ export function registerAgents(scena: Scena): Disposable {
           surface: 'main',
           key: `agent:${provider}`,
           resource: { component: 'AgentPage', provider },
-          props: { title: agent?.displayName ?? provider },
+          props: { title: agent?.displayName ?? provider, icon: ICONS.agents },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
-    }),
-    scena.surfaces.mount({
-      surface: 'activitybar',
-      key: 'agents:nav',
-      resource: { component: 'ActivityBarItem', icon: '\u{1F916}', label: 'Agents', section: AGENTS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'sidebar:left',

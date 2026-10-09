@@ -283,7 +283,7 @@ export const Part = memo(function Part({ part, send, live, turnId }: { part: Res
     case 'inputRequest':
       return 'request' in part ? <InputRequest request={part.request} send={send} live={live} response={'response' in part && part.response !== undefined ? String(part.response) : undefined} /> : null;
     case 'error':
-      return <Alert tone="danger" message={'message' in part ? String(part.message) : 'The agent reported an error.'} />;
+      return <Alert tone="danger" message={'error' in part && part.error.message !== '' ? part.error.message : 'The agent reported an error.'} />;
     case 'systemNotification':
       return <p className="web-note">{'content' in part ? textOf(part.content as string) : ''}</p>;
     default:

@@ -9,6 +9,7 @@ import { ExplorerList, type Dot, type Row } from '../explorer/ExplorerList.js';
 import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, activityOf, isArchived, isRead, type Activity } from './status.js';
 import { GROUPINGS, arrange, groupOf, type Grouping } from './grouping.js';
+import { confirm, failed } from '../notify/index.js';
 
 /** Where the chosen grouping is kept, per browser. */
 const GROUPING_KEY = 'ahpd-web.session-grouping';
@@ -69,9 +70,9 @@ function menuOf(session: SessionSummary, open: () => void): PickerAction[] {
       color: 'red',
       onSelect: (host) => {
         host.closeMenu();
-        if (window.confirm(`Delete "${session.title || 'Untitled'}"? Its history goes with it.`)) {
-          void request('disposeSession', { channel: session.resource }).catch((error: unknown) => window.alert(error instanceof Error ? error.message : String(error)));
-        }
+        void confirm({ title: `Delete "${session.title || 'Untitled'}"?`, body: 'Its history goes with it.', confirmLabel: 'Delete', tone: 'danger' }).then((yes) => {
+          if (yes) void request('disposeSession', { channel: session.resource }).catch((error: unknown) => failed('The session could not be deleted', error));
+        });
       },
     },
   ];

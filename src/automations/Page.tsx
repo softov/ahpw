@@ -100,7 +100,7 @@ export default function AutomationPage({ resource }: { resource?: string }): Rea
           {can('run') ? <Button label="Run now" variant="primary" onClick={() => void runNow(entry).catch(say)} /> : null}
           {can('update') ? <Button label={entry.definition.enabled ? 'Turn off' : 'Turn on'} onClick={() => setEnabled(entry, !entry.definition.enabled)} /> : null}
           {can('update') ? <Button label="Edit" onClick={() => void scena.commands.execute('ahp.editAutomation', { resource: entry.resource })} /> : null}
-          {can('remove') ? <Button label="Delete" onClick={() => remove(entry)} /> : null}
+          {can('remove') ? <Button label="Delete" onClick={() => void remove(entry)} /> : null}
         </div>
       </div>
       {failure === null ? null : <Alert tone="danger" message={failure} />}
