@@ -1,16 +1,42 @@
 # @ahpd/web
 
-A web UI for an AHP daemon. Run it inside [ahpd](https://github.com/softov/ahpd) as a plugin, or on its own with `ahpw serve` in front of any daemon.
+A web UI for an AHP server.
+
+Run it inside [ahpd](https://github.com/softov/ahpd) as a plugin, or on its own with `ahpw serve` in front of any daemon.
 
 What you get:
 
-- **Sessions**, live over the Agent Host Protocol: the list, each chat, new sessions, and what they changed.
+- **Sessions**, the list, each chat, new sessions and what they changed.
+- **Composer**, supports `@attachments`, `/skills` and `/commands`.
+- **Automations** for running tasks and scripts automatically based on session events.
 - **Terminals** and a log in a bottom panel.
-- **Administration screens** for every ahpd command (ahpd only). They are built from the daemon's `/api/cli-manifest`, so a new command shows up here with no change to this package.
+- **Host Information**, shows details about the server and its environment.
+- **Agents**, list and manage the `harness` processes running on the server.
+- **Settings**, configure the host server and its plugins.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/media/shot-01-light.jpeg">
+  <img src="docs/media/shot-01-dark.jpeg" alt="ahpw with the session list, a running session, its details and changes, and a terminal in the bottom panel">
+</picture>
+
+Two sessions side by side:
+
+![ahpw with two running sessions open side by side](docs/media/shot-02-dark.jpeg)
+
+---
 
 ## Run it in ahpd
 
-Turn on the API on the daemon's own port, and add the plugin:
+Install the plugin:
+
+```sh
+ahpd plugin install @ahpd/web
+```
+
+That installs it where the daemon looks for plugins and adds it to `plugins` in the configuration file.
+> **Note:** A plugin installed with `npm i -g` is not seen.
+
+Turn on the API on the daemon's own port:
 
 ```json
 {
@@ -23,10 +49,20 @@ Then open `http://127.0.0.1:9187/plugins/ahpd-web/`.
 
 Keep `http.port` unset. On another port the API is on another origin, and the page cannot reach it.
 
+---
+
 ## Run it on its own
 
 ```sh
+npm i -g @ahpd/web
+# --connect {HOST_URL} --token-file {PATH_TO_TOKEN}
 ahpw serve --connect ws://127.0.0.1:37537 --token-file ~/.vscode/cli/agent-host-token
+```
+
+Or without installing it:
+
+```sh
+npx @ahpd/web serve --connect ws://127.0.0.1:37537 --token-file ~/.vscode/cli/agent-host-token
 ```
 
 Then open `http://127.0.0.1:5190/`.
@@ -76,6 +112,8 @@ A flag beats the file, and the file beats the environment.
 - It takes a socket only from a page it served, at an IP address or `localhost`.
 - It warns when the token goes in cleartext (`ws://`) to another machine.
 
+---
+
 ## Sign-in
 
 Without a token from `ahpw serve`, sign in with one the daemon accepts: the deployment's token, or a person's token.
@@ -83,6 +121,8 @@ Without a token from `ahpw serve`, sign in with one the daemon accepts: the depl
 Each ahpd command checks its own grants. A token that may not run one gets the daemon's refusal.
 
 The socket carries the token as `?tkn=`, because a browser cannot set a header on a WebSocket.
+
+---
 
 ## Develop
 
@@ -107,6 +147,8 @@ ahpd run --plugin /path/to/ahpd-web
 | `pnpm typecheck` | Every TypeScript project |
 | `pnpm test` | The unit tests, for the page, the plugin and the CLI |
 
+---
+
 ## Layout
 
 | Path | What it is |
@@ -129,6 +171,8 @@ ahpd run --plugin /path/to/ahpd-web
 | `src/view/` | The palette, layouts and key bindings |
 | `src/token-provider.ts` | Sign-in with a token |
 
+---
+
 ## License
 
-MIT
+MIT © Softov

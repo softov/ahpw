@@ -1,0 +1,117 @@
+name: Release
+
+# A pushed tag is the whole gesture: `git tag v0.1.0 && git push --tags`.
+on:
+  push:
+    tags: ['v*']
+  # For rehearsing the whole thing without publishing anything.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Pack and check, but do not publish
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      # What lets npm trade a GitHub OIDC token for a publish. npm trusts this
+      # repository and this workflow filename, as registered on the package's
+      # trusted publisher; renaming this file breaks publishing.
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          # Trusted publishing needs 22.14 or later.
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      # The npm bundled with Node 22 is 10.x, which has neither trusted
+      # publishing (11.5.1 and later) nor `npm stage` (12).
+      - name: An npm that can do this
+        run: |
+          npm install -g npm@12
+          npm --version
+
+      - run: pnpm install --frozen-lockfile
+
+      # A tag that disagrees with package.json publishes a version nobody asked
+      # for, so it is checked before anything is built.
+      - name: The tag says what package.json says
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -eu
+          tagged=${GITHUB_REF_NAME#v}
+          found=$(node -p "require('./package.json').version")
+          if [ "$tagged" != "$found" ]; then
+            echo "The tag says $tagged and package.json says $found."
+            exit 1
+          fi
+          echo "Releasing $tagged."
+
+      # The same checks CI runs.
+      - run: pnpm typecheck
+      - run: timeout 300 pnpm test
+      - run: pnpm build
+
+      - name: Pack
+        run: pnpm pack --pack-destination ${{ runner.temp }}
+
+      # Staged by npm, not published: nothing is installable until somebody
+      # approves it on the package page. `--provenance` ties the tarball to this
+      # commit and this workflow.
+      #
+      # The first version of a new package cannot go this way: npm configures a
+      # trusted publisher on a package, so the package has to exist first. That
+      # version is published once with a token, its trusted publisher is added,
+      # and only then can OIDC stage the versions after it.
+      - name: Stage the release
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          set -u
+          version=$(node -p "require('./package.json').version")
+          if npm view "@ahpd/web@$version" version >/dev/null 2>&1; then
+            echo "@ahpd/web@$version is already on npm; nothing to stage."
+            exit 0
+          fi
+          if ! npm view @ahpd/web version >/dev/null 2>&1; then
+            echo "::error::@ahpd/web has never been published, so it cannot have a trusted publisher yet."
+            echo "Publish @ahpd/web@$version once with a token, add its trusted publisher, then re-run this workflow."
+            exit 1
+          fi
+          said=$(npm stage publish "${{ runner.temp }}/ahpd-web-$version.tgz" --provenance --access public 2>&1) && code=0 || code=$?
+          echo "$said"
+          if [ "$code" = "0" ]; then
+            echo "Staged. Approve it at https://www.npmjs.com/package/@ahpd/web"
+            echo "The approve button stays disabled until npm has finished scanning."
+            exit 0
+          fi
+          # npm answers E409 for a version already staged as well as one already
+          # released, which is the same thing to a re-run.
+          if printf '%s' "$said" | grep -qE 'E409|previously published|cannot publish over|already (been )?(staged|published)|EPUBLISHCONFLICT'; then
+            echo "@ahpd/web@$version is already staged; leaving it alone."
+            exit 0
+          fi
+          exit "$code"
+
+      - name: What would have been staged
+        if: ${{ inputs.dry_run == true }}
+        run: |
+          set -u
+          version=$(node -p "require('./package.json').version")
+          said=$(npm stage publish "${{ runner.temp }}/ahpd-web-$version.tgz" --dry-run --access public 2>&1) && code=0 || code=$?
+          echo "$said"
+          if [ "$code" = "0" ]; then exit 0; fi
+          if printf '%s' "$said" | grep -qE 'E409|previously published|cannot publish over|already (been )?(staged|published)|EPUBLISHCONFLICT'; then
+            echo "@ahpd/web@$version is already staged or published. Expected until package.json is bumped."
+            exit 0
+          fi
+          exit "$code"

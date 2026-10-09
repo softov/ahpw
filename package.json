@@ -2,6 +2,7 @@
   "name": "@ahpd/web",
   "version": "0.1.0",
   "type": "module",
+  "packageManager": "pnpm@11.21.0",
   "description": "A browser UI for an ahpd daemon, served by the daemon as a plugin route",
   "keywords": [
     "ahp",
@@ -13,7 +14,17 @@
   ],
   "author": "Luiz Fernando Softov <lfs@softov.dev>",
   "license": "MIT",
-  "private": true,
+  "homepage": "https://github.com/softov/ahpw#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/softov/ahpw.git"
+  },
+  "bugs": {
+    "url": "https://github.com/softov/ahpw/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22"
   },
@@ -40,6 +51,11 @@
   },
   "peerDependencies": {
     "@ahpd/sdk": ">=0.9"
+  },
+  "peerDependenciesMeta": {
+    "@ahpd/sdk": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@ahpd/sdk": "^0.9.0",

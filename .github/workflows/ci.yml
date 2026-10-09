@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# One run per branch. A push over a push is a run nobody is waiting for.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          # The `engines` field, and the version the tests are written against.
+          node-version: 22
+          cache: pnpm
+
+      # Frozen, so a lockfile that does not match package.json fails here.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - name: Tests
+        run: timeout 300 pnpm test
+
+      - run: pnpm build
+
+      # What would actually be published: the page, the plugin and the CLI.
+      - name: Pack
+        run: pnpm pack --pack-destination ${{ runner.temp }}
+
+      - name: The tarball carries the page, the plugin and the CLI
+        run: |
+          set -eu
+          listed=$(tar -tzf ${{ runner.temp }}/ahpd-web-*.tgz)
+          for file in package/dist/app/index.html package/dist/plugin/index.js package/dist/cli/main.js; do
+            if ! printf '%s\n' "$listed" | grep -qx "$file"; then
+              echo "$file is missing from the tarball."
+              exit 1
+            fi
+          done
+          echo "$(printf '%s\n' "$listed" | wc -l) files."
+
+      # Installed the way a user installs it, so a missing runtime dependency
+      # or a broken bin fails here and not after a release.
+      - name: The installed CLI serves the page
+        run: |
+          set -eu
+          mkdir "$RUNNER_TEMP/smoke"
+          cd "$RUNNER_TEMP/smoke"
+          npm init -y >/dev/null
+          npm i --no-audit --no-fund "$RUNNER_TEMP"/ahpd-web-*.tgz
+          ./node_modules/.bin/ahpw --help
+          ./node_modules/.bin/ahpw serve --connect ws://127.0.0.1:1 --port 5199 &
+          server=$!
+          for _ in $(seq 20); do
+            curl -sf http://127.0.0.1:5199/ -o page.html && break
+            sleep 0.5
+          done
+          kill "$server"
+          grep -q '<title>ahpw</title>' page.html
+          echo "The page is served."
