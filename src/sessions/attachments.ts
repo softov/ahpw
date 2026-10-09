@@ -1,10 +1,58 @@
-import type { MessageAttachment, TextPosition } from '@microsoft/agent-host-protocol';
+import type { MessageAttachment, SessionSummary, TextPosition } from '@microsoft/agent-host-protocol';
 import { folderLabel } from '../connection/words.js';
+import { EMOJIcon } from '../emojis.js';
 
 type Bag = Record<string, unknown>;
 
 const bagOf = (value: unknown): Bag => (typeof value === 'object' && value !== null ? value as Bag : {});
 const textOf = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
+
+/** The largest file the composer embeds in a message, before base64. */
+export const MAX_EMBEDDED_BYTES = 5 * 1024 * 1024;
+
+/** Bytes as base64, a slice at a time so a large file does not overflow the call stack. */
+export function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let at = 0; at < bytes.length; at += 0x8000) binary += String.fromCharCode(...bytes.subarray(at, at + 0x8000));
+  return btoa(binary);
+}
+
+/** Content carried inside the message, base64 with its type. */
+export function embeddedAttachment(label: string, data: string, contentType: string): MessageAttachment {
+  return { type: 'embeddedResource', label, data, contentType, displayKind: contentType.startsWith('image/') ? 'image' : 'document' } as MessageAttachment;
+}
+
+/** Another session's chat, which the host reads up to its last finished turn. */
+export function chatAttachment(session: SessionSummary): MessageAttachment {
+  return { type: 'chat', label: session.title === '' ? 'Untitled' : session.title, resource: session.defaultChat } as MessageAttachment;
+}
+
+/** What the browser's files gave: the attachments made, and the names left out as too big or unreadable. */
+export async function fromFiles(files: readonly File[]): Promise<{ attached: MessageAttachment[]; refused: string[] }> {
+  const attached: MessageAttachment[] = [];
+  const refused: string[] = [];
+  for (const file of files) {
+    if (file.size > MAX_EMBEDDED_BYTES) {
+      refused.push(file.name);
+      continue;
+    }
+    try {
+      attached.push(embeddedAttachment(file.name, bytesToBase64(new Uint8Array(await file.arrayBuffer())), file.type || 'application/octet-stream'));
+    } catch {
+      refused.push(file.name);
+    }
+  }
+  return { attached, refused };
+}
+
+/** The glyph a chip shows for an attachment. */
+export function attachmentIcon(attachment: MessageAttachment): string {
+  const held = bagOf(attachment);
+  if (held.type === 'chat') return EMOJIcon.sessions;
+  if (held.displayKind === 'directory') return EMOJIcon.folder;
+  if (held.type === 'embeddedResource') return EMOJIcon.attach;
+  return EMOJIcon.file;
+}
 
 /** An attachment the host offered for a completion, holding the text the composer wrote for it. */
 export function withToken(attachment: MessageAttachment, token: string): MessageAttachment {
@@ -18,6 +66,7 @@ export function sameAttachment(a: MessageAttachment, b: MessageAttachment): bool
   const y = bagOf(b);
   if (x.type !== y.type) return false;
   if (typeof x.uri === 'string') return x.uri === y.uri;
+  if (typeof x.resource === 'string') return x.resource === y.resource;
   return x.label === y.label && x.data === y.data;
 }
 

@@ -27,7 +27,8 @@ import {
   type Option,
 } from './composer-commands.js';
 import { EMOJIcon } from '../emojis.js';
-import { attachmentLabel, attachmentPath, sameAttachment, withRanges, withToken } from './attachments.js';
+import { attachmentIcon, attachmentLabel, attachmentPath, fromFiles, sameAttachment, withRanges, withToken } from './attachments.js';
+import { warn } from '../notify/index.js';
 import { COMPOSER_FOCUS, hostCommands, registerHostCommands, type HostCommand } from './host-commands.js';
 
 /** Tells one composer from another in the store's focus path. */
@@ -109,6 +110,19 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     });
   }, []);
 
+  const attach = useCallback((picked: MessageAttachment): void => {
+    typed.current = true;
+    setAttachments((held) => (held.some((one) => sameAttachment(one, picked)) ? held : [...held, picked]));
+  }, []);
+
+  // Files from this computer go inside the message.
+  const files = useRef<HTMLInputElement>(null);
+  const upload = useCallback(async (list: FileList | null): Promise<void> => {
+    const got = await fromFiles(Array.from(list ?? []));
+    for (const one of got.attached) attach(one);
+    if (got.refused.length > 0) warn('Not attached', { description: `Over 5 MB or unreadable: ${got.refused.join(', ')}` });
+  }, [attach]);
+
   // `@` asks the host what the text so far can refer to.
   const textRef = useRef(text);
   textRef.current = text;
@@ -125,8 +139,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
           ...(where === undefined ? {} : { description: where }),
           onSelect: (ctx: HostCtx) => {
             ctx.replaceActiveToken(`${item.insertText} `);
-            const picked = withToken(item.attachment, item.insertText);
-            setAttachments((held) => (held.some((one) => sameAttachment(one, picked)) ? held : [...held, picked]));
+            attach(withToken(item.attachment, item.insertText));
           },
         };
       });
@@ -134,7 +147,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
       // A host that cannot answer leaves the path to be typed by hand.
       return [];
     }
-  }, [chatUri, folder]);
+  }, [chatUri, folder, attach]);
 
   // The host's own `/` commands for this chat, asked once.
   const [commands, setCommands] = useState<HostCommand[]>([]);
@@ -187,6 +200,19 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     },
     running: () => active !== undefined,
     stop,
+    session: () => summary.resource,
+    attach,
+    type: (prefix) => {
+      const at = caretRef.current ?? textRef.current.length;
+      const before = textRef.current.slice(0, at);
+      const lead = prefix === '/' ? '' : before === '' || /\s$/.test(before) ? '' : ' ';
+      const next = prefix === '/' && before.trim() === '' ? `/${textRef.current.slice(at)}` : `${before}${lead}${prefix}${textRef.current.slice(at)}`;
+      const caretAt = prefix === '/' && before.trim() === '' ? 1 : before.length + lead.length + 1;
+      typed.current = true;
+      setText(next);
+      focusCaret(caretAt);
+    },
+    upload: () => files.current?.click(),
   };
   useEffect(() => attachComposer(path, {
     models: () => api.current?.models() ?? [],
@@ -196,6 +222,10 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     setOption: (key, value) => api.current?.setOption(key, value),
     running: () => api.current?.running() ?? false,
     stop: () => api.current?.stop(),
+    session: () => api.current?.session() ?? '',
+    attach: (attachment) => api.current?.attach(attachment),
+    type: (prefix) => api.current?.type(prefix),
+    upload: () => api.current?.upload(),
   }), [path]);
 
   // Keyed on which settings exist, not their values, so a value changing does not tear down an open list.
@@ -257,73 +287,82 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         </ul>
       )}
 
-      <div className="web-composer__chips">
-        {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title="The folder this session works in" />}
-        <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
-        {models.length === 0 ? null : (
-          <Pill label={`Model: ${modelName ?? 'default'}`} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
+      <div className="web-composer__box">
+        {attachments.length === 0 ? null : (
+          <div className="web-composer__attached">
+            {attachments.map((one, index) => (
+              <span key={`${attachmentLabel(one)}-${index}`} className="web-attachment" title={attachmentPath(one, folder) ?? attachmentLabel(one)}>
+                <span className="web-attachment__icon" aria-hidden="true">{attachmentIcon(one)}</span>
+                <span className="web-attachment__label">{attachmentLabel(one)}</span>
+                <button
+                  type="button"
+                  className="web-attachment__remove"
+                  aria-label={`Remove ${attachmentLabel(one)}`}
+                  onClick={() => { typed.current = true; setAttachments((held) => held.filter((_, at) => at !== index)); }}
+                >
+                  {EMOJIcon.close}
+                </button>
+              </span>
+            ))}
+          </div>
         )}
-        {options.map((option) => (
-          <Pill
-            key={option.key}
-            label={`${option.schema.title || option.key}: ${optionLabel(option)}`}
-            title={option.schema.description ?? option.schema.title}
-            {...(option.schema.type === 'boolean' ? { on: (option.value ?? option.schema.default) === true } : {})}
-            {...(pickable(option.schema) ? { onOpen: () => openCommand(optionCommandId(option.key)) } : {})}
+
+        <div className="web-composer__bar">
+          <textarea
+            ref={area}
+            className="web-composer__text"
+            rows={1}
+            value={text}
+            aria-label="Message"
+            placeholder={active === undefined ? 'Message the agent, / for commands, @ to refer to a file' : 'Queue a message for after this turn, or steer it'}
+            onChange={(event) => {
+              typed.current = true;
+              setText(event.currentTarget.value);
+              setCaret(event.currentTarget.selectionStart);
+            }}
+            onFocus={() => scena.store.set(COMPOSER_FOCUS, focus)}
+            onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
+            onClick={(event) => setCaret(event.currentTarget.selectionStart)}
+            onKeyDown={(event) => {
+              if (picker.handleMenuKeyDown(event)) return;
+              if (event.key === 'Escape' && active !== undefined) {
+                event.preventDefault();
+                stop();
+                return;
+              }
+              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                event.preventDefault();
+                submit(event.altKey ? 'steer' : 'send');
+              }
+            }}
           />
-        ))}
-        {attachments.map((one, index) => (
-          <button
-            key={`${attachmentLabel(one)}-${index}`}
-            type="button"
-            className="web-chip"
-            title={`Remove ${attachmentPath(one, folder) ?? attachmentLabel(one)}`}
-            onClick={() => { typed.current = true; setAttachments((held) => held.filter((_, at) => at !== index)); }}
-          >
-            {`${EMOJIcon.attach} ${attachmentLabel(one)}`}
-            <span aria-hidden="true">{EMOJIcon.close}</span>
-          </button>
-        ))}
-      </div>
+        </div>
 
-      <div className="web-composer__bar">
-        <textarea
-          ref={area}
-          className="web-composer__text"
-          rows={1}
-          value={text}
-          aria-label="Message"
-          placeholder={active === undefined ? 'Message the agent, / for commands, @ to refer to a file' : 'Queue a message for after this turn, or steer it'}
-          onChange={(event) => {
-            typed.current = true;
-            setText(event.currentTarget.value);
-            setCaret(event.currentTarget.selectionStart);
-          }}
-          onFocus={() => scena.store.set(COMPOSER_FOCUS, focus)}
-          onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
-          onClick={(event) => setCaret(event.currentTarget.selectionStart)}
-          onKeyDown={(event) => {
-            if (picker.handleMenuKeyDown(event)) return;
-            if (event.key === 'Escape' && active !== undefined) {
-              event.preventDefault();
-              stop();
-              return;
-            }
-            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-              event.preventDefault();
-              submit(event.altKey ? 'steer' : 'send');
-            }
-          }}
-        />
-      </div>
-
-      <div className="web-composer__actions">
-        <span className="web-composer__hint">
-          {active === undefined ? 'Enter sends, Shift+Enter breaks the line' : 'Enter queues, Alt+Enter steers, Esc stops'}
-        </span>
-        {active === undefined ? null : <Button label="Stop" size="sm" onClick={stop} />}
-        {active === undefined ? null : <Button label="Steer" size="sm" disabled={text.trim() === ''} onClick={() => submit('steer')} />}
-        <Button label={active === undefined ? 'Send' : 'Queue'} variant="primary" size="sm" disabled={text.trim() === ''} onClick={() => submit('send')} />
+        <div className="web-composer__foot">
+          <button type="button" className="web-composer__add" aria-label="Add context" title="Add context" onClick={() => openCommand('ahp.composer.attach')}>+</button>
+          <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
+          <div className="web-composer__chips">
+            {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title="The folder this session works in" />}
+            <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
+            {models.length === 0 ? null : (
+              <Pill label={`Model: ${modelName ?? 'default'}`} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
+            )}
+            {options.map((option) => (
+              <Pill
+                key={option.key}
+                label={`${option.schema.title || option.key}: ${optionLabel(option)}`}
+                title={option.schema.description ?? option.schema.title}
+                {...(option.schema.type === 'boolean' ? { on: (option.value ?? option.schema.default) === true } : {})}
+                {...(pickable(option.schema) ? { onOpen: () => openCommand(optionCommandId(option.key)) } : {})}
+              />
+            ))}
+          </div>
+          {active === undefined ? null : <Button label="Stop" size="sm" onClick={stop} />}
+          {active === undefined ? null : <Button label="Steer" size="sm" disabled={text.trim() === ''} onClick={() => submit('steer')} />}
+          <span title={active === undefined ? 'Enter sends, Shift+Enter breaks the line' : 'Enter queues, Alt+Enter steers, Esc stops'}>
+            <Button label={active === undefined ? 'Send' : 'Queue'} variant="primary" size="sm" disabled={text.trim() === ''} onClick={() => submit('send')} />
+          </span>
+        </div>
       </div>
     </div>
   );

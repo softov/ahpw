@@ -1,6 +1,9 @@
 import type { BindingPath, Command, CommandContext, Disposable, PickerAction, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
-import type { SessionConfigPropertySchema } from '@microsoft/agent-host-protocol';
+import type { MessageAttachment, SessionConfigPropertySchema, SessionSummary } from '@microsoft/agent-host-protocol';
+import { AHP_SESSIONS } from '../connection/data.js';
+import { chatAttachment } from './attachments.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The slot the composer's `/` commands are offered in. */
 export const COMPOSER_SLOT = 'ahp:input/';
@@ -27,6 +30,13 @@ export interface ComposerApi {
   setOption(key: string, value: unknown): void;
   running(): boolean;
   stop(): void;
+  /** The session this composer writes to. */
+  session(): string;
+  attach(attachment: MessageAttachment): void;
+  /** Write a picker's prefix at the caret, which opens that picker. */
+  type(prefix: '@' | '/'): void;
+  /** Ask the browser for files to send with the message. */
+  upload(): void;
 }
 
 /** The data context a composer's picker runs its commands under. */
@@ -162,6 +172,44 @@ export function registerComposerCommands(scena: Scena): Disposable {
           items: [
             { title: 'Agent default', active: current === undefined, onSelect: pick(undefined) },
             ...api.models().map((model) => ({ title: model.name, description: model.id, active: model.id === current, onSelect: pick(model.id) })),
+          ],
+        });
+      },
+    }),
+    share(scena, {
+      id: 'ahp.composer.attach',
+      title: 'Add context',
+      description: 'Attach a file, a session, or a file from this computer',
+      category: 'Session',
+      shortcut: '/attach',
+      slots: [COMPOSER_SLOT],
+      run: (ctx) => {
+        const api = apiOf(ctx);
+        if (api === undefined) return;
+        const close = (then: () => void) => (host: { closeMenu(): void }) => {
+          host.closeMenu();
+          then();
+        };
+        const sessions = (ctx.store.get<SessionSummary[]>(AHP_SESSIONS) ?? []).filter((one) => one.resource !== api.session() && one.defaultChat !== undefined);
+        ctx.host?.pushList({
+          title: 'Add context',
+          sentinel: '/attach',
+          items: [
+            { title: `${EMOJIcon.file} Files and folders`, description: 'On the daemon\'s machine', onSelect: close(() => api.type('@')) },
+            { title: `${EMOJIcon.attach} Upload`, description: 'From this computer, up to 5 MB each', onSelect: close(() => api.upload()) },
+            {
+              title: `${EMOJIcon.sessions} Sessions`,
+              description: sessions.length === 0 ? 'No other session' : 'Another session\'s chat',
+              disabled: sessions.length === 0,
+              onSelect: (host) => host.pushList({
+                title: 'Sessions',
+                items: sessions.map((one) => ({
+                  title: one.title === '' ? 'Untitled' : one.title,
+                  onSelect: close(() => api.attach(chatAttachment(one))),
+                })),
+              }),
+            },
+            { title: 'Commands', description: 'What the agent and this page can do', onSelect: close(() => api.type('/')) },
           ],
         });
       },

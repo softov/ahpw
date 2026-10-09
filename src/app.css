@@ -106,6 +106,8 @@
 .web-chat {
   /* The content keeps a readable width; the scroll and the composer span the page. */
   --web-chat-gutter: max(var(--oo-spacing-lg), calc((100% - 72rem) / 2));
+  /* The composer sits narrower than the transcript above it. */
+  --web-composer-gutter: max(calc(var(--oo-spacing-lg) * 2), calc((100% - 56rem) / 2));
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -443,20 +445,31 @@
 .web-composer {
   position: relative;
   flex: none;
-  border-top: 1px solid var(--oo-color-border);
-  background: var(--oo-color-surface, var(--oo-color-canvas));
+  padding: 0 var(--web-composer-gutter, 0) var(--oo-spacing-md);
+}
+
+/* The box around the attachments, the text and the controls. */
+.web-composer__box,
+.web-new__composer {
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md);
+}
+
+.web-composer__box:focus-within,
+.web-new__composer:focus-within {
+  border-color: var(--oo-color-accent);
 }
 
 .web-composer__picker {
   position: absolute;
   bottom: 100%;
-  left: var(--web-chat-gutter, 0);
-  right: var(--web-chat-gutter, 0);
+  left: var(--web-composer-gutter, 0);
+  right: var(--web-composer-gutter, 0);
   z-index: 50;
   overflow: hidden;
   border: 1px solid var(--oo-color-border);
-  border-bottom: 0;
-  border-radius: var(--oo-radius-md) var(--oo-radius-md) 0 0;
+  border-radius: var(--oo-radius-md);
+  margin-bottom: var(--oo-spacing-xs);
   background: var(--oo-popup-bg, var(--oo-color-raised));
   box-shadow: 0 -6px 20px rgb(0 0 0 / 0.22);
   animation: web-slide-up 120ms ease-out;
@@ -479,7 +492,51 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 6px var(--web-chat-gutter, var(--oo-spacing-lg)) 0;
+  padding: 6px 10px 0;
+}
+
+.web-composer__attached {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px 0;
+}
+
+/* An attachment: a small square chip, as in VS Code. */
+.web-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 16rem;
+  padding: 0 4px 0 6px;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm, 4px);
+  color: var(--oo-color-text);
+  font-size: var(--oo-font-size-xs);
+  line-height: 20px;
+}
+
+.web-attachment__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-attachment__icon {
+  color: var(--oo-color-muted);
+}
+
+.web-attachment__remove {
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.web-attachment__remove:hover {
+  color: var(--oo-color-text);
 }
 
 .web-chip {
@@ -519,7 +576,7 @@
   display: flex;
   align-items: flex-end;
   gap: var(--oo-spacing-sm);
-  padding: var(--oo-spacing-sm) var(--web-chat-gutter, var(--oo-spacing-lg));
+  padding: 2px 10px 0;
 }
 
 .web-composer__text {
@@ -529,10 +586,9 @@
   max-height: 260px;
   min-height: 34px;
   box-sizing: border-box;
-  padding: 8px 10px;
-  background: var(--oo-color-canvas);
-  border: 1px solid var(--oo-color-border);
-  border-radius: 8px;
+  padding: 6px 0;
+  background: none;
+  border: 0;
   color: inherit;
   font: inherit;
   line-height: 1.4;
@@ -540,14 +596,48 @@
 
 .web-composer__text:focus {
   outline: none;
-  border-color: var(--oo-color-accent);
 }
 
 .web-composer__actions {
   display: flex;
   align-items: center;
   gap: var(--oo-spacing-xs);
-  padding: 0 var(--web-chat-gutter, var(--oo-spacing-lg)) var(--oo-spacing-sm);
+  padding: 2px 6px 6px;
+}
+
+/* The controls under the text: add, the settings, and send. */
+.web-composer__foot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 6px;
+}
+
+.web-composer__foot .web-composer__chips {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.web-composer__add {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--oo-radius-sm, 4px);
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.web-composer__add:hover,
+.web-composer__add:focus-visible {
+  color: var(--oo-color-text);
+  background: var(--oo-color-hover, rgb(127 127 127 / 0.15));
 }
 
 .web-composer__hint {
@@ -563,7 +653,7 @@
 .web-composer__queue {
   list-style: none;
   margin: 0;
-  padding: var(--oo-spacing-sm) var(--web-chat-gutter, var(--oo-spacing-lg)) 0;
+  padding: 0 0 var(--oo-spacing-xs);
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-xs);
@@ -1104,11 +1194,6 @@
   box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
-}
-
-.web-new__composer {
-  border: 1px solid var(--oo-color-border);
-  border-radius: var(--oo-radius-md);
 }
 
 .web-new__composer .web-composer__chips {
