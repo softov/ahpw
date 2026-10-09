@@ -126,13 +126,6 @@ export default function SessionExplorer(): ReactElement {
     [sessions, agents, archived, grouping],
   );
 
-  // The first session opens when the list arrives and nothing is open.
-  useEffect(() => {
-    const first = rows[0];
-    if (active === undefined && first !== undefined) open(first.key);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows, active]);
-
   const reload = (): void => {
     setReloading(true);
     void reloadSessions().catch(() => undefined).finally(() => setReloading(false));

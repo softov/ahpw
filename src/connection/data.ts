@@ -75,7 +75,12 @@ export function sessionsByChange(summaries: readonly SessionSummary[]): SessionS
 interface Followed {
   count: number;
   reducer: Reducer;
+  /** The pending unsubscribe, while no page shows the channel. */
+  release?: ReturnType<typeof setTimeout>;
 }
+
+/** How long a channel no page shows stays subscribed, so a page moved or reopened takes it back. */
+const RELEASE_DELAY_MS = 2_000;
 
 /** The live client and store, while the provider is loaded. */
 let client: MultiHostClient | undefined;
@@ -105,13 +110,17 @@ async function snapshot(uri: string): Promise<void> {
 
 /**
  * Show a channel's state at `channelPath(uri)` until the returned function is
- * called. Pages showing the same channel share one subscription, and the root
- * channel is never unsubscribed, because the host runtime reads it too.
+ * called. Pages showing the same channel share one subscription, kept a moment
+ * after the last page lets go. The root channel is never unsubscribed, because
+ * the host runtime reads it too.
  */
 export function follow(uri: string, reducer: Reducer): () => void {
   const entry = followed.get(uri);
-  if (entry !== undefined) entry.count += 1;
-  else {
+  if (entry !== undefined) {
+    entry.count += 1;
+    clearTimeout(entry.release);
+    delete entry.release;
+  } else {
     followed.set(uri, { count: 1, reducer });
     if (client?.host(HOST)?.state.status === 'connected') void snapshot(uri);
   }
@@ -122,9 +131,12 @@ export function follow(uri: string, reducer: Reducer): () => void {
     const current = followed.get(uri);
     if (current === undefined) return;
     current.count -= 1;
-    if (current.count > 0) return;
-    followed.delete(uri);
-    if (uri !== ROOT) void client?.unsubscribe(HOST, uri).catch(() => undefined);
+    if (current.count > 0 || uri === ROOT) return;
+    current.release = setTimeout(() => {
+      if (followed.get(uri) !== current || current.count > 0) return;
+      followed.delete(uri);
+      void client?.unsubscribe(HOST, uri).catch(() => undefined);
+    }, RELEASE_DELAY_MS);
   };
 }
 
@@ -360,6 +372,7 @@ export const ahpProvider: DataProviderDefinition = {
       const multi = client;
       client = undefined;
       held = undefined;
+      for (const entry of followed.values()) clearTimeout(entry.release);
       followed.clear();
       pending.clear();
       hostDue = false;

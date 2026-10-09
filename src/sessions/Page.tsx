@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
-import { useStore } from '@softov/scena/react';
+import { useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, Spinner, Text } from '@softov/scena/ui';
 import {
   chatReducer,
@@ -21,6 +21,7 @@ import { Activity } from './Activity.js';
 import { groupParts } from './activity.js';
 import { Composer } from './Composer.js';
 import { WorkspaceContext } from './workspace.js';
+import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
 import { factsOf, tokens, when, type TurnFacts } from './turn.js';
 
@@ -123,6 +124,7 @@ function useOpenQuestions(needed: SessionState['inputNeeded'], chatUri: string |
 
 /** One session: what it is, its chat, and a composer to talk to it. */
 export default function SessionPage({ resource }: { resource?: string }): ReactElement {
+  const scena = useScena();
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const summary = sessions?.find((one) => one.resource === resource);
   const session = useChannel<SessionState>(resource, sessionReducer);
@@ -142,6 +144,11 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
   useEffect(() => {
     if (following.current) end.current?.scrollIntoView({ block: 'end' });
   }, [turns, streamed]);
+
+  // A tab the layout restored is the session the details show, until another opens.
+  useEffect(() => {
+    if (resource !== undefined && scena.store.get(ACTIVE_SESSION) === undefined) scena.store.set(ACTIVE_SESSION, resource);
+  }, [scena, resource]);
 
   // Opening a session is reading it, as far as the unread dot is concerned.
   const unread = summary !== undefined && !isRead(summary.status);
