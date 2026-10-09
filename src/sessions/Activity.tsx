@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { elapsed } from '../connection/words.js';
 import { hostSpan, stepDone, stepFailed, stepWaits, summaryPieces, type Group, type Doing, type Step } from './activity.js';
 import { Reasoning, ToolCall, type Send } from './Parts.js';
+import { EMOJIcon } from '../emojis.js';
 
 /**
  * When this page first saw each step or run running, and first saw it done,
@@ -74,7 +75,7 @@ export function Activity({ group, send, turnId }: { group: Group; send: Send; tu
             ? <span key={index} className="web-activity__failed">{piece.text}</span>
             : piece.text)}
         </span>
-        <span className="web-activity__chev" aria-hidden="true">{shown ? '\u{25BE}' : '\u{25B8}'}</span>
+        <span className="web-activity__chev" aria-hidden="true">{shown ? EMOJIcon.caretDown : EMOJIcon.caretRight}</span>
       </button>
       {shown ? (
         <div className="web-activity__steps">

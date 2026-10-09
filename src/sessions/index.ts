@@ -6,7 +6,7 @@ import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS, titlePath } from '../connection/data.js';
 import { ACTIVE_SESSION } from './state.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
-import { ICONS } from '../icons.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -68,7 +68,7 @@ export function registerSessions(scena: Scena): Disposable {
         // A page already open keeps its own choices, so one asked for an agent starts afresh.
         const provider = (args as { provider?: string } | undefined)?.provider;
         if (provider !== undefined) ctx.scena.surfaces.close('session:new');
-        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session', icon: ICONS.sessions } });
+        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session', icon: EMOJIcon.sessions } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
@@ -83,7 +83,7 @@ export function registerSessions(scena: Scena): Disposable {
           surface: 'main',
           key: `session:${resource}`,
           resource: { component: 'SessionPage', resource },
-          props: { title: { path: titlePath(resource) }, icon: ICONS.sessions },
+          props: { title: { path: titlePath(resource) }, icon: EMOJIcon.sessions },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large', 'sidebar:right');

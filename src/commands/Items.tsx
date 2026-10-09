@@ -6,6 +6,7 @@ import { ExplorerList, type Row } from '../explorer/ExplorerList.js';
 import { ACTIVE_ITEM, runPath, type Run } from '../manifest/data.js';
 import { createOf, itemActionsOf, keyOf, removalQuestion, rowLine, rowsOf, rowTitle, type ItemAction } from '../manifest/roles.js';
 import type { ManifestCommand, ProgramManifest } from '../manifest/types.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Runs an item action from where it was chosen, and says why it failed, if it did. */
 export async function runItemAction(scena: ReturnType<typeof useScena>, action: ItemAction): Promise<string | null> {
@@ -100,9 +101,9 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
       title={title}
       actions={[
         ...(create === undefined ? [] : [{ icon: '+', label: create.summary, run: () => open(create) }]),
-        { icon: '\u{21BB}', label: run?.state === 'running' ? 'Reloading' : 'Reload', run: reload, busy: run?.state === 'running' },
+        { icon: EMOJIcon.reload, label: run?.state === 'running' ? 'Reloading' : 'Reload', run: reload, busy: run?.state === 'running' },
         {
-          icon: '\u{22EF}',
+          icon: EMOJIcon.more,
           label: 'Commands',
           menu: commands.map((command) => ({ title: command.pattern.join(' '), description: command.summary, onSelect: (host) => { host.closeMenu(); open(command); } })),
         },

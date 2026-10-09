@@ -26,6 +26,7 @@ import {
   type ComposerApi,
   type Option,
 } from './composer-commands.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Where the box stops growing and starts scrolling, in pixels. */
 const COMPOSER_MAX = 260;
@@ -232,8 +233,8 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
       )}
 
       <div className="web-composer__chips">
-        {folder === undefined ? null : <Pill label={`\u{1F4C1}\u{FE0E} ${folderLabel(folder)}`} title="The folder this session works in" />}
-        <Pill label={`\u{1F916}\u{FE0E} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
+        {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title="The folder this session works in" />}
+        <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
         {models.length === 0 ? null : (
           <Pill label={`Model: ${modelName ?? 'default'}`} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
         )}
@@ -247,7 +248,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
           />
         ))}
         {attachments.length === 0 ? null : (
-          <Pill label={`\u{1F4CE}\u{FE0E} ${attachments.length} attached`} title="Clear the attachments" onOpen={() => setAttachments([])} />
+          <Pill label={`${EMOJIcon.attach} ${attachments.length} attached`} title="Clear the attachments" onOpen={() => setAttachments([])} />
         )}
       </div>
 

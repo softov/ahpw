@@ -9,7 +9,7 @@ import { SESSIONS_SECTION, registerSessions } from './sessions/index.js';
 import { AGENTS_SECTION, registerAgents } from './agents/index.js';
 import { AUTOMATIONS_SECTION, registerAutomations } from './automations/index.js';
 import { AHP_SESSIONS_OPEN, AHP_SESSIONS_WORKING } from './connection/data.js';
-import { ICONS } from './icons.js';
+import { EMOJIcon } from './emojis.js';
 import { registerHost } from './host/index.js';
 import { registerView } from './view/index.js';
 import { registerFiles } from './files/index.js';
@@ -29,7 +29,7 @@ const MODUS_CLASS = '$/modus/class' as BindingPath;
 import { THEME_ID_KEY, THEME_MODE_KEY } from './theme-keys.js';
 
 function AppTitle({ text }: { text?: string }): ReactElement {
-  return <span className="web-title">{text ?? 'ahpd'}</span>;
+  return <span className="web-title">{text ?? 'ahpw'}</span>;
 }
 
 /** Runs `then` once with the display size class, as soon as it is known. */
@@ -117,7 +117,7 @@ export function registerShell(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:title',
-      resource: { component: 'AppTitle', slot: 'left', text: 'ahpd' },
+      resource: { component: 'AppTitle', slot: 'left', text: 'ahpw' },
     }),
     registerView(scena),
     scena.surfaces.mount({
@@ -134,17 +134,17 @@ export function registerShell(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-left',
-      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: '\u{25E7}\u{FE0E}', title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft', active: { path: '$/layout/surfaces/sidebar:left/visible' } },
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelLeft, title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft', active: { path: '$/layout/surfaces/sidebar:left/visible' } },
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-panel',
-      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: '\u{2B13}\u{FE0E}', title: 'Toggle panel (Ctrl+J)', command: 'panel.toggle', active: { path: '$/layout/surfaces/panel:bottom/visible' } },
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelBottom, title: 'Toggle panel (Ctrl+J)', command: 'panel.toggle', active: { path: '$/layout/surfaces/panel:bottom/visible' } },
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-right',
-      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: '\u{25E8}\u{FE0E}', title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight', active: { path: '$/layout/surfaces/sidebar:right/visible' } },
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelRight, title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight', active: { path: '$/layout/surfaces/sidebar:right/visible' } },
     }),
 
     // The activity bar, in this order: mount order is the rail's order within each end.
@@ -153,7 +153,7 @@ export function registerShell(scena: Scena): Disposable {
       key: 'sessions:nav',
       resource: {
         component: 'ActivityBarItem',
-        icon: ICONS.sessions,
+        icon: EMOJIcon.sessions,
         label: 'Sessions',
         section: SESSIONS_SECTION,
         badge: { path: AHP_SESSIONS_OPEN },
@@ -167,22 +167,22 @@ export function registerShell(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'automations:nav',
-      resource: { component: 'ActivityBarItem', icon: ICONS.automations, label: 'Automations', section: AUTOMATIONS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.automations, label: 'Automations', section: AUTOMATIONS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'host:info:nav',
-      resource: { component: 'ActivityBarItem', icon: ICONS.host, label: 'Host', pos: 'bottom', command: 'ahp.openHostInfo' },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.host, label: 'Host', pos: 'bottom', command: 'ahp.openHostInfo' },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'agents:nav',
-      resource: { component: 'ActivityBarItem', icon: ICONS.agents, label: 'Agents', pos: 'bottom', section: AGENTS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: 'Agents', pos: 'bottom', section: AGENTS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'host:settings:nav',
-      resource: { component: 'ActivityBarItem', icon: ICONS.settings, label: 'Settings', pos: 'bottom', command: 'ahp.openSettings' },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.settings, label: 'Settings', pos: 'bottom', command: 'ahp.openSettings' },
     }),
 
     registerConnection(scena),

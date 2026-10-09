@@ -6,6 +6,7 @@ import { PALETTE_SLOT } from '../view/Palette.js';
 import { onPanel, onPanelTab, openInPanel, PANEL, redrawPanel, STRIP_SLOT } from '../panel/index.js';
 import { TERMINAL_ICON } from './rows.js';
 import { clientClaim, newTerminalUri } from './terminal.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Arguments of the terminal commands; without one, the panel's active tab. */
 export interface TerminalArgs {
@@ -113,7 +114,7 @@ export function registerTerminals(scena: Scena): Disposable {
     scena.commands.register({
       id: 'ahp.disconnectTerminal',
       title: 'Disconnect terminal',
-      icon: '\u{23F8}\u{FE0E}',
+      icon: EMOJIcon.pause,
       slots: [STRIP_SLOT],
       when: (ctx) => onPanelTab('TerminalPage')(ctx) && !detached().includes(uriOf(ctx['$/tab/key'] as string | undefined) ?? ''),
       run: (_ctx, args) => {
@@ -124,7 +125,7 @@ export function registerTerminals(scena: Scena): Disposable {
     scena.commands.register({
       id: 'ahp.connectTerminal',
       title: 'Connect terminal',
-      icon: '\u{25B6}\u{FE0E}',
+      icon: EMOJIcon.run,
       slots: [STRIP_SLOT],
       when: (ctx) => onPanelTab('TerminalPage')(ctx) && detached().includes(uriOf(ctx['$/tab/key'] as string | undefined) ?? ''),
       run: (_ctx, args) => {
@@ -135,7 +136,7 @@ export function registerTerminals(scena: Scena): Disposable {
     scena.commands.register({
       id: 'ahp.killTerminal',
       title: 'Kill terminal',
-      icon: '\u{1F5D1}\u{FE0E}',
+      icon: EMOJIcon.trash,
       slots: [STRIP_SLOT],
       when: onPanelTab('TerminalPage'),
       run: async (_ctx, args) => {

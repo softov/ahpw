@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { useStore } from '@softov/scena/react';
 import { AHP_CONNECTION, AHP_HOST, reconnect, type Connection, type HostFacts } from './data.js';
 import { elapsed } from './words.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The connection's state, in words. */
 const WORDS: Record<Connection['status'], string> = {
@@ -56,7 +57,7 @@ export default function ConnectionStatus(): ReactElement {
       {host === null || host === undefined ? null : <span className="web-connection__host">{host.label}</span>}
       <span>{WORDS[status] ?? status}{status === 'reconnecting' ? attemptOf(connection) : ''}</span>
       {since === null ? null : <span className="web-connection__uptime">{elapsed(now - since)}</span>}
-      {reconnects === 0 ? null : <span className="web-connection__uptime">{`\u{21BB} ${reconnects}`}</span>}
+      {reconnects === 0 ? null : <span className="web-connection__uptime">{`${EMOJIcon.reload} ${reconnects}`}</span>}
       {down ? <button type="button" className="web-connection__retry" onClick={() => void reconnect()}>Reconnect now</button> : null}
     </span>
   );

@@ -9,6 +9,7 @@ import { menuOf, runNow } from './actions.js';
 import { ACTIVE_AUTOMATION } from './state.js';
 import { runFacts, runsByTime, stateOf, titleOf, whenLine, type AutomationState } from './words.js';
 import { failed } from '../notify/index.js';
+import { EMOJIcon } from '../emojis.js';
 
 const DOT: Record<AutomationState, Dot> = { running: 'working', failed: 'failed', on: 'ok', off: 'off' };
 const WORD: Record<AutomationState, string> = { running: 'Running', failed: 'Last run failed', on: 'On', off: 'Off' };
@@ -53,7 +54,7 @@ export default function AutomationExplorer(): ReactElement {
           ],
           menu: menuOf(entry, () => open(entry.resource), () => edit(entry.resource)),
           ...(entry.operations.map(String).includes('run')
-            ? { action: { icon: '\u{25B6}\u{FE0E}', label: 'Run now', run: () => void runNow(entry).catch(say) } }
+            ? { action: { icon: EMOJIcon.run, label: 'Run now', run: () => void runNow(entry).catch(say) } }
             : {}),
         };
       }),
@@ -72,7 +73,7 @@ export default function AutomationExplorer(): ReactElement {
       title="Automations"
       actions={[
         ...(caps?.create === undefined ? [] : [{ icon: '+', label: 'New automation', run: () => void scena.commands.execute('ahp.newAutomation') }]),
-        { icon: '\u{21BB}', label: 'Reload', run: () => void refresh(AUTOMATIONS) },
+        { icon: EMOJIcon.reload, label: 'Reload', run: () => void refresh(AUTOMATIONS) },
       ]}
       rows={rows}
       selected={active ?? null}

@@ -2,6 +2,7 @@ import type { ContextSnapshot, Disposable, MountDisplay, Scena } from '@softov/s
 import { combineDisposables } from '@softov/scena';
 import { clearLog } from '../log/log.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The surface under the page: the log first, then the terminals. */
 export const PANEL = 'panel:bottom';
@@ -33,7 +34,7 @@ export function redrawPanel(scena: Scena): void {
 /** Open the log tab when it is not open, pinned so it stays the first tab. */
 function ensureLog(scena: Scena): void {
   if (scena.surfaces.listAt(PANEL).some((mount) => mount.key === LOG_KEY)) return;
-  scena.surfaces.open({ surface: PANEL, key: LOG_KEY, resource: { component: 'LogPage' }, props: { title: 'Log', icon: '\u{2630}' } });
+  scena.surfaces.open({ surface: PANEL, key: LOG_KEY, resource: { component: 'LogPage' }, props: { title: 'Log', icon: EMOJIcon.log } });
   const current = scena.layout.get().surfaces[PANEL];
   const pinned = current?.split?.pinned ?? [];
   if (!pinned.includes(LOG_KEY)) scena.layout.setSurface(PANEL, { ...current, split: { ...(current?.split ?? {}), pinned: [LOG_KEY, ...pinned] } });
@@ -96,7 +97,7 @@ export function registerPanel(scena: Scena): Disposable {
       id: 'log.clear',
       title: 'Clear log',
       category: 'View',
-      icon: '\u{2298}',
+      icon: EMOJIcon.clear,
       slots: [PALETTE_SLOT, STRIP_SLOT],
       when: onPanelTab('LogPage'),
       run: clearLog,
@@ -109,7 +110,7 @@ export function registerPanelHide(scena: Scena): Disposable {
   return scena.commands.register({
     id: 'panel.hide',
     title: 'Hide panel',
-    icon: '\u{2715}',
+    icon: EMOJIcon.close,
     slots: [STRIP_SLOT],
     when: onPanel,
     run: () => showPanel(scena, false),

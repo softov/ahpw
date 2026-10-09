@@ -1,6 +1,7 @@
 import { Fragment, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
+import { EMOJIcon } from '../emojis.js';
 
 /** The colour of a row's dot, by meaning. */
 export type Dot = 'attention' | 'working' | 'failed' | 'fresh' | 'ok' | 'quiet' | 'off';
@@ -116,7 +117,7 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
                 {opens ? (
                   <li className="web-explorer__group" role="presentation">
                     <button type="button" aria-expanded={!hidden} onClick={() => fold(group.key)}>
-                      <span className="web-explorer__fold" aria-hidden="true">{hidden ? '\u{25B8}' : '\u{25BE}'}</span>
+                      <span className="web-explorer__fold" aria-hidden="true">{hidden ? EMOJIcon.caretRight : EMOJIcon.caretDown}</span>
                       <span className="web-explorer__group-label">{group.label}</span>
                       <span className="web-explorer__count">{count}</span>
                     </button>

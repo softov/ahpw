@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
+import { EMOJIcon } from '../emojis.js';
 
-const CARET = '\u{25BE}';
+const CARET = EMOJIcon.caretDown;
 
 /** A small rounded control: a fact, or a button that opens a menu when `onOpen` is given. */
 export function Pill({ label, title, onOpen, on }: { label: string; title?: string; onOpen?: () => void; on?: boolean }): ReactElement {

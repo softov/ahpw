@@ -1,11 +1,13 @@
+import { EMOJIcon } from '../emojis.js';
+
 /** The main area's layouts, as scena registers them. */
 export const MAIN_LAYOUTS = [
-  { id: 'tab', label: 'Tabs', icon: '\u{25AD}' },
-  { id: 'tab-panel', label: 'Tab groups', icon: '\u{229E}' },
-  { id: 'split', label: 'Split', icon: '\u{229F}' },
-  { id: 'spatial', label: 'Spatial', icon: '\u{25C7}' },
-  { id: 'stack', label: 'Stack', icon: '\u{2630}' },
-  { id: 'single', label: 'Single', icon: '\u{25A1}' },
+  { id: 'tab', label: 'Tabs', icon: EMOJIcon.layoutTabs },
+  { id: 'tab-panel', label: 'Tab groups', icon: EMOJIcon.layoutGroups },
+  { id: 'split', label: 'Split', icon: EMOJIcon.layoutSplit },
+  { id: 'spatial', label: 'Spatial', icon: EMOJIcon.layoutSpatial },
+  { id: 'stack', label: 'Stack', icon: EMOJIcon.layoutStack },
+  { id: 'single', label: 'Single', icon: EMOJIcon.layoutSingle },
 ] as const;
 
 /** The localStorage key the chosen layout is kept under. */

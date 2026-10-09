@@ -36,8 +36,8 @@ describe('sectionsOf', () => {
     ]);
   });
 
-  it('takes the title and icon a program declares', () => {
-    const declared = { ...manifest, groups: [{ name: 'user', title: 'People', icon: '☺' }] };
-    expect(sectionsOf(declared)[1]).toMatchObject({ title: 'People', icon: '☺' });
+  it('takes the title and icon a program declares, the icon in its monochrome form', () => {
+    const declared = { ...manifest, groups: [{ name: 'user', title: 'People', icon: '☺\u{FE0F}' }] };
+    expect(sectionsOf(declared)[1]).toMatchObject({ title: 'People', icon: '☺\u{FE0E}' });
   });
 });

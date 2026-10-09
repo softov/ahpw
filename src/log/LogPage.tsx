@@ -4,6 +4,7 @@ import type { Scena } from '@softov/scena/types';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS } from '../connection/data.js';
 import { clock, filterLog, LOG_LEVELS, LOG_SCOPES, lineText, logText, piecesOf, useLog, type LogEntry, type LogLevel, type LogScope } from './log.js';
+import { EMOJIcon } from '../emojis.js';
 
 const MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 const FOLLOW_TIP = MAC ? 'Cmd+click to open' : 'Ctrl+click to open';
@@ -59,12 +60,12 @@ const Row = memo(function Row({ entry, open, onToggle }: { entry: LogEntry; open
   return (
     <div className="web-log__row" data-open={open || undefined} data-level={entry.level}>
       <div className="web-log__line" role="button" tabIndex={0} aria-expanded={open} onClick={() => onToggle(entry.id)} onKeyDown={(event) => { if (event.key === 'Enter') onToggle(entry.id); }}>
-        <span className="web-log__caret">{open ? '\u{25BE}' : '\u{25B8}'}</span>
+        <span className="web-log__caret">{open ? EMOJIcon.caretDown : EMOJIcon.caretRight}</span>
         <span className="web-log__time">{clock(entry.at)}</span>
         <span className="web-log__level">{entry.level.toUpperCase()}</span>
         <span className="web-log__scope" data-scope={entry.scope}><span>{SCOPE_LABEL[entry.scope]}</span></span>
         <span className="web-log__text">{words}</span>
-        {open ? <button type="button" className="web-log__icon" title="Copy the line" onClick={(event) => { event.stopPropagation(); copy(lineText(entry)); }}>{'\u{29C9}'}</button> : null}
+        {open ? <button type="button" className="web-log__icon" title="Copy the line" onClick={(event) => { event.stopPropagation(); copy(lineText(entry)); }}>{EMOJIcon.copy}</button> : null}
       </div>
       {open && entry.detail !== undefined ? <pre className="web-log__detail">{detailText(entry.detail)}</pre> : null}
     </div>
@@ -128,7 +129,7 @@ export default function LogPage(): ReactElement {
           {scopes.includes('traffic') ? 'debug' : minLevel} and up
         </button>
         <input className="web-log__search" type="search" placeholder="Filter (!word excludes)" value={query} onChange={(event) => setQuery(event.target.value)} />
-        <button type="button" className="web-log__icon" title="Copy the lines shown" onClick={() => copy(logText(shown))}>{'\u{29C9}'}</button>
+        <button type="button" className="web-log__icon" title="Copy the lines shown" onClick={() => copy(logText(shown))}>{EMOJIcon.copy}</button>
       </div>
       <div className="web-log__list" ref={list}>
         {shown.length === 0 ? <p className="web-note">Nothing logged{all.length === 0 ? ' yet' : ' matches the filter'}.</p> : null}

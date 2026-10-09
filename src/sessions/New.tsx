@@ -6,6 +6,7 @@ import { AHP_AGENTS, AHP_DEFAULT_DIRECTORY, ROOT, dispatch, readOnce, request } 
 import { folderLabel, folderUri, newId } from '../connection/words.js';
 import { fitToText } from './Composer.js';
 import { ChoicePill, Pill, TextPill, TogglePill } from './pills.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** How long the inputs rest before the host is asked for the settings again. */
 const RESOLVE_DELAY = 300;
@@ -161,7 +162,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
           {modelOptions.length === 0 ? null : (
             <ChoicePill label="Model" value={model} options={[{ value: '', label: 'default' }, ...modelOptions]} onChange={setModel} />
           )}
-          <TextPill label={'\u{1F4C1}\u{FE0E}'} title="A folder on the daemon's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
+          <TextPill label={EMOJIcon.folder} title="A folder on the daemon's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
           {settings.map(([key, schema]) => (
             <SettingPill
               key={key}

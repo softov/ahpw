@@ -19,6 +19,7 @@ import { ACTIVE_SESSION } from '../sessions/state.js';
 import { openAsItems, viewersOf } from '../files/viewers.js';
 import { confirm } from '../notify/index.js';
 import { changeOf, firstScope, relativeDir, scopesOf, type Change } from './words.js';
+import { EMOJIcon } from '../emojis.js';
 
 const DOT: Record<Change['status'], Dot> = { added: 'ok', modified: 'fresh', deleted: 'failed' };
 const LETTER: Record<Change['status'], string> = { added: 'Added', modified: 'Changed', deleted: 'Deleted' };
@@ -137,7 +138,7 @@ export default function ChangesExplorer(): ReactElement {
   return (
     <ExplorerList
       title={summary === undefined ? 'Changes' : `Changes \u{00B7} ${summary.title || 'Untitled'}`}
-      actions={scope === undefined ? [] : [{ icon: '\u{21BB}', label: 'Reload', run: () => void refresh(scope.uri) }]}
+      actions={scope === undefined ? [] : [{ icon: EMOJIcon.reload, label: 'Reload', run: () => void refresh(scope.uri) }]}
       rows={rows}
       selected={null}
       onOpen={(key) => {

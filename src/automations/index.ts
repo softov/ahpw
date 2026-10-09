@@ -6,7 +6,7 @@ import { ACTIVE_AUTOMATION } from './state.js';
 import { titleOf } from './words.js';
 import { AUTOMATIONS, channelPath } from '../connection/data.js';
 import type { AutomationState } from '@microsoft/agent-host-protocol';
-import { ICONS } from '../icons.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -38,7 +38,7 @@ export function registerAutomations(scena: Scena): Disposable {
       category: 'Automations',
       slots: [PALETTE_SLOT],
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'automation:new', resource: { component: 'AutomationEditPage' }, props: { title: 'New automation', icon: ICONS.automations } });
+        ctx.surfaces.open({ surface: 'main', key: 'automation:new', resource: { component: 'AutomationEditPage' }, props: { title: 'New automation', icon: EMOJIcon.automations } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
@@ -60,7 +60,7 @@ export function registerAutomations(scena: Scena): Disposable {
           surface: 'main',
           key: `automation:edit:${resource}`,
           resource: { component: 'AutomationEditPage', resource },
-          props: { title: `Edit ${entry === undefined ? 'automation' : titleOf(entry)}`, icon: ICONS.automations },
+          props: { title: `Edit ${entry === undefined ? 'automation' : titleOf(entry)}`, icon: EMOJIcon.automations },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
@@ -77,7 +77,7 @@ export function registerAutomations(scena: Scena): Disposable {
           surface: 'main',
           key: `automation:${resource}`,
           resource: { component: 'AutomationPage', resource },
-          props: { title: entry === undefined ? 'Automation' : titleOf(entry), icon: ICONS.automations },
+          props: { title: entry === undefined ? 'Automation' : titleOf(entry), icon: EMOJIcon.automations },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },

@@ -10,6 +10,7 @@ import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, activityOf, isArchived, isRead, type Activity } from './status.js';
 import { GROUPINGS, arrange, groupOf, type Grouping } from './grouping.js';
 import { confirm, failed } from '../notify/index.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Where the chosen grouping is kept, per browser. */
 const GROUPING_KEY = 'ahpd-web.session-grouping';
@@ -148,10 +149,10 @@ export default function SessionExplorer(): ReactElement {
       title="Sessions"
       actions={[
         { icon: '+', label: 'New session', run: () => void scena.commands.execute('ahp.newSession') },
-        { icon: '\u{21BB}', label: reloading ? 'Reloading' : 'Reload', run: reload, busy: reloading },
-        { icon: '\u{25A4}', label: archived ? 'Hide archived' : 'Show archived', run: () => setArchived(!archived), on: archived },
+        { icon: EMOJIcon.reload, label: reloading ? 'Reloading' : 'Reload', run: reload, busy: reloading },
+        { icon: EMOJIcon.archived, label: archived ? 'Hide archived' : 'Show archived', run: () => setArchived(!archived), on: archived },
         {
-          icon: '\u{2637}',
+          icon: EMOJIcon.group,
           label: 'Group sessions',
           on: grouping !== 'none',
           menu: GROUPINGS.map((one) => ({

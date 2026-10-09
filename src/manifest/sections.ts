@@ -1,5 +1,6 @@
 import { groupOf } from './input.js';
 import type { ManifestCommand, ProgramManifest } from './types.js';
+import { toMonochromeEmoji } from '../emojis.js';
 
 /** One group of commands, as one activity bar entry and its sidebar list. */
 export interface Section {
@@ -42,7 +43,10 @@ export function sectionsOf(manifest: ProgramManifest): Section[] {
     section.commands.push(command);
   }
   const letters = shortNames([...sections.keys()]);
-  for (const section of sections.values()) section.icon = declared.get(section.name)?.icon ?? letters.get(section.name) ?? section.name;
+  for (const section of sections.values()) {
+    const icon = declared.get(section.name)?.icon;
+    section.icon = (icon === undefined ? undefined : toMonochromeEmoji(icon)) ?? letters.get(section.name) ?? section.name;
+  }
   return [...sections.values()];
 }
 

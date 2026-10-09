@@ -1,5 +1,6 @@
 import { tryNotify } from './context.js';
 import { DISMISS_SLOW_MS, type NotificationAction } from './types.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** What a line can carry beyond its title. */
 export interface Said {
@@ -24,14 +25,14 @@ function extras(extra: Said): Said {
 /** Something the reader just did worked. Say what, to what: "Terminal killed", not "Done". */
 export function done(title: string, extra: Said = {}): void {
   tryNotify((notifications) => {
-    notifications.publish({ type: 'action.done', tone: 'success', icon: extra.icon ?? '\u{2713}', title, ...extras(extra) });
+    notifications.publish({ type: 'action.done', tone: 'success', icon: extra.icon ?? EMOJIcon.check, title, ...extras(extra) });
   });
 }
 
 /** Something worked only in part, or needs a look. */
 export function warn(title: string, extra: Said = {}): void {
   tryNotify((notifications) => {
-    notifications.publish({ type: 'attention', tone: 'warning', icon: extra.icon ?? '\u{26A0}\u{FE0E}', title, dismissTime: DISMISS_SLOW_MS, ...extras(extra) });
+    notifications.publish({ type: 'attention', tone: 'warning', icon: extra.icon ?? EMOJIcon.warning, title, dismissTime: DISMISS_SLOW_MS, ...extras(extra) });
   });
 }
 
@@ -43,7 +44,7 @@ export function failed(title: string, error: unknown, extra: Omit<Said, 'descrip
     notifications.publish({
       type: 'action.failed',
       tone: 'danger',
-      icon: extra.icon ?? '\u{26A0}\u{FE0E}',
+      icon: extra.icon ?? EMOJIcon.warning,
       title,
       dismissTime: DISMISS_SLOW_MS,
       ...extras({ ...extra, description }),

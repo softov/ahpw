@@ -4,13 +4,14 @@ import { Button } from '@softov/scena/ui';
 import { NOTIFICATIONS } from './registry.js';
 import { getNotifications } from './context.js';
 import type { Notification, NotificationAnimation, NotificationTone } from './types.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Each tone's default icon. */
 const TONE_ICON: Record<NotificationTone, string> = {
-  info: '\u{2139}\u{FE0E}',
-  success: '\u{2713}',
-  warning: '\u{26A0}\u{FE0E}',
-  danger: '\u{2716}',
+  info: EMOJIcon.info,
+  success: EMOJIcon.check,
+  warning: EMOJIcon.warning,
+  danger: EMOJIcon.error,
 };
 
 /** How many show before the rest fold into a "more" line. */
@@ -77,7 +78,7 @@ function Toast({ notification, animation }: { notification: Notification; animat
         <span className="web-toast__icon" aria-hidden="true">{notification.icon ?? TONE_ICON[notification.tone]}</span>
         <span className="web-toast__title">{notification.title}</span>
         {notification.count > 1 ? <span className="web-toast__count" title={`Raised ${notification.count} times`}>{`\u{D7}${notification.count}`}</span> : null}
-        <button type="button" className="web-toast__close" aria-label="Dismiss" onClick={close}>{'\u{2715}'}</button>
+        <button type="button" className="web-toast__close" aria-label="Dismiss" onClick={close}>{EMOJIcon.close}</button>
       </div>
       {notification.description === undefined ? null : <p className="web-toast__body">{notification.description}</p>}
       {notification.detail === undefined ? null : (

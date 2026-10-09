@@ -5,7 +5,7 @@ import { AHP_AGENTS } from '../connection/data.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { ACTIVE_AGENT } from './state.js';
-import { ICONS } from '../icons.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -45,7 +45,7 @@ export function registerAgents(scena: Scena): Disposable {
           surface: 'main',
           key: `agent:${provider}`,
           resource: { component: 'AgentPage', provider },
-          props: { title: agent?.displayName ?? provider, icon: ICONS.agents },
+          props: { title: agent?.displayName ?? provider, icon: EMOJIcon.agents },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },

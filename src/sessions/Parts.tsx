@@ -12,6 +12,7 @@ import { codePath, fileLink } from '../files/link.js';
 import { WorkspaceContext } from './workspace.js';
 import { InputRequest } from './Question.js';
 import { durationOf, fileOf, inputText, kindOf, lineOf, outcomeOf, outputOf, segmentsOf, type Outcome, type Output, type ToolKind } from './tool.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Sends one action on the chat this transcript shows. */
 export type Send = (action: StateAction) => void;
@@ -22,14 +23,14 @@ const PENDING_RESULT_CONFIRMATION = 'pending-result-confirmation';
 
 /** The mark a call carries collapsed, and the word behind it. */
 const MARK: Record<Outcome, { glyph: string; label: string }> = {
-  preparing: { glyph: '\u{25CC}', label: 'Preparing' },
-  approval: { glyph: '\u{25D0}', label: 'Needs approval' },
-  running: { glyph: '\u{25CF}', label: 'Running' },
-  'sign-in': { glyph: '\u{25D0}', label: 'Needs sign-in' },
-  review: { glyph: '\u{25D0}', label: 'Review result' },
-  done: { glyph: '\u{2713}', label: 'Done' },
-  failed: { glyph: '\u{2715}', label: 'Failed' },
-  cancelled: { glyph: '\u{2715}', label: 'Cancelled' },
+  preparing: { glyph: EMOJIcon.pending, label: 'Preparing' },
+  approval: { glyph: EMOJIcon.waiting, label: 'Needs approval' },
+  running: { glyph: EMOJIcon.running, label: 'Running' },
+  'sign-in': { glyph: EMOJIcon.waiting, label: 'Needs sign-in' },
+  review: { glyph: EMOJIcon.waiting, label: 'Review result' },
+  done: { glyph: EMOJIcon.check, label: 'Done' },
+  failed: { glyph: EMOJIcon.cross, label: 'Failed' },
+  cancelled: { glyph: EMOJIcon.cross, label: 'Cancelled' },
 };
 
 /**
@@ -62,13 +63,13 @@ function useLinkClicks(): (event: MouseEvent<HTMLElement>) => void {
 
 /** The icon of each kind of call. */
 const KIND_ICON: Record<ToolKind, string> = {
-  terminal: '\u{276F}',
-  read: '\u{2261}',
-  search: '\u{2315}',
-  edit: '\u{270E}',
-  subagent: '\u{25C8}',
-  web: '\u{2295}',
-  other: '\u{2022}',
+  terminal: EMOJIcon.terminal,
+  read: EMOJIcon.read,
+  search: EMOJIcon.search,
+  edit: EMOJIcon.edit,
+  subagent: EMOJIcon.subagent,
+  web: EMOJIcon.web,
+  other: EMOJIcon.dot,
 };
 
 /** A call's line, each file it names a link that opens the file and leaves the row closed. */
@@ -211,7 +212,7 @@ export function Reasoning({ text, running }: { text: string; running: boolean })
   return (
     <div className="web-tool" data-outcome={running ? 'running' : 'thought'}>
       <button type="button" className="web-tool__row" aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="web-tool__mark" aria-hidden="true">{'\u{2234}'}</span>
+        <span className="web-tool__mark" aria-hidden="true">{EMOJIcon.thinking}</span>
         <span className="web-tool__line">Thinking: {opening}</span>
       </button>
       {open ? <div className="web-tool__body web-md"><Markdown text={text} /></div> : null}
@@ -272,7 +273,7 @@ export const Part = memo(function Part({ part, send, live, turnId }: { part: Res
       const uri = 'uri' in part ? String(part.uri) : '';
       return (
         <button type="button" className="web-chip" onClick={() => void scena.commands.execute('ahp.openFile', { uri })}>
-          {`\u{1F4C4}\u{FE0E} ${folderLabel(uri).split('/').pop() ?? uri}`}
+          {`${EMOJIcon.file} ${folderLabel(uri).split('/').pop() ?? uri}`}
         </button>
       );
     }

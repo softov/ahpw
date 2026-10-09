@@ -2,9 +2,10 @@ import type { PickerAction, Scena } from '@softov/scena/types';
 import type { TerminalInfo } from '@microsoft/agent-host-protocol';
 import { AHP_HOST, type HostFacts } from '../connection/data.js';
 import { exitCodeOf, hasExited, holderOf, terminalTitle } from './terminal.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** The icon terminals show on their tabs and rows. */
-export const TERMINAL_ICON = '\u{276F}';
+export const TERMINAL_ICON = EMOJIcon.terminal;
 
 /** Who holds a terminal, in words. */
 export function holderText(info: TerminalInfo, clientId: string | null): string {

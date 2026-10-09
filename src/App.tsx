@@ -74,7 +74,7 @@ export default function App(): ReactElement {
   return (
     <ScenaRoot options={options} onRender={onRender}>
       <PortaBridge>
-        <Limen permission={SIGNED_IN} title="ahpd" subtitle="Sign in with a token this daemon accepts.">
+        <Limen permission={SIGNED_IN} title="ahpw" subtitle="Sign in with a token this daemon accepts.">
           <DefaultShell presentation={PRESENTATION} />
         </Limen>
       </PortaBridge>
