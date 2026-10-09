@@ -1,6 +1,6 @@
 import { useMemo, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Button, ContextMenu, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
+import { Alert, ContextMenu, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { sessionReducer, type ChangesetOperation, type SessionState, type SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS, refresh } from '../connection/data.js';
@@ -195,24 +195,6 @@ export default function ChangesExplorer(): ReactElement {
     <>
       {active === undefined ? <p className="web-note web-explorer__empty">Open a session to see what it changed.</p> : null}
       {active !== undefined && session.state !== undefined && scopes.length === 0 ? <p className="web-note web-explorer__empty">This session tracks no changes.</p> : null}
-      {scopes.length > 1 ? (
-        <select className="web-explorer__filter web-changes__scope" aria-label="Which changes" value={scope?.uri ?? ''} onChange={(event) => setChosen(event.target.value)}>
-          {scopes.map((one) => <option key={one.uri} value={one.uri}>{one.label}</option>)}
-        </select>
-      ) : null}
-      {whole.length === 0 ? null : (
-        <div className="web-changes__ops">
-          {whole.map((operation) => (
-            <Button
-              key={operation.id}
-              label={busy(operation) ? `${operation.label}\u{2026}` : operation.label}
-              size="sm"
-              disabled={busy(operation)}
-              onClick={() => void changes.run(operation)}
-            />
-          ))}
-        </div>
-      )}
       {changes.said === null ? null : <Alert tone={changes.said.tone} message={changes.said.text} />}
       {changes.error === null ? null : <Alert tone="danger" title="Changes not readable" message={changes.error} />}
       {changes.state?.error === undefined ? null : <Alert tone="danger" message={changes.state.error.message} />}
@@ -221,11 +203,50 @@ export default function ChangesExplorer(): ReactElement {
     </>
   );
 
-  const headButton = (icon: string, label: string, run: (event: MouseEvent<HTMLButtonElement>) => void, on?: boolean): ReactElement => (
-    <button key={label} type="button" className="web-explorer__action" title={label} aria-label={label} aria-pressed={on} data-on={on === true ? 'true' : 'false'} onClick={run}>
+  const headButton = (icon: string, label: string, run: (event: MouseEvent<HTMLButtonElement>) => void, extra?: { on?: boolean; busy?: boolean; disabled?: boolean; danger?: boolean }): ReactElement => (
+    <button
+      key={label}
+      type="button"
+      className="web-explorer__action"
+      title={label}
+      aria-label={label}
+      aria-pressed={extra?.on}
+      data-on={extra?.on === true ? 'true' : 'false'}
+      data-busy={extra?.busy === true ? 'true' : 'false'}
+      data-danger={extra?.danger === true ? 'true' : 'false'}
+      disabled={extra?.disabled}
+      onClick={run}
+    >
       <span className="web-explorer__icon">{icon}</span>
     </button>
   );
+
+  const showAs = (next: View): void => {
+    setView(next);
+    keep(VIEW_KEY, next);
+  };
+
+  const openOptions = (event: MouseEvent<HTMLButtonElement>): void => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const mark = (on: boolean): { icon: string } => ({ icon: on ? EMOJIcon.check : '' });
+    const items: PickerAction[] = [
+      { title: 'Show as a list', group: 'view', ...mark(view === 'list'), onSelect: (host) => { host.closeMenu(); showAs('list'); } },
+      { title: 'Show as a tree', group: 'view', ...mark(view === 'tree'), onSelect: (host) => { host.closeMenu(); showAs('tree'); } },
+    ];
+    if (groupings.length > 1) {
+      for (const one of groupings) {
+        items.push({ title: GROUPING_LABEL[one], group: 'group', ...mark(one === grouping), onSelect: (host) => { host.closeMenu(); setPicked(one); keep(GROUPING_KEY, one); } });
+      }
+    }
+    if (branches.length > 0) {
+      items.push({ title: 'Expand all', group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set()); } });
+      items.push({ title: 'Collapse all', group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set(branches)); } });
+    }
+    setMenu({ x: Math.max(0, box.right - 200), y: box.bottom, items });
+  };
+
+  const added = files.reduce((sum, one) => sum + (one.added ?? 0), 0);
+  const removed = files.reduce((sum, one) => sum + (one.removed ?? 0), 0);
 
   return (
     <div className="web-explorer web-changes">
@@ -233,25 +254,45 @@ export default function ChangesExplorer(): ReactElement {
         <span className="web-explorer__name" title={summary?.title}>{summary === undefined ? 'Changes' : `Changes \u{00B7} ${summary.title || 'Untitled'}`}</span>
         {scope === undefined ? null : (
           <span className="web-explorer__actions">
-            {view === 'list'
-              ? headButton(EMOJIcon.folder, 'View as tree', () => { setView('tree'); keep(VIEW_KEY, 'tree'); })
-              : headButton(EMOJIcon.log, 'View as list', () => { setView('list'); keep(VIEW_KEY, 'list'); })}
-            {groupings.length > 1 ? headButton(EMOJIcon.group, 'Group changes', (event) => {
-              const box = event.currentTarget.getBoundingClientRect();
-              setMenu({
-                x: box.left,
-                y: box.bottom,
-                items: groupings.map((one) => ({
-                  title: GROUPING_LABEL[one],
-                  ...(one === grouping ? { description: 'Current' } : {}),
-                  onSelect: (host) => { host.closeMenu(); setPicked(one); keep(GROUPING_KEY, one); },
-                })),
-              });
-            }, grouping !== 'none') : null}
+            {whole.map((operation) => headButton(iconOf(operation), operation.label, () => void changes.run(operation), {
+              busy: busy(operation),
+              disabled: busy(operation),
+              danger: operation.confirmation !== undefined,
+            }))}
+            {whole.length === 0 ? null : <span className="web-explorer__sep" aria-hidden="true" />}
             {headButton(EMOJIcon.reload, 'Reload', () => void refresh(scope.uri))}
+            {headButton(EMOJIcon.more, 'View options', openOptions)}
           </span>
         )}
       </div>
+      {scope === undefined ? null : (
+        <div className="web-changes__bar">
+          {scopes.length > 1 ? (
+            <span className="web-segments" role="group" aria-label="Which changes">
+              {scopes.map((one) => (
+                <button key={one.uri} type="button" className="web-segments__item" aria-pressed={one.uri === scope.uri} onClick={() => setChosen(one.uri)}>
+                  {one.label}
+                </button>
+              ))}
+            </span>
+          ) : null}
+          <span className="web-changes__totals">
+            {files.length === 0 ? null : (
+              <>
+                {files.length === 1 ? '1 file' : `${files.length} files`}
+                {' '}<span className="web-diff--add">+{added}</span> <span className="web-diff--remove">{'\u{2212}'}{removed}</span>
+              </>
+            )}
+          </span>
+          <span className="web-segments" role="group" aria-label="Show as">
+            {(['list', 'tree'] as const).map((one) => (
+              <button key={one} type="button" className="web-segments__item web-segments__item--icon" aria-pressed={view === one} title={one === 'list' ? 'Show as a list' : 'Show as a tree'} aria-label={one === 'list' ? 'Show as a list' : 'Show as a tree'} onClick={() => showAs(one)}>
+                {one === 'list' ? EMOJIcon.log : EMOJIcon.tree}
+              </button>
+            ))}
+          </span>
+        </div>
+      )}
       {files.length === 0 ? null : (
         <input className="web-explorer__filter" type="search" value={filter} placeholder="Filter files" aria-label="Filter files" onChange={(event) => setFilter(event.target.value)} />
       )}

@@ -53,6 +53,9 @@ export const EMOJIcon = {
   archived: '▤',
   group: '☷',
   folder: mono('📁'),
+  tree: '⊢',
+  commit: '⊙',
+  pullRequest: '⎇',
   attach: mono('📎'),
 
   // status and feedback

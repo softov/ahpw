@@ -25,7 +25,9 @@ const ICON: Record<string, string> = {
   discard: '\u{21B6}',
   check: EMOJIcon.check,
   trash: EMOJIcon.trash,
-  'git-commit': EMOJIcon.check,
+  'git-commit': EMOJIcon.commit,
+  'git-pull-request': EMOJIcon.pullRequest,
+  'git-pull-request-create': EMOJIcon.pullRequest,
 };
 
 /** The glyph an operation's button shows. */
