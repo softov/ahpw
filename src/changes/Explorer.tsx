@@ -83,6 +83,7 @@ export default function ChangesExplorer(): ReactElement {
     for (const operation of fileOps) {
       items.push({
         title: operation.label,
+        ...(operation.description === undefined ? {} : { tooltip: operation.description }),
         group: 'file',
         ...(operation.confirmation === undefined ? {} : { color: 'red' }),
         onSelect: (host) => { host.closeMenu(); void changes.run(operation, change); },
@@ -245,6 +246,7 @@ export default function ChangesExplorer(): ReactElement {
       const tone = toneOf(operation);
       return {
         title: operation.label,
+        ...(operation.description === undefined ? {} : { tooltip: operation.description }),
         group: 'changes',
         icon: iconOf(operation),
         ...(tone === null ? {} : { color: tone }),

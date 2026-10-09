@@ -1135,7 +1135,6 @@
 
 .web-link:hover {
   background: none;
-  color: var(--oo-color-accent);
   text-decoration: underline;
 }
 
@@ -1311,7 +1310,6 @@
 }
 
 .web-changes__scope:not(.web-changes__scope--only):hover {
-  color: var(--oo-color-text);
   background: color-mix(in srgb, var(--oo-color-accent) 14%, transparent);
 }
 
@@ -1337,12 +1335,6 @@
 
 .web-explorer__action[data-tone='red'] {
   color: var(--oo-color-danger);
-}
-
-/* scena 0.5.0 draws a hovered or selected tree row in the surface colour, which is the background's; the fix is in scena's next release. */
-.oo-tree .oo-tree__row:hover,
-.oo-tree .oo-tree__row[data-selected='true'] {
-  color: var(--oo-color-text);
 }
 
 .web-chip--choice {
@@ -2261,7 +2253,6 @@
 
 .web-change__action:hover {
   background: var(--oo-color-hover, var(--oo-color-selected));
-  color: inherit;
 }
 
 .web-change__action[aria-pressed='true'] {
