@@ -17,6 +17,11 @@ export interface OpenDiffArgs {
   file: string;
   before?: string;
   after?: string;
+  /** The changeset the change is in and its id there, so the tab offers the host's operations on it. */
+  changeset?: string;
+  change?: string;
+  /** Whether the changeset takes review marks. */
+  review?: boolean;
 }
 
 const nameOf = (uri: string): string => decodeURIComponent(uri.replace(/\/+$/, '').split('/').pop() ?? uri);
@@ -80,6 +85,7 @@ export function registerFiles(scena: Scena): Disposable {
             file: target.file,
             ...(target.before === undefined ? {} : { before: target.before }),
             ...(target.after === undefined ? {} : { after: target.after }),
+            ...(target.changeset === undefined ? {} : { changeset: target.changeset, change: target.change ?? null, review: target.review === true }),
           },
           props: { title: nameOf(target.file), icon: EMOJIcon.diff },
         });
