@@ -10,8 +10,8 @@ const read = (path: string): string => {
 
 describe('settingsOf', () => {
   it('fills the defaults', () => {
-    const settings = settingsOf({ connect: 'ws://127.0.0.1:37537' }, {}, {}, read);
-    expect(settings).toEqual({ connect: new URL('ws://127.0.0.1:37537'), host: DEFAULT_HOST, port: DEFAULT_PORT, open: false });
+    const settings = settingsOf({ connect: 'ws://127.0.0.1:9187' }, {}, {}, read);
+    expect(settings).toEqual({ connect: new URL('ws://127.0.0.1:9187'), host: DEFAULT_HOST, port: DEFAULT_PORT, open: false });
   });
 
   it('takes a flag over the file', () => {
@@ -43,7 +43,7 @@ describe('settingsOf', () => {
   it('reads http as ws, https as wss, and a bare HOST:PORT as ws', () => {
     expect(settingsOf({ connect: 'http://h:1' }, {}, {}, read).connect.href).toBe('ws://h:1/');
     expect(settingsOf({ connect: 'https://h' }, {}, {}, read).connect.href).toBe('wss://h/');
-    expect(settingsOf({ connect: '127.0.0.1:37537' }, {}, {}, read).connect.href).toBe('ws://127.0.0.1:37537/');
+    expect(settingsOf({ connect: '127.0.0.1:9187' }, {}, {}, read).connect.href).toBe('ws://127.0.0.1:9187/');
   });
 
   it('takes the tkn in the socket as the token, and keeps it off the socket', () => {
@@ -79,7 +79,7 @@ describe('settingsOf, from the environment', () => {
 });
 
 describe('warningsOf', () => {
-  const base = { connect: new URL('ws://127.0.0.1:37537'), host: '127.0.0.1', port: 5190, open: false };
+  const base = { connect: new URL('ws://127.0.0.1:9187'), host: '127.0.0.1', port: 5190, open: false };
 
   it('says nothing on loopback', () => {
     expect(warningsOf({ ...base, token: 't' })).toEqual([]);

@@ -80,7 +80,7 @@ describe('originAllowed', () => {
 });
 
 describe('upstreamPath', () => {
-  const upstream = new URL('ws://127.0.0.1:37537');
+  const upstream = new URL('ws://127.0.0.1:9187');
 
   it('adds the token and drops the browser\'s', () => {
     expect(upstreamPath(upstream, '/?tkn=browser&x=1', 'held')).toBe('/?x=1&tkn=held');

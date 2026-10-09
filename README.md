@@ -56,13 +56,13 @@ Keep `http.port` unset. On another port the API is on another origin, and the pa
 ```sh
 npm i -g @ahpd/web
 # --connect {HOST_URL} --token-file {PATH_TO_TOKEN}
-ahpw serve --connect ws://127.0.0.1:37537 --token-file ~/.vscode/cli/agent-host-token
+ahpw serve --connect ws://127.0.0.1:9187 --token-file ~/.config/ahpd/token
 ```
 
 Or without installing it:
 
 ```sh
-npx @ahpd/web serve --connect ws://127.0.0.1:37537 --token-file ~/.vscode/cli/agent-host-token
+npx @ahpd/web serve --connect ws://127.0.0.1:9187 --token-file ~/.config/ahpd/token
 ```
 
 Then open `http://127.0.0.1:5190/`.
@@ -90,8 +90,8 @@ Every option can go in `~/.config/ahpw/config.json`, without the dashes:
 
 ```json
 {
-  "connect": "ws://127.0.0.1:37537",
-  "tokenFile": "~/.vscode/cli/agent-host-token"
+  "connect": "ws://127.0.0.1:9187",
+  "tokenFile": "~/.config/ahpd/token"
 }
 ```
 
@@ -101,7 +101,7 @@ With no `connect` anywhere, `ahpw serve` reads the environment:
 2. the `tkn=` in that URL, else `AHPD_TOKEN`, for the token
 
 ```sh
-AHPD_URL="ws://127.0.0.1:37537/?tkn=$(cat ~/.vscode/cli/agent-host-token)" ahpw serve
+AHPD_URL="ws://127.0.0.1:9187/?tkn=$(cat ~/.config/ahpd/token)" ahpw serve
 ```
 
 A flag beats the file, and the file beats the environment.
