@@ -1,6 +1,6 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
-import { AHP_DEFAULT_DIRECTORY, copyResource, deleteResource, kindOfResource, makeFolder, moveResource, readBase64, writeResource } from '../connection/data.js';
+import { AHP_DEFAULT_DIRECTORY, copyResource, deleteResource, makeFolder, moveResource, readBase64, writeResource } from '../connection/data.js';
 import { folderLabel } from '../connection/words.js';
 import { confirm, done, failed } from '../notify/index.js';
 import { ADDED_FOLDERS, withFolder, withoutFolder, writeAdded } from './added.js';
