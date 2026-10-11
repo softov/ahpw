@@ -3,7 +3,8 @@ import { useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS, AHP_SESSIONS } from '../connection/data.js';
-import { capabilitiesOf, customizationOf, limitsOf, modelsLine, signInOf } from './words.js';
+import { CustomizationTrees } from './Customizations.js';
+import { capabilitiesOf, limitsOf, modelsLine, signInOf } from './words.js';
 
 /** A policy state as a person reads it; an enabled model says nothing. */
 const POLICY: Record<string, string> = { disabled: 'Turned off by policy', unconfigured: 'Not set up' };
@@ -17,7 +18,6 @@ export default function AgentPage({ provider }: { provider?: string }): ReactEle
   if (agent === undefined) return <Alert tone="warning" message="This server no longer offers this agent." />;
 
   const capabilities = capabilitiesOf(agent);
-  const customizations = (agent.customizations ?? []).map(customizationOf);
   const signIn = signInOf(agent);
   const count = sessions.filter((one) => one.provider === agent.provider).length;
   const facts: DetailItem[] = [
@@ -60,19 +60,10 @@ export default function AgentPage({ provider }: { provider?: string }): ReactEle
         </table>
       )}
 
-      {customizations.length === 0 ? null : (
+      {(agent.customizations ?? []).length === 0 ? null : (
         <>
           <Text variant="h3" text="Customizations" />
-          <table className="web-runs web-table">
-            <thead>
-              <tr><th>Name</th><th>Kind</th><th>State</th></tr>
-            </thead>
-            <tbody>
-              {customizations.map((one, index) => (
-                <tr key={index}><td>{one.name}</td><td>{one.kind}</td><td>{one.state}</td></tr>
-              ))}
-            </tbody>
-          </table>
+          <CustomizationTrees items={agent.customizations} />
         </>
       )}
 

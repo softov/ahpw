@@ -6,6 +6,18 @@ export const FILE_KIND = 'ahp-file';
 /** The viewer every file has: the text, with line numbers. */
 export const TEXT_VIEWER = 'FilePage';
 
+/** The viewer that draws Markdown. */
+export const MARKDOWN_VIEWER = 'MarkdownPage';
+
+/** A file tab's key: the viewer and the file. */
+export const fileTabKey = (component: string, uri: string): string => `file:${component}:${uri}`;
+
+/** The viewer and the file of a file tab's key; undefined for any other tab. */
+export function fileTabOf(key: string | undefined): { component: string; uri: string } | undefined {
+  const match = key === undefined ? null : /^file:([^:]+):(.+)$/.exec(key);
+  return match === null ? undefined : { component: match[1]!, uri: match[2]! };
+}
+
 /** A file's extension, lower case, without the dot; '' when it has none. */
 export function extOf(uri: string): string {
   const name = uri.replace(/[?#].*$/, '').split('/').pop() ?? '';

@@ -27,6 +27,7 @@ import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
 import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
 import { attachmentIcon, attachmentLabel } from './attachments.js';
 import { EMOJIcon } from '../emojis.js';
+import { CopyButton } from '../controls/CopyButton.js';
 
 /** How a turn ended, in words, when it did not end well. */
 const ENDED: Record<string, string> = { cancelled: 'Stopped', error: 'Ended with an error' };
@@ -42,22 +43,6 @@ function useNow(on: boolean): number {
   return now;
 }
 
-/** The reply's text to the clipboard, saying so for a moment. */
-function CopyReply({ text }: { text: string }): ReactElement {
-  const [copied, setCopied] = useState(false);
-  const copy = (): void => {
-    void navigator.clipboard?.writeText(text).then(() => {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1200);
-    }).catch(() => undefined);
-  };
-  return (
-    <button type="button" className="web-turn__copy" title={copied ? 'Copied' : 'Copy'} aria-label={copied ? 'Copied' : 'Copy the reply'} onClick={copy}>
-      {copied ? EMOJIcon.check : EMOJIcon.copy}
-    </button>
-  );
-}
-
 /** The line under a turn: a copy of its reply, when, how long, the tokens, the model and the tools it called. */
 function FactLine({ facts, state, live, text }: { facts: TurnFacts; state?: string; live: boolean; text: string }): ReactElement {
   const now = useNow(live);
@@ -71,7 +56,7 @@ function FactLine({ facts, state, live, text }: { facts: TurnFacts; state?: stri
   if (facts.tools > 0) bits.push(facts.tools === 1 ? '1 tool call' : `${facts.tools} tool calls`);
   return (
     <div className="web-turn__facts">
-      {live || text === '' ? null : <CopyReply text={text} />}
+      {live || text === '' ? null : <CopyButton text={text} label="Copy the reply" />}
       {bits.join(' \u{00B7} ')}
       {state === undefined || ENDED[state] === undefined ? null : <span className="web-turn__ended" data-state={state}>{ENDED[state]}</span>}
     </div>

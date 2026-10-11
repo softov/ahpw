@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createScena } from '@softov/scena/core';
 import type { HostCtx, ResolvedMount } from '@softov/scena/types';
 import { registerFiles } from './index.js';
-import { extOf, openAsItems, viewersOf } from './viewers.js';
+import { extOf, fileTabOf, openAsItems, viewersOf } from './viewers.js';
 
 const setup = () => {
   const scena = createScena();
@@ -21,6 +21,14 @@ describe('file viewers', () => {
     const scena = setup();
     expect(viewersOf(scena, 'file:///w/a.md').map((one) => one.component)).toEqual(['MarkdownPage', 'FilePage']);
     expect(viewersOf(scena, 'file:///w/a.ts').map((one) => one.component)).toEqual(['FilePage']);
+  });
+
+  it('offers the image, video or audio viewer first for a media file, and text after it', () => {
+    const scena = setup();
+    expect(viewersOf(scena, 'file:///w/logo.PNG').map((one) => one.component)).toEqual(['ImagePage', 'FilePage']);
+    expect(viewersOf(scena, 'file:///w/logo.svg').map((one) => one.component)).toEqual(['ImagePage', 'FilePage']);
+    expect(viewersOf(scena, 'file:///w/clip.webm').map((one) => one.component)).toEqual(['VideoPage', 'FilePage']);
+    expect(viewersOf(scena, 'file:///w/note.mp3').map((one) => one.component)).toEqual(['AudioPage', 'FilePage']);
   });
 
   it('offers the viewers a tab is not showing, and opens the one picked', async () => {
@@ -48,5 +56,32 @@ describe('file viewers', () => {
     expect(titles({ component: 'FilePage', uri: 'file:///w/a.md' })).toEqual(['Open as Markdown']);
     expect(titles({ component: 'FilePage', uri: 'file:///w/a.ts' })).toEqual([]);
     expect(titles({ component: 'DiffPage', file: 'file:///w/a.md' })).toEqual([]);
+  });
+
+  it('reads the viewer and the file from a file tab key', () => {
+    expect(fileTabOf('file:MarkdownPage:file:///w/a.md')).toEqual({ component: 'MarkdownPage', uri: 'file:///w/a.md' });
+    expect(fileTabOf('terminal:x')).toBeUndefined();
+    expect(fileTabOf(undefined)).toBeUndefined();
+  });
+
+  it('puts a text or Markdown switch on the strip of a .md tab in main only', () => {
+    const scena = setup();
+    const buttons = (key: string, surface = 'main') => scena.commands.list({ slot: 'surface/title' })
+      .filter((cmd) => cmd.when === undefined || scena.when.evaluate(cmd.when, { '$/surface/name': surface, '$/tab/key': key }))
+      .map((cmd) => cmd.id);
+    expect(buttons('file:MarkdownPage:file:///w/a.md')).toEqual(['ahp.showFileText']);
+    expect(buttons('file:FilePage:file:///w/a.md')).toEqual(['ahp.showFileMarkdown']);
+    expect(buttons('file:FilePage:file:///w/a.ts')).toEqual([]);
+    expect(buttons('file:FilePage:file:///w/a.md', 'panel:bottom')).toEqual([]);
+  });
+
+  it('replaces the tab with the other viewer of the same file', async () => {
+    const scena = setup();
+    const open = vi.spyOn(scena.surfaces, 'open');
+    const close = vi.spyOn(scena.surfaces, 'close');
+    scena.store.set('$/tab/key', 'file:MarkdownPage:file:///w/a.md');
+    await scena.commands.execute('ahp.showFileText');
+    expect(close).toHaveBeenCalledWith('file:MarkdownPage:file:///w/a.md');
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith(expect.objectContaining({ key: 'file:FilePage:file:///w/a.md' })));
   });
 });

@@ -1,6 +1,10 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { PALETTE_SLOT } from '../view/Palette.js';
+import { registerEntryCommands } from './actions.js';
+import { ADDED_FOLDERS, readAdded } from './added.js';
+import { initAsk, resetAsk } from './ask.js';
+import { NameDialog } from './NameDialog.js';
 
 /** The sidebar section the folder tree shows in. */
 export const FOLDERS_SECTION = 'ahp:folders';
@@ -13,9 +17,12 @@ export interface RevealFolderArgs {
   uri: string;
 }
 
-/** The host's folders, as a tree in the sidebar. */
+/** The host's folders, as a tree in the sidebar, with the menus on its rows and the dialog they ask names in. */
 export function registerFolders(scena: Scena): Disposable {
+  initAsk(scena.store);
+  scena.store.set(ADDED_FOLDERS, readAdded());
   return combineDisposables(
+    { dispose: resetAsk },
     scena.components.register({
       component: 'FolderExplorer',
       category: 'page',
@@ -38,6 +45,13 @@ export function registerFolders(scena: Scena): Disposable {
         return ctx.commands.execute('sidebar.activate', { section: FOLDERS_SECTION });
       },
     }),
+    scena.components.register({
+      component: 'Folders.Name',
+      category: 'chrome',
+      renderer: { kind: 'react', load: async () => ({ default: NameDialog as unknown }) },
+    }),
+    scena.surfaces.mount({ surface: 'overlay', key: 'folders:name', resource: { component: 'Folders.Name' } }),
+    registerEntryCommands(scena),
     scena.surfaces.mount({
       surface: 'sidebar:left',
       key: 'folders:explorer',

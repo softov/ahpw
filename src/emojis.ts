@@ -65,6 +65,10 @@ export const EMOJIcon = {
   commit: '⊙',
   pullRequest: '⎇',
   attach: mono('📎'),
+  open: mono('📂'),
+  upload: mono('⬆'),
+  download: mono('⬇'),
+  link: mono('🔗'),
 
   // status and feedback
   check: '✓',
@@ -101,4 +105,8 @@ export const EMOJIcon = {
   layoutSpatial: '◇',
   layoutStack: '☰',
   layoutSingle: '□',
+
+  // what an agent is customized with
+  plugin: mono('🧩'),
+  mcpServer: mono('🔌'),
 };

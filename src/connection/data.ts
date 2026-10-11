@@ -181,6 +181,33 @@ export async function readText(uri: string): Promise<FileText> {
   };
 }
 
+/** A file's bytes as a blob of `type`, read base64 so binary arrives whole. */
+export async function readBlob(uri: string, type: string): Promise<Blob> {
+  const result = await request('resourceRead', { channel: ROOT, uri, encoding: 'base64' } as never) as { data: string; encoding: string };
+  if (String(result.encoding) !== 'base64') return new Blob([result.data], { type });
+  const binary = atob(result.data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type });
+}
+
+/** A file's size in bytes, or undefined when the host does not say. */
+export async function sizeOf(uri: string): Promise<number | undefined> {
+  const result = await request('resourceResolve', { channel: ROOT, uri } as never) as { size?: number };
+  return result.size;
+}
+
+/** Write a file's text, replacing what it held. With `ifMatch`, the host refuses when the file is no longer that version. */
+export async function writeText(uri: string, text: string, ifMatch?: string): Promise<void> {
+  await request('resourceWrite', { channel: ROOT, uri, data: text, encoding: 'utf-8', ...(ifMatch === undefined ? {} : { ifMatch }) } as never);
+}
+
+/** The version a file is at, as the host tags it; undefined when the host gives none. */
+export async function etagOf(uri: string): Promise<string | undefined> {
+  const result = await request('resourceResolve', { channel: ROOT, uri } as never) as { etag?: string };
+  return result.etag;
+}
+
 /** Whether a URI is a file, a folder, or nothing the host knows. */
 export async function kindOfResource(uri: string): Promise<'file' | 'directory' | 'symlink' | null> {
   try {
@@ -189,6 +216,36 @@ export async function kindOfResource(uri: string): Promise<'file' | 'directory' 
   } catch {
     return null;
   }
+}
+
+/** Read a file as base64, whatever it holds. A host that answers in text gives its text instead. */
+export async function readBase64(uri: string): Promise<{ data: string; encoding: string; contentType?: string }> {
+  return await request('resourceRead', { channel: ROOT, uri, encoding: 'base64' } as never) as { data: string; encoding: string; contentType?: string };
+}
+
+/** Write a file, in text or base64. `createOnly` refuses a file that is there already. */
+export async function writeResource(uri: string, data: string, encoding: 'utf-8' | 'base64', createOnly = false): Promise<void> {
+  await request('resourceWrite', { channel: ROOT, uri, data, encoding, ...(createOnly ? { createOnly } : {}) } as never);
+}
+
+/** Make a folder, and its parents as needed. */
+export async function makeFolder(uri: string): Promise<void> {
+  await request('resourceMkdir', { channel: ROOT, uri } as never);
+}
+
+/** Move or rename, refusing to land on something that is there already. */
+export async function moveResource(source: string, destination: string): Promise<void> {
+  await request('resourceMove', { channel: ROOT, source, destination, failIfExists: true } as never);
+}
+
+/** Copy, refusing to land on something that is there already. */
+export async function copyResource(source: string, destination: string): Promise<void> {
+  await request('resourceCopy', { channel: ROOT, source, destination, failIfExists: true } as never);
+}
+
+/** Delete a file, or a folder with `recursive` and everything in it. */
+export async function deleteResource(uri: string, recursive: boolean): Promise<void> {
+  await request('resourceDelete', { channel: ROOT, uri, recursive } as never);
 }
 
 /** Send one action on a channel. */

@@ -5,13 +5,16 @@ export interface Root {
   uri: string;
   /** The folder the host suggests, from `initialize`. */
   isDefault: boolean;
+  /** A folder this browser added, which it can remove. */
+  added: boolean;
 }
 
 /** A folder URI without its trailing slashes, so two spellings of one folder are one. */
 export const bare = (uri: string): string => (/^[a-z][a-z0-9+.-]*:\/\/\/?$/i.test(uri) ? uri : uri.replace(/\/+$/, ''));
 
-/** The explorer's folders: the host's default first, then each folder a session works in, newest session first, then those revealed. */
-export function rootsOf(defaultDirectory: string | null | undefined, sessions: readonly SessionSummary[], revealed: readonly string[] = []): Root[] {
+/** The explorer's folders: the host's default first, then each folder a session works in, newest session first, then those this browser added, then those revealed. */
+export function rootsOf(defaultDirectory: string | null | undefined, sessions: readonly SessionSummary[], revealed: readonly string[] = [], added: readonly string[] = []): Root[] {
+  const kept = new Set(added.map(bare));
   const seen = new Set<string>();
   const roots: Root[] = [];
   const add = (uri: string | undefined, isDefault: boolean): void => {
@@ -19,10 +22,11 @@ export function rootsOf(defaultDirectory: string | null | undefined, sessions: r
     const key = bare(uri);
     if (seen.has(key)) return;
     seen.add(key);
-    roots.push({ uri: key, isDefault });
+    roots.push({ uri: key, isDefault, added: kept.has(key) });
   };
   add(defaultDirectory ?? undefined, true);
   for (const session of sessions) add(session.workingDirectories?.[0], false);
+  for (const uri of added) add(uri, false);
   for (const uri of revealed) add(uri, false);
   return roots;
 }

@@ -10,6 +10,7 @@ import { elapsed, folderLabel, textOf } from '../connection/words.js';
 import { codePath, fileLink } from '../files/link.js';
 import { linkClicks } from '../files/clicks.js';
 import { WorkspaceContext } from './workspace.js';
+import { CopyButton } from '../controls/CopyButton.js';
 import { InputRequest } from './Question.js';
 import { durationOf, fileOf, inputText, kindOf, lineOf, outcomeOf, outputOf, segmentsOf, type Outcome, type Output, type ToolKind } from './tool.js';
 import { EMOJIcon } from '../emojis.js';
@@ -83,18 +84,11 @@ function ToolLine({ line, file }: { line: string; file: string | undefined }): R
 
 /** Text a person may want elsewhere, with a button that copies it. */
 function Block({ title, text }: { title: string; text: string }): ReactElement {
-  const [copied, setCopied] = useState(false);
-  const copy = (): void => {
-    void navigator.clipboard?.writeText(text).then(() => {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1200);
-    }).catch(() => undefined);
-  };
   return (
     <section className="web-tool__block">
       <div className="web-tool__block-head">
         <span>{title}</span>
-        <button type="button" className="web-tool__copy" onClick={copy}>{copied ? 'Copied' : 'Copy'}</button>
+        <CopyButton text={text} />
       </div>
       <pre className="web-tool__pre">{text}</pre>
     </section>
