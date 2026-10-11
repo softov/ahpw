@@ -29,6 +29,8 @@ describe('staticRoute', () => {
     expect(response.headers.get('content-type')).toContain('text/html');
     expect(response.headers.get('cache-control')).toBe('no-cache');
     expect(response.headers.get('content-security-policy')).toContain("default-src 'self'");
+    expect(response.headers.get('content-security-policy')).toContain("img-src 'self' data: blob:");
+    expect(response.headers.get('content-security-policy')).toContain("media-src 'self' blob:");
     expect(await response.text()).toBe('<!doctype html>');
   });
 

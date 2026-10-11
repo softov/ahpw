@@ -1,12 +1,20 @@
-import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Button, Text } from '@softov/scena/ui';
+import { Alert, Button, Text, useChatPicker } from '@softov/scena/ui';
 import type { AgentInfo, Message, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS, AHP_DEFAULT_DIRECTORY, ROOT, dispatch, readOnce, request } from '../connection/data.js';
 import { folderLabel, folderUri, newId } from '../connection/words.js';
 import { fitToText } from './Composer.js';
 import { ChoicePill, Pill, TextPill, TogglePill } from './pills.js';
 import { EMOJIcon } from '../emojis.js';
+import { slashCommandsOf } from '../agents/words.js';
+import { agentCommands, COMPOSER_FOCUS, registerHostCommands } from './host-commands.js';
+
+/** The slot the new session box's `/` commands are offered in: the chosen agent's skills and commands. */
+const NEW_SLOT = 'ahp:new/';
+
+/** Which composer focus the new session box sets, so only its `/` list offers the agent's commands. */
+const NEW_FOCUS = 'session:new';
 
 /** How long the inputs rest before the host is asked for the settings again. */
 const RESOLVE_DELAY = 300;
@@ -57,6 +65,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   const [dynamic, setDynamic] = useState<Record<string, { value: string; label: string }[]>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [caret, setCaret] = useState<number | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -104,6 +113,23 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   }, [dynamicKeys, provider, where]);
 
   const agent = agents.find((one) => one.provider === provider);
+
+  // `/` offers the chosen agent's skills and commands; another agent brings its own.
+  const commands = useMemo(() => agentCommands(slashCommandsOf(agent?.customizations)), [agent]);
+  useEffect(() => {
+    const registration = registerHostCommands(scena, NEW_FOCUS, commands, NEW_SLOT);
+    return () => registration.dispose();
+  }, [scena, commands]);
+  const focusCaret = useCallback((position: number) => {
+    setCaret(position);
+    requestAnimationFrame(() => {
+      const element = area.current;
+      if (element === null) return;
+      element.focus();
+      element.setSelectionRange(position, position);
+    });
+  }, []);
+  const picker = useChatPicker({ input: text, setInput: setText, caretIndex: caret, slashSlot: NEW_SLOT, prefixes: ['/'], onCaretChange: focusCaret });
   // A host that puts the model in the session's settings shows it there; otherwise the agent's list is the model pill.
   const settings = useMemo(
     () => Object.entries(resolved?.schema ?? {}).filter(([key, schema]) => schema.readOnly !== true && key !== 'model'),
@@ -176,15 +202,23 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
           {resolved === null && provider !== '' ? <Pill label="Reading settings" /> : null}
         </div>
         <div className="web-composer__bar">
+          {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
           <textarea
             ref={area}
             className="web-composer__text"
             rows={3}
             value={text}
             aria-label="First message"
-            placeholder="What should it do? Enter starts the session; leave it empty to start without a message."
-            onChange={(event) => setText(event.currentTarget.value)}
+            placeholder={commands.length === 0 ? 'What should it do? Enter starts the session; leave it empty to start without a message.' : 'What should it do? / for skills and commands. Enter starts; leave it empty to start without a message.'}
+            onChange={(event) => {
+              setText(event.currentTarget.value);
+              setCaret(event.currentTarget.selectionStart);
+            }}
+            onFocus={() => scena.store.set(COMPOSER_FOCUS, NEW_FOCUS)}
+            onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
+            onClick={(event) => setCaret(event.currentTarget.selectionStart)}
             onKeyDown={(event) => {
+              if (picker.handleMenuKeyDown(event)) return;
               if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
                 event.preventDefault();
                 void start();

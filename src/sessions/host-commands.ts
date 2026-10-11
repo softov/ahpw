@@ -1,6 +1,7 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { COMPOSER_SLOT } from './composer-commands.js';
+import type { SlashCommand } from '../agents/words.js';
 
 /** Which composer has the focus, so the `/` list offers that chat's host commands. */
 export const COMPOSER_FOCUS = '$/ahp/composerFocus' as BindingPath;
@@ -32,15 +33,19 @@ export function hostCommands(value: unknown): HostCommand[] {
     .filter((one) => one.insert !== '');
 }
 
-/** A chat's host commands in the composer's `/` list, offered while that composer has the focus. */
-export function registerHostCommands(scena: Scena, focus: string, commands: readonly HostCommand[]): Disposable {
+/** An agent's skills and commands as `/` commands, for a session the host has not made yet and so cannot be asked about. */
+export const agentCommands = (found: readonly SlashCommand[]): HostCommand[] =>
+  found.map((one) => ({ insert: `/${one.name}`, label: `/${one.name}`, detail: one.description === '' ? undefined : one.description, hint: undefined }));
+
+/** A chat's host commands in a `/` list (the composer's by default), offered while that composer has the focus. */
+export function registerHostCommands(scena: Scena, focus: string, commands: readonly HostCommand[], slot = COMPOSER_SLOT): Disposable {
   return combineDisposables(...commands.map((command) => scena.commands.register({
     id: `ahp.composer.host.${focus}.${command.insert}`,
     title: command.hint === undefined ? command.label : `${command.label} ${command.hint}`,
     ...(command.detail === undefined ? {} : { description: command.detail }),
     category: 'Agent',
     shortcut: command.label.startsWith('/') ? command.label : `/${command.label}`,
-    slots: [COMPOSER_SLOT],
+    slots: [slot],
     when: `${COMPOSER_FOCUS} == "${focus}"`,
     run: (ctx) => ctx.host?.replaceActiveToken(`${command.insert} `),
   })));

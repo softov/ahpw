@@ -8,14 +8,24 @@ const session = (folder?: string): SessionSummary => ({ workingDirectories: fold
 test('the default folder comes first, then each session folder once', () => {
   const roots = rootsOf('file:///home/me', [session('file:///src/a/'), session(), session('file:///src/b'), session('file:///src/a'), session('file:///home/me/')]);
   expect(roots).toEqual([
-    { uri: 'file:///home/me', isDefault: true },
-    { uri: 'file:///src/a', isDefault: false },
-    { uri: 'file:///src/b', isDefault: false },
+    { uri: 'file:///home/me', isDefault: true, added: false },
+    { uri: 'file:///src/a', isDefault: false, added: false },
+    { uri: 'file:///src/b', isDefault: false, added: false },
+  ]);
+});
+
+test('the added folders follow the session folders, and an added folder a session shows is still added', () => {
+  const roots = rootsOf('file:///home/me', [session('file:///src/a')], ['file:///tmp/seen'], ['file:///src/a/', 'file:///opt/x', 'file:///tmp/seen']);
+  expect(roots).toEqual([
+    { uri: 'file:///home/me', isDefault: true, added: false },
+    { uri: 'file:///src/a', isDefault: false, added: true },
+    { uri: 'file:///opt/x', isDefault: false, added: true },
+    { uri: 'file:///tmp/seen', isDefault: false, added: true },
   ]);
 });
 
 test('without a default folder, the session folders alone', () => {
-  expect(rootsOf(null, [session('file:///src/a')])).toEqual([{ uri: 'file:///src/a', isDefault: false }]);
+  expect(rootsOf(null, [session('file:///src/a')])).toEqual([{ uri: 'file:///src/a', isDefault: false, added: false }]);
   expect(rootsOf(undefined, [])).toEqual([]);
 });
 

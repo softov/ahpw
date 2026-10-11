@@ -20,10 +20,11 @@ const TYPES: Readonly<Record<string, string>> = {
  *
  * The token sits in this origin's localStorage, so the page loads nothing from
  * anywhere else and cannot be framed. Inline styles stay allowed because the
- * theme sets custom properties on elements.
+ * theme sets custom properties on elements. Images and media may be `blob:`,
+ * which is a file the page read from the host and made a URL for itself.
  */
 const SECURITY: Readonly<Record<string, string>> = {
-  'content-security-policy': "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+  'content-security-policy': "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'no-referrer',
 };

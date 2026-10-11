@@ -1,49 +1,89 @@
-import { useEffect, useRef, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { Alert, Spinner } from '@softov/scena/ui';
-import { splitLines } from './diff.js';
+import { etagOf, writeText } from '../connection/data.js';
+import CodeEditor from '../editor/CodeEditor.js';
+import { languageOf } from '../editor/languages.js';
+import { changedOnHost, refusesWrite, shownText } from './save.js';
 import { FileHead, useFileText } from './text.js';
 
-/** Past this many lines a file is cut, so a log does not freeze the page. */
-const MAX_LINES = 5000;
+/** Why the last save did not land, and whether the host refuses this file's writes. */
+interface SaveFailure {
+  message: string;
+  refused: boolean;
+}
 
-/** A file the daemon can read, with line numbers, scrolled to the lines a link named. */
+/** A file the daemon can read, in an editor that saves with Mod-s, scrolled to the lines a link named. */
 export default function FilePage({ uri, line, end }: { uri?: string; line?: number | null; end?: number | null }): ReactElement {
   const state = useFileText(uri);
-  const marked = useRef<HTMLTableRowElement>(null);
+  const [dirty, setDirty] = useState(false);
+  const [failure, setFailure] = useState<SaveFailure | null>(null);
+  /** The text as the host last held it, read or saved. */
+  const saved = useRef('');
+  /** The text as the editor holds it now. */
+  const draft = useRef('');
+  const saving = useRef(false);
+  /** The version of the file the editor started from; a save is refused once the host holds another. */
+  const version = useRef<string | undefined>(undefined);
+
+  const loaded = state !== null && 'text' in state && state.text !== null ? shownText(state.text) : null;
 
   useEffect(() => {
-    marked.current?.scrollIntoView({ block: 'center' });
-  }, [state, line]);
+    saved.current = loaded?.text ?? '';
+    draft.current = saved.current;
+    setDirty(false);
+    setFailure(null);
+    version.current = undefined;
+    if (uri === undefined || loaded === null) return;
+    let alive = true;
+    etagOf(uri).then((etag) => { if (alive) version.current = etag; }).catch(() => undefined);
+    return () => { alive = false; };
+  }, [uri, loaded?.text]);
+
+  const change = useCallback((text: string) => {
+    draft.current = text;
+    setDirty(text !== saved.current);
+  }, []);
+
+  const save = useCallback((text: string) => {
+    if (uri === undefined || saving.current) return;
+    saving.current = true;
+    writeText(uri, text, version.current)
+      .then(async () => {
+        saved.current = text;
+        setDirty(draft.current !== text);
+        setFailure(null);
+        version.current = await etagOf(uri).catch(() => undefined);
+      })
+      .catch((error: unknown) => {
+        const message = changedOnHost(error)
+          ? 'The file changed on the server since it was opened. Copy your edit, then reopen the file.'
+          : error instanceof Error ? error.message : String(error);
+        setFailure({ message, refused: refusesWrite(error) });
+      })
+      .finally(() => { saving.current = false; });
+  }, [uri]);
 
   if (uri === undefined) return <Alert tone="warning" message="No file was named." />;
-  const head = <FileHead uri={uri} />;
+  const head = <FileHead uri={uri} dirty={dirty} />;
   if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
   if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;
-  if (state.text === null) return <div className="web-file">{head}<p className="web-note">This file is not text.</p></div>;
+  if (loaded === null) return <div className="web-file">{head}<p className="web-note">This file is not text.</p></div>;
 
-  const lines = splitLines(state.text);
-  const shown = lines.slice(0, MAX_LINES);
-  const from = line ?? -1;
-  const to = end ?? from;
   return (
     <div className="web-file">
       {head}
-      <div className="web-file__body">
-        <table className="web-code">
-          <tbody>
-            {shown.map((text, index) => {
-              const number = index + 1;
-              const hit = number >= from && number <= to;
-              return (
-                <tr key={number} data-hit={hit ? 'true' : 'false'} {...(number === from ? { ref: marked } : {})}>
-                  <td className="web-code__number">{number}</td>
-                  <td className="web-code__text">{text}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {lines.length > MAX_LINES ? <p className="web-note">Showing the first {MAX_LINES} of {lines.length} lines.</p> : null}
+      {failure === null ? null : <Alert tone="danger" title={failure.refused ? 'Read-only' : 'Not saved'} message={failure.message} />}
+      {loaded.cut ? <p className="web-note">This file is over 5 MB. It shows the start, read-only.</p> : null}
+      <div className="web-file__body web-file__body--editor">
+        <CodeEditor
+          value={loaded.text}
+          language={languageOf(uri)}
+          readOnly={loaded.cut || failure?.refused === true}
+          line={line ?? null}
+          end={end ?? null}
+          onChange={change}
+          onSave={save}
+        />
       </div>
     </div>
   );
