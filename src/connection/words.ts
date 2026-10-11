@@ -34,7 +34,9 @@ export function folderName(uri: string): string {
 export function folderLabel(uri: string): string {
   if (!uri.startsWith('file://')) return uri;
   try {
-    return decodeURIComponent(uri.slice('file://'.length));
+    const path = decodeURIComponent(uri.slice('file://'.length));
+    // A Windows path keeps its drive first: file:///C:/x is C:/x, not /C:/x.
+    return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
   } catch {
     return uri;
   }

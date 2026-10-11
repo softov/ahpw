@@ -25,6 +25,8 @@ describe('folderUri', () => {
 describe('folderLabel', () => {
   it('reads a file URI as its path', () => {
     expect(folderLabel('file:///home/me/my%20project')).toBe('/home/me/my project');
+    expect(folderLabel('file:///C:/Users/me/my%20project')).toBe('C:/Users/me/my project');
+    expect(folderLabel('file:///c%3A/Users/me')).toBe('c:/Users/me');
   });
 
   it('leaves any other URI alone', () => {
