@@ -2525,11 +2525,6 @@
   gap: var(--oo-spacing-sm);
 }
 
-.web-copy__caption {
-  margin-left: 0.25em;
-  font-size: var(--oo-font-size-xs);
-}
-
 .web-custom-detail {
   width: min(72ch, calc(80vw - 2 * var(--oo-spacing-md)));
   max-width: 100%;

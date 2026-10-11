@@ -33,8 +33,8 @@ function stateMark(state: StateWord | undefined): ReactElement | undefined {
 function Copies({ name, description, className }: { name: string; description: string; className: string }): ReactElement {
   return (
     <span className={className} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-      <CopyButton text={name} label="Copy the name" caption="name" />
-      {description === '' ? null : <CopyButton text={description} label="Copy the description" caption="description" />}
+      <CopyButton text={name} label="Copy the name" />
+      {description === '' ? null : <CopyButton text={description} label="Copy the description" icon={EMOJIcon.copyText} />}
     </span>
   );
 }
