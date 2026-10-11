@@ -11,8 +11,8 @@ import { fromFiles, sameAttachment } from './attachments.js';
 import { attachComposer, composerPath, NEW_SLOT } from './composer-commands.js';
 import { useComposerDrop } from './composer-drop.js';
 import { folderMentions, mentionQuery } from './folder-mentions.js';
+import { FolderPill } from './FolderPill.js';
 import { ChoicePill, Pill, TextPill, TogglePill } from './pills.js';
-import { EMOJIcon } from '../emojis.js';
 import { slashCommandsOf } from '../agents/words.js';
 import { warn } from '../notify/index.js';
 import { agentCommands, COMPOSER_FOCUS, registerHostCommands } from './host-commands.js';
@@ -286,7 +286,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
             options={agents.map((one) => ({ value: one.provider, label: one.displayName }))}
             onChange={(next) => { setProvider(next); setModel(''); setChosen({}); setDynamic({}); }}
           />
-          <TextPill label={EMOJIcon.folder} title="A folder on the server's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
+          <FolderPill value={folder} onChange={setFolder} />
         </div>
         <div className="web-composer__box" data-drop={drop.dropping ?? undefined} onDragOver={drop.onDragOver} onDragLeave={drop.onDragLeave} onDrop={drop.onDrop}>
           <Attached attachments={attachments} folder={where} onRemove={(index) => setAttachments((held) => held.filter((_, at) => at !== index))} />
