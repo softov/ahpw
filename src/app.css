@@ -1513,6 +1513,20 @@
   overflow-y: auto;
 }
 
+/* The new session box sits near the top of its page, so its `/` list opens below the text. */
+.web-new__composer .web-composer__bar {
+  position: relative;
+}
+
+.web-new__composer .web-composer__picker {
+  top: 100%;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  margin: var(--oo-spacing-xs) 0 0;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.22);
+}
+
 .web-new__composer .web-composer__chips {
   padding-top: var(--oo-spacing-sm);
 }
@@ -2490,6 +2504,29 @@
   flex: none;
   white-space: nowrap;
   color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+}
+
+.web-custom__copies {
+  display: none;
+  flex: none;
+  margin-left: auto;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-customs .oo-tree__row:hover .web-custom__copies,
+.web-customs .oo-tree__row:focus-within .web-custom__copies {
+  display: inline-flex;
+}
+
+.web-custom-detail__copies {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-copy__caption {
+  margin-left: 0.25em;
   font-size: var(--oo-font-size-xs);
 }
 

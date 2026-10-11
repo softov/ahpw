@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type {
   AgentCustomization,
   AgentInfo,
+  ChildCustomization,
   CustomizationEnablement,
   CustomizationLoadState,
   DirectoryCustomization,
@@ -12,7 +13,7 @@ import type {
   SessionModelInfo,
   SkillCustomization,
 } from '@microsoft/agent-host-protocol';
-import { withoutFrontmatter, capabilitiesOf, childFlags, childLine, countOf, customizationRows, limitsOf, modelsLine, shortPath, signInOf, stateOf } from './words.js';
+import { withoutFrontmatter, capabilitiesOf, childFlags, childLine, countOf, customizationRows, limitsOf, modelsLine, shortPath, signInOf, slashCommandsOf, stateOf } from './words.js';
 
 const agent = (fields: Partial<AgentInfo>): AgentInfo => ({ provider: 'echo', displayName: 'Echo', description: '', models: [], ...fields });
 
@@ -96,10 +97,23 @@ describe('shortPath', () => {
 });
 
 describe('childLine', () => {
-  it('keeps the first line of a description and cuts it with an ellipsis', () => {
+  it('keeps the first line of a description, whole', () => {
     expect(childLine(skill({ description: 'Lint the code.\nThen fix it.' }))).toBe('Lint the code.');
-    expect(childLine(skill({ description: 'x'.repeat(100) }))).toBe(`${'x'.repeat(79)}\u{2026}`);
+    expect(childLine(skill({ description: 'x'.repeat(100) }))).toBe('x'.repeat(100));
     expect(childLine(skill({}))).toBe('');
+  });
+});
+
+describe('slashCommandsOf', () => {
+  it('lists the skills and commands a person may call, once each', () => {
+    const prompt = (fields: Record<string, unknown>) => ({ type: 'prompt', id: 'c', uri: 'file:///x/c.md', name: 'ship', ...fields }) as unknown as ChildCustomization;
+    const items = [
+      folder({ children: [skill({ description: 'Lint.\nMore.' }), prompt({}), subagent({}), skill({ name: 'hidden', disableUserInvocation: true }), skill({ name: 'off', enabled: false })] }),
+      plugin({ children: [skill({ description: 'Again.' })] }),
+      plugin({ enablement: [{ kind: 'session', enabled: false } as CustomizationEnablement], children: [skill({ name: 'gone' })] }),
+    ];
+    expect(slashCommandsOf(items)).toEqual([{ name: 'lint', description: 'Lint.' }, { name: 'ship', description: '' }]);
+    expect(slashCommandsOf(undefined)).toEqual([]);
   });
 });
 
@@ -122,7 +136,7 @@ describe('customizationRows', () => {
   it('words a row: path, count, read-only, version and on or off', () => {
     const [row] = customizationRows([plugin({ version: '1.2.0', enablement: [{ kind: 'session', enabled: false } as CustomizationEnablement], children: [skill({ enabled: false })] })]);
     expect(row).toMatchObject({ name: 'tidy', kind: 'Plugin', path: '~/.plugins/tidy', meta: ['1 skill', 'v1.2.0', 'off'], enabled: false });
-    expect(row?.children).toEqual([{ id: 's', name: 'lint', line: '', description: '', flags: [], enabled: false, open: { uri: 'file:///x/SKILL.md', line: null } }]);
+    expect(row?.children).toEqual([{ id: 's', name: 'lint', label: '/lint', line: '', description: '', flags: [], enabled: false, open: { uri: 'file:///x/SKILL.md', line: null } }]);
     expect(row?.open).toBeUndefined();
     const [read] = customizationRows([folder({ writable: false, children: [] })]);
     expect(read?.meta).toEqual(['0 skills', 'read-only', 'on']);
@@ -137,6 +151,12 @@ describe('customizationRows', () => {
     expect(customizationRows([mcp(state({ kind: 'ready' }), { uri: 'builtin:agents-md' })])[0]?.open).toBeUndefined();
     const [skills] = customizationRows([folder({ children: [skill({ uri: 'file:///x/skills/advisor/' })] })]);
     expect(skills?.children[0]?.open).toEqual({ uri: 'file:///x/skills/advisor/SKILL.md', line: null });
+  });
+
+  it('writes a skill or command name with a slash, and other names as they are', () => {
+    const prompt = { type: 'prompt', id: 'c', uri: 'file:///x/c.md', name: 'ship' } as unknown as ChildCustomization;
+    const [row] = customizationRows([folder({ children: [skill({}), prompt, subagent({})] })]);
+    expect(row?.children.map((child) => child.label)).toEqual(['/lint', '/ship', 'review']);
   });
 
   it('gives an MCP server child its dot', () => {

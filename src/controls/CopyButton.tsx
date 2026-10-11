@@ -4,8 +4,8 @@ import { EMOJIcon } from '../emojis.js';
 /** How long the check mark stays after a copy, in milliseconds. */
 const SHOWN_MS = 1200;
 
-/** An icon that copies `text` to the clipboard, and shows a check mark for a moment once it has. */
-export function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }): ReactElement {
+/** An icon that copies `text` to the clipboard, and shows a check mark for a moment once it has. `caption` is a word after the icon, for when two copy buttons sit side by side. */
+export function CopyButton({ text, label = 'Copy', caption }: { text: string; label?: string; caption?: string }): ReactElement {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -20,6 +20,7 @@ export function CopyButton({ text, label = 'Copy' }: { text: string; label?: str
   return (
     <button type="button" className="web-copy" data-copied={copied ? 'true' : 'false'} title={title} aria-label={title} onClick={copy}>
       {copied ? EMOJIcon.check : EMOJIcon.copy}
+      {caption === undefined ? null : <span className="web-copy__caption">{caption}</span>}
     </button>
   );
 }

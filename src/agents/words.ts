@@ -67,6 +67,8 @@ export interface StateWord {
 export interface ChildRow {
   id: string;
   name: string;
+  /** The name as the row shows it: `/name` for a skill or command, which a message calls that way. */
+  label: string;
   line: string;
   /** The whole description, which the row's `line` is the start of. */
   description: string;
@@ -127,10 +129,9 @@ export function shortPath(uri: string): string {
   return folderLabel(uri).replace(/^(\/home\/[^/]+|\/Users\/[^/]+|\/root)(?=\/|$)/, '~');
 }
 
-/** The first line of a text, cut to `width` with an ellipsis. */
-export function brief(text: string | undefined, width = 80): string {
-  const first = (text ?? '').trim().split('\n')[0]?.trim() ?? '';
-  return first.length > width ? `${first.slice(0, width - 1)}\u{2026}` : first;
+/** The first line of a text. */
+export function brief(text: string | undefined): string {
+  return (text ?? '').trim().split('\n')[0]?.trim() ?? '';
 }
 
 /** What a customization's dot says: an MCP server's lifecycle, or a container's load when it is not plainly loaded. */
@@ -173,7 +174,7 @@ export function childFlags(child: ChildCustomization): string[] {
   return flags;
 }
 
-/** A child's description on one line, cut with an ellipsis. */
+/** A child's description on one line; the row cuts it where it runs out of room. */
 export function childLine(child: ChildCustomization): string {
   return brief((child as { description?: string }).description);
 }
@@ -182,6 +183,9 @@ export function childLine(child: ChildCustomization): string {
 export function withoutFrontmatter(text: string): string {
   return text.replace(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(\r?\n|$)/, '').trimStart();
 }
+
+/** The child kinds a message calls with `/name`: skills and commands. */
+const SLASH_KINDS = new Set(['skill', 'prompt']);
 
 /** The customization kinds that are folders holding others. */
 const CONTAINERS = new Set(['plugin', 'directory']);
@@ -200,6 +204,7 @@ export function childRow(child: ChildCustomization): ChildRow {
   return {
     id: child.id,
     name: child.name,
+    label: SLASH_KINDS.has(String(child.type)) ? `/${child.name}` : child.name,
     line: childLine(child),
     description: ((child as { description?: string }).description ?? '').trim(),
     flags: childFlags(child),
@@ -243,6 +248,28 @@ export function customizationRows(items: readonly Customization[] | undefined): 
       children: ((item as { children?: ChildCustomization[] }).children ?? []).map(childRow),
     };
   });
+}
+
+/** One `/` command an agent offers before a session exists: a skill or command a person may call. */
+export interface SlashCommand {
+  name: string;
+  description: string;
+}
+
+/** The skills and commands a person may call with `/name`, from an agent's customizations: on, and not kept for the model alone. The first of a name wins. */
+export function slashCommandsOf(items: readonly Customization[] | undefined): SlashCommand[] {
+  const seen = new Set<string>();
+  const found: SlashCommand[] = [];
+  for (const item of items ?? []) {
+    if (!enabledOf(item)) continue;
+    for (const child of (item as { children?: ChildCustomization[] }).children ?? []) {
+      if (!SLASH_KINDS.has(String(child.type)) || !enabledOf(child)) continue;
+      if ((child as { disableUserInvocation?: boolean }).disableUserInvocation === true || seen.has(child.name)) continue;
+      seen.add(child.name);
+      found.push({ name: child.name, description: childLine(child) });
+    }
+  }
+  return found;
 }
 
 /** What signing in to an agent involves: each resource it protects, and the scopes it asks for. */
