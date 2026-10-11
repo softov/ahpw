@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactElement } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
 import { Button, useChatPicker } from '@softov/scena/ui';
 import type { HostCtx, PickerAction } from '@softov/scena/types';
@@ -28,9 +28,9 @@ import {
   type Option,
 } from './composer-commands.js';
 import { EMOJIcon } from '../emojis.js';
-import { attachmentPath, fromFiles, resourceAttachment, sameAttachment, withRanges, withToken } from './attachments.js';
+import { attachmentPath, fromFiles, sameAttachment, withRanges, withToken } from './attachments.js';
 import { AddButton, Attached } from './Attached.js';
-import { carriesHostFile, droppedHostFile } from '../folders/drag.js';
+import { useComposerDrop } from './composer-drop.js';
 import { warn } from '../notify/index.js';
 import { COMPOSER_FOCUS, hostCommands, registerHostCommands, type HostCommand } from './host-commands.js';
 
@@ -127,7 +127,6 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   }, [attach]);
 
   // A drop: a host file attaches, or with Shift goes in as `@path` text; this computer's files attach as content.
-  const [dropping, setDropping] = useState<'attach' | 'mention' | null>(null);
   const insert = useCallback((words: string): void => {
     const at = caretRef.current ?? textRef.current.length;
     const before = textRef.current.slice(0, at);
@@ -136,26 +135,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     setText(`${before}${lead}${words}${textRef.current.slice(at)}`);
     focusCaret(before.length + lead.length + words.length);
   }, [focusCaret]);
-  const dragOver = (event: DragEvent): void => {
-    const host = carriesHostFile(event.dataTransfer);
-    if (!host && !Array.from(event.dataTransfer.types).includes('Files')) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-    setDropping(host && event.shiftKey ? 'mention' : 'attach');
-  };
-  const drop = (event: DragEvent): void => {
-    setDropping(null);
-    const host = droppedHostFile(event.dataTransfer);
-    if (host !== null) {
-      event.preventDefault();
-      if (event.shiftKey) insert(`@${folderLabel(host.uri)}${host.directory ? '/' : ''} `);
-      else attach(resourceAttachment(host.uri, host.directory));
-      return;
-    }
-    if (event.dataTransfer.files.length === 0) return;
-    event.preventDefault();
-    void upload(event.dataTransfer.files);
-  };
+  const drop = useComposerDrop({ attach, insert, upload: (list) => void upload(list) });
 
   // `@` asks the host what the text so far can refer to.
   const textRef = useRef(text);
@@ -328,10 +308,10 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
 
       <div
         className="web-composer__box"
-        data-drop={dropping ?? undefined}
-        onDragOver={dragOver}
-        onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropping(null); }}
-        onDrop={drop}
+        data-drop={drop.dropping ?? undefined}
+        onDragOver={drop.onDragOver}
+        onDragLeave={drop.onDragLeave}
+        onDrop={drop.onDrop}
       >
         <Attached
           attachments={attachments}

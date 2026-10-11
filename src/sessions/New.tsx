@@ -9,6 +9,7 @@ import { fitToText, messageOf } from './Composer.js';
 import { AddButton, Attached } from './Attached.js';
 import { fromFiles, sameAttachment } from './attachments.js';
 import { attachComposer, composerPath, NEW_SLOT } from './composer-commands.js';
+import { useComposerDrop } from './composer-drop.js';
 import { folderMentions, mentionQuery } from './folder-mentions.js';
 import { ChoicePill, Pill, TextPill, TogglePill } from './pills.js';
 import { EMOJIcon } from '../emojis.js';
@@ -41,9 +42,11 @@ function SettingPill({ name, schema, value, choices, set }: {
   value: unknown;
   choices: { value: string; label: string }[] | undefined;
   set: (next: unknown) => void;
-}): ReactElement {
+}): ReactElement | null {
   const title = schema.title || name;
   const current = value ?? schema.default;
+  // An object or a list the agent keeps, as `permissions`, with nothing to choose from: not a question, so no chip (as ahpapp's NewConfig).
+  if ((schema.type === 'object' || schema.type === 'array') && choices === undefined && (schema.enum?.length ?? 0) === 0) return null;
   if (schema.type === 'boolean') return <TogglePill label={title} {...(schema.description === undefined ? {} : { title: schema.description })} value={current === true} onChange={set} />;
   const options = choices ?? (schema.enum ?? []).map((one, index) => ({ value: String(one), label: schema.enumLabels?.[index] ?? String(one) }));
   if (options.length > 0) {
@@ -157,6 +160,16 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   textRef.current = text;
   const caretRef = useRef(caret);
   caretRef.current = caret;
+
+  // A drop: a host file attaches, or with Shift goes in as `@path` text; this computer's files attach as content.
+  const insert = useCallback((words: string): void => {
+    const at = caretRef.current ?? textRef.current.length;
+    const before = textRef.current.slice(0, at);
+    const lead = before === '' || /\s$/.test(before) ? '' : ' ';
+    setText(`${before}${lead}${words}${textRef.current.slice(at)}`);
+    focusCaret(before.length + lead.length + words.length);
+  }, [focusCaret]);
+  const drop = useComposerDrop({ attach, insert, upload: (list) => void upload(list) });
   const mentions = useCallback(async (): Promise<PickerAction[]> => {
     const query = mentionQuery(textRef.current, caretRef.current ?? textRef.current.length);
     if (query === null || where === undefined) return [];
@@ -270,7 +283,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
           />
           <TextPill label={EMOJIcon.folder} title="A folder on the server's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
         </div>
-        <div className="web-composer__box">
+        <div className="web-composer__box" data-drop={drop.dropping ?? undefined} onDragOver={drop.onDragOver} onDragLeave={drop.onDragLeave} onDrop={drop.onDrop}>
           <Attached attachments={attachments} folder={where} onRemove={(index) => setAttachments((held) => held.filter((_, at) => at !== index))} />
           <div className="web-composer__bar">
             {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}

@@ -1,10 +1,11 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
-import { copyResource, deleteResource, kindOfResource, makeFolder, moveResource, readBase64, writeResource } from '../connection/data.js';
+import { AHP_DEFAULT_DIRECTORY, copyResource, deleteResource, kindOfResource, makeFolder, moveResource, readBase64, writeResource } from '../connection/data.js';
 import { folderLabel } from '../connection/words.js';
 import { confirm, done, failed } from '../notify/index.js';
 import { ADDED_FOLDERS, withFolder, withoutFolder, writeAdded } from './added.js';
 import { askName } from './ask.js';
+import { askFolder } from './pick.js';
 import {
   ENTRY_ACTIONS, ENTRY_SLOT, ENTRY_WORDS, MENU_ENTRY,
   base64Of, bytesOf, copyNameOf, entryActions, folderUriOf, leafOf, nameProblem, parentOf, siblingUri,
@@ -26,20 +27,13 @@ export function markStale(scena: Scena, ...uris: string[]): void {
   scena.store.set(STALE_FOLDERS, { uris, at: Date.now() } satisfies StaleFolders);
 }
 
-/** Ask for a folder path, and add it as a root once the host says it is a folder. Answers its URI, or null. */
+/** Walk to a folder on the host, starting at its default folder, and add it as a root. Answers its URI, or null. */
 export async function addFolder(scena: Scena): Promise<string | null> {
-  const path = await askName({
-    title: 'Add folder',
-    label: 'Path',
-    confirmLabel: 'Add',
-    check: (value) => (folderUriOf(value) === null ? 'Give a full path, such as /home/me/src.' : null),
-  });
+  const home = scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY) ?? null;
+  const homePath = home === null ? null : folderLabel(home).replace(/\/+$/, '');
+  const path = await askFolder({ title: 'Add folder', start: homePath === null ? '/' : `${homePath}/`, home: homePath });
   const uri = path === null ? null : folderUriOf(path);
   if (uri === null) return null;
-  if ((await kindOfResource(uri)) !== 'directory') {
-    failed('The folder could not be added', new Error(`${folderLabel(uri)} is not a folder on the server.`), { source: 'folders.add' });
-    return null;
-  }
   const added = withFolder(scena.store.get<string[]>(ADDED_FOLDERS) ?? [], uri);
   scena.store.set(ADDED_FOLDERS, added);
   writeAdded(added);

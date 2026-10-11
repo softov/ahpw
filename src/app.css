@@ -819,10 +819,22 @@
   border-color: var(--oo-color-accent);
 }
 
+/* The scrollbar shows while the pointer is over the list; its room is kept, so nothing moves when it does. */
 .web-explorer__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.web-explorer__scroll:hover {
+  scrollbar-color: var(--oo-color-border) transparent;
+}
+
+/* A tab strip that overflows scrolls without a bar under the tabs; the group menu lists them all. */
+.tab-bar__strip {
+  scrollbar-width: none;
 }
 
 .web-explorer__notice {
@@ -901,14 +913,51 @@
 }
 
 .web-row__dot[data-dot='attention'] { background: var(--oo-color-warning); opacity: 1; }
-.web-row__dot[data-dot='working'] { background: var(--oo-color-info); opacity: 1; animation: web-pulse 1.2s ease-in-out infinite; }
 .web-row__dot[data-dot='failed'] { background: var(--oo-color-danger); opacity: 1; }
 .web-row__dot[data-dot='fresh'] { background: var(--oo-color-accent); opacity: 1; }
 .web-row__dot[data-dot='ok'] { background: var(--oo-color-success); opacity: 1; }
 .web-row__dot[data-dot='off'] { background: none; border: 1px solid var(--oo-color-muted); box-sizing: border-box; }
 
+/*
+ * A running row: four dots in a square, purple, the faint one walking round them, as ahpapp's
+ * SessionMark (ProcessingDots): a 9 px box, 4 px dots, one walk in 640 ms, the faint one at 0.18.
+ */
+.web-row__dot[data-dot='working'] {
+  display: grid;
+  grid-template-columns: 4px 4px;
+  gap: 1px;
+  width: 9px;
+  height: 9px;
+  margin-top: 5.5px;
+  border-radius: 0;
+  background: none;
+  opacity: 1;
+  color: #8250df;
+}
+
+[data-theme-mode='dark'] .web-row__dot[data-dot='working'] {
+  color: #a371f7;
+}
+
+.web-row__dot[data-dot='working'] > i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: web-walk 640ms linear infinite;
+}
+
+.web-row__dot[data-dot='working'] > i:nth-child(2) { animation-delay: -480ms; }
+.web-row__dot[data-dot='working'] > i:nth-child(3) { animation-delay: -320ms; }
+.web-row__dot[data-dot='working'] > i:nth-child(4) { animation-delay: -160ms; }
+
+@keyframes web-walk {
+  0%, 100% { opacity: 0.18; }
+  25%, 75% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .web-row__dot[data-dot='working'] {
+  .web-row__dot[data-dot='working'] > i {
     animation: none;
   }
 }
@@ -2140,6 +2189,104 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--oo-spacing-sm);
+}
+
+/* Add folder: a path box over the folders it names, at the top of the page, as VS Code's quick input. */
+.web-pick {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px 16px;
+}
+
+.web-pick__card {
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 100%);
+  max-height: min(480px, calc(100vh - 64px));
+  padding: 6px;
+  background: var(--oo-popup-bg);
+  color: var(--oo-popup-fg);
+  border: 1px solid var(--oo-popup-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+}
+
+.web-pick__title {
+  margin: 0 0 6px;
+  font-size: var(--oo-font-size-sm);
+  font-weight: 600;
+  text-align: center;
+  color: var(--oo-color-muted);
+}
+
+.web-pick__row {
+  display: flex;
+  gap: 6px;
+}
+
+.web-pick__input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+  color: inherit;
+  background: var(--oo-color-canvas);
+  border: 1px solid var(--oo-color-accent);
+  border-radius: var(--oo-radius-sm);
+  outline: none;
+}
+
+.web-pick__add {
+  padding: 0 12px;
+  border: 1px solid var(--oo-color-primary);
+  border-radius: var(--oo-radius-sm);
+  background: none;
+  color: var(--oo-color-primary);
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-pick__add:hover {
+  background: rgb(from var(--oo-color-primary) r g b / 0.88);
+  color: var(--oo-color-surface);
+}
+
+.web-pick__message {
+  margin: 6px 2px 0;
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-warning);
+}
+
+.web-pick__list {
+  flex: 1;
+  min-height: 0;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.web-pick__item {
+  padding: 3px 8px;
+  border-radius: var(--oo-radius-sm);
+  font-size: var(--oo-font-size-sm);
+  cursor: pointer;
+}
+
+.web-pick__item[aria-selected='true'] {
+  background: var(--oo-color-hover);
+}
+
+.web-pick__note {
+  padding: 3px 8px;
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
 }
 
 /* The terminal fills the bottom panel; xterm sizes its rows to the box. */

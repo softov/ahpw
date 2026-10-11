@@ -1,4 +1,5 @@
 import type { BindingPath } from '@softov/scena/types';
+import { folderUri } from '../connection/words.js';
 import { EMOJIcon } from '../emojis.js';
 import { bare, childUri } from './roots.js';
 
@@ -93,6 +94,8 @@ export function copyNameOf(name: string): string {
 /** A folder path or `file://` URI as a folder URI, or null when it is neither. */
 export function folderUriOf(input: string): string | null {
   const trimmed = input.trim();
+  // A Windows path, drive first: `C:` is not a URI scheme.
+  if (/^[A-Za-z]:[\\/]/.test(trimmed)) return bare(folderUri(trimmed));
   if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) return bare(trimmed);
   if (!trimmed.startsWith('/')) return null;
   return bare(`file://${trimmed.split('/').map(encodeURIComponent).join('/')}`);
