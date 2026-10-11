@@ -148,6 +148,13 @@ AHPD_URL=http://127.0.0.1:9187 pnpm dev            # another daemon
 AHPD_URL=http://127.0.0.1:9187 pnpm dev --port 5200 # extra args go to Vite
 ```
 
+To try a change in [scena](https://github.com/softov/scena) before it is released, point `AHPW_SCENA` at a scena checkout.
+ahpw then uses that checkout's source instead of the installed package, in `pnpm dev`, `pnpm build` and `pnpm test`:
+
+```sh
+AHPW_SCENA=../scena pnpm dev
+```
+
 An app that embeds ahpw, as [ahp-desk](https://github.com/softov/ahp-desk) does, sets `globalThis.ahpwEmbedder` before ahpw's scripts run.
 ahpw then takes its host and token from it instead of the address bar, and draws the window's frame when it gives one.
 The contract is `src/embed/index.ts`, and its types are exported as `@ahpd/web/embed`.
