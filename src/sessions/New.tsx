@@ -177,8 +177,13 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       return (await folderMentions(where, query)).map((one) => ({
         title: one.title,
         onSelect: (ctx) => {
+          // A folder is walked into: its path stays the `@` word, so the list follows it.
+          if (one.folder) {
+            ctx.replaceActiveToken(one.insert);
+            return;
+          }
           ctx.replaceActiveToken(`${one.insert} `);
-          attach(one.attachment);
+          if (one.attachment !== undefined) attach(one.attachment);
         },
       }));
     } catch {
