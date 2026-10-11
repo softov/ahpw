@@ -28,7 +28,8 @@ import {
   type Option,
 } from './composer-commands.js';
 import { EMOJIcon } from '../emojis.js';
-import { attachmentIcon, attachmentLabel, attachmentPath, fromFiles, resourceAttachment, sameAttachment, withRanges, withToken } from './attachments.js';
+import { attachmentPath, fromFiles, resourceAttachment, sameAttachment, withRanges, withToken } from './attachments.js';
+import { AddButton, Attached } from './Attached.js';
 import { carriesHostFile, droppedHostFile } from '../folders/drag.js';
 import { warn } from '../notify/index.js';
 import { COMPOSER_FOCUS, hostCommands, registerHostCommands, type HostCommand } from './host-commands.js';
@@ -51,7 +52,7 @@ export function fitToText(area: HTMLTextAreaElement | null): void {
 }
 
 /** A user message, with the model and attachments when there are any. */
-function messageOf(text: string, model: string | undefined, attachments: MessageAttachment[]): Message {
+export function messageOf(text: string, model: string | undefined, attachments: MessageAttachment[]): Message {
   return {
     text,
     origin: { kind: 'user' },
@@ -332,24 +333,11 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropping(null); }}
         onDrop={drop}
       >
-        {attachments.length === 0 ? null : (
-          <div className="web-composer__attached">
-            {attachments.map((one, index) => (
-              <span key={`${attachmentLabel(one)}-${index}`} className="web-attachment" title={attachmentPath(one, folder) ?? attachmentLabel(one)}>
-                <span className="web-attachment__icon" aria-hidden="true">{attachmentIcon(one)}</span>
-                <span className="web-attachment__label">{attachmentLabel(one)}</span>
-                <button
-                  type="button"
-                  className="web-attachment__remove"
-                  aria-label={`Remove ${attachmentLabel(one)}`}
-                  onClick={() => { typed.current = true; setAttachments((held) => held.filter((_, at) => at !== index)); }}
-                >
-                  {EMOJIcon.close}
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
+        <Attached
+          attachments={attachments}
+          folder={folder}
+          onRemove={(index) => { typed.current = true; setAttachments((held) => held.filter((_, at) => at !== index)); }}
+        />
 
         <div className="web-composer__bar">
           <textarea
@@ -383,7 +371,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         </div>
 
         <div className="web-composer__foot">
-          <button type="button" className="web-composer__add" aria-label="Add context" title="Add context" onClick={() => openCommand('ahp.composer.attach')}>+</button>
+          <AddButton onClick={() => openCommand('ahp.composer.attach')} />
           <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
           <div className="web-composer__chips">
             {models.length === 0 ? null : (

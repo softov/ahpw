@@ -456,14 +456,12 @@
 }
 
 /* The box around the attachments, the text and the controls. */
-.web-composer__box,
-.web-new__composer {
+.web-composer__box {
   border: 1px solid var(--oo-color-border);
   border-radius: var(--oo-radius-md);
 }
 
-.web-composer__box:focus-within,
-.web-new__composer:focus-within {
+.web-composer__box:focus-within {
   border-color: var(--oo-color-accent);
 }
 
@@ -609,11 +607,9 @@
   outline: none;
 }
 
-.web-composer__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--oo-spacing-xs);
-  padding: 2px 6px 6px;
+/* The first message's box keeps three lines, so its placeholder shows whole before anything is typed. */
+.web-new__composer .web-composer__text {
+  min-height: calc(3 * 1.4em + 12px);
 }
 
 /* The controls under the text: add, the settings, and send. */
@@ -654,6 +650,9 @@
 
 .web-composer__add {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -661,9 +660,6 @@
   border-radius: var(--oo-radius-sm, 4px);
   background: none;
   color: var(--oo-color-muted);
-  font: inherit;
-  font-size: 18px;
-  line-height: 1;
   cursor: pointer;
 }
 
@@ -673,15 +669,6 @@
   background: var(--oo-color-hover, rgb(127 127 127 / 0.15));
 }
 
-.web-composer__hint {
-  flex: 1;
-  min-width: 0;
-  color: var(--oo-color-muted);
-  font-size: var(--oo-font-size-xs);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .web-composer__queue {
   list-style: none;
@@ -1107,12 +1094,90 @@
   padding: 0 2px;
 }
 
-/* The title bar's two pickers answer a hover as its buttons do. */
+/* The title bar's two pickers: muted as its other controls, and the same look on a hover and while open. */
+.web-layout-select select,
+.oo-bar__slot .oo-theme-picker__select {
+  color: var(--oo-color-muted);
+}
+
 .web-layout-select select:hover,
-.oo-bar__slot .oo-theme-picker__select:hover {
+.web-layout-select select:focus,
+.oo-bar__slot .oo-theme-picker__select:hover,
+.oo-bar__slot .oo-theme-picker__select:focus {
   color: var(--oo-color-text);
   border-color: var(--oo-color-muted);
   background: var(--oo-color-hover);
+  outline: none;
+}
+
+.web-layout-select select:focus-visible,
+.oo-bar__slot .oo-theme-picker__select:focus-visible {
+  outline: 1px solid var(--oo-color-accent);
+}
+
+/* Where the browser lets a page draw a select's menu, it is drawn as ahpw's popups, so the hovered
+   and the chosen line follow the theme; elsewhere the OS draws it. */
+@supports (appearance: base-select) {
+  .web-layout-select select,
+  .oo-bar__slot .oo-theme-picker__select,
+  .web-layout-select select::picker(select),
+  .oo-bar__slot .oo-theme-picker__select::picker(select) {
+    appearance: base-select;
+  }
+
+  .web-layout-select select,
+  .oo-bar__slot .oo-theme-picker__select {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 2px 0 4px;
+    font: inherit;
+    font-size: var(--oo-font-size-xs);
+  }
+
+  .web-layout-select select::picker-icon,
+  .oo-bar__slot .oo-theme-picker__select::picker-icon {
+    font-size: 9px;
+  }
+
+  .web-layout-select select::picker(select),
+  .oo-bar__slot .oo-theme-picker__select::picker(select) {
+    margin-top: 4px;
+    padding: 4px;
+    min-width: anchor-size(width);
+    border: 1px solid var(--oo-popup-border);
+    border-radius: 8px;
+    background: var(--oo-popup-bg);
+    color: var(--oo-popup-fg);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+  }
+
+  .web-layout-select option,
+  .oo-bar__slot .oo-theme-picker__select option {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: var(--oo-font-size-sm);
+    color: inherit;
+    background: transparent;
+  }
+
+  .web-layout-select option:hover,
+  .web-layout-select option:focus-visible,
+  .oo-bar__slot .oo-theme-picker__select option:hover,
+  .oo-bar__slot .oo-theme-picker__select option:focus-visible {
+    background: var(--oo-color-hover);
+    outline: none;
+  }
+
+  .web-layout-select option:checked,
+  .oo-bar__slot .oo-theme-picker__select option:checked {
+    font-weight: 600;
+  }
+
+  .web-layout-select option::checkmark,
+  .oo-bar__slot .oo-theme-picker__select option::checkmark {
+    color: var(--oo-color-accent);
+  }
 }
 
 .web-lines {
@@ -1539,9 +1604,6 @@
   box-shadow: 0 6px 20px rgb(0 0 0 / 0.22);
 }
 
-.web-new__composer .web-composer__chips {
-  padding-top: var(--oo-spacing-sm);
-}
 
 .web-palette {
   position: fixed;

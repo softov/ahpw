@@ -8,6 +8,9 @@ import { EMOJIcon } from '../emojis.js';
 /** The slot the composer's `/` commands are offered in. */
 export const COMPOSER_SLOT = 'ahp:input/';
 
+/** The slot the new session box's `/` commands are offered in: the chosen agent's skills and commands, and Add context. */
+export const NEW_SLOT = 'ahp:new/';
+
 /** A model the agent offers. */
 export interface ModelChoice {
   id: string;
@@ -185,7 +188,7 @@ export function registerComposerCommands(scena: Scena): Disposable {
       description: 'Attach a file, a session, or a file from this computer',
       category: 'Session',
       shortcut: '/attach',
-      slots: [COMPOSER_SLOT],
+      slots: [COMPOSER_SLOT, NEW_SLOT],
       run: (ctx) => {
         const api = apiOf(ctx);
         if (api === undefined) return;

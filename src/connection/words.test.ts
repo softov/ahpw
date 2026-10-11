@@ -16,6 +16,16 @@ describe('folderUri', () => {
     expect(folderUri('/home/me/my project')).toBe('file:///home/me/my%20project');
   });
 
+  it('turns a Windows path into a file URI with its drive first', () => {
+    expect(folderUri('C:/Users/me/my project')).toBe('file:///C:/Users/me/my%20project');
+    expect(folderUri('d:\\work\\src')).toBe('file:///d:/work/src');
+    expect(folderUri('C:/')).toBe('file:///C:/');
+  });
+
+  it('gives back the URI folderLabel read', () => {
+    for (const uri of ['file:///home/me/my%20project', 'file:///C:/Users/me/my%20project']) expect(folderUri(folderLabel(uri))).toBe(uri);
+  });
+
   it('keeps a URI as it is', () => {
     expect(folderUri('file:///tmp')).toBe('file:///tmp');
     expect(folderUri(' vscode-remote://box/src ')).toBe('vscode-remote://box/src');

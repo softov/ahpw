@@ -1,17 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, Text, useChatPicker } from '@softov/scena/ui';
-import type { AgentInfo, Message, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
+import type { PickerAction } from '@softov/scena/types';
+import type { AgentInfo, MessageAttachment, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS, AHP_DEFAULT_DIRECTORY, ROOT, dispatch, readOnce, request } from '../connection/data.js';
 import { folderLabel, folderUri, newId } from '../connection/words.js';
-import { fitToText } from './Composer.js';
+import { fitToText, messageOf } from './Composer.js';
+import { AddButton, Attached } from './Attached.js';
+import { fromFiles, sameAttachment } from './attachments.js';
+import { attachComposer, composerPath, NEW_SLOT } from './composer-commands.js';
+import { folderMentions, mentionQuery } from './folder-mentions.js';
 import { ChoicePill, Pill, TextPill, TogglePill } from './pills.js';
 import { EMOJIcon } from '../emojis.js';
 import { slashCommandsOf } from '../agents/words.js';
+import { warn } from '../notify/index.js';
 import { agentCommands, COMPOSER_FOCUS, registerHostCommands } from './host-commands.js';
 
-/** The slot the new session box's `/` commands are offered in: the chosen agent's skills and commands. */
-const NEW_SLOT = 'ahp:new/';
+/** The prefixes the new session box's picker answers to. Module level: an inline array re-renders forever. */
+const NEW_PREFIXES = ['/', '@'];
+
+/** Where Add context finds the new session box. */
+const NEW_PATH = composerPath('session:new');
 
 /** Which composer focus the new session box sets, so only its `/` list offers the agent's commands. */
 const NEW_FOCUS = 'session:new';
@@ -66,6 +75,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [caret, setCaret] = useState<number | null>(null);
+  const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
   const area = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -129,7 +139,51 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       element.setSelectionRange(position, position);
     });
   }, []);
-  const picker = useChatPicker({ input: text, setInput: setText, caretIndex: caret, slashSlot: NEW_SLOT, prefixes: ['/'], onCaretChange: focusCaret });
+
+  const attach = useCallback((picked: MessageAttachment): void => {
+    setAttachments((held) => (held.some((one) => sameAttachment(one, picked)) ? held : [...held, picked]));
+  }, []);
+
+  // Files from this computer go inside the first message.
+  const files = useRef<HTMLInputElement>(null);
+  const upload = useCallback(async (list: FileList | null): Promise<void> => {
+    const got = await fromFiles(Array.from(list ?? []));
+    for (const one of got.attached) attach(one);
+    if (got.refused.length > 0) warn('Not attached', { description: `Over 5 MB or unreadable: ${got.refused.join(', ')}` });
+  }, [attach]);
+
+  // `@` lists the chosen folder, as there is no chat yet to ask what the text refers to.
+  const textRef = useRef(text);
+  textRef.current = text;
+  const caretRef = useRef(caret);
+  caretRef.current = caret;
+  const mentions = useCallback(async (): Promise<PickerAction[]> => {
+    const query = mentionQuery(textRef.current, caretRef.current ?? textRef.current.length);
+    if (query === null || where === undefined) return [];
+    try {
+      return (await folderMentions(where, query)).map((one) => ({
+        title: one.title,
+        onSelect: (ctx) => {
+          ctx.replaceActiveToken(`${one.insert} `);
+          attach(one.attachment);
+        },
+      }));
+    } catch {
+      // A folder the host cannot read leaves the path to be typed by hand.
+      return [];
+    }
+  }, [where, attach]);
+
+  const picker = useChatPicker({
+    input: text,
+    setInput: setText,
+    caretIndex: caret,
+    panelDataContext: NEW_PATH,
+    slashSlot: NEW_SLOT,
+    prefixes: NEW_PREFIXES,
+    mentionProvider: mentions,
+    onCaretChange: focusCaret,
+  });
   // A host that puts the model in the session's settings shows it there; otherwise the agent's list is the model pill.
   const settings = useMemo(
     () => Object.entries(resolved?.schema ?? {}).filter(([key, schema]) => schema.readOnly !== true && key !== 'model'),
@@ -139,6 +193,35 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   const modelOptions = modelSchema !== undefined
     ? (dynamic['model'] ?? (modelSchema.enum ?? []).map((one, index) => ({ value: String(one), label: modelSchema.enumLabels?.[index] ?? String(one) })))
     : (agent?.models ?? []).map((one) => ({ value: one.id, label: one.name }));
+
+  // What Add context reads and does here: attach, type a prefix, upload. A session not yet made has no turn and no settings to change.
+  const api = useRef({ attach, upload, focusCaret });
+  api.current = { attach, upload, focusCaret };
+  useEffect(() => attachComposer(NEW_PATH, {
+    models: () => [],
+    model: () => undefined,
+    setModel: () => undefined,
+    options: () => [],
+    setOption: () => undefined,
+    running: () => false,
+    stop: () => undefined,
+    session: () => '',
+    attach: (attachment) => api.current.attach(attachment),
+    type: (prefix) => {
+      const at = caretRef.current ?? textRef.current.length;
+      const before = textRef.current.slice(0, at);
+      const lead = prefix === '/' ? '' : before === '' || /\s$/.test(before) ? '' : ' ';
+      const next = prefix === '/' && before.trim() === '' ? `/${textRef.current.slice(at)}` : `${before}${lead}${prefix}${textRef.current.slice(at)}`;
+      setText(next);
+      api.current.focusCaret(prefix === '/' && before.trim() === '' ? 1 : before.length + lead.length + 1);
+    },
+    upload: () => files.current?.click(),
+  }), []);
+
+  function openCommand(id: string): void {
+    const position = picker.openCommand(id);
+    focusCaret(position ?? area.current?.value.length ?? text.length);
+  }
 
   const start = async (): Promise<void> => {
     if (provider === '') return;
@@ -156,11 +239,11 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       } as never);
       await scena.commands.execute('ahp.openSession', { resource });
       scena.surfaces.close('session:new');
-      if (said !== '') {
+      if (said !== '' || attachments.length > 0) {
         const state = await readOnce<SessionState>(resource);
         const chat = state?.defaultChat;
         if (chat !== undefined) {
-          const message = { text: said, origin: { kind: 'user' }, ...(model === '' ? {} : { model: { id: model } }) } as Message;
+          const message = messageOf(said, model === '' ? undefined : model, attachments);
           dispatch(chat, { type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message } as StateAction);
         }
       }
@@ -178,57 +261,70 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       <Text variant="h2" text="New session" />
       {agent?.description === undefined || agent.description === '' ? null : <p className="web-note">{agent.description}</p>}
       <div className="web-composer web-new__composer">
-        <div className="web-composer__chips">
+        <div className="web-composer__where">
           <ChoicePill
             label="Agent"
             value={provider}
             options={agents.map((one) => ({ value: one.provider, label: one.displayName }))}
             onChange={(next) => { setProvider(next); setModel(''); setChosen({}); setDynamic({}); }}
           />
-          {modelOptions.length === 0 ? null : (
-            <ChoicePill label="Model" value={model} options={[{ value: '', label: 'default' }, ...modelOptions]} onChange={setModel} />
-          )}
           <TextPill label={EMOJIcon.folder} title="A folder on the server's machine" value={folder} placeholder="/path/to/project" width={220} onChange={setFolder} />
-          {settings.map(([key, schema]) => (
-            <SettingPill
-              key={key}
-              name={key}
-              schema={schema}
-              value={chosen[key] ?? resolved?.values[key]}
-              choices={dynamic[key]}
-              set={(next) => setChosen((held) => ({ ...held, [key]: next }))}
+        </div>
+        <div className="web-composer__box">
+          <Attached attachments={attachments} folder={where} onRemove={(index) => setAttachments((held) => held.filter((_, at) => at !== index))} />
+          <div className="web-composer__bar">
+            {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
+            <textarea
+              ref={area}
+              className="web-composer__text"
+              rows={3}
+              value={text}
+              aria-label="First message"
+              placeholder={commands.length === 0 ? 'What should it do? @ to refer to a file. Enter starts; leave it empty to start without a message.' : 'What should it do? / for skills and commands, @ to refer to a file. Enter starts; leave it empty to start without a message.'}
+              onChange={(event) => {
+                setText(event.currentTarget.value);
+                setCaret(event.currentTarget.selectionStart);
+              }}
+              onFocus={() => scena.store.set(COMPOSER_FOCUS, NEW_FOCUS)}
+              onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
+              onClick={(event) => setCaret(event.currentTarget.selectionStart)}
+              onKeyDown={(event) => {
+                if (picker.handleMenuKeyDown(event)) return;
+                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                  event.preventDefault();
+                  void start();
+                }
+              }}
             />
-          ))}
-          {resolved === null && provider !== '' ? <Pill label="Reading settings" /> : null}
-        </div>
-        <div className="web-composer__bar">
-          {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
-          <textarea
-            ref={area}
-            className="web-composer__text"
-            rows={3}
-            value={text}
-            aria-label="First message"
-            placeholder={commands.length === 0 ? 'What should it do? Enter starts the session; leave it empty to start without a message.' : 'What should it do? / for skills and commands. Enter starts; leave it empty to start without a message.'}
-            onChange={(event) => {
-              setText(event.currentTarget.value);
-              setCaret(event.currentTarget.selectionStart);
-            }}
-            onFocus={() => scena.store.set(COMPOSER_FOCUS, NEW_FOCUS)}
-            onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
-            onClick={(event) => setCaret(event.currentTarget.selectionStart)}
-            onKeyDown={(event) => {
-              if (picker.handleMenuKeyDown(event)) return;
-              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                event.preventDefault();
-                void start();
-              }
-            }}
-          />
-        </div>
-        <div className="web-composer__actions">
-          <span className="web-composer__hint">Enter starts, Shift+Enter breaks the line</span>
-          <Button label={busy ? 'Starting' : text.trim() === '' ? 'Create' : 'Start'} variant="primary" size="sm" disabled={busy || provider === ''} onClick={() => void start()} />
+          </div>
+          <div className="web-composer__foot">
+            <AddButton onClick={() => openCommand('ahp.composer.attach')} />
+            <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
+            <div className="web-composer__chips">
+              {modelOptions.length === 0 ? null : (
+                <ChoicePill label="Model" value={model} options={[{ value: '', label: 'default' }, ...modelOptions]} onChange={setModel} />
+              )}
+              {settings.map(([key, schema]) => (
+                <SettingPill
+                  key={key}
+                  name={key}
+                  schema={schema}
+                  value={chosen[key] ?? resolved?.values[key]}
+                  choices={dynamic[key]}
+                  set={(next) => setChosen((held) => ({ ...held, [key]: next }))}
+                />
+              ))}
+              {resolved === null && provider !== '' ? <Pill label="Reading settings" /> : null}
+            </div>
+            <Button
+              label={busy ? 'Starting' : text.trim() === '' && attachments.length === 0 ? 'Create' : 'Start'}
+              variant="primary"
+              size="sm"
+              title="Enter starts, Shift+Enter breaks the line"
+              disabled={busy || provider === ''}
+              onClick={() => void start()}
+            />
+          </div>
         </div>
       </div>
       {error === null ? null : <Alert tone="danger" title="Not created" message={error} />}
