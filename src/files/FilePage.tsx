@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { useCloseGuard } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import { etagOf, writeText } from '../connection/data.js';
 import CodeEditor from '../editor/CodeEditor.js';
@@ -24,6 +25,8 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
   const saving = useRef(false);
   /** The version of the file the editor started from; a save is refused once the host holds another. */
   const version = useRef<string | undefined>(undefined);
+
+  useCloseGuard(() => (dirty ? 'The changes to this file are not saved.' : null));
 
   const loaded = state !== null && 'text' in state && state.text !== null ? shownText(state.text) : null;
 
