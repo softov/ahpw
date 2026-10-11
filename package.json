@@ -58,9 +58,11 @@
     }
   },
   "devDependencies": {
+    "@ahpd/desk-client": "link:../ahp-desk/packages/desk-client",
     "@ahpd/sdk": "^0.9.0",
     "@microsoft/agent-host-protocol": "^1.0.0",
     "@softov/scena": "^0.5.1",
+    "@tauri-apps/api": "^2.12.3",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.3",

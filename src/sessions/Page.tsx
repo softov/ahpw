@@ -19,7 +19,7 @@ import { elapsed } from '../connection/words.js';
 import { Part, type Send } from './Parts.js';
 import { InputRequest } from './Question.js';
 import { Activity } from './Activity.js';
-import { groupParts } from './activity.js';
+import { groupParts } from './activity-parts.js';
 import { Composer } from './Composer.js';
 import { WorkspaceContext } from './workspace.js';
 import { ACTIVE_SESSION } from './state.js';

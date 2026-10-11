@@ -148,6 +148,9 @@ AHPD_URL=http://127.0.0.1:9187 pnpm dev            # another daemon
 AHPD_URL=http://127.0.0.1:9187 pnpm dev --port 5200 # extra args go to Vite
 ```
 
+Inside [ahp-desk](https://github.com/softov/ahp-desk), ahpw takes its host and token from the desk through `@ahpd/desk-client`.
+Until that package is on npm, it is linked from `../ahp-desk/packages/desk-client`, so clone ahp-desk beside ahpw and run `pnpm build:client` there first.
+
 To try a local build in ahpd:
 
 ```sh

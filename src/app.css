@@ -1117,6 +1117,14 @@
   padding: 0 2px;
 }
 
+/* The title bar's two pickers answer a hover as its buttons do. */
+.web-layout-select select:hover,
+.oo-bar__slot .oo-theme-picker__select:hover {
+  color: var(--oo-color-text);
+  border-color: var(--oo-color-muted);
+  background: var(--oo-color-hover);
+}
+
 .web-lines {
   display: flex;
   flex-direction: column;
@@ -2145,6 +2153,10 @@
 .oo-bar__slot .oo-button-bar.web-layout-toggle[data-active='true'],
 .oo-bar__slot .oo-button-bar.web-layout-toggle:hover {
   color: var(--oo-color-text);
+}
+/* Hover shows on a toggle that is already on, whose glyph is already the text colour. */
+.oo-bar__slot .oo-button-bar.web-layout-toggle:hover {
+  background: var(--oo-color-hover);
 }
 
 /* A host file or this computer's file over the composer: teal attaches it, orange (Shift) writes it in as text. */

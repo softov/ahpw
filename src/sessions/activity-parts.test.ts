@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ResponsePart } from '@microsoft/agent-host-protocol';
-import { groupParts, hostSpan, stepDone, summaryLine, summaryPieces, type Group } from './activity.js';
+import { groupParts, hostSpan, stepDone, summaryLine, summaryPieces, type Group } from './activity-parts.js';
 
 const tool = (id: string, status = 'completed', fields: Record<string, unknown> = {}): ResponsePart =>
   ({ kind: 'toolCall', toolCall: { toolCallId: id, toolName: 'Bash', displayName: 'Bash', status, success: true, ...fields } }) as unknown as ResponsePart;

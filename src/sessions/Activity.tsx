@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { elapsed } from '../connection/words.js';
-import { hostSpan, stepDone, stepFailed, stepWaits, summaryPieces, type Group, type Doing, type Step } from './activity.js';
+import { hostSpan, stepDone, stepFailed, stepWaits, summaryPieces, type Group, type Doing, type Step } from './activity-parts.js';
 import { Reasoning, ToolCall, type Send } from './Parts.js';
 import { EMOJIcon } from '../emojis.js';
 

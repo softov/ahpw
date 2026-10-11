@@ -2,10 +2,12 @@ import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
+import { hostToken, onHostsChanged, windowHost, type DeskHost } from '@ahpd/desk-client';
 import { readToken, serverHoldsToken } from '../api.js';
+import { onDesk } from '../desk/index.js';
 import { offering } from './protocol-versions.js';
 import { readingServerInfo } from './server-info.js';
-import { socketUrl } from './socket.js';
+import { hostSocketUrl, socketUrl } from './socket.js';
 import { countsOf } from '../sessions/status.js';
 import { logEvent } from '../log/log.js';
 import { forgetFrames, observing } from '../log/wire.js';
@@ -322,12 +324,29 @@ async function watchChannels(store: ReactiveStore, multi: MultiHostClient): Prom
   }
 }
 
+/**
+ * The socket to open. On the desk it is the window's host, with the token the
+ * desk keeps, both read again on each connect so a changed address or token
+ * takes effect on the next one; in a browser it is the server that sent the page.
+ */
+async function openSocket(): Promise<WebSocketTransport> {
+  if (onDesk) {
+    const host = await windowHost();
+    deskUrl = host.url;
+    return WebSocketTransport.connect(hostSocketUrl(host.url, await hostToken(host.id)));
+  }
+  return WebSocketTransport.connect(socketUrl(serverHoldsToken() ? null : readToken(), window.location, import.meta.env.DEV));
+}
+
+/** On the desk, the address the last socket went to, so a change of it reconnects. */
+let deskUrl: string | null = null;
+
 async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<void> {
   try {
     await multi.addHost({
       id: HOST,
-      label: window.location.host,
-      transportFactory: async () => readingServerInfo(offering(observing(await WebSocketTransport.connect(socketUrl(serverHoldsToken() ? null : readToken(), window.location, import.meta.env.DEV)))), (info) => store.set(AHP_SERVER, info)),
+      label: onDesk ? (await windowHost()).name : window.location.host,
+      transportFactory: async () => readingServerInfo(offering(observing(await openSocket())), (info) => store.set(AHP_SERVER, info)),
     });
   } catch (error) {
     store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);
@@ -345,6 +364,16 @@ export async function reconnect(): Promise<void> {
   }
   store.set(AHP_CONNECTION, { ...(store.get(AHP_CONNECTION) as Connection), status: 'connecting' } satisfies Connection);
   await multi.reconnectHost(HOST).catch(() => undefined);
+}
+
+/** Stops following the desk's host list. */
+let stopFollowingHosts: (() => void) | undefined;
+
+/** On the desk, a new address for this window's host reconnects to it. */
+async function followDeskHost(hosts: DeskHost[]): Promise<void> {
+  const mine = await windowHost().catch(() => null);
+  if (mine === null || deskUrl === null) return;
+  if (hosts.some((host) => host.id === mine.id && host.url !== deskUrl)) await reconnect();
 }
 
 /** A page coming back into view, or the network coming back, retries at once. */
@@ -367,11 +396,15 @@ export const ahpProvider: DataProviderDefinition = {
       void watchChannels(store, multi);
       window.addEventListener('online', wake);
       document.addEventListener('visibilitychange', wake);
+      if (onDesk) stopFollowingHosts = await onHostsChanged(followDeskHost);
       await connect(store, multi);
     },
     async unload(store) {
       window.removeEventListener('online', wake);
       document.removeEventListener('visibilitychange', wake);
+      stopFollowingHosts?.();
+      stopFollowingHosts = undefined;
+      deskUrl = null;
       const multi = client;
       client = undefined;
       held = undefined;

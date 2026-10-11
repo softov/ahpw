@@ -12,3 +12,12 @@ export function socketUrl(token: string | null, where: Pick<Location, 'protocol'
   const path = dev ? DEV_SOCKET_PATH : '/';
   return `${scheme}//${where.host}${path}${token === null ? '' : `?tkn=${encodeURIComponent(token)}`}`;
 }
+
+/**
+ * A host's own socket address with the token in `?tkn=`, as on the desk, where
+ * the page does not come from the host it talks to.
+ */
+export function hostSocketUrl(url: string, token: string | null): string {
+  if (token === null || token === '') return url;
+  return `${url}${url.includes('?') ? '&' : '?'}tkn=${encodeURIComponent(token)}`;
+}

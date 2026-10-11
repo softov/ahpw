@@ -28,6 +28,7 @@ import type { ModusClass } from '@softov/scena';
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
 import { THEME_ID_KEY, THEME_MODE_KEY } from './theme-keys.js';
+import { onDesk } from './desk/index.js';
 
 function AppTitle({ text }: { text?: string }): ReactElement {
   return <span className="web-title">{text ?? 'ahpw'}</span>;
@@ -129,11 +130,16 @@ export function registerShell(scena: Scena): Disposable {
       key: 'chrome:theme-mode',
       resource: { component: 'ThemeModeToggle', slot: 'right' },
     }),
-    scena.surfaces.mount({
-      surface: 'titlebar',
-      key: 'chrome:sign-out',
-      resource: { component: 'ButtonBar', slot: 'right', label: 'Sign out', command: 'sigillum.signout' },
-    }),
+    // On the desk, the desk holds the token, so there is nothing to sign out of.
+    ...(onDesk
+      ? []
+      : [
+          scena.surfaces.mount({
+            surface: 'titlebar',
+            key: 'chrome:sign-out',
+            resource: { component: 'ButtonBar', slot: 'right', label: 'Sign out', command: 'sigillum.signout' },
+          }),
+        ]),
     // The layout toggles last, at the title bar's far end: left sidebar, panel, right sidebar.
     scena.surfaces.mount({
       surface: 'titlebar',
@@ -150,6 +156,31 @@ export function registerShell(scena: Scena): Disposable {
       key: 'chrome:toggle-right',
       resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelRight, title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight', active: { path: '$/layout/surfaces/sidebar:right/visible' } },
     }),
+    // On the desk: the host switcher after the title, and the window's own buttons last.
+    ...(onDesk
+      ? [
+          scena.components.register({
+            component: 'DeskHostSwitcher',
+            category: 'inline',
+            renderer: { kind: 'react', load: async () => ({ default: (await import('./desk/HostSwitcher.js')).default as unknown }) },
+          }),
+          scena.surfaces.mount({
+            surface: 'titlebar',
+            key: 'desk:host',
+            resource: { component: 'DeskHostSwitcher', slot: 'left' },
+          }),
+          scena.components.register({
+            component: 'DeskWindowControls',
+            category: 'inline',
+            renderer: { kind: 'react', load: async () => ({ default: (await import('./desk/WindowControls.js')).default as unknown }) },
+          }),
+          scena.surfaces.mount({
+            surface: 'titlebar',
+            key: 'desk:window-controls',
+            resource: { component: 'DeskWindowControls', slot: 'right' },
+          }),
+        ]
+      : []),
 
     // The activity bar, in this order: mount order is the rail's order within each end.
     scena.surfaces.mount({
