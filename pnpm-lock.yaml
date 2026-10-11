@@ -21,9 +21,6 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
     devDependencies:
-      '@ahpd/desk-client':
-        specifier: link:../ahp-desk/packages/desk-client
-        version: link:../ahp-desk/packages/desk-client
       '@ahpd/sdk':
         specifier: ^0.9.0
         version: 0.9.0
@@ -99,9 +96,6 @@ importers:
       '@softov/scena':
         specifier: ^0.5.1
         version: 0.5.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tauri-apps/api':
-        specifier: ^2.12.3
-        version: 2.12.3
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.5
@@ -472,9 +466,6 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
-
-  '@tauri-apps/api@2.12.3':
-    resolution: {integrity: sha512-9s0PKw0p4r3kFq92jhpivYSp+cSht15o0gXpZxuQd0+dV9KCexEVkNaLELVoLdJWyoH4KlfQo5h3W2LIM8siJg==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -1391,8 +1382,6 @@ snapshots:
       react-dom: 19.3.0(react@19.3.0)
 
   '@standard-schema/spec@1.1.0': {}
-
-  '@tauri-apps/api@2.12.3': {}
 
   '@types/chai@5.2.3':
     dependencies:

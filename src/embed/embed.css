@@ -1,12 +1,12 @@
-/* ahpw in an app window of ahp-desk, which has no OS frame: ahpw draws one. Theme tokens only. */
+/* ahpw in an embedder's window with no OS frame (ahp-desk's app window): ahpw draws one. Theme tokens only. */
 
 /* The window is transparent, so the rounded root is all that shows. */
-html.is-desk,
-html.is-desk body {
+html.is-framed,
+html.is-framed body {
   background: transparent;
 }
 
-html.is-desk #root {
+html.is-framed #root {
   border: 1px solid var(--oo-color-border);
   border-radius: 10px;
   overflow: hidden;
@@ -14,24 +14,24 @@ html.is-desk #root {
 }
 
 /* Maximized, the window meets the screen's edges: no corner, no edge line. */
-html.is-desk.is-maximized #root {
+html.is-framed.is-maximized #root {
   border: 0;
   border-radius: 0;
 }
 
 /* Minimize, maximize and close, the bar's full height and flush with its right edge. */
 /* scena centres each item at its content's height; this one takes the bar's. */
-.oo-bar__item:has(> .oo-mount > .desk-controls) {
+.oo-bar__item:has(> .oo-mount > .embed-controls) {
   align-self: stretch;
   margin-inline-end: calc(-1 * var(--oo-spacing-sm));
 }
 
-.desk-controls {
+.embed-controls {
   display: flex;
   height: 100%;
 }
 
-.desk-control {
+.embed-control {
   display: grid;
   place-items: center;
   width: 46px;
@@ -43,21 +43,21 @@ html.is-desk.is-maximized #root {
   cursor: default;
 }
 
-.desk-control:hover {
+.embed-control:hover {
   background: var(--oo-color-hover);
 }
 
-.desk-control--close:hover {
+.embed-control--close:hover {
   background: #e81123;
   color: #ffffff;
 }
 
 /* The host switcher, after the title. */
-.desk-host {
+.embed-host {
   position: relative;
 }
 
-.desk-host__button {
+.embed-host__button {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -70,12 +70,12 @@ html.is-desk.is-maximized #root {
   cursor: default;
 }
 
-.desk-host__button:hover,
-.desk-host__button[aria-expanded='true'] {
+.embed-host__button:hover,
+.embed-host__button[aria-expanded='true'] {
   background: var(--oo-color-hover);
 }
 
-.desk-host__menu {
+.embed-host__menu {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -91,7 +91,7 @@ html.is-desk.is-maximized #root {
   box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
 }
 
-.desk-host__item {
+.embed-host__item {
   display: grid;
   grid-template-columns: 10px auto 1fr;
   align-items: center;
@@ -106,21 +106,21 @@ html.is-desk.is-maximized #root {
   cursor: default;
 }
 
-.desk-host__item:hover {
+.embed-host__item:hover {
   background: var(--oo-color-hover);
 }
 
-.desk-host__item[aria-current='true'] .desk-host__name {
+.embed-host__item[aria-current='true'] .embed-host__name {
   font-weight: 600;
 }
 
-.desk-host__url {
+.embed-host__url {
   justify-self: end;
   color: var(--oo-color-muted);
 }
 
 /* The host list's dots: filled connected, half connecting, hollow down. */
-.desk-dot {
+.embed-dot {
   width: 10px;
   height: 10px;
   border: 2px solid currentColor;
@@ -128,16 +128,16 @@ html.is-desk.is-maximized #root {
   flex: none;
 }
 
-.desk-dot--connected {
-  color: #2f9e44;
+.embed-dot--connected {
+  color: var(--oo-color-success);
   background: currentColor;
 }
 
-.desk-dot--connecting {
-  color: #e8590c;
+.embed-dot--connecting {
+  color: var(--oo-color-warning);
   background: linear-gradient(90deg, currentColor 50%, transparent 50%);
 }
 
-.desk-dot--down {
+.embed-dot--down {
   color: var(--oo-color-muted);
 }

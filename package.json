@@ -37,6 +37,10 @@
     ".": {
       "types": "./dist/plugin/index.d.ts",
       "default": "./dist/plugin/index.js"
+    },
+    "./embed": {
+      "types": "./dist/embed/index.d.ts",
+      "default": "./dist/embed/index.js"
     }
   },
   "files": [
@@ -45,7 +49,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && tsc -p tsconfig.plugin.json && tsc -p tsconfig.cli.json && chmod +x dist/cli/main.js",
+    "build": "tsc -b && vite build && tsc -p tsconfig.plugin.json && tsc -p tsconfig.cli.json && tsc -p tsconfig.embed.json && chmod +x dist/cli/main.js",
     "typecheck": "tsc -b",
     "test": "vitest run"
   },
@@ -58,7 +62,6 @@
     }
   },
   "devDependencies": {
-    "@ahpd/desk-client": "link:../ahp-desk/packages/desk-client",
     "@ahpd/sdk": "^0.9.0",
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.11.1",
@@ -84,7 +87,6 @@
     "@lezer/highlight": "^1.2.5",
     "@microsoft/agent-host-protocol": "^1.0.0",
     "@softov/scena": "^0.5.1",
-    "@tauri-apps/api": "^2.12.3",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.3",
