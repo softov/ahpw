@@ -569,11 +569,15 @@
   cursor: default;
 }
 
+/* scena's button:hover fills with the primary colour and outranks .web-chip, so the hover sets its own. */
 .web-chip:not(:disabled):hover {
   border-color: var(--oo-color-accent);
+  background: var(--oo-color-hover);
+  color: var(--oo-color-text);
 }
 
-.web-chip[data-on='true'] {
+.web-chip[data-on='true'],
+.web-chip[data-on='true']:not(:disabled):hover {
   border-color: var(--oo-color-accent);
   background: var(--oo-color-accent);
   color: var(--oo-color-canvas);
