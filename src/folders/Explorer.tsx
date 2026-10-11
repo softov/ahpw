@@ -5,6 +5,7 @@ import type { DirectoryEntry, SessionSummary } from '@microsoft/agent-host-proto
 import { AHP_CONNECTION, AHP_DEFAULT_DIRECTORY, AHP_SESSIONS, ROOT, request, type Connection } from '../connection/data.js';
 import { folderLabel } from '../connection/words.js';
 import { EMOJIcon } from '../emojis.js';
+import { iconOf } from '../files/icons.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import type { BindingPath } from '@softov/scena/types';
 import type { ModusClass } from '@softov/scena';
@@ -98,7 +99,7 @@ export default function FolderExplorer(): ReactElement {
               const child = childUri(uri, entry.name);
               return entry.type === 'directory'
                 ? folder(child, entry.name)
-                : { key: child, label: entry.name, icon: EMOJIcon.file, draggable: true, data: { uri: child, directory: false } };
+                : { key: child, label: entry.name, icon: iconOf(child), draggable: true, data: { uri: child, directory: false } };
             });
       return {
         key: uri,
