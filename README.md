@@ -179,6 +179,9 @@ ahpd run --plugin /path/to/ahpd-web
 
 CI runs on every push to `main`: typecheck, tests, build, and the packed package installed and served once.
 
+What changed in each version is in [CHANGELOG.md](CHANGELOG.md).
+Before a release, move the `Unreleased` entries under the new version.
+
 A `v*` tag releases. It must match `version` in `package.json`:
 
 ```sh
