@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useCloseGuard, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, Text, useChatPicker } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import type { AgentInfo, MessageAttachment, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
@@ -80,6 +80,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   const [caret, setCaret] = useState<number | null>(null);
   const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
   const area = useRef<HTMLTextAreaElement>(null);
+  useCloseGuard(() => (text.trim() !== '' || attachments.length > 0 ? 'The message is not sent.' : null));
 
   useEffect(() => {
     if (provider === '' && agents[0] !== undefined) setProvider(agents[0].provider);
