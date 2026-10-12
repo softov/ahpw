@@ -50,8 +50,8 @@ export interface Embedder {
   onStatuses(handler: (statuses: Record<string, EmbedHostStatus>) => void): Unsubscribe;
   /** Moves this page to another host; the embedder reloads it. */
   switchHost(id: string): Promise<void>;
-  /** Shows the embedder's own place to add, edit and remove hosts. */
-  manageHosts(): Promise<void>;
+  /** Shows the embedder's own place to add, edit and remove hosts; with `add`, on its form for a new one. */
+  manageHosts(options?: { add?: boolean }): Promise<void>;
   /** Present when ahpw draws the window's frame. */
   window?: EmbedWindow;
 }

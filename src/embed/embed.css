@@ -114,6 +114,25 @@ html.is-framed.is-maximized #root {
   font-weight: 600;
 }
 
+/* The line between the hosts and what manages them. */
+.embed-host__line {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--oo-popup-border);
+}
+
+.embed-host__action {
+  color: var(--oo-color-muted);
+}
+
+.embed-host__action:hover {
+  color: var(--oo-color-text);
+}
+
+.embed-host__action > span:first-child {
+  justify-self: center;
+}
+
 .embed-host__url {
   justify-self: end;
   color: var(--oo-color-muted);

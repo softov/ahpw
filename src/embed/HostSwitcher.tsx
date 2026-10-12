@@ -3,7 +3,9 @@ import type { EmbedHost, EmbedHostStatus, Embedder } from './index.js';
 
 /**
  * The window's host, and a menu of every host with its status dot. A pick
- * moves this window to that host; the embedder reloads it.
+ * moves this window to that host; the embedder reloads it. Under the hosts,
+ * "Manage hosts" shows the embedder's host list, and "Add host" shows it on
+ * its form for a new one.
  */
 export default function HostSwitcher({ embedder }: { embedder: Embedder }): ReactElement {
   const [mine, setMine] = useState<EmbedHost | null>(null);
@@ -76,6 +78,31 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
               <span className="embed-host__url">{host.url.replace(/^ws:\/\//i, '')}</span>
             </button>
           ))}
+          <div className="embed-host__line" role="separator" />
+          <button
+            type="button"
+            role="menuitem"
+            className="embed-host__item embed-host__action"
+            onClick={() => {
+              setOpen(false);
+              void embedder.manageHosts();
+            }}
+          >
+            <span aria-hidden="true">☰</span>
+            <span className="embed-host__name">Manage hosts</span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="embed-host__item embed-host__action"
+            onClick={() => {
+              setOpen(false);
+              void embedder.manageHosts({ add: true });
+            }}
+          >
+            <span aria-hidden="true">+</span>
+            <span className="embed-host__name">Add host</span>
+          </button>
         </div>
       )}
     </div>
