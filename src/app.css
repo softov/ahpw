@@ -1154,6 +1154,12 @@
   text-decoration: underline;
 }
 
+/* An image a markdown file names, while it reads or when it cannot be read: its alt text, muted. */
+.web-md__image {
+  color: var(--oo-color-muted);
+  font-style: italic;
+}
+
 .web-md :not(pre) > code {
   cursor: pointer;
 }
