@@ -1,0 +1,162 @@
+/* ahpw in an embedder's window with no OS frame (ahp-desk's app window): ahpw draws one. Theme tokens only. */
+
+/* The window is transparent, so the rounded root is all that shows. */
+html.is-framed,
+html.is-framed body {
+  background: transparent;
+}
+
+html.is-framed #root {
+  border: 1px solid var(--oo-color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--oo-color-canvas);
+}
+
+/* Maximized, the window meets the screen's edges: no corner, no edge line. */
+html.is-framed.is-maximized #root {
+  border: 0;
+  border-radius: 0;
+}
+
+/* Minimize, maximize and close, the bar's full height and flush with its right edge. */
+/* scena centres each item at its content's height; this one takes the bar's. */
+.oo-bar__item:has(> .oo-mount > .embed-controls) {
+  align-self: stretch;
+  margin-inline-end: calc(-1 * var(--oo-spacing-sm));
+}
+
+.embed-controls {
+  display: flex;
+  height: 100%;
+}
+
+.embed-control {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--oo-color-text);
+  cursor: default;
+}
+
+.embed-control:hover {
+  background: var(--oo-color-hover);
+}
+
+.embed-control--close:hover {
+  background: #e81123;
+  color: #ffffff;
+}
+
+/* The host switcher, after the title. */
+.embed-host {
+  position: relative;
+}
+
+.embed-host__button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--oo-color-text);
+  font: inherit;
+  cursor: default;
+}
+
+.embed-host__button:hover,
+.embed-host__button[aria-expanded='true'] {
+  background: var(--oo-color-hover);
+}
+
+.embed-host__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  padding: 4px;
+  border: 1px solid var(--oo-popup-border);
+  border-radius: 8px;
+  background: var(--oo-popup-bg);
+  color: var(--oo-popup-fg);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+}
+
+.embed-host__item {
+  display: grid;
+  grid-template-columns: 10px auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.embed-host__item:hover {
+  background: var(--oo-color-hover);
+}
+
+.embed-host__item[aria-current='true'] .embed-host__name {
+  font-weight: 600;
+}
+
+/* The line between the hosts and what manages them. */
+.embed-host__line {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--oo-popup-border);
+}
+
+.embed-host__action {
+  color: var(--oo-color-muted);
+}
+
+.embed-host__action:hover {
+  color: var(--oo-color-text);
+}
+
+.embed-host__action > span:first-child {
+  justify-self: center;
+}
+
+.embed-host__url {
+  justify-self: end;
+  color: var(--oo-color-muted);
+}
+
+/* The host list's dots: filled connected, half connecting, hollow down. */
+.embed-dot {
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  flex: none;
+}
+
+.embed-dot--connected {
+  color: var(--oo-color-success);
+  background: currentColor;
+}
+
+.embed-dot--connecting {
+  color: var(--oo-color-warning);
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+}
+
+.embed-dot--down {
+  color: var(--oo-color-muted);
+}

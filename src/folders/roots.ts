@@ -9,8 +9,8 @@ export interface Root {
   added: boolean;
 }
 
-/** A folder URI without its trailing slashes, so two spellings of one folder are one. */
-export const bare = (uri: string): string => (/^[a-z][a-z0-9+.-]*:\/\/\/?$/i.test(uri) ? uri : uri.replace(/\/+$/, ''));
+/** A folder URI without its trailing slashes, so two spellings of one folder are one; a root, `file:///` or `file:///C:/`, keeps its slash. */
+export const bare = (uri: string): string => (/^[a-z][a-z0-9+.-]*:\/\/(\/|\/[A-Za-z]:\/)?$/i.test(uri) ? uri : uri.replace(/\/+$/, ''));
 
 /** The explorer's folders: the host's default first, then each folder a session works in, newest session first, then those this browser added, then those revealed. */
 export function rootsOf(defaultDirectory: string | null | undefined, sessions: readonly SessionSummary[], revealed: readonly string[] = [], added: readonly string[] = []): Root[] {

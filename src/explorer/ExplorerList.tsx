@@ -144,7 +144,9 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
                     }}
                     onContextMenu={(event) => openMenu(event, row)}
                   >
-                    <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel} />
+                    <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel}>
+                      {row.dot === 'working' ? <><i /><i /><i /><i /></> : null}
+                    </span>
                     <span className="web-row__body">
                       <span className="web-row__head">
                         <span className="web-row__title" data-strong={row.strong === true ? 'true' : 'false'}>{row.title}</span>

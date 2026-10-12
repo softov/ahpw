@@ -36,8 +36,8 @@ export function serverHoldsToken(): boolean {
 /**
  * Asks the server that sent this page whether it adds the token itself.
  *
- * `ahpw serve` with a token answers `ahpw.json` beside the page; the daemon's
- * route answers 404, and a dev server its page, so anything but that file is no.
+ * `ahpw serve` and the daemon's route answer `ahpw.json` beside the page; a dev
+ * server answers its page, so anything but that file is no.
  */
 export async function readServer(): Promise<boolean> {
   try {

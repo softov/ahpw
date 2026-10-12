@@ -456,14 +456,12 @@
 }
 
 /* The box around the attachments, the text and the controls. */
-.web-composer__box,
-.web-new__composer {
+.web-composer__box {
   border: 1px solid var(--oo-color-border);
   border-radius: var(--oo-radius-md);
 }
 
-.web-composer__box:focus-within,
-.web-new__composer:focus-within {
+.web-composer__box:focus-within {
   border-color: var(--oo-color-accent);
 }
 
@@ -569,11 +567,15 @@
   cursor: default;
 }
 
+/* A chip on hover, a button or a span over a select alike: the hover tint, the accent border, the full text colour. */
 .web-chip:not(:disabled):hover {
   border-color: var(--oo-color-accent);
+  background: var(--oo-color-hover);
+  color: var(--oo-color-text);
 }
 
-.web-chip[data-on='true'] {
+.web-chip[data-on='true'],
+.web-chip[data-on='true']:not(:disabled):hover {
   border-color: var(--oo-color-accent);
   background: var(--oo-color-accent);
   color: var(--oo-color-canvas);
@@ -605,11 +607,9 @@
   outline: none;
 }
 
-.web-composer__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--oo-spacing-xs);
-  padding: 2px 6px 6px;
+/* The first message's box keeps three lines, so its placeholder shows whole before anything is typed. */
+.web-new__composer .web-composer__text {
+  min-height: calc(3 * 1.4em + 12px);
 }
 
 /* The controls under the text: add, the settings, and send. */
@@ -650,6 +650,9 @@
 
 .web-composer__add {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -657,9 +660,6 @@
   border-radius: var(--oo-radius-sm, 4px);
   background: none;
   color: var(--oo-color-muted);
-  font: inherit;
-  font-size: 18px;
-  line-height: 1;
   cursor: pointer;
 }
 
@@ -669,15 +669,6 @@
   background: var(--oo-color-hover, rgb(127 127 127 / 0.15));
 }
 
-.web-composer__hint {
-  flex: 1;
-  min-width: 0;
-  color: var(--oo-color-muted);
-  font-size: var(--oo-font-size-xs);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .web-composer__queue {
   list-style: none;
@@ -828,10 +819,17 @@
   border-color: var(--oo-color-accent);
 }
 
+/* The scrollbar shows while the pointer is over the list; its room is kept, so nothing moves when it does. */
 .web-explorer__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.web-explorer__scroll:hover {
+  scrollbar-color: var(--oo-color-border) transparent;
 }
 
 .web-explorer__notice {
@@ -910,14 +908,51 @@
 }
 
 .web-row__dot[data-dot='attention'] { background: var(--oo-color-warning); opacity: 1; }
-.web-row__dot[data-dot='working'] { background: var(--oo-color-info); opacity: 1; animation: web-pulse 1.2s ease-in-out infinite; }
 .web-row__dot[data-dot='failed'] { background: var(--oo-color-danger); opacity: 1; }
 .web-row__dot[data-dot='fresh'] { background: var(--oo-color-accent); opacity: 1; }
 .web-row__dot[data-dot='ok'] { background: var(--oo-color-success); opacity: 1; }
 .web-row__dot[data-dot='off'] { background: none; border: 1px solid var(--oo-color-muted); box-sizing: border-box; }
 
+/*
+ * A running row: four dots in a square, purple, the faint one walking round them, as ahpapp's
+ * SessionMark (ProcessingDots): a 9 px box, 4 px dots, one walk in 640 ms, the faint one at 0.18.
+ */
+.web-row__dot[data-dot='working'] {
+  display: grid;
+  grid-template-columns: 4px 4px;
+  gap: 1px;
+  width: 9px;
+  height: 9px;
+  margin-top: 5.5px;
+  border-radius: 0;
+  background: none;
+  opacity: 1;
+  color: #8250df;
+}
+
+[data-theme-mode='dark'] .web-row__dot[data-dot='working'] {
+  color: #a371f7;
+}
+
+.web-row__dot[data-dot='working'] > i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: web-walk 640ms linear infinite;
+}
+
+.web-row__dot[data-dot='working'] > i:nth-child(2) { animation-delay: -480ms; }
+.web-row__dot[data-dot='working'] > i:nth-child(3) { animation-delay: -320ms; }
+.web-row__dot[data-dot='working'] > i:nth-child(4) { animation-delay: -160ms; }
+
+@keyframes web-walk {
+  0%, 100% { opacity: 0.18; }
+  25%, 75% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .web-row__dot[data-dot='working'] {
+  .web-row__dot[data-dot='working'] > i {
     animation: none;
   }
 }
@@ -1096,11 +1131,6 @@
 
 .web-layout-select select {
   font: inherit;
-  color: inherit;
-  background: none;
-  border: 1px solid var(--oo-color-border);
-  border-radius: var(--oo-radius-sm);
-  padding: 0 2px;
 }
 
 .web-lines {
@@ -1122,6 +1152,12 @@
 .web-link:hover {
   background: none;
   text-decoration: underline;
+}
+
+/* An image a markdown file names, while it reads or when it cannot be read: its alt text, muted. */
+.web-md__image {
+  color: var(--oo-color-muted);
+  font-style: italic;
 }
 
 .web-md :not(pre) > code {
@@ -1500,6 +1536,141 @@
   padding: 0;
 }
 
+/* The session's folder: the box fits its path, between a floor and a ceiling. */
+.web-folder-pill {
+  max-width: 100%;
+}
+
+.web-folder-pill input {
+  field-sizing: content;
+  min-width: 160px;
+  max-width: min(480px, 60vw);
+  text-overflow: ellipsis;
+}
+
+.web-folder-pill__mark {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Not scena's hover tint: the mark only brightens. */
+.web-folder-pill__mark:hover,
+.web-folder-pill__mark[aria-expanded='true'] {
+  background: none;
+  color: var(--oo-color-accent);
+}
+
+/* The folder menu, above the pill, in the page's coordinates (a portal). */
+.web-folder-menu {
+  position: fixed;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, calc(100vw - 32px));
+  padding: 4px;
+  background: var(--oo-popup-bg);
+  color: var(--oo-popup-fg);
+  border: 1px solid var(--oo-popup-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+  font-size: var(--oo-font-size-sm);
+  outline: none;
+}
+
+/* The parent and its folders scroll; the host's folder and the used ones stay by the pill. */
+.web-folder-menu__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.web-folder-menu__heading {
+  margin: 6px 8px 2px;
+  padding-top: 6px;
+  border-top: 1px solid var(--oo-popup-border);
+  font-size: var(--oo-font-size-xs);
+  color: var(--oo-color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.web-folder-menu__line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 8px;
+  border-radius: var(--oo-radius-sm);
+  cursor: pointer;
+}
+
+.web-folder-menu__line[aria-selected='true'] {
+  background: var(--oo-color-hover);
+}
+
+.web-folder-menu__line[data-current='true'] {
+  color: var(--oo-color-accent);
+  font-weight: 600;
+}
+
+.web-folder-menu__line[data-kind='up'] {
+  color: var(--oo-color-muted);
+}
+
+.web-folder-menu__mark {
+  flex: none;
+  width: 1.2em;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.web-folder-menu__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.web-folder-menu__count {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--oo-color-hover);
+  font-size: var(--oo-font-size-xs);
+  color: var(--oo-color-muted);
+}
+
+.web-folder-menu__walk {
+  flex: none;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--oo-radius-sm);
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+.web-folder-menu__line[aria-selected='true'] .web-folder-menu__walk {
+  visibility: visible;
+}
+
+.web-folder-menu__walk:hover {
+  background: var(--oo-color-surface);
+  color: var(--oo-color-text);
+}
+
+.web-folder-menu__note {
+  padding: 3px 8px;
+  color: var(--oo-color-muted);
+}
+
 .web-new {
   display: flex;
   flex-direction: column;
@@ -1527,9 +1698,6 @@
   box-shadow: 0 6px 20px rgb(0 0 0 / 0.22);
 }
 
-.web-new__composer .web-composer__chips {
-  padding-top: var(--oo-spacing-sm);
-}
 
 .web-palette {
   position: fixed;
@@ -2068,6 +2236,104 @@
   gap: var(--oo-spacing-sm);
 }
 
+/* Add folder: a path box over the folders it names, at the top of the page, as VS Code's quick input. */
+.web-pick {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px 16px;
+}
+
+.web-pick__card {
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 100%);
+  max-height: min(480px, calc(100vh - 64px));
+  padding: 6px;
+  background: var(--oo-popup-bg);
+  color: var(--oo-popup-fg);
+  border: 1px solid var(--oo-popup-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+}
+
+.web-pick__title {
+  margin: 0 0 6px;
+  font-size: var(--oo-font-size-sm);
+  font-weight: 600;
+  text-align: center;
+  color: var(--oo-color-muted);
+}
+
+.web-pick__row {
+  display: flex;
+  gap: 6px;
+}
+
+.web-pick__input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+  color: inherit;
+  background: var(--oo-color-canvas);
+  border: 1px solid var(--oo-color-accent);
+  border-radius: var(--oo-radius-sm);
+  outline: none;
+}
+
+.web-pick__add {
+  padding: 0 12px;
+  border: 1px solid var(--oo-color-primary);
+  border-radius: var(--oo-radius-sm);
+  background: none;
+  color: var(--oo-color-primary);
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-pick__add:hover {
+  background: rgb(from var(--oo-color-primary) r g b / 0.88);
+  color: var(--oo-color-surface);
+}
+
+.web-pick__message {
+  margin: 6px 2px 0;
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-warning);
+}
+
+.web-pick__list {
+  flex: 1;
+  min-height: 0;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.web-pick__item {
+  padding: 3px 8px;
+  border-radius: var(--oo-radius-sm);
+  font-size: var(--oo-font-size-sm);
+  cursor: pointer;
+}
+
+.web-pick__item[aria-selected='true'] {
+  background: var(--oo-color-hover);
+}
+
+.web-pick__note {
+  padding: 3px 8px;
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
+}
+
 /* The terminal fills the bottom panel; xterm sizes its rows to the box. */
 .web-terminal {
   display: flex;
@@ -2299,6 +2565,10 @@
 .oo-bar__slot .oo-button-bar.web-layout-toggle[data-active='true'],
 .oo-bar__slot .oo-button-bar.web-layout-toggle:hover {
   color: var(--oo-color-text);
+}
+/* Hover shows on a toggle that is already on, whose glyph is already the text colour. */
+.oo-bar__slot .oo-button-bar.web-layout-toggle:hover {
+  background: var(--oo-color-hover);
 }
 
 /* A host file or this computer's file over the composer: teal attaches it, orange (Shift) writes it in as text. */

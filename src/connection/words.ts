@@ -16,6 +16,9 @@ export function newId(): string {
 /** A folder as the URI the protocol takes: a path becomes `file://`, a URI stays. */
 export function folderUri(folder: string): string {
   const trimmed = folder.trim();
+  // A Windows path, as `folderLabel` shows it: its drive is not a URI scheme.
+  const drive = /^([A-Za-z]:)[\\/](.*)$/.exec(trimmed);
+  if (drive !== null) return `file:///${drive[1]}/${drive[2]!.split(/[\\/]/).map(encodeURIComponent).join('/')}`;
   if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return trimmed;
   return `file://${trimmed.split('/').map(encodeURIComponent).join('/')}`;
 }
@@ -34,7 +37,9 @@ export function folderName(uri: string): string {
 export function folderLabel(uri: string): string {
   if (!uri.startsWith('file://')) return uri;
   try {
-    return decodeURIComponent(uri.slice('file://'.length));
+    const path = decodeURIComponent(uri.slice('file://'.length));
+    // A Windows path keeps its drive first: file:///C:/x is C:/x, not /C:/x.
+    return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
   } catch {
     return uri;
   }

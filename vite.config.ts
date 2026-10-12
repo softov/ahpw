@@ -1,13 +1,47 @@
+import { resolve } from 'node:path';
+import type { Alias } from 'vite';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 /** The daemon `pnpm dev` talks to. Its config needs `"http": true`. */
 const daemon = process.env['AHPD_URL'] ?? 'http://127.0.0.1:9187';
 
+/**
+ * `AHPW_SCENA=<a scena checkout>` runs ahpw on that checkout's scena source
+ * instead of the installed package, to try a scena change before it is
+ * released. The entries are the ones scena's playground maps; the checkout
+ * needs its own `pnpm install`.
+ */
+function scenaSource(checkout: string): Alias[] {
+  const src = resolve(checkout, 'packages/scena/src');
+  const entry = (name: string, file: string): Alias => ({ find: new RegExp(`^@softov/scena${name}$`), replacement: resolve(src, file) });
+  return [
+    entry('/react/core', 'react/core.ts'),
+    entry('/react', 'react/index.ts'),
+    entry('/sdk', 'sdk/index.ts'),
+    entry('/types', 'sdk/index.ts'),
+    entry('/core', 'core/index.ts'),
+    entry('/runtime', 'runtime/index.ts'),
+    entry('/ui/builtins', 'ui/register.ts'),
+    { find: /^@softov\/scena\/ui\/([a-z]+)$/, replacement: `${resolve(src, 'ui')}/$1/index.ts` },
+    entry('/ui', 'ui/index.ts'),
+    { find: /^@softov\/scena\/styles\/(.+)$/, replacement: `${resolve(src, 'styles')}/$1` },
+    entry('/styles', 'styles/index.ts'),
+    entry('/themes', 'themes/index.ts'),
+    entry('/porta/examples', 'porta/providers/examples/index.ts'),
+    entry('/porta', 'porta/index.ts'),
+    entry('', 'index.ts'),
+  ];
+}
+const scena = process.env['AHPW_SCENA'];
+
 export default defineConfig({
   plugins: [react()],
-  // One React, whether scena is installed or linked from a checkout with its own.
-  resolve: { dedupe: ['react', 'react-dom'] },
+  resolve: {
+    // One React, whether scena is installed or comes from a checkout with its own.
+    dedupe: ['react', 'react-dom'],
+    alias: scena === undefined || scena === '' ? [] : scenaSource(scena),
+  },
   // Relative, because the daemon serves the page under /plugins/ahpd-web/.
   base: './',
   build: {

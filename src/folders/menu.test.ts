@@ -45,6 +45,8 @@ test('a copy keeps its extension', () => {
 test('a path or a URI names a folder, and anything else does not', () => {
   expect(folderUriOf(' /home/me/my src/ ')).toBe('file:///home/me/my%20src');
   expect(folderUriOf('file:///opt/x/')).toBe('file:///opt/x');
+  expect(folderUriOf('C:/Users/me/src/')).toBe('file:///C:/Users/me/src');
+  expect(folderUriOf('C:/')).toBe('file:///C:/');
   expect(folderUriOf('/')).toBe('file:///');
   expect(folderUriOf('src')).toBeNull();
   expect(folderUriOf('')).toBeNull();

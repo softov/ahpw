@@ -4,7 +4,9 @@ import { PALETTE_SLOT } from '../view/Palette.js';
 import { registerEntryCommands } from './actions.js';
 import { ADDED_FOLDERS, readAdded } from './added.js';
 import { initAsk, resetAsk } from './ask.js';
+import { FolderPicker } from './FolderPicker.js';
 import { NameDialog } from './NameDialog.js';
+import { initPick, resetPick } from './pick.js';
 
 /** The sidebar section the folder tree shows in. */
 export const FOLDERS_SECTION = 'ahp:folders';
@@ -20,9 +22,11 @@ export interface RevealFolderArgs {
 /** The host's folders, as a tree in the sidebar, with the menus on its rows and the dialog they ask names in. */
 export function registerFolders(scena: Scena): Disposable {
   initAsk(scena.store);
+  initPick(scena.store);
   scena.store.set(ADDED_FOLDERS, readAdded());
   return combineDisposables(
     { dispose: resetAsk },
+    { dispose: resetPick },
     scena.components.register({
       component: 'FolderExplorer',
       category: 'page',
@@ -51,6 +55,12 @@ export function registerFolders(scena: Scena): Disposable {
       renderer: { kind: 'react', load: async () => ({ default: NameDialog as unknown }) },
     }),
     scena.surfaces.mount({ surface: 'overlay', key: 'folders:name', resource: { component: 'Folders.Name' } }),
+    scena.components.register({
+      component: 'Folders.Pick',
+      category: 'chrome',
+      renderer: { kind: 'react', load: async () => ({ default: FolderPicker as unknown }) },
+    }),
+    scena.surfaces.mount({ surface: 'overlay', key: 'folders:pick', resource: { component: 'Folders.Pick' } }),
     registerEntryCommands(scena),
     scena.surfaces.mount({
       surface: 'sidebar:left',

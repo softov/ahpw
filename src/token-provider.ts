@@ -1,5 +1,6 @@
 import type { PortaProvider, Session } from '@softov/scena/porta';
 import { readServer, readToken, writeToken } from './api.js';
+import { embedder } from './embed/index.js';
 // import { ApiError, call, readManifest } from './api.js';
 // import { needsInput, requestOf } from './manifest/input.js';
 
@@ -77,9 +78,11 @@ export function tokenProvider(): PortaProvider {
  * The session a stored token still stands for, checked again rather than trusted.
  *
  * When the server that sent the page adds the token itself, the page is signed
- * in without one.
+ * in without one. In an embedder, the embedder holds the page's host and its
+ * token, so the page is signed in as that host and keeps no token of its own.
  */
 export async function restoreSession(): Promise<Session | null> {
+  if (embedder !== undefined) return { userId: 'embedder', displayName: (await embedder.host()).name, permissions: [SIGNED_IN] };
   if (await readServer()) return { userId: 'server', displayName: 'AHP', permissions: [SIGNED_IN] };
   const token = readToken();
   if (token === null) return null;

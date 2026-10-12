@@ -2,12 +2,13 @@ import type { ReactElement } from 'react';
 import { useScena } from '@softov/scena/react';
 import { Alert, Markdown, Spinner } from '@softov/scena/ui';
 import { linkClicks } from './clicks.js';
+import { imagesFrom } from './HostImage.js';
 import { FileHead, useFileText } from './text.js';
 
 /** The folder a file URI sits in, which its relative links start from. */
 const folderOf = (uri: string): string => uri.replace(/\/[^/]*$/, '');
 
-/** A markdown file, rendered. Its links and code spans that name files open as they do in chat, relative to its folder. */
+/** A markdown file, rendered. Its links and code spans that name files open as they do in chat, and its images are read, relative to its folder. */
 export default function MarkdownPage({ uri }: { uri?: string }): ReactElement {
   const scena = useScena();
   const state = useFileText(uri);
@@ -23,7 +24,7 @@ export default function MarkdownPage({ uri }: { uri?: string }): ReactElement {
       {head}
       <div className="web-file__body">
         <div className="web-file__doc web-md" onClick={linkClicks(scena, folderOf(uri))}>
-          <Markdown text={state.text} />
+          <Markdown text={state.text} image={imagesFrom(folderOf(uri))} />
         </div>
       </div>
     </div>
