@@ -567,7 +567,7 @@
   cursor: default;
 }
 
-/* scena's button:hover fills with the primary colour and outranks .web-chip, so the hover sets its own. */
+/* A chip on hover, a button or a span over a select alike: the hover tint, the accent border, the full text colour. */
 .web-chip:not(:disabled):hover {
   border-color: var(--oo-color-accent);
   background: var(--oo-color-hover);
@@ -830,11 +830,6 @@
 
 .web-explorer__scroll:hover {
   scrollbar-color: var(--oo-color-border) transparent;
-}
-
-/* A tab strip that overflows scrolls without a bar under the tabs; the group menu lists them all. */
-.tab-bar__strip {
-  scrollbar-width: none;
 }
 
 .web-explorer__notice {
@@ -1136,97 +1131,6 @@
 
 .web-layout-select select {
   font: inherit;
-  color: inherit;
-  background: none;
-  border: 1px solid var(--oo-color-border);
-  border-radius: var(--oo-radius-sm);
-  padding: 0 2px;
-}
-
-/* The title bar's two pickers: muted as its other controls, and the same look on a hover and while open. */
-.web-layout-select select,
-.oo-bar__slot .oo-theme-picker__select {
-  color: var(--oo-color-muted);
-}
-
-.web-layout-select select:hover,
-.web-layout-select select:focus,
-.oo-bar__slot .oo-theme-picker__select:hover,
-.oo-bar__slot .oo-theme-picker__select:focus {
-  color: var(--oo-color-text);
-  border-color: var(--oo-color-muted);
-  background: var(--oo-color-hover);
-  outline: none;
-}
-
-.web-layout-select select:focus-visible,
-.oo-bar__slot .oo-theme-picker__select:focus-visible {
-  outline: 1px solid var(--oo-color-accent);
-}
-
-/* Where the browser lets a page draw a select's menu, it is drawn as ahpw's popups, so the hovered
-   and the chosen line follow the theme; elsewhere the OS draws it. */
-@supports (appearance: base-select) {
-  .web-layout-select select,
-  .oo-bar__slot .oo-theme-picker__select,
-  .web-layout-select select::picker(select),
-  .oo-bar__slot .oo-theme-picker__select::picker(select) {
-    appearance: base-select;
-  }
-
-  .web-layout-select select,
-  .oo-bar__slot .oo-theme-picker__select {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 0 2px 0 4px;
-    font: inherit;
-    font-size: var(--oo-font-size-xs);
-  }
-
-  .web-layout-select select::picker-icon,
-  .oo-bar__slot .oo-theme-picker__select::picker-icon {
-    font-size: 9px;
-  }
-
-  .web-layout-select select::picker(select),
-  .oo-bar__slot .oo-theme-picker__select::picker(select) {
-    margin-top: 4px;
-    padding: 4px;
-    min-width: anchor-size(width);
-    border: 1px solid var(--oo-popup-border);
-    border-radius: 8px;
-    background: var(--oo-popup-bg);
-    color: var(--oo-popup-fg);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
-  }
-
-  .web-layout-select option,
-  .oo-bar__slot .oo-theme-picker__select option {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: var(--oo-font-size-sm);
-    color: inherit;
-    background: transparent;
-  }
-
-  .web-layout-select option:hover,
-  .web-layout-select option:focus-visible,
-  .oo-bar__slot .oo-theme-picker__select option:hover,
-  .oo-bar__slot .oo-theme-picker__select option:focus-visible {
-    background: var(--oo-color-hover);
-    outline: none;
-  }
-
-  .web-layout-select option:checked,
-  .oo-bar__slot .oo-theme-picker__select option:checked {
-    font-weight: 600;
-  }
-
-  .web-layout-select option::checkmark,
-  .oo-bar__slot .oo-theme-picker__select option::checkmark {
-    color: var(--oo-color-accent);
-  }
 }
 
 .web-lines {
@@ -1647,7 +1551,7 @@
   cursor: pointer;
 }
 
-/* scena's button:hover fills with the primary colour; the mark only brightens. */
+/* Not scena's hover tint: the mark only brightens. */
 .web-folder-pill__mark:hover,
 .web-folder-pill__mark[aria-expanded='true'] {
   background: none;
