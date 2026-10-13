@@ -1,0 +1,11 @@
+/* The start page: the mark and one button, centred in an empty main. */
+.web-start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 100%;
+  padding: 24px;
+  text-align: center;
+}

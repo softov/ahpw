@@ -52,6 +52,13 @@ export function registerSessions(scena: Scena): Disposable {
       renderer: { kind: 'react', load: () => import('./New.js') },
     }),
     scena.components.register({
+      component: 'StartPage',
+      category: 'page',
+      renderer: { kind: 'react', load: () => import('./Start.js') },
+    }),
+    // Nothing open in main: the start page, not an empty area.
+    scena.surfaces.setEmpty('main', { component: 'StartPage' }),
+    scena.components.register({
       component: 'SessionDetails',
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Details.js') },
