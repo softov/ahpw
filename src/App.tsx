@@ -9,10 +9,11 @@ import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/built
 import { AhpwMark } from './AhpwMark.js';
 import { PRESENTATION } from './presentation.js';
 import { registerShell } from './shell.js';
+import { hostKey } from './storage-keys.js';
 import { keepTabs } from './tabs.js';
 import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './token-provider.js';
 
-const layoutStorage = createLocalStorageLayoutStorage({ key: 'ahpd-web.layout.v1' });
+const layoutStorage = createLocalStorageLayoutStorage({ key: hostKey('ahpd-web.layout.v1') });
 
 const backendFactories: ScopeBackendFactory[] = [
   { scope: 'modus', create: () => createModusBackend() },

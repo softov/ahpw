@@ -38,6 +38,11 @@ export interface EmbedWindow {
 export interface Embedder {
   /** The host this page shows. */
   host(): Promise<EmbedHost>;
+  /**
+   * The address of the host this page shows, known before ahpw runs. Every host
+   * shares the embedder's origin, so ahpw keeps a host's own pages under it.
+   */
+  readonly hostUrl: string;
   /** The token of the host this page shows, or null for a host with none. */
   token(): Promise<string | null>;
   /** Every host the embedder knows. */

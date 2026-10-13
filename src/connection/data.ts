@@ -7,6 +7,7 @@ import { embedder, type EmbedHost } from '../embed/index.js';
 import { offering } from './protocol-versions.js';
 import { readingServerInfo } from './server-info.js';
 import { hostSocketUrl, socketUrl } from './socket.js';
+import { NOTHING_NEWER, heard, laid, listed, type Newer } from './summaries.js';
 import { countsOf } from '../sessions/status.js';
 import { logEvent } from '../log/log.js';
 import { forgetFrames, observing } from '../log/wire.js';
@@ -89,6 +90,8 @@ const RELEASE_DELAY_MS = 2_000;
 /** The live client and store, while the provider is loaded. */
 let client: MultiHostClient | undefined;
 let held: ReactiveStore | undefined;
+// What is known of each session newer than the SDK's session cache (see summaries.ts).
+let newer: Newer = NOTHING_NEWER;
 const followed = new Map<string, Followed>();
 
 /** The SDK's own reason, without its class name. */
@@ -154,6 +157,7 @@ export async function reloadSessions(): Promise<void> {
   const store = held;
   if (store === undefined) return;
   const result = await request('listSessions', { channel: ROOT } as never) as { items: SessionSummary[] };
+  newer = listed(result.items);
   store.set(AHP_SESSIONS, sessionsByChange(result.items));
   for (const summary of result.items) store.set(titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
 }
@@ -267,7 +271,7 @@ function setIfChanged(store: ReactiveStore, path: BindingPath, value: unknown): 
 }
 
 function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
-  const summaries = sessionsByChange(multi.aggregatedSessions().map((one) => one.summary));
+  const summaries = sessionsByChange(multi.aggregatedSessions().map((one) => laid(one.summary, newer)));
   store.set(AHP_SESSIONS, summaries);
   for (const summary of summaries) setIfChanged(store, titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
   const counts = countsOf(summaries.map((one) => one.status));
@@ -313,6 +317,8 @@ async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<
     }
     if (event.type === 'connected') {
       generation = event.generation;
+      // A connection lists the sessions afresh into the SDK's cache.
+      newer = NOTHING_NEWER;
       store.set(AHP_CONNECTION, { status: 'connected', error: null, generation } satisfies Connection);
       publishHost(store, multi);
       // A new connection starts with no subscriptions of this page's own.
@@ -355,6 +361,7 @@ async function watchChannels(store: ReactiveStore, multi: MultiHostClient): Prom
   for await (const tagged of multi.events()) {
     const event = tagged.event;
     if (event.type === 'sessionAdded' || event.type === 'sessionRemoved' || event.type === 'sessionSummaryChanged') {
+      newer = heard(newer, event);
       hostDue = true;
       schedule(store, multi);
       continue;
@@ -465,6 +472,7 @@ export const ahpProvider: DataProviderDefinition = {
       const multi = client;
       client = undefined;
       held = undefined;
+      newer = NOTHING_NEWER;
       for (const entry of followed.values()) clearTimeout(entry.release);
       followed.clear();
       pending.clear();

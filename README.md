@@ -20,7 +20,6 @@ What you get:
 - **Host Information**, shows details about the server and its environment.
 - **Agents**, the ones the host offers: their models, customizations and sign-in, and a new session with one.
 - **Settings**, configure the host server and its plugins.
-- **Administration screens** for every ahpd command (ahpd only). They are built from the daemon's `/api/cli-manifest`, so a new command shows up here with no change to this package.
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/media/shot-01-light.jpeg">
@@ -77,7 +76,6 @@ Then open `http://127.0.0.1:5190/`.
 
 - **With a token**, the server adds it to the socket. The page asks for nothing, and the browser never sees the token.
 - **Without one**, the page asks for a token, as it does in ahpd.
-- The administration screens need ahpd's `/api`, so they are not here.
 
 ### Options
 

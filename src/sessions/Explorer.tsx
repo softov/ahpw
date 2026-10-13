@@ -104,18 +104,20 @@ export default function SessionExplorer(): ReactElement {
         const folder = one.workingDirectories?.[0];
         const second = [agent, folder === undefined ? undefined : baseOf(folder)].filter((bit) => bit !== undefined).join(' \u{00B7} ');
         const changes = one.changes;
-        const third = activity !== 'idle'
+        // The counts on every row that has any, and a running row's activity under them, as ahpapp shows both.
+        const counts = changes !== undefined && (changes.additions ?? 0) + (changes.deletions ?? 0) > 0
+          ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${changes.files} files`}</>
+          : undefined;
+        const doing = activity !== 'idle'
           ? `${ACTIVITY_LABEL[activity]}${one.activity === undefined || one.activity === '' ? '' : ` \u{00B7} ${one.activity}`}`
-          : changes !== undefined && (changes.additions ?? 0) + (changes.deletions ?? 0) > 0
-            ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${changes.files} files`}</>
-            : undefined;
+          : undefined;
         return {
           key: one.resource,
           dot: isArchived(one.status) ? 'off' : unread ? 'fresh' : DOT[activity],
           dotLabel: isArchived(one.status) ? 'Archived' : unread ? 'Unread' : ACTIVITY_LABEL[activity],
           title: one.title === '' ? 'Untitled' : one.title,
           time: changedAt(one.modifiedAt),
-          lines: third === undefined ? [second] : [second, third],
+          lines: [second, counts, doing].filter((line) => line !== undefined),
           menu: menuOf(one, () => open(one.resource)),
           strong: unread,
           ...(inGroup === undefined ? {} : { group: inGroup }),

@@ -5,6 +5,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-13
+
+### Added
+
+- **A start page in an empty main.**
+  With nothing open, the main area shows the mark and New session instead of an empty group, through scena 0.5.5's `surfaces.setEmpty`.
+- **A running session's row shows its change counts**, above what it is doing, as ahpapp does.
+
+### Fixed
+
+- **Session change counts follow the host.**
+  The AHP SDK's session cache drops `changes` from a summary change, so the counts stayed as first listed, and a relist was undone by the next host event.
+  ahpw keeps what the cache drops and lays it over its rows.
+- The Changes pane no longer shows "Empty" under its own note.
+
+### Changed
+
+- **Each host keeps its own pages when embedded.**
+  An embedder serves every host from one origin, so the open tabs, the layout and the added folders are kept per host address.
+  The embedding contract gains `hostUrl`, the page's host address, known before ahpw runs.
+  The theme and the other personal choices stay shared; in a browser nothing changes.
+
+### Removed
+
+- The README no longer lists administration screens, which are off while ahpw speaks AHP only.
+
 ## [0.3.0] - 2026-10-12
 
 ### Added
@@ -101,7 +127,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/softov/ahpw/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/softov/ahpw/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/softov/ahpw/compare/afca330...v0.2.0
 [0.1.0]: https://github.com/softov/ahpw/tree/afca330

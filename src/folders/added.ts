@@ -1,11 +1,12 @@
 import type { BindingPath } from '@softov/scena/types';
+import { hostKey } from '../storage-keys.js';
 import { bare } from './roots.js';
 
 /** The folders this browser added to the explorer, as URIs. */
 export const ADDED_FOLDERS = '$/folders/added' as BindingPath;
 
 /** The localStorage key the added folders are kept under. */
-export const ADDED_KEY = 'ahpd-web.folders-added';
+export const ADDED_KEY = hostKey('ahpd-web.folders-added');
 
 /** The list with `uri` at its end, once. */
 export function withFolder(list: readonly string[], uri: string): string[] {
