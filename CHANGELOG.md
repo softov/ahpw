@@ -7,6 +7,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [0.3.1] - 2026-10-13
 
+### Added
+
+- **A start page in an empty main.**
+  With nothing open, the main area shows the mark and New session instead of an empty group, through scena 0.5.5's `surfaces.setEmpty`.
+- **A running session's row shows its change counts**, above what it is doing, as ahpapp does.
+
+### Fixed
+
+- **Session change counts follow the host.**
+  The AHP SDK's session cache drops `changes` from a summary change, so the counts stayed as first listed, and a relist was undone by the next host event.
+  ahpw keeps what the cache drops and lays it over its rows.
+- The Changes pane no longer shows "Empty" under its own note.
+
 ### Changed
 
 - **Each host keeps its own pages when embedded.**
