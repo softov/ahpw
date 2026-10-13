@@ -1,10 +1,11 @@
 import type { Disposable, Label, Scena, SessionMount, SessionSnapshot, SessionStorage } from '@softov/scena/types';
 import { createLocalStorageSessionStorage } from '@softov/scena/core';
+import { hostKey } from './storage-keys.js';
 
 /** A main tab as kept: scena's mount, with the title its tab showed until the page loads its own. */
 type KeptMount = SessionMount & { title?: Label };
 
-const stored = createLocalStorageSessionStorage({ key: 'ahpd-web.session.v1' });
+const stored = createLocalStorageSessionStorage({ key: hostKey('ahpd-web.session.v1') });
 
 /** The main panel's tabs only; the sidebars are the shell's, mounted when it registers. */
 function keeper(scena: Scena): SessionStorage {
