@@ -25,7 +25,8 @@ import { WorkspaceContext } from './workspace.js';
 import { ACTIVE_SESSION } from './state.js';
 import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
 import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
-import { attachmentIcon, attachmentLabel } from './attachments.js';
+import { attachmentIcon, attachmentLabel, hasPreview, previewOf, type AttachmentPreviewOf } from './attachments.js';
+import { AttachmentPreview } from './Attached.js';
 import { EMOJIcon } from '../emojis.js';
 import { CopyButton } from '../controls/CopyButton.js';
 import { PageAlert } from '../view/PageAlert.js';
@@ -66,9 +67,10 @@ function FactLine({ facts, state, live, text }: { facts: TurnFacts; state?: stri
 
 const NONE: readonly ChatInputRequest[] = [];
 
-/** What a message carried along with its text, a file opening where it is one. */
+/** What a message carried along with its text: a file opens where it is one, what the message holds opens a preview. */
 function SentAttachments({ attachments }: { attachments: readonly MessageAttachment[] }): ReactElement {
   const scena = useScena();
+  const [preview, setPreview] = useState<AttachmentPreviewOf | null>(null);
   return (
     <div className="web-turn__attached">
       {attachments.map((attachment, index) => {
@@ -76,10 +78,12 @@ function SentAttachments({ attachments }: { attachments: readonly MessageAttachm
         const uri = typeof held.uri === 'string' && held.displayKind !== 'directory' ? held.uri : undefined;
         const label = attachmentLabel(attachment);
         const body = <><span className="web-attachment__icon">{attachmentIcon(attachment)}</span><span className="web-attachment__label">{label}</span></>;
+        if (hasPreview(attachment)) return <button key={index} type="button" className="web-attachment" title={`See ${label}`} onClick={() => setPreview(previewOf(attachment))}>{body}</button>;
         return uri === undefined
           ? <span key={index} className="web-attachment" title={label}>{body}</span>
           : <button key={index} type="button" className="web-attachment" title={`Open ${label}`} onClick={() => void scena.commands.execute('ahp.openFile', { uri })}>{body}</button>;
       })}
+      {preview === null ? null : <AttachmentPreview preview={preview} onClose={() => setPreview(null)} />}
     </div>
   );
 }
@@ -228,7 +232,9 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
           steering={chat.state.steeringMessage}
           draft={chat.state.draft}
           lastModel={chat.state.turns.at(-1)?.message.model?.id}
+          lastUsage={chat.state.turns.at(-1)?.usage}
           config={session.state?.config}
+          changesets={session.state?.changesets}
           summary={summary}
           send={send}
         />

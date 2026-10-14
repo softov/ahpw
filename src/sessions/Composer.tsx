@@ -4,12 +4,14 @@ import { Button, useChatPicker } from '@softov/scena/ui';
 import type { HostCtx, PickerAction } from '@softov/scena/types';
 import type {
   AgentInfo,
+  Changeset,
   Message,
   MessageAttachment,
   PendingMessage,
   SessionConfigState,
   SessionSummary,
   StateAction,
+  UsageInfo,
 } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS, dispatch, request } from '../connection/data.js';
 import { folderLabel, newId } from '../connection/words.js';
@@ -20,15 +22,20 @@ import {
   COMPOSER_SLOT,
   composerPath,
   optionCommandId,
-  optionLabel,
   pickable,
   registerOptionCommands,
   showsPill,
+  type ChangedFile,
+  typeTrigger,
   type ComposerApi,
   type Option,
 } from './composer-commands.js';
+import { useChangeset } from '../changes/changeset.js';
+import { modelLabels, settingLabels } from './pill-labels.js';
+import { contextReadout, footerSide } from './footer.js';
+import { firstScope, scopesOf } from '../changes/words.js';
 import { EMOJIcon } from '../emojis.js';
-import { attachmentPath, fromFiles, sameAttachment, withRanges, withToken } from './attachments.js';
+import { attachmentPath, fromFiles, resourceAttachment, sameAttachment, withRanges, withToken } from './attachments.js';
 import { AddButton, Attached } from './Attached.js';
 import { useComposerDrop } from './composer-drop.js';
 import { warn } from '../notify/index.js';
@@ -62,7 +69,7 @@ export function messageOf(text: string, model: string | undefined, attachments: 
 }
 
 /** The composer of one chat: the box, its `/` and `@` picker, the settings row, and send, queue, steer and stop. */
-export const Composer = memo(function Composer({ chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, config, summary, send }: {
+export const Composer = memo(function Composer({ chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, summary, send }: {
   chatUri: string;
   activeId: string | undefined;
   activeStart: string | undefined;
@@ -70,7 +77,11 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   steering: PendingMessage | undefined;
   draft: Message | undefined;
   lastModel: string | undefined;
+  /** The last turn's usage, for the context readout beside the model. */
+  lastUsage: UsageInfo | undefined;
   config: SessionConfigState | undefined;
+  /** The session's changesets: Add context lists the files of the first, the one the Changes pane opens on. */
+  changesets: readonly Changeset[] | undefined;
   summary: SessionSummary;
   send: Send;
 }): ReactElement {
@@ -177,6 +188,8 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     return () => registration.dispose();
   }, [scena, focus, commands]);
 
+  // While the + menu is open, the @ or / list under the box waits, so the two never overlap.
+  const [adding, setAdding] = useState(false);
   const picker = useChatPicker({
     input: text,
     setInput: setText,
@@ -200,6 +213,12 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   }, [activeId, activeStart, send]);
 
   const models = useMemo(() => (agent?.models ?? []).map((one) => ({ id: one.id, name: one.name })), [agent]);
+
+  const changes = useChangeset(useMemo(() => firstScope(scopesOf(changesets))?.uri, [changesets]));
+  // A deleted file has nothing left to read.
+  const changed: ChangedFile[] = useMemo(() => changes.files
+    .filter((one) => one.status !== 'deleted')
+    .map((one) => ({ title: one.name, description: one.dir, attachment: resourceAttachment(one.file, false) })), [changes.files]);
   const api = useRef<ComposerApi | null>(null);
   api.current = {
     models: () => models,
@@ -217,16 +236,13 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     session: () => summary.resource,
     attach,
     type: (prefix) => {
-      const at = caretRef.current ?? textRef.current.length;
-      const before = textRef.current.slice(0, at);
-      const lead = prefix === '/' ? '' : before === '' || /\s$/.test(before) ? '' : ' ';
-      const next = prefix === '/' && before.trim() === '' ? `/${textRef.current.slice(at)}` : `${before}${lead}${prefix}${textRef.current.slice(at)}`;
-      const caretAt = prefix === '/' && before.trim() === '' ? 1 : before.length + lead.length + 1;
+      const next = typeTrigger(textRef.current, caretRef.current ?? textRef.current.length, prefix);
       typed.current = true;
-      setText(next);
-      focusCaret(caretAt);
+      setText(next.text);
+      focusCaret(next.caret);
     },
     upload: () => files.current?.click(),
+    changed: () => changed,
   };
   useEffect(() => attachComposer(path, {
     models: () => api.current?.models() ?? [],
@@ -240,6 +256,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     attach: (attachment) => api.current?.attach(attachment),
     type: (prefix) => api.current?.type(prefix),
     upload: () => api.current?.upload(),
+    changed: () => api.current?.changed() ?? [],
   }), [path]);
 
   // Keyed on which settings exist, not their values, so a value changing does not tear down an open list.
@@ -277,10 +294,21 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   }
 
   const modelName = models.find((one) => one.id === model)?.name ?? model;
+  const readout = contextReadout(agent?.models.find((one) => one.id === model), lastUsage);
+  const pills = options.filter(showsPill);
+  const settingPill = (option: Option): ReactElement => (
+    <Pill
+      key={option.key}
+      {...settingLabels(option)}
+      title={option.schema.description ?? option.schema.title}
+      {...(option.schema.type === 'boolean' ? { on: (option.value ?? option.schema.default) === true } : {})}
+      {...(pickable(option.schema) ? { onOpen: () => openCommand(optionCommandId(option.key)) } : {})}
+    />
+  );
 
   return (
     <div className="web-composer">
-      {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
+      {picker.pickerNode === null || adding ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
 
       {steering === undefined && queued.length === 0 ? null : (
         <ul className="web-composer__queue">
@@ -312,6 +340,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         onDragOver={drop.onDragOver}
         onDragLeave={drop.onDragLeave}
         onDrop={drop.onDrop}
+        onPaste={drop.onPaste}
       >
         <Attached
           attachments={attachments}
@@ -326,7 +355,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
             rows={1}
             value={text}
             aria-label="Message"
-            placeholder={active === undefined ? 'Message the agent, / for commands, @ to refer to a file' : 'Queue a message for after this turn, or steer it'}
+            placeholder={active === undefined ? 'What should it do?' : 'Queue a message for after this turn, or steer it'}
             onChange={(event) => {
               typed.current = true;
               setText(event.currentTarget.value);
@@ -351,21 +380,17 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         </div>
 
         <div className="web-composer__foot">
-          <AddButton onClick={() => openCommand('ahp.composer.attach')} />
+          <AddButton path={path} onOpenChange={setAdding} />
           <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
-          <div className="web-composer__chips">
+          <div className="web-composer__chips web-composer__chips--left">
+            {pills.filter((option) => footerSide(option) === 'left').map(settingPill)}
+          </div>
+          <div className="web-composer__chips web-composer__chips--right">
             {models.length === 0 ? null : (
-              <Pill label={`Model: ${modelName ?? 'default'}`} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
+              <Pill {...modelLabels(modelName ?? 'default')} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
             )}
-            {options.filter(showsPill).map((option) => (
-              <Pill
-                key={option.key}
-                label={`${option.schema.title || option.key}: ${optionLabel(option)}`}
-                title={option.schema.description ?? option.schema.title}
-                {...(option.schema.type === 'boolean' ? { on: (option.value ?? option.schema.default) === true } : {})}
-                {...(pickable(option.schema) ? { onOpen: () => openCommand(optionCommandId(option.key)) } : {})}
-              />
-            ))}
+            {pills.filter((option) => footerSide(option) === 'right').map(settingPill)}
+            {readout === null ? null : <span className="web-composer__context" title={readout.title}>{readout.text}</span>}
           </div>
           {active === undefined || text.trim() === '' ? null : <Button label="Steer" size="sm" title="Alt+Enter steers" onClick={() => submit('steer')} />}
           {active === undefined || text.trim() === '' ? null : <Button label="Queue" variant="primary" size="sm" title="Enter queues" onClick={() => submit('send')} />}

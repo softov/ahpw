@@ -1,4 +1,4 @@
-import { useState, type DragEvent } from 'react';
+import { useState, type ClipboardEvent, type DragEvent } from 'react';
 import type { MessageAttachment } from '@microsoft/agent-host-protocol';
 import { folderLabel } from '../connection/words.js';
 import { carriesHostFile, droppedHostFile } from '../folders/drag.js';
@@ -10,6 +10,7 @@ export type Dropping = 'attach' | 'mention' | null;
 /**
  * A composer box as a drop target: a host file from the explorer attaches, and with
  * Shift is also written in as `@path`; this computer's files attach as content.
+ * A paste of files, as a screenshot or a copied file, attaches them the same way.
  */
 export function useComposerDrop({ attach, insert, upload }: {
   attach: (attachment: MessageAttachment) => void;
@@ -20,6 +21,7 @@ export function useComposerDrop({ attach, insert, upload }: {
   onDragOver: (event: DragEvent) => void;
   onDragLeave: (event: DragEvent) => void;
   onDrop: (event: DragEvent) => void;
+  onPaste: (event: ClipboardEvent) => void;
 } {
   const [dropping, setDropping] = useState<Dropping>(null);
   return {
@@ -55,5 +57,20 @@ export function useComposerDrop({ attach, insert, upload }: {
       event.preventDefault();
       upload(event.dataTransfer.files);
     },
+    onPaste: (event) => {
+      const files = pastedFiles(event.clipboardData);
+      if (files === null) return;
+      event.preventDefault();
+      upload(files);
+    },
   };
+}
+
+/**
+ * The files a paste carries, or nothing when it is text. A copy from a document
+ * often carries a picture of the selection beside its text: that pastes as text.
+ */
+export function pastedFiles(data: Pick<DataTransfer, 'types' | 'files'>): FileList | null {
+  if (data.files.length === 0 || Array.from(data.types).includes('text/plain')) return null;
+  return data.files;
 }

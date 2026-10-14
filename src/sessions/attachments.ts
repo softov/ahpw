@@ -51,6 +51,28 @@ export async function fromFiles(files: readonly File[]): Promise<{ attached: Mes
   return { attached, refused };
 }
 
+/**
+ * The image on the clipboard, as a file to attach, or why there is none, in
+ * words for the greyed Add context row. The browser may ask for leave first.
+ */
+export async function clipboardImage(clipboard: Pick<Clipboard, 'read'> | undefined = globalThis.navigator?.clipboard): Promise<File | string> {
+  if (typeof clipboard?.read !== 'function') return 'Needs https or localhost';
+  let items: ClipboardItems;
+  try {
+    items = await clipboard.read();
+  } catch {
+    return 'The browser refused';
+  }
+  for (const item of items) {
+    const type = item.types.find((one) => one.startsWith('image/'));
+    if (type === undefined) continue;
+    const blob = await item.getType(type);
+    if (blob.size > MAX_EMBEDDED_BYTES) return 'Over 5 MB';
+    return new File([blob], `clipboard.${type.slice('image/'.length).split('+')[0]}`, { type });
+  }
+  return 'No image on the clipboard';
+}
+
 /** The glyph a chip shows for an attachment. */
 export function attachmentIcon(attachment: MessageAttachment): string {
   const held = bagOf(attachment);
@@ -74,6 +96,49 @@ export function sameAttachment(a: MessageAttachment, b: MessageAttachment): bool
   if (typeof x.uri === 'string') return x.uri === y.uri;
   if (typeof x.resource === 'string') return x.resource === y.resource;
   return x.label === y.label && x.data === y.data;
+}
+
+/** The most text a preview draws, so a large file does not stall the page. */
+const PREVIEW_TEXT_MAX = 200_000;
+
+/** What a preview shows of an attachment the message carries: the image, the text, or its type and size alone. */
+export interface AttachmentPreviewOf {
+  label: string;
+  meta: string;
+  image?: string;
+  text?: string;
+}
+
+/** A size as people read it: 512 B, 12.3 KB, 1.2 MB. */
+export function byteWords(count: number): string {
+  if (count < 1024) return `${count} B`;
+  if (count < 1024 * 1024) return `${(count / 1024).toFixed(1)} KB`;
+  return `${(count / 1024 / 1024).toFixed(1)} MB`;
+}
+
+/** Whether the message carries the attachment's bytes, so a preview can show them; cheap, for every render. */
+export function hasPreview(attachment: MessageAttachment): boolean {
+  const held = bagOf(attachment);
+  return held.type === 'embeddedResource' && typeof held.data === 'string';
+}
+
+/**
+ * The preview of an attachment carried inside the message, as ahpapp shows it;
+ * nothing for a host file, a folder or a chat, whose bytes the page does not hold.
+ */
+export function previewOf(attachment: MessageAttachment): AttachmentPreviewOf | null {
+  const held = bagOf(attachment);
+  const data = textOf(held.data);
+  if (!hasPreview(attachment) || data === undefined) return null;
+  const contentType = textOf(held.contentType) ?? 'application/octet-stream';
+  const binary = atob(data);
+  const preview = { label: attachmentLabel(attachment), meta: `${contentType} · ${byteWords(binary.length)}` };
+  if (contentType.startsWith('image/')) return { ...preview, image: `data:${contentType};base64,${data}` };
+  if (contentType.startsWith('text/') || /\b(json|xml|javascript|typescript|yaml|x-sh)\b/.test(contentType)) {
+    const bytes = Uint8Array.from(binary.slice(0, PREVIEW_TEXT_MAX * 4), (one) => one.charCodeAt(0));
+    return { ...preview, text: new TextDecoder().decode(bytes).slice(0, PREVIEW_TEXT_MAX) };
+  }
+  return preview;
 }
 
 /** What a chip names an attachment by. */

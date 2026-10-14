@@ -85,6 +85,10 @@ export const EMOJIcon = {
   caretRight: '▸',
   caretDown: '▾',
 
+  // composer pills, in a narrow box
+  approvals: mono('⛨'),
+  model: '✦',
+
   // what a tool call does
   read: '≡',
   search: '⌕',

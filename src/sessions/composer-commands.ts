@@ -1,8 +1,9 @@
 import type { BindingPath, Command, CommandContext, Disposable, PickerAction, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
+import { getActiveToken } from '@softov/scena/ui';
 import type { MessageAttachment, SessionConfigPropertySchema, SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS } from '../connection/data.js';
-import { chatAttachment } from './attachments.js';
+import { chatAttachment, clipboardImage, fromFiles } from './attachments.js';
 import { EMOJIcon } from '../emojis.js';
 
 /** The slot the composer's `/` commands are offered in. */
@@ -40,6 +41,15 @@ export interface ComposerApi {
   type(prefix: '@' | '/'): void;
   /** Ask the browser for files to send with the message. */
   upload(): void;
+  /** The session's changed files, to attach from Add context; none before a session exists. */
+  changed(): ChangedFile[];
+}
+
+/** A file the session changed, as Add context lists it. */
+export interface ChangedFile {
+  title: string;
+  description: string;
+  attachment: MessageAttachment;
 }
 
 /** The data context a composer's picker runs its commands under. */
@@ -56,6 +66,61 @@ export function attachComposer(path: BindingPath, api: ComposerApi): () => void 
 }
 
 const apiOf = (ctx: CommandContext): ComposerApi | undefined => (ctx.dataContext === undefined ? undefined : composers.get(ctx.dataContext));
+
+/** The composer at `path`, for a control of the composer that is not a command, as its `+`. */
+export const composerAt = (path: BindingPath): ComposerApi | undefined => composers.get(path);
+
+/**
+ * The text after Add context types `@` or `/` at the caret. An `@` or `/` word
+ * already at the caret is replaced, as a pill's command replaces it, so
+ * choosing twice leaves one trigger; `/` goes at the start of an empty box.
+ */
+export function typeTrigger(text: string, caret: number, prefix: '@' | '/'): { text: string; caret: number } {
+  const open = getActiveToken(text, ['/', '@'], caret);
+  if (open !== null) return { text: `${text.slice(0, open.start)}${prefix}${text.slice(open.end)}`, caret: open.start + 1 };
+  const before = text.slice(0, caret);
+  if (prefix === '/' && before.trim() === '') return { text: `/${text.slice(caret)}`, caret: 1 };
+  const lead = before === '' || /\s$/.test(before) ? '' : ' ';
+  return { text: `${before}${lead}${prefix}${text.slice(caret)}`, caret: before.length + lead.length + 1 };
+}
+
+/**
+ * Add context's items, for the `+` and `/attach` alike: the host's files, an
+ * upload, the clipboard's image, another session, the commands, then the files
+ * this session changed. `image` is the clipboard's image, or why there is none.
+ */
+export function contextItems(api: ComposerApi, sessions: readonly SessionSummary[], image: File | string): PickerAction[] {
+  const close = (then: () => void) => (host: { closeMenu(): void }) => {
+    host.closeMenu();
+    then();
+  };
+  const others = sessions.filter((one) => one.resource !== api.session() && one.defaultChat !== undefined);
+  return [
+    { title: `${EMOJIcon.file} Files and folders`, description: 'On the server\'s machine', onSelect: close(() => api.type('@')) },
+    { title: `${EMOJIcon.attach} Upload`, description: 'From this computer, up to 5 MB each', onSelect: close(() => api.upload()) },
+    typeof image === 'string'
+      ? { title: `${EMOJIcon.image} Image from clipboard`, description: image, disabled: true, onSelect: () => undefined }
+      : {
+        title: `${EMOJIcon.image} Image from clipboard`,
+        description: 'The image you copied',
+        onSelect: close(() => void fromFiles([image]).then((got) => got.attached.forEach((one) => api.attach(one)))),
+      },
+    {
+      title: `${EMOJIcon.sessions} Sessions`,
+      description: others.length === 0 ? 'No other session' : 'Another session\'s chat',
+      disabled: others.length === 0,
+      onSelect: (host) => host.pushList({
+        title: 'Sessions',
+        items: others.map((one) => ({
+          title: one.title === '' ? 'Untitled' : one.title,
+          onSelect: close(() => api.attach(chatAttachment(one))),
+        })),
+      }),
+    },
+    { title: `${EMOJIcon.terminal} Commands`, description: 'What the agent and this page can do', onSelect: close(() => api.type('/')) },
+    ...api.changed().map((one) => ({ title: one.title, description: one.description, group: 'changed', onSelect: close(() => api.attach(one.attachment)) })),
+  ];
+}
 
 /** Commands every open composer shares, counted so the last one to go takes them away. */
 const shared = new Map<string, { count: number; registration: Disposable }>();
@@ -191,35 +256,11 @@ export function registerComposerCommands(scena: Scena): Disposable {
       category: 'Session',
       shortcut: '/attach',
       slots: [COMPOSER_SLOT, NEW_SLOT],
-      run: (ctx) => {
+      run: async (ctx) => {
         const api = apiOf(ctx);
         if (api === undefined) return;
-        const close = (then: () => void) => (host: { closeMenu(): void }) => {
-          host.closeMenu();
-          then();
-        };
-        const sessions = (ctx.store.get<SessionSummary[]>(AHP_SESSIONS) ?? []).filter((one) => one.resource !== api.session() && one.defaultChat !== undefined);
-        ctx.host?.pushList({
-          title: 'Add context',
-          sentinel: '/attach',
-          items: [
-            { title: `${EMOJIcon.file} Files and folders`, description: 'On the server\'s machine', onSelect: close(() => api.type('@')) },
-            { title: `${EMOJIcon.attach} Upload`, description: 'From this computer, up to 5 MB each', onSelect: close(() => api.upload()) },
-            {
-              title: `${EMOJIcon.sessions} Sessions`,
-              description: sessions.length === 0 ? 'No other session' : 'Another session\'s chat',
-              disabled: sessions.length === 0,
-              onSelect: (host) => host.pushList({
-                title: 'Sessions',
-                items: sessions.map((one) => ({
-                  title: one.title === '' ? 'Untitled' : one.title,
-                  onSelect: close(() => api.attach(chatAttachment(one))),
-                })),
-              }),
-            },
-            { title: 'Commands', description: 'What the agent and this page can do', onSelect: close(() => api.type('/')) },
-          ],
-        });
+        const image = await clipboardImage();
+        ctx.host?.pushList({ title: 'Add context', sentinel: '/attach', items: contextItems(api, ctx.store.get<SessionSummary[]>(AHP_SESSIONS) ?? [], image) });
       },
     }),
     share(scena, {

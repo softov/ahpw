@@ -17,12 +17,18 @@ import {
   pickable,
   registerOptionCommands,
   showsPill,
+  typeTrigger,
   type ModelChoice,
   type Option,
 } from './composer-commands.js';
 import { useComposerDrop } from './composer-drop.js';
 import { folderMentions, mentionQuery } from './folder-mentions.js';
 import { FolderPill } from './FolderPill.js';
+import { readTipCount, tipAt, tipsFor, writeTipCount } from './tips.js';
+import { readTrayOpen, writeTrayOpen } from './new-tray.js';
+import { modelLabels, settingLabels } from './pill-labels.js';
+import { contextReadout, footerSide } from './footer.js';
+import { EMOJIcon } from '../emojis.js';
 import { Pill, TextPill } from './pills.js';
 import { slashCommandsOf } from '../agents/words.js';
 import { warn } from '../notify/index.js';
@@ -60,7 +66,7 @@ function SettingPill({ option, set, open }: { option: Option; set: (next: unknow
   if (pickable(schema)) {
     return (
       <Pill
-        label={`${title}: ${optionLabel(option)}`}
+        {...settingLabels(option)}
         {...described}
         {...(schema.type === 'boolean' ? { on: (value ?? schema.default) === true } : {})}
         onOpen={() => open(optionCommandId(key))}
@@ -149,6 +155,19 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
 
   // `/` offers the chosen agent's skills and commands; another agent brings its own.
   const commands = useMemo(() => agentCommands(slashCommandsOf(agent?.customizations)), [agent]);
+
+  // One tip under the box, the next on each open; written once, so a second effect run in development writes the same count.
+  const [opens] = useState(readTipCount);
+  useEffect(() => writeTipCount(opens + 1), [opens]);
+  const tip = tipAt(tipsFor(commands.length > 0), opens);
+
+  // The once-per-session choices fold away; whether they are folded is kept per host.
+  const [trayOpen, setTrayOpen] = useState(readTrayOpen);
+  const foldTray = (open: boolean): void => {
+    setTrayOpen(open);
+    writeTrayOpen(open);
+  };
+  const folderName = folder.replace(/[\/]+$/, '').split(/[\/]/).pop() ?? '';
   useEffect(() => {
     const registration = registerHostCommands(scena, NEW_FOCUS, commands, NEW_SLOT);
     return () => registration.dispose();
@@ -212,6 +231,8 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     }
   }, [where, attach]);
 
+  // While the + menu is open, the @ or / list under the box waits, so the two never overlap.
+  const [adding, setAdding] = useState(false);
   const picker = useChatPicker({
     input: text,
     setInput: setText,
@@ -232,6 +253,10 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     ? (dynamic['model'] ?? (modelSchema.enum ?? []).map((one, index) => ({ value: String(one), label: modelSchema.enumLabels?.[index] ?? String(one) }))).map((one) => ({ id: one.value, name: one.label }))
     : (agent?.models ?? []).map((one) => ({ id: one.id, name: one.name }))), [modelSchema, dynamic, agent]);
   const modelName = models.find((one) => one.id === model)?.name ?? model;
+  const readout = contextReadout(agent?.models.find((one) => one.id === model), undefined);
+  const settingPill = (option: Option): ReactElement => (
+    <SettingPill key={option.key} option={option} set={(next) => setChosen((held) => ({ ...held, [option.key]: next }))} open={openCommand} />
+  );
 
   // The settings as the composer's commands read them; a list the host gives on demand stands in for the schema's own.
   const options: Option[] = useMemo(() => settings.map(([key, schema]) => {
@@ -291,14 +316,12 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     session: () => '',
     attach: (attachment) => api.current.attach(attachment),
     type: (prefix) => {
-      const at = caretRef.current ?? textRef.current.length;
-      const before = textRef.current.slice(0, at);
-      const lead = prefix === '/' ? '' : before === '' || /\s$/.test(before) ? '' : ' ';
-      const next = prefix === '/' && before.trim() === '' ? `/${textRef.current.slice(at)}` : `${before}${lead}${prefix}${textRef.current.slice(at)}`;
-      setText(next);
-      api.current.focusCaret(prefix === '/' && before.trim() === '' ? 1 : before.length + lead.length + 1);
+      const next = typeTrigger(textRef.current, caretRef.current ?? textRef.current.length, prefix);
+      setText(next.text);
+      api.current.focusCaret(next.caret);
     },
     upload: () => files.current?.click(),
+    changed: () => [],
   }), []);
 
   function openCommand(id: string): void {
@@ -345,12 +368,25 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       {agent?.description === undefined || agent.description === '' ? null : <p className="web-note">{agent.description}</p>}
       <div className="web-composer web-new__composer">
         {/* Under the box, where the page has room, so the list never covers the box's own controls. */}
-        {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
-        <div className="web-composer__where">
-          <Pill label={`Agent: ${agent?.displayName ?? provider}`} title="The agent the session runs on" onOpen={() => openCommand(AGENT_COMMAND)} />
-          <FolderPill value={folder} onChange={setFolder} />
-        </div>
-        <div className="web-composer__box" data-drop={drop.dropping ?? undefined} onDragOver={drop.onDragOver} onDragLeave={drop.onDragLeave} onDrop={drop.onDrop}>
+        {picker.pickerNode === null || adding ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
+        {trayOpen ? (
+          <div className="web-composer__where web-new__tray">
+            <Pill label={`Agent: ${agent?.displayName ?? provider}`} title="The agent the session runs on" onOpen={() => openCommand(AGENT_COMMAND)} />
+            <FolderPill value={folder} onChange={setFolder} />
+            <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label="Fold the options" title="Fold the options" onClick={() => foldTray(false)}>
+              {EMOJIcon.caretDown}
+            </button>
+          </div>
+        ) : (
+          <div className="web-composer__where web-new__tray">
+            <button type="button" className="web-chip web-new__tray-head" aria-expanded={false} title="Show the options" onClick={() => foldTray(true)}>
+              <span aria-hidden="true">{EMOJIcon.caretRight}</span>
+              {`Agent: ${agent?.displayName ?? provider}`}
+              {folderName === '' ? null : ` · ${folderName}`}
+            </button>
+          </div>
+        )}
+        <div className="web-composer__box" data-drop={drop.dropping ?? undefined} onDragOver={drop.onDragOver} onDragLeave={drop.onDragLeave} onDrop={drop.onDrop} onPaste={drop.onPaste}>
           <Attached attachments={attachments} folder={where} onRemove={(index) => setAttachments((held) => held.filter((_, at) => at !== index))} />
           <div className="web-composer__bar">
             <textarea
@@ -359,7 +395,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
               rows={3}
               value={text}
               aria-label="First message"
-              placeholder={commands.length === 0 ? 'What should it do? @ to refer to a file. Enter starts; leave it empty to start without a message.' : 'What should it do? / for skills and commands, @ to refer to a file. Enter starts; leave it empty to start without a message.'}
+              placeholder="What should it do?"
               onChange={(event) => {
                 setText(event.currentTarget.value);
                 setCaret(event.currentTarget.selectionStart);
@@ -377,21 +413,18 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
             />
           </div>
           <div className="web-composer__foot">
-            <AddButton onClick={() => openCommand('ahp.composer.attach')} />
+            <AddButton path={NEW_PATH} onOpenChange={setAdding} />
             <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
-            <div className="web-composer__chips">
-              {models.length === 0 ? null : (
-                <Pill label={`Model: ${modelName === '' ? 'default' : modelName}`} title="The model the first message goes to" onOpen={() => openCommand('ahp.composer.model')} />
-              )}
-              {options.map((option) => (
-                <SettingPill
-                  key={option.key}
-                  option={option}
-                  set={(next) => setChosen((held) => ({ ...held, [option.key]: next }))}
-                  open={openCommand}
-                />
-              ))}
+            <div className="web-composer__chips web-composer__chips--left">
+              {options.filter((option) => footerSide(option) === 'left').map(settingPill)}
               {resolved === null && provider !== '' ? <Pill label="Reading settings" /> : null}
+            </div>
+            <div className="web-composer__chips web-composer__chips--right">
+              {models.length === 0 ? null : (
+                <Pill {...modelLabels(modelName === '' ? 'default' : modelName)} title="The model the first message goes to" onOpen={() => openCommand('ahp.composer.model')} />
+              )}
+              {options.filter((option) => footerSide(option) === 'right').map(settingPill)}
+              {readout === null ? null : <span className="web-composer__context" title={readout.title}>{readout.text}</span>}
             </div>
             <Button
               label={busy ? 'Starting' : text.trim() === '' && attachments.length === 0 ? 'Create' : 'Start'}
@@ -404,6 +437,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
           </div>
         </div>
       </div>
+      <p className="web-new__tip"><kbd>{tip.keys}</kbd> {tip.text}</p>
       {error === null ? null : <Alert tone="danger" title="Not created" message={error} />}
     </div>
   );
