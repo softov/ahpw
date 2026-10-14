@@ -19,8 +19,8 @@ const backendFactories: ScopeBackendFactory[] = [
   { scope: 'modus', create: () => createModusBackend() },
 ];
 
-/** scena's surfaces, with the right sidebar open: it holds the open session's details. */
-const surfaceDefaults = { ...DEFAULT_SURFACE_LAYOUTS, 'sidebar:right': { visible: true, layout: 'stack', size: 300 } };
+/** scena's surfaces, with the right sidebar open, its panes as tabs: the open session's details and its changes. */
+const surfaceDefaults = { ...DEFAULT_SURFACE_LAYOUTS, 'sidebar:right': { visible: true, layout: 'tab', size: 300 } };
 
 // Module scope: a new object per render would re-initialise scena.
 const options = { layoutStorage, backendFactories, surfaceDefaults };

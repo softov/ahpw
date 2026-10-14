@@ -57,6 +57,9 @@ export function registerShell(scena: Scena): Disposable {
   // A first visit shows the sessions.
   const left = scena.layout.get().surfaces['sidebar:left'];
   if (left?.section === undefined) scena.layout.setSurface('sidebar:left', { ...left, section: SESSIONS_SECTION });
+  // The right sidebar shows its panes as tabs; a layout saved before it did kept them stacked.
+  const right = scena.layout.get().surfaces['sidebar:right'];
+  if (right?.layout === 'stack') scena.layout.setSurface('sidebar:right', { ...right, layout: 'tab' });
   const embedded = embedder;
   const controls = embedder?.window;
   return combineDisposables(
