@@ -4,17 +4,17 @@ import './ahpw-mark.css';
 /**
  * The ahpw mark: an A standing in a W.
  *
- * The W is three pieces: its two outer strokes, in the bar's colour, and the A
- * between them. The geometry is the 64x64 grid of public/ahpw.svg, which sets
+ * The W is its two outer strokes, in the bar's colour, with the A drawn over
+ * them. The geometry is the 64x64 grid of public/ahpw.svg, which sets
  * it on a dark tile for the favicon, and index.html draws it again for the boot
  * loader; the three copies change together.
  */
 
-/** The W's outer strokes, cut along the A's outer edges. */
-export const AHPW_MARK_SIDES = ['M5.38 18 L14.62 18 L20.88 37.34 L16.38 52 Z', 'M58.62 18 L49.38 18 L43.12 37.34 L47.62 52 Z'] as const;
+/** The W's outer strokes, which the A's legs cover at the bottom. */
+export const AHPW_MARK_SIDES = ['M7 11.25 L18.84 11.25 L23.85 56.88 L12.01 56.88 Z', 'M57 11.25 L45.16 11.25 L40.15 56.88 L51.99 56.88 Z'] as const;
 
 /** The A, from its apex to the W's two bottom points. */
-export const AHPW_MARK_A = 'M29.84 8 L34.16 8 L47.62 52 L38.4 52 L32 31.06 L25.6 52 L16.38 52 Z';
+export const AHPW_MARK_A = 'M29.29 7.08 L34.83 7.08 L52.12 56.84 L40.28 56.84 L32.06 33.15 L23.85 56.84 L12.01 56.84 Z';
 
 /** The A's colour, the same on every theme. */
 export const AHPW_TEAL = '#62c9b0';
@@ -55,7 +55,7 @@ export function AhpwMark({ size = 16, label, set = false, echo = false, classNam
         <path key={more} className={`ahpw-mark__echo${more}`} d={AHPW_MARK_A} fill={AHPW_TEAL} />
       )) : null}
       <g className="ahpw-mark__art">
-        <rect x="26" y="43" width="12" height="4.4" fill={AHPW_TEAL_DEEP} />
+        <rect x="23.56" y="42.23" width="17.1" height="7.92" fill={AHPW_TEAL_DEEP} />
         {AHPW_MARK_SIDES.map((side) => <path key={side} d={side} fill={AHPW_TEAL_DEEP} />)}
         <path d={AHPW_MARK_A} fill={AHPW_TEAL} />
       </g>

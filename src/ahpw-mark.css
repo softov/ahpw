@@ -16,7 +16,7 @@
 }
 
 .ahpw-mark--set .ahpw-mark__art {
-  transform-origin: 32px 52px;
+  transform-origin: 32px 57px;
   animation: ahpw-mark-set 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.06) both;
 }
 
