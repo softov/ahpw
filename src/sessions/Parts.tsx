@@ -176,7 +176,7 @@ export function ToolCall({ call, send, live, turnId }: { call: ToolCallState; se
   );
 }
 
-/** One stretch of thinking: its opening words on the line, opened to the whole text. */
+/** One stretch of thinking: its opening words on the line, and opened, the whole text under a line that no longer repeats it. */
 export function Reasoning({ text, running }: { text: string; running: boolean }): ReactElement {
   const [open, setOpen] = useState(false);
   const opening = text.replace(/[*_`#>]/g, '').replace(/\s+/g, ' ').trim();
@@ -184,7 +184,7 @@ export function Reasoning({ text, running }: { text: string; running: boolean })
     <div className="web-tool" data-outcome={running ? 'running' : 'thought'}>
       <button type="button" className="web-tool__row" aria-expanded={open} onClick={() => setOpen(!open)}>
         <span className="web-tool__mark" aria-hidden="true">{EMOJIcon.thinking}</span>
-        <span className="web-tool__line">Thinking: {opening}</span>
+        <span className="web-tool__line">{open ? 'Thinking' : `Thinking: ${opening}`}</span>
       </button>
       {open ? <div className="web-tool__body web-md"><Markdown text={text} /></div> : null}
     </div>

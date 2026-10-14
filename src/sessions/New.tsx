@@ -8,11 +8,22 @@ import { folderLabel, folderUri, newId } from '../connection/words.js';
 import { fitToText, messageOf } from './Composer.js';
 import { AddButton, Attached } from './Attached.js';
 import { fromFiles, sameAttachment } from './attachments.js';
-import { attachComposer, composerPath, NEW_SLOT } from './composer-commands.js';
+import {
+  attachComposer,
+  composerPath,
+  NEW_SLOT,
+  optionCommandId,
+  optionLabel,
+  pickable,
+  registerOptionCommands,
+  showsPill,
+  type ModelChoice,
+  type Option,
+} from './composer-commands.js';
 import { useComposerDrop } from './composer-drop.js';
 import { folderMentions, mentionQuery } from './folder-mentions.js';
 import { FolderPill } from './FolderPill.js';
-import { ChoicePill, Pill, TextPill, TogglePill } from './pills.js';
+import { Pill, TextPill } from './pills.js';
 import { slashCommandsOf } from '../agents/words.js';
 import { warn } from '../notify/index.js';
 import { agentCommands, COMPOSER_FOCUS, registerHostCommands } from './host-commands.js';
@@ -29,38 +40,46 @@ const NEW_FOCUS = 'session:new';
 /** How long the inputs rest before the host is asked for the settings again. */
 const RESOLVE_DELAY = 300;
 
+/** The command behind the Agent pill and `/agent`: the new session box is the only place an agent is chosen. */
+const AGENT_COMMAND = 'ahp.new.agent';
+
 /** The settings the host offers for a session not yet created, and their values. */
 interface Resolved {
   schema: Record<string, SessionConfigPropertySchema>;
   values: Record<string, unknown>;
 }
 
-/** One setting as a pill: a choice, a switch, or a box to type in. */
-function SettingPill({ name, schema, value, choices, set }: {
-  name: string;
-  schema: SessionConfigPropertySchema;
-  value: unknown;
-  choices: { value: string; label: string }[] | undefined;
-  set: (next: unknown) => void;
-}): ReactElement | null {
-  const title = schema.title || name;
-  const current = value ?? schema.default;
-  // An object or a list the agent keeps, as `permissions`, with nothing to choose from: not a question, so no chip (as ahpapp's NewConfig).
-  if ((schema.type === 'object' || schema.type === 'array') && choices === undefined && (schema.enum?.length ?? 0) === 0) return null;
-  if (schema.type === 'boolean') return <TogglePill label={title} {...(schema.description === undefined ? {} : { title: schema.description })} value={current === true} onChange={set} />;
-  const options = choices ?? (schema.enum ?? []).map((one, index) => ({ value: String(one), label: schema.enumLabels?.[index] ?? String(one) }));
-  if (options.length > 0) {
-    const listed = options.some((one) => one.value === String(current ?? '')) ? options : [{ value: String(current ?? ''), label: current === undefined ? 'default' : String(current) }, ...options];
-    return <ChoicePill label={title} {...(schema.description === undefined ? {} : { title: schema.description })} value={String(current ?? '')} options={listed} onChange={(next) => set(schema.type === 'number' ? Number(next) : next)} />;
+/**
+ * One setting as a pill, as the session's composer shows it: a choice or a
+ * switch opens its command in the box's list; a value to type is a box.
+ */
+function SettingPill({ option, set, open }: { option: Option; set: (next: unknown) => void; open: (id: string) => void }): ReactElement | null {
+  const { key, schema, value } = option;
+  const title = schema.title || key;
+  const described = schema.description === undefined ? {} : { title: schema.description };
+  if (pickable(schema)) {
+    return (
+      <Pill
+        label={`${title}: ${optionLabel(option)}`}
+        {...described}
+        {...(schema.type === 'boolean' ? { on: (value ?? schema.default) === true } : {})}
+        onOpen={() => open(optionCommandId(key))}
+      />
+    );
   }
-  return (
-    <TextPill
-      label={title}
-      {...(schema.description === undefined ? {} : { title: schema.description })}
-      value={current === undefined || current === null ? '' : String(current)}
-      onChange={(next) => set(schema.type === 'number' ? (next === '' ? undefined : Number(next)) : next)}
-    />
-  );
+  if (schema.type === 'string' || schema.type === 'number') {
+    const current = value ?? schema.default;
+    return (
+      <TextPill
+        label={title}
+        {...described}
+        value={current === undefined || current === null ? '' : String(current)}
+        onChange={(next) => set(schema.type === 'string' ? next : next === '' ? undefined : Number(next))}
+      />
+    );
+  }
+  // An object or a list the agent keeps, as `permissions`: shown when it holds something, as the composer does.
+  return showsPill(option) ? <Pill label={`${title}: ${optionLabel(option)}`} {...described} /> : null;
 }
 
 /** A new session, started the way a chat is: say something, with the agent, model, folder and settings above the box. */
@@ -209,19 +228,64 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     [resolved],
   );
   const modelSchema = resolved?.schema['model'];
-  const modelOptions = modelSchema !== undefined
-    ? (dynamic['model'] ?? (modelSchema.enum ?? []).map((one, index) => ({ value: String(one), label: modelSchema.enumLabels?.[index] ?? String(one) })))
-    : (agent?.models ?? []).map((one) => ({ value: one.id, label: one.name }));
+  const models: ModelChoice[] = useMemo(() => (modelSchema !== undefined
+    ? (dynamic['model'] ?? (modelSchema.enum ?? []).map((one, index) => ({ value: String(one), label: modelSchema.enumLabels?.[index] ?? String(one) }))).map((one) => ({ id: one.value, name: one.label }))
+    : (agent?.models ?? []).map((one) => ({ id: one.id, name: one.name }))), [modelSchema, dynamic, agent]);
+  const modelName = models.find((one) => one.id === model)?.name ?? model;
 
-  // What Add context reads and does here: attach, type a prefix, upload. A session not yet made has no turn and no settings to change.
-  const api = useRef({ attach, upload, focusCaret });
-  api.current = { attach, upload, focusCaret };
+  // The settings as the composer's commands read them; a list the host gives on demand stands in for the schema's own.
+  const options: Option[] = useMemo(() => settings.map(([key, schema]) => {
+    const listed = dynamic[key];
+    const offered = listed === undefined ? schema : { ...schema, enum: listed.map((one) => one.value), enumLabels: listed.map((one) => one.label) };
+    return { key, schema: offered, value: chosen[key] ?? resolved?.values[key] };
+  }), [settings, dynamic, chosen, resolved]);
+  // Keyed on which settings exist, not their values, so a value changing does not tear down an open list.
+  const shape = options.map((one) => one.key).join('\n');
+  useEffect(() => {
+    const registration = registerOptionCommands(scena, options);
+    return () => registration.dispose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scena, shape]);
+
+  const pickAgent = useCallback((next: string): void => {
+    setProvider(next);
+    setModel('');
+    setChosen({});
+    setDynamic({});
+  }, []);
+
+  // What the box's commands read and do: the agent, the model, the settings, Add context. A session not yet made has no turn to stop.
+  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, provider });
+  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, provider };
+  useEffect(() => scena.commands.register({
+    id: AGENT_COMMAND,
+    title: 'Agent',
+    description: 'The agent the session runs on',
+    category: 'Session',
+    shortcut: '/agent',
+    slots: [NEW_SLOT],
+    run: (ctx) => {
+      const now = api.current;
+      ctx.host?.pushList({
+        title: 'Agent',
+        sentinel: '/agent',
+        items: now.agents.map((one) => ({
+          title: one.displayName,
+          active: one.provider === now.provider,
+          onSelect: (host) => {
+            now.pickAgent(one.provider);
+            host.closeMenu();
+          },
+        })),
+      });
+    },
+  }).dispose, [scena]);
   useEffect(() => attachComposer(NEW_PATH, {
-    models: () => [],
-    model: () => undefined,
-    setModel: () => undefined,
-    options: () => [],
-    setOption: () => undefined,
+    models: () => api.current.models,
+    model: () => (api.current.model === '' ? undefined : api.current.model),
+    setModel: (id) => setModel(id ?? ''),
+    options: () => api.current.options,
+    setOption: (key, value) => setChosen((held) => ({ ...held, [key]: value })),
     running: () => false,
     stop: () => undefined,
     session: () => '',
@@ -280,19 +344,15 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       <Text variant="h2" text="New session" />
       {agent?.description === undefined || agent.description === '' ? null : <p className="web-note">{agent.description}</p>}
       <div className="web-composer web-new__composer">
+        {/* Under the box, where the page has room, so the list never covers the box's own controls. */}
+        {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
         <div className="web-composer__where">
-          <ChoicePill
-            label="Agent"
-            value={provider}
-            options={agents.map((one) => ({ value: one.provider, label: one.displayName }))}
-            onChange={(next) => { setProvider(next); setModel(''); setChosen({}); setDynamic({}); }}
-          />
+          <Pill label={`Agent: ${agent?.displayName ?? provider}`} title="The agent the session runs on" onOpen={() => openCommand(AGENT_COMMAND)} />
           <FolderPill value={folder} onChange={setFolder} />
         </div>
         <div className="web-composer__box" data-drop={drop.dropping ?? undefined} onDragOver={drop.onDragOver} onDragLeave={drop.onDragLeave} onDrop={drop.onDrop}>
           <Attached attachments={attachments} folder={where} onRemove={(index) => setAttachments((held) => held.filter((_, at) => at !== index))} />
           <div className="web-composer__bar">
-            {picker.pickerNode === null ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
             <textarea
               ref={area}
               className="web-composer__text"
@@ -320,17 +380,15 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
             <AddButton onClick={() => openCommand('ahp.composer.attach')} />
             <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
             <div className="web-composer__chips">
-              {modelOptions.length === 0 ? null : (
-                <ChoicePill label="Model" value={model} options={[{ value: '', label: 'default' }, ...modelOptions]} onChange={setModel} />
+              {models.length === 0 ? null : (
+                <Pill label={`Model: ${modelName === '' ? 'default' : modelName}`} title="The model the first message goes to" onOpen={() => openCommand('ahp.composer.model')} />
               )}
-              {settings.map(([key, schema]) => (
+              {options.map((option) => (
                 <SettingPill
-                  key={key}
-                  name={key}
-                  schema={schema}
-                  value={chosen[key] ?? resolved?.values[key]}
-                  choices={dynamic[key]}
-                  set={(next) => setChosen((held) => ({ ...held, [key]: next }))}
+                  key={option.key}
+                  option={option}
+                  set={(next) => setChosen((held) => ({ ...held, [option.key]: next }))}
+                  open={openCommand}
                 />
               ))}
               {resolved === null && provider !== '' ? <Pill label="Reading settings" /> : null}

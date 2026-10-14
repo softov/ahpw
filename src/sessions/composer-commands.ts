@@ -8,7 +8,7 @@ import { EMOJIcon } from '../emojis.js';
 /** The slot the composer's `/` commands are offered in. */
 export const COMPOSER_SLOT = 'ahp:input/';
 
-/** The slot the new session box's `/` commands are offered in: the chosen agent's skills and commands, and Add context. */
+/** The slot the new session box's `/` commands are offered in: the chosen agent's skills and commands, its agent, model and settings, and Add context. */
 export const NEW_SLOT = 'ahp:new/';
 
 /** A model the agent offers. */
@@ -123,7 +123,9 @@ function optionCommand(key: string, schema: SessionConfigPropertySchema): Comman
     ...(schema.description === undefined ? {} : { description: schema.description }),
     category: 'Settings',
     shortcut,
-    slots: [COMPOSER_SLOT],
+    slots: [COMPOSER_SLOT, NEW_SLOT],
+    // Shared by key: a composer whose agent has no such setting lists it greyed.
+    disabled: (ctx) => apiOf(ctx)?.options().some((one) => one.key === key) !== true,
     run: (ctx) => {
       const api = apiOf(ctx);
       const option = api?.options().find((one) => one.key === key);
@@ -162,7 +164,7 @@ export function registerComposerCommands(scena: Scena): Disposable {
       description: 'The model the next message is sent to',
       category: 'Settings',
       shortcut: '/model',
-      slots: [COMPOSER_SLOT],
+      slots: [COMPOSER_SLOT, NEW_SLOT],
       disabled: (ctx) => (apiOf(ctx)?.models().length ?? 0) === 0,
       run: (ctx) => {
         const api = apiOf(ctx);
