@@ -653,11 +653,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  /* A circle as tall as the chips beside it, in their border. */
+  width: 20px;
+  height: 20px;
   padding: 0;
-  border: 0;
-  border-radius: var(--oo-radius-sm, 4px);
+  border: 1px solid var(--oo-color-border);
+  border-radius: 50%;
   background: none;
   color: var(--oo-color-muted);
   cursor: pointer;
@@ -830,6 +831,11 @@
 
 .web-explorer__scroll:hover {
   scrollbar-color: var(--oo-color-border) transparent;
+}
+
+/* The tree is as tall as its rows: at scena's full height it would scroll an empty pane by the notice above it. */
+.web-explorer__scroll > .oo-tree {
+  height: auto;
 }
 
 .web-explorer__notice {

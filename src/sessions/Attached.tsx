@@ -25,11 +25,11 @@ export function Attached({ attachments, folder, onRemove }: {
   );
 }
 
-/** The composer's `+`, which opens Add context. Drawn, not typed, so it sits in the middle of its square in any font. */
+/** The composer's `+`, which opens Add context. Drawn, not typed, so it sits in the middle of its circle in any font. */
 export function AddButton({ onClick }: { onClick: () => void }): ReactElement {
   return (
     <button type="button" className="web-composer__add" aria-label="Add context" title="Add context" onClick={onClick}>
-      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true">
         <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     </button>

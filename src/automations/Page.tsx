@@ -8,6 +8,7 @@ import { elapsed, folderLabel } from '../connection/words.js';
 import { tokens } from '../sessions/turn.js';
 import { cancelRun, remove, runNow, setEnabled } from './actions.js';
 import { cronWords, runFacts, runsByTime, stateOf, timeOf, titleOf, type AutomationState } from './words.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info';
 
@@ -79,10 +80,10 @@ export default function AutomationPage({ resource }: { resource?: string }): Rea
   const { state, error } = useChannel<Catalogue>(AUTOMATIONS, automationReducer);
   const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
   const [failure, setFailure] = useState<string | null>(null);
-  if (error !== null) return <Alert tone="danger" title="No automations" message={error} />;
+  if (error !== null) return <PageAlert tone="danger" title="No automations" message={error} />;
   if (state === undefined) return <Spinner label="Reading the automations" />;
   const entry = state.entries.find((one) => one.resource === resource);
-  if (entry === undefined) return <Alert tone="warning" message="This automation is gone." />;
+  if (entry === undefined) return <PageAlert tone="warning" message="This automation is gone." />;
 
   const can = (operation: string): boolean => entry.operations.map(String).includes(operation);
   const now = STATE[stateOf(entry)];

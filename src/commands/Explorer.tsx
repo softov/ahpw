@@ -46,9 +46,9 @@ export default function CommandExplorer({ group }: { group?: string }): ReactEle
     if (active === undefined && first !== undefined) void scena.commands.execute('ahpd.open', { id: first.id });
   }, [manifest, active, scena]);
 
-  if (error) return <Alert tone="danger" title="No manifest" message={error} />;
+  if (error) return <div className="web-explorer__notice"><Alert tone="danger" title="No manifest" message={error} /></div>;
   if (manifest === undefined) return <Spinner label="Reading the manifest" />;
-  if (section === undefined) return <Alert tone="warning" message={`This daemon has no ${group ?? ''} commands.`} />;
+  if (section === undefined) return <div className="web-explorer__notice"><Alert tone="warning" message={`This daemon has no ${group ?? ''} commands.`} /></div>;
   // A group that lists a kind of thing shows the things.
   const list = listOf(section.commands);
   if (list !== undefined) return <ItemExplorer manifest={manifest} title={section.title} list={list} commands={section.commands} />;

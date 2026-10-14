@@ -4,6 +4,7 @@ import { Alert, Markdown, Spinner } from '@softov/scena/ui';
 import { linkClicks } from './clicks.js';
 import { imagesFrom } from './HostImage.js';
 import { FileHead, useFileText } from './text.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** The folder a file URI sits in, which its relative links start from. */
 const folderOf = (uri: string): string => uri.replace(/\/[^/]*$/, '');
@@ -13,7 +14,7 @@ export default function MarkdownPage({ uri }: { uri?: string }): ReactElement {
   const scena = useScena();
   const state = useFileText(uri);
 
-  if (uri === undefined) return <Alert tone="warning" message="No file was named." />;
+  if (uri === undefined) return <PageAlert tone="warning" message="No file was named." />;
   const head = <FileHead uri={uri} />;
   if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
   if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;

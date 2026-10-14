@@ -8,6 +8,7 @@ import { AHP_SESSIONS, titlePath } from '../connection/data.js';
 import { ACTIVE_SESSION } from './state.js';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { EMOJIcon } from '../emojis.js';
+import { mountRight } from '../right-sidebar.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -101,12 +102,7 @@ export function registerSessions(scena: Scena): Disposable {
       },
     }),
 
-    scena.surfaces.mount({
-      surface: 'sidebar:right',
-      key: 'session:details',
-      resource: { component: 'SessionDetails' },
-      props: { title: 'Session' },
-    }),
+    mountRight(scena, { key: 'session:details', resource: { component: 'SessionDetails' }, props: { title: 'Session' } }, EMOJIcon.info),
     scena.surfaces.mount({
       surface: 'sidebar:left',
       key: 'sessions:explorer',

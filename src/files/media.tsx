@@ -3,6 +3,7 @@ import { Alert, Spinner } from '@softov/scena/ui';
 import { readBlob, sizeOf } from '../connection/data.js';
 import { mediaTypeOf } from './icons.js';
 import { FileHead } from './text.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** Past this size a file is not read, because it arrives whole over the connection. */
 export const MAX_BYTES = 64 * 1024 * 1024;
@@ -39,7 +40,7 @@ export function useFileUrl(uri: string | undefined): FileUrl {
 /** A media file's page: its head, then what `children` draws once the file is read, or why it is not. */
 export function MediaFrame({ uri, children }: { uri: string | undefined; children: (url: string) => ReactNode }): ReactElement {
   const state = useFileUrl(uri);
-  if (uri === undefined) return <Alert tone="warning" message="No file was named." />;
+  if (uri === undefined) return <PageAlert tone="warning" message="No file was named." />;
   const head = <FileHead uri={uri} />;
   if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
   if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;

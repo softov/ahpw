@@ -6,6 +6,7 @@ import { fieldsOf, schemaOf } from '../manifest/input.js';
 import { canRunWith, removalQuestion, runsOnOpening } from '../manifest/roles.js';
 import type { ProgramManifest } from '../manifest/types.js';
 import Result from './Result.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** What a command's effect looks like on its badge. */
 const EFFECT_TONE: Record<string, 'info' | 'success' | 'warning' | 'danger'> = { read: 'info', add: 'success', change: 'warning', remove: 'danger' };
@@ -35,7 +36,7 @@ export default function CommandPage({ commandId, initial }: { commandId?: string
   }, [command?.id]);
 
   if (manifest === undefined) return <Spinner label="Reading the manifest" />;
-  if (command === undefined) return <Alert tone="warning" message={`This daemon has no command ${commandId ?? ''}.`} />;
+  if (command === undefined) return <PageAlert tone="warning" message={`This daemon has no command ${commandId ?? ''}.`} />;
 
   const reads = command.effect === undefined ? command.http.method === 'GET' : command.effect === 'read';
   const removes = command.effect === 'remove';

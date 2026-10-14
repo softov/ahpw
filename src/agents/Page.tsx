@@ -1,10 +1,11 @@
 import type { ReactElement } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Badge, Button, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
+import { Badge, Button, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS, AHP_SESSIONS } from '../connection/data.js';
 import { CustomizationTrees } from './Customizations.js';
 import { capabilitiesOf, limitsOf, modelsLine, signInOf } from './words.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** A policy state as a person reads it; an enabled model says nothing. */
 const POLICY: Record<string, string> = { disabled: 'Turned off by policy', unconfigured: 'Not set up' };
@@ -15,7 +16,7 @@ export default function AgentPage({ provider }: { provider?: string }): ReactEle
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS) ?? [];
   const agent = agents.find((one) => one.provider === provider);
-  if (agent === undefined) return <Alert tone="warning" message="This server no longer offers this agent." />;
+  if (agent === undefined) return <PageAlert tone="warning" message="This server no longer offers this agent." />;
 
   const capabilities = capabilitiesOf(agent);
   const signIn = signInOf(agent);

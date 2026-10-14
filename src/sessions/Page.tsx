@@ -28,6 +28,7 @@ import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
 import { attachmentIcon, attachmentLabel } from './attachments.js';
 import { EMOJIcon } from '../emojis.js';
 import { CopyButton } from '../controls/CopyButton.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** How a turn ended, in words, when it did not end well. */
 const ENDED: Record<string, string> = { cancelled: 'Stopped', error: 'Ended with an error' };
@@ -182,7 +183,7 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
     if (unread && resource !== undefined) dispatch(resource, { type: 'session/isReadChanged', isRead: true } as StateAction);
   }, [unread, resource, turns]);
 
-  if (summary === undefined) return <Alert tone="warning" message="This session is gone." />;
+  if (summary === undefined) return <PageAlert tone="warning" message="This session is gone." />;
   const activity = activityOf(summary.status);
   const lifecycle = String(session.state?.lifecycle ?? 'ready');
   const doing = chat.state?.activity ?? summary.activity;

@@ -6,6 +6,7 @@ import CodeEditor from '../editor/CodeEditor.js';
 import { languageOf } from '../editor/languages.js';
 import { changedOnHost, refusesWrite, shownText } from './save.js';
 import { FileHead, useFileText } from './text.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** Why the last save did not land, and whether the host refuses this file's writes. */
 interface SaveFailure {
@@ -66,7 +67,7 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
       .finally(() => { saving.current = false; });
   }, [uri]);
 
-  if (uri === undefined) return <Alert tone="warning" message="No file was named." />;
+  if (uri === undefined) return <PageAlert tone="warning" message="No file was named." />;
   const head = <FileHead uri={uri} dirty={dirty} />;
   if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
   if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;

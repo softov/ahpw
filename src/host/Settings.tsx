@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { Alert, Button, SchemaForm, Spinner, Text, type JsonSchemaObject } from '@softov/scena/ui';
+import { Button, SchemaForm, Spinner, Text, type JsonSchemaObject } from '@softov/scena/ui';
 import { rootReducer, type RootState, type StateAction } from '@microsoft/agent-host-protocol';
 import { ROOT, dispatch } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
 import { changedKeys } from './config.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** The host's settings, as the schema it publishes describes them. */
 export default function SettingsPage(): ReactElement {
@@ -18,9 +19,9 @@ export default function SettingsPage(): ReactElement {
     setValues(held);
   }, [held]);
 
-  if (error !== null) return <Alert tone="danger" title="Settings not readable" message={error} />;
+  if (error !== null) return <PageAlert tone="danger" title="Settings not readable" message={error} />;
   if (state === undefined) return <Spinner label="Reading the settings" />;
-  if (config === undefined) return <Alert tone="info" message="This host publishes no settings." />;
+  if (config === undefined) return <PageAlert tone="info" message="This host publishes no settings." />;
 
   const changed = changedKeys(held, values);
   const dirty = Object.keys(changed).length > 0;

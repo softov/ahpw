@@ -1,6 +1,6 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
 import { useScena, useStore } from '@softov/scena/react';
-import { Alert, Button, Spinner, Text } from '@softov/scena/ui';
+import { Button, Spinner, Text } from '@softov/scena/ui';
 import {
   automationReducer,
   type AgentInfo,
@@ -12,6 +12,7 @@ import { AHP_AGENTS, AHP_AUTOMATION_CAPS, AHP_DEFAULT_DIRECTORY, AUTOMATIONS, di
 import { useChannel } from '../connection/channel.js';
 import { folderLabel, newId } from '../connection/words.js';
 import { cronWords, definitionOf, draftOf, draftProblem, type Draft } from './words.js';
+import { PageAlert } from '../view/PageAlert.js';
 
 /** Schedules most people want, so a cron expression is something to read rather than write. */
 const PRESETS: { label: string; expression: string }[] = [
@@ -44,10 +45,10 @@ export default function AutomationEditPage({ resource }: { resource?: string }):
   const entry = resource === undefined ? undefined : state?.entries.find((one) => one.resource === resource);
   const [draft, setDraft] = useState<Draft | null>(null);
 
-  if (error !== null) return <Alert tone="danger" title="No automations" message={error} />;
+  if (error !== null) return <PageAlert tone="danger" title="No automations" message={error} />;
   if (state === undefined) return <Spinner label="Reading the automations" />;
-  if (resource !== undefined && entry === undefined) return <Alert tone="warning" message="This automation is gone." />;
-  if (resource === undefined && caps?.create === undefined) return <Alert tone="warning" message="This host does not let clients create automations." />;
+  if (resource !== undefined && entry === undefined) return <PageAlert tone="warning" message="This automation is gone." />;
+  if (resource === undefined && caps?.create === undefined) return <PageAlert tone="warning" message="This host does not let clients create automations." />;
 
   const shown = draft ?? draftOf(entry, { ...(agents[0] === undefined ? {} : { provider: agents[0].provider }), ...(home === null || home === undefined ? {} : { folder: folderLabel(home) }) });
   const set = (patch: Partial<Draft>): void => setDraft({ ...shown, ...patch });
