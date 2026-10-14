@@ -6,6 +6,17 @@
   box-sizing: border-box;
 }
 
+/*
+ * The activity bar's buttons have no fill, in any theme: the rail behind them is
+ * transparent, so a filled button showed as a block. Hover and the open view show
+ * by colour, and the open one by its accent edge.
+ */
+.oo-activity-item {
+  --oo-activitybar-bg: transparent;
+  --oo-activitybar-bg-hover: transparent;
+  --oo-activitybar-bg-active: transparent;
+}
+
 .web-title {
   font-weight: 600;
 }
