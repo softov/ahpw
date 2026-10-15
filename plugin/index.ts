@@ -2,8 +2,8 @@ import { fileURLToPath } from 'node:url';
 import type { Plugin } from '@ahpd/sdk';
 import { staticRoute } from './static.js';
 
-/** The plugin's id, and the path it is served under: `/plugins/ahpd-web/`. */
-export const name = 'ahpd-web';
+/** The plugin's id, and the path it is served under: `/plugins/web/`. */
+export const name = 'web';
 
 /** What a listing prints. */
 export const title = 'Web';

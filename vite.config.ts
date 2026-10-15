@@ -42,7 +42,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
     alias: scena === undefined || scena === '' ? [] : scenaSource(scena),
   },
-  // Relative, because the daemon serves the page under /plugins/ahpd-web/.
+  // Relative, because the daemon serves the page under /plugins/web/.
   base: './',
   build: {
     outDir: 'dist/app',

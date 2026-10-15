@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { staticRoute } from './static.js';
 
-const PREFIX = '/plugins/ahpd-web/';
+const PREFIX = '/plugins/web/';
 let route: (request: Request) => Promise<Response>;
 let outside: string;
 
@@ -35,7 +35,7 @@ describe('staticRoute', () => {
   });
 
   it('redirects the bare prefix to the one with a slash', async () => {
-    const response = await get('/plugins/ahpd-web');
+    const response = await get('/plugins/web');
     expect(response.status).toBe(308);
     expect(response.headers.get('location')).toBe(PREFIX);
   });

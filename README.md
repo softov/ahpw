@@ -52,7 +52,7 @@ Turn on the API on the daemon's own port:
 }
 ```
 
-Then open `http://127.0.0.1:9187/plugins/ahpd-web/`.
+Then open `http://127.0.0.1:9187/plugins/web/`.
 
 Keep `http.port` unset. On another port the API is on another origin, and the page cannot reach it.
 

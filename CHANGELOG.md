@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- **The page is served under `/plugins/web/`.**
+  The plugin's id is `web`, because ahpd 0.12.0 takes only a slug as a plugin id. A link to `/plugins/ahpd-web/` stops answering.
+
 ## [0.3.1] - 2026-10-13
 
 ### Added
