@@ -9,12 +9,12 @@ import '@softov/scena/styles/scrollbar.css';
 import '@softov/scena/styles/surface.css';
 
 import { applyTheme, resolveThemeMode, type ThemeModeChoice } from '@softov/scena/styles';
-import './app.css';
-import './embed/embed.css';
+import './style/app.css';
+import './shell/embed/embed.css';
 import App from './App.js';
-import { THEME_ID_KEY, THEME_MODE_KEY } from './theme-keys.js';
-import { embedder } from './embed/index.js';
-import { startFrame } from './embed/frame.js';
+import { THEME_ID_KEY, THEME_MODE_KEY } from './lib/theme-keys.js';
+import { embedder } from './shell/embed/index.js';
+import { startFrame } from './shell/embed/frame.js';
 
 /** A stored value, or null where storage is blocked. */
 function stored(key: string): string | null {

@@ -6,12 +6,12 @@ import { Scena as ScenaRoot, useScena } from '@softov/scena/react/core';
 import { DefaultShell } from '@softov/scena/react';
 import { Limen, PortaContextProvider, SIGILLUM_PATHS, createPorta, registerPortaBlocks, useSession } from '@softov/scena/porta';
 import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/builtins';
-import { AhpwMark } from './AhpwMark.js';
-import { PRESENTATION } from './presentation.js';
-import { registerShell } from './shell.js';
-import { hostKey } from './storage-keys.js';
-import { keepTabs } from './tabs.js';
-import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './token-provider.js';
+import { AhpwMark } from './shell/AhpwMark.js';
+import { PRESENTATION } from './shell/presentation.js';
+import { registerShell } from './shell/register-shell.js';
+import { hostKey } from './lib/storage-keys.js';
+import { keepTabs } from './shell/tabs.js';
+import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './porta/token-provider.js';
 
 const layoutStorage = createLocalStorageLayoutStorage({ key: hostKey('ahpd-web.layout.v1') });
 
