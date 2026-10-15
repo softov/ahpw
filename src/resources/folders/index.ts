@@ -1,6 +1,6 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
-import { PALETTE_SLOT } from '../../shell/view/Palette.js';
+import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { registerEntryCommands } from './actions.js';
 import { ADDED_FOLDERS, readAdded } from './added.js';
 import { EXPANDED_FOLDERS, readExpanded } from './expanded.js';

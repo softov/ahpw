@@ -19,7 +19,6 @@
   },
   "shell": {
     "signOut": "Sign out",
-    "language": "Language",
     "toggleLeft": "Toggle left sidebar (Ctrl+B)",
     "togglePanel": "Toggle panel (Ctrl+J)",
     "toggleRight": "Toggle right sidebar (Ctrl+Alt+B)",
@@ -27,7 +26,12 @@
       "activateSection": "Activate sidebar section",
       "toggleLeft": "Toggle left sidebar",
       "toggleRight": "Toggle right sidebar",
-      "palette": "Command palette"
+      "palette": "Command palette",
+      "showCommands": "Show all commands",
+      "toggleActivityBar": "Toggle activity bar",
+      "toggleStatusBar": "Toggle status bar",
+      "toggleTitleBar": "Toggle title bar",
+      "selectLocale": "Change language…"
     },
     "nav": {
       "sessions": "Sessions",
@@ -38,6 +42,38 @@
       "host": "Host",
       "agents": "Agents",
       "settings": "Settings"
+    },
+    "palette": {
+      "placeholder": "Type a command or a terminal"
+    },
+    "layouts": {
+      "tab": "Tabs",
+      "tab-panel": "Tab groups",
+      "split": "Split",
+      "spatial": "Spatial",
+      "stack": "Stack",
+      "single": "Single"
+    },
+    "layout": {
+      "title": "Customize layout",
+      "view": "Main layout",
+      "modes": {
+        "title": "Modes",
+        "default": "Default",
+        "focus": "Focus",
+        "zen": "Zen",
+        "wide": "Wide",
+        "split": "Split view"
+      },
+      "zones": {
+        "title": "Show",
+        "titlebar": "Title bar",
+        "activitybar": "Activity bar",
+        "sidebar-left": "Left sidebar",
+        "sidebar-right": "Right sidebar",
+        "panel-bottom": "Panel",
+        "statusbar": "Status bar"
+      }
     }
   },
   "close": {
@@ -73,5 +109,11 @@
     "splitRight": "Split group right",
     "splitUp": "Split group up",
     "splitDown": "Split group down"
+  },
+  "picker": {
+    "navigate": "navigate",
+    "select": "select",
+    "back": "back",
+    "close": "close"
   }
 }

@@ -1,5 +1,5 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
-import { PALETTE_SLOT } from '../../shell/view/Palette.js';
+import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { combineDisposables, type ModusClass } from '@softov/scena';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { EMOJIcon } from '../emojis.js';

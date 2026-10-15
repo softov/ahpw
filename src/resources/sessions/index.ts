@@ -6,7 +6,7 @@ import { PRESENTATION } from '../../shell/presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS, titlePath } from '../../bridges/data.js';
 import { ACTIVE_SESSION } from './state.js';
-import { PALETTE_SLOT } from '../../shell/view/Palette.js';
+import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { EMOJIcon } from '../emojis.js';
 import { mountRight } from '../../shell/right-sidebar.js';
 

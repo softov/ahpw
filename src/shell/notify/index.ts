@@ -6,7 +6,7 @@ import { canAsk, createBrowserChannel, granted, requestAlerts } from './browser-
 import { ConfirmDialog } from './ConfirmDialog.js';
 import { Toaster } from './Toaster.js';
 import { DISMISS_SLOW_MS } from './types.js';
-import { PALETTE_SLOT } from '../view/Palette.js';
+import { PALETTE_SLOT } from '../CommandPalette.js';
 
 /** The notification registry, its toaster and browser channel, the confirm dialog, and their commands. */
 export function registerNotifications(scena: Scena): Disposable {

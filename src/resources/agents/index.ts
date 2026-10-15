@@ -3,7 +3,7 @@ import { combineDisposables, type ModusClass } from '@softov/scena';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS } from '../../bridges/data.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
-import { PALETTE_SLOT } from '../../shell/view/Palette.js';
+import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { ACTIVE_AGENT } from './state.js';
 import { EMOJIcon } from '../emojis.js';
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import en from './en.json';
 import es from './es.json';
 import pt from './pt.json';
-import { initialLocale } from './locales.js';
+import { english, initialLocale } from './locales.js';
 
 /** Every leaf key of a message tree, as `a/b/c`. */
 function keys(tree: object, prefix = ''): string[] {
@@ -32,5 +32,15 @@ describe('initialLocale', () => {
   it('falls back to English for a stored or browser language it does not speak', () => {
     expect(initialLocale('fr', ['de-DE'])).toBe('en');
     expect(initialLocale(null, [])).toBe('en');
+  });
+});
+
+describe('english', () => {
+  it('reads a nested message', () => {
+    expect(english('shell/commands/selectLocale')).toBe('Change language…');
+  });
+
+  it('refuses a key English does not have', () => {
+    expect(() => english('shell/nope')).toThrow('No English message for shell/nope');
   });
 });

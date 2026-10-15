@@ -2,7 +2,7 @@ import type { Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { AHP_DEFAULT_DIRECTORY, AHP_DETACHED, AHP_HOST, request, titlePath, type HostFacts } from '../../bridges/data.js';
 import { confirm, failed } from '../../shell/notify/index.js';
-import { PALETTE_SLOT } from '../../shell/view/Palette.js';
+import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { onPanel, onPanelTab, openInPanel, PANEL, redrawPanel, STRIP_SLOT } from '../../shell/panel/index.js';
 import { TERMINAL_ICON } from './rows.js';
 import { clientClaim, newTerminalUri } from './terminal.js';

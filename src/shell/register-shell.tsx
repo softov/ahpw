@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables, translate } from '@softov/scena';
+import { combineDisposables } from '@softov/scena';
 import { bound } from '../i18n/locales.js';
 import { registerThemeController } from '@softov/scena/styles';
 // ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
@@ -21,7 +21,8 @@ import { registerPanel, registerPanelHide } from './panel/index.js';
 import { registerTerminals } from '../resources/terminals/index.js';
 import { registerBuiltinThemes } from '@softov/scena/themes';
 import { attachKeys } from './view/keys.js';
-import Palette, { PALETTE_OPEN, PALETTE_SLOT } from './view/Palette.js';
+import { registerShellCommands } from './commands.js';
+import { registerLayoutMenu } from './layout-menu.js';
 import { hideOverlaidSidebar } from '../resources/sessions/index.js';
 import type { BindingPath } from '@softov/scena/types';
 import type { ModusClass } from '@softov/scena';
@@ -68,56 +69,15 @@ export function registerShell(scena: Scena): Disposable {
     registerNotifications(scena),
     registerThemeController(scena, { idKey: THEME_ID_KEY, modeKey: THEME_MODE_KEY }),
 
-    scena.commands.register({
-      id: 'sidebar.activate',
-      title: () => translate('shell/commands/activateSection'),
-      run: (ctx, args) => {
-        const section = (args as { section?: string } | undefined)?.section;
-        if (!section) return;
-        const current = ctx.scena.layout.get().surfaces['sidebar:left'];
-        ctx.scena.layout.setSurface('sidebar:left', { ...current, section, visible: true });
-      },
-    }),
-    scena.commands.register({
-      id: 'sidebar.toggleLeft',
-      title: () => translate('shell/commands/toggleLeft'),
-      category: 'View',
-      slots: [PALETTE_SLOT],
-      keys: 'ctrl+b',
-      run: (ctx) => {
-        const current = ctx.scena.layout.get().surfaces['sidebar:left'];
-        ctx.scena.layout.setSurface('sidebar:left', { ...current, visible: !(current?.visible ?? true) });
-      },
-    }),
-    scena.commands.register({
-      id: 'sidebar.toggleRight',
-      title: () => translate('shell/commands/toggleRight'),
-      category: 'View',
-      slots: [PALETTE_SLOT],
-      keys: 'ctrl+alt+b',
-      run: (ctx) => {
-        const current = ctx.scena.layout.get().surfaces['sidebar:right'];
-        ctx.scena.layout.setSurface('sidebar:right', { ...current, visible: !(current?.visible ?? false) });
-      },
-    }),
-    scena.commands.register({
-      id: 'ahp.palette',
-      title: () => translate('shell/commands/palette'),
-      keys: 'ctrl+p',
-      run: (ctx) => ctx.store.set(PALETTE_OPEN, ctx.store.get<boolean>(PALETTE_OPEN) !== true),
-    }),
+    registerShellCommands(scena),
+    registerLayoutMenu(scena),
     attachKeys(scena),
     // The right sidebar opens beside the page; where it would cover it, it starts closed.
     onceKnown(scena, (modus) => hideOverlaidSidebar(scena, modus, 'sidebar:right')),
     scena.components.register({
-      component: 'Palette',
-      category: 'inline',
-      renderer: { kind: 'react', load: async () => ({ default: Palette as unknown }) },
-    }),
-    scena.surfaces.mount({
-      surface: 'titlebar',
-      key: 'chrome:palette',
-      resource: { component: 'Palette', slot: 'center' },
+      component: 'CommandPalette',
+      category: 'chrome',
+      renderer: { kind: 'react', load: () => import('./CommandPalette.js') },
     }),
 
     scena.components.register({
@@ -135,11 +95,6 @@ export function registerShell(scena: Scena): Disposable {
       surface: 'titlebar',
       key: 'chrome:theme-mode',
       resource: { component: 'ThemeModeToggle', slot: 'right' },
-    }),
-    scena.surfaces.mount({
-      surface: 'titlebar',
-      key: 'chrome:locale',
-      resource: { component: 'LocaleToggle', slot: 'right' },
     }),
     // In an embedder, the embedder holds the token, so there is nothing to sign out of.
     ...(embedded !== undefined

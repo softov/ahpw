@@ -1,7 +1,7 @@
 import type { ContextSnapshot, Disposable, MountDisplay, Scena } from '@softov/scena/types';
 import { combineDisposables } from '@softov/scena';
 import { clearLog } from '../../resources/log/log.js';
-import { PALETTE_SLOT } from '../view/Palette.js';
+import { PALETTE_SLOT } from '../CommandPalette.js';
 import { EMOJIcon } from '../../resources/emojis.js';
 
 /** The surface under the page: the log first, then the terminals. */

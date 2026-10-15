@@ -1,4 +1,5 @@
 import type { DataBinding } from '@softov/scena/types';
+import en from './en.json';
 
 /** The languages ahpw speaks, English first: the one a missing key falls back to. */
 export const LOCALES = ['en', 'es-419', 'pt-BR'] as const;
@@ -17,4 +18,12 @@ export function initialLocale(stored: string | null, preferred: readonly string[
     if (hit !== undefined) return hit;
   }
   return 'en';
+}
+
+/** A message's English text, so a command can still be found by its English name in another language. */
+export function english(key: string): string {
+  let node: unknown = en;
+  for (const segment of key.split('/')) node = (node as Record<string, unknown> | undefined)?.[segment];
+  if (typeof node !== 'string') throw new Error(`No English message for ${key}`);
+  return node;
 }

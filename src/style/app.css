@@ -1245,18 +1245,6 @@
   text-decoration: underline;
 }
 
-.web-layout-select {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--oo-font-size-xs);
-  color: var(--oo-color-muted);
-}
-
-.web-layout-select select {
-  font: inherit;
-}
-
 .web-lines {
   display: flex;
   flex-direction: column;

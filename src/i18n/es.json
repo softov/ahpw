@@ -19,7 +19,6 @@
   },
   "shell": {
     "signOut": "Cerrar sesión",
-    "language": "Idioma",
     "toggleLeft": "Mostrar u ocultar la barra lateral izquierda (Ctrl+B)",
     "togglePanel": "Mostrar u ocultar el panel (Ctrl+J)",
     "toggleRight": "Mostrar u ocultar la barra lateral derecha (Ctrl+Alt+B)",
@@ -27,7 +26,12 @@
       "activateSection": "Activar sección de la barra lateral",
       "toggleLeft": "Mostrar u ocultar la barra lateral izquierda",
       "toggleRight": "Mostrar u ocultar la barra lateral derecha",
-      "palette": "Paleta de comandos"
+      "palette": "Paleta de comandos",
+      "showCommands": "Mostrar todos los comandos",
+      "toggleActivityBar": "Mostrar u ocultar la barra de actividad",
+      "toggleStatusBar": "Mostrar u ocultar la barra de estado",
+      "toggleTitleBar": "Mostrar u ocultar la barra de título",
+      "selectLocale": "Cambiar idioma…"
     },
     "nav": {
       "sessions": "Sesiones",
@@ -38,6 +42,38 @@
       "host": "Host",
       "agents": "Agentes",
       "settings": "Configuración"
+    },
+    "palette": {
+      "placeholder": "Escribe un comando o una terminal"
+    },
+    "layouts": {
+      "tab": "Pestañas",
+      "tab-panel": "Grupos de pestañas",
+      "split": "Dividido",
+      "spatial": "Espacial",
+      "stack": "Apilado",
+      "single": "Único"
+    },
+    "layout": {
+      "title": "Personalizar diseño",
+      "view": "Diseño principal",
+      "modes": {
+        "title": "Modos",
+        "default": "Predeterminado",
+        "focus": "Enfoque",
+        "zen": "Zen",
+        "wide": "Amplio",
+        "split": "Vista dividida"
+      },
+      "zones": {
+        "title": "Mostrar",
+        "titlebar": "Barra de título",
+        "activitybar": "Barra de actividad",
+        "sidebar-left": "Barra lateral izquierda",
+        "sidebar-right": "Barra lateral derecha",
+        "panel-bottom": "Panel",
+        "statusbar": "Barra de estado"
+      }
     }
   },
   "close": {
@@ -73,5 +109,11 @@
     "splitRight": "Dividir grupo a la derecha",
     "splitUp": "Dividir grupo hacia arriba",
     "splitDown": "Dividir grupo hacia abajo"
+  },
+  "picker": {
+    "navigate": "navegar",
+    "select": "elegir",
+    "back": "volver",
+    "close": "cerrar"
   }
 }
