@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import { EMOJIcon } from '../emojis.js';
 import { optionLabel, type Option } from './composer-commands.js';
 
@@ -18,8 +19,8 @@ export function settingIcon(key: string): string {
 /** A setting's pill: "Approvals: Ask Before Edits", "Ask Before Edits", its icon. */
 export function settingLabels(option: Option): PillLabels {
   const value = optionLabel(option);
-  return { label: `${option.schema.title || option.key}: ${value}`, short: value, icon: settingIcon(option.key) };
+  return { label: translate('sessions/pills/setting', { name: option.schema.title || option.key, value }), short: value, icon: settingIcon(option.key) };
 }
 
 /** The model's pill: "Model: Opus", "Opus", the model glyph. */
-export const modelLabels = (name: string): PillLabels => ({ label: `Model: ${name}`, short: name, icon: EMOJIcon.model });
+export const modelLabels = (name: string): PillLabels => ({ label: translate('sessions/pills/model', { name }), short: name, icon: EMOJIcon.model });

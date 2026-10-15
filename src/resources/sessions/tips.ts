@@ -1,18 +1,19 @@
 /** One tip under the new session box: the keys to press, and what they do. */
 export interface Tip {
   keys: string;
-  text: string;
+  /** The key of the message that says what they do. */
+  message: string;
   /** Shown only when the chosen agent has skills or commands to list. */
   needsCommands?: boolean;
 }
 
 /** The new session box's tips, one per open. No Alt+Enter: nothing runs yet to steer. */
 export const NEW_TIPS: readonly Tip[] = [
-  { keys: '/', text: 'lists skills and commands', needsCommands: true },
-  { keys: '@', text: 'refers to a file' },
-  { keys: '+', text: 'adds files, images and sessions' },
-  { keys: 'Enter', text: 'starts; an empty box creates the session without a message' },
-  { keys: 'Shift+Enter', text: 'breaks a line' },
+  { keys: '/', message: 'sessions/tips/slash', needsCommands: true },
+  { keys: '@', message: 'sessions/tips/mention' },
+  { keys: '+', message: 'sessions/tips/add' },
+  { keys: 'Enter', message: 'sessions/tips/enter' },
+  { keys: 'Shift+Enter', message: 'sessions/tips/shiftEnter' },
 ];
 
 /** The tips that apply to an agent with or without commands. */

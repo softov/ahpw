@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { useI18n } from '@softov/scena/react';
 import { EMOJIcon } from '../../resources/emojis.js';
 
 /** How long the check mark stays after a copy, in milliseconds. */
@@ -23,7 +24,8 @@ function copyBySelection(text: string): boolean {
 }
 
 /** An icon that copies `text` to the clipboard, and shows a check mark for a moment once it has. `icon` tells it apart when two copy buttons sit side by side. */
-export function CopyButton({ text, label = 'Copy', icon = EMOJIcon.copy }: { text: string; label?: string; icon?: string }): ReactElement {
+export function CopyButton({ text, label, icon = EMOJIcon.copy }: { text: string; label?: string; icon?: string }): ReactElement {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -39,7 +41,7 @@ export function CopyButton({ text, label = 'Copy', icon = EMOJIcon.copy }: { tex
     }
     void navigator.clipboard.writeText(text).then(done).catch(() => { if (copyBySelection(text)) done(); });
   };
-  const title = copied ? 'Copied' : label;
+  const title = copied ? t('shell/copy/copied') : label ?? t('shell/copy/copy');
   return (
     <button type="button" className="web-copy" data-copied={copied ? 'true' : 'false'} title={title} aria-label={title} onClick={copy}>
       {copied ? EMOJIcon.check : icon}

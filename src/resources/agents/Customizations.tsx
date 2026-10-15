@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import { useScena } from '@softov/scena/react';
+import { useI18n, useScena } from '@softov/scena/react';
 import { Button, Markdown, Modal, Spinner, StatusDot, Tree, type TreeNode } from '@softov/scena/ui';
 import type { Customization } from '@microsoft/agent-host-protocol';
 import { EMOJIcon } from '../emojis.js';
@@ -31,10 +31,11 @@ function stateMark(state: StateWord | undefined): ReactElement | undefined {
 
 /** Copy buttons for a name and a description; a click on them does not reach the row. */
 function Copies({ name, description, className }: { name: string; description: string; className: string }): ReactElement {
+  const { t } = useI18n();
   return (
     <span className={className} onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-      <CopyButton text={name} label="Copy the name" />
-      {description === '' ? null : <CopyButton text={description} label="Copy the description" icon={EMOJIcon.copyText} />}
+      <CopyButton text={name} label={t('agents/customizations/copyName')} />
+      {description === '' ? null : <CopyButton text={description} label={t('agents/customizations/copyDescription')} icon={EMOJIcon.copyText} />}
     </span>
   );
 }
@@ -82,9 +83,10 @@ const folderOf = (uri: string): string => uri.replace(/\/[^/]*$/, '');
 /** A Markdown file's body, read from the host; a short note when the host cannot read it. */
 function FileBody({ uri }: { uri: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const state = useFileText(uri);
-  if (state === null) return <Spinner label="Reading the file" />;
-  if ('error' in state || state.text === null) return <p className="web-note">The file is not readable from here.</p>;
+  if (state === null) return <Spinner label={t('agents/customizations/readingFile')} />;
+  if ('error' in state || state.text === null) return <p className="web-note">{t('agents/customizations/unreadable')}</p>;
   return (
     <div className="web-md" onClick={linkClicks(scena, folderOf(uri))}>
       <Markdown text={withoutFrontmatter(state.text)} />
@@ -95,6 +97,7 @@ function FileBody({ uri }: { uri: string }): ReactElement {
 /** One customization over the agent page: buttons that copy a child's name and description, its flags and description, then its Markdown file, or a button that opens any other file. */
 function DetailModal({ detail, onClose }: { detail: Detail; onClose: () => void }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const open = detail.open;
   const markdown = open !== undefined && (extOf(open.uri) === 'md' || extOf(open.uri) === 'markdown');
   return (
@@ -105,7 +108,7 @@ function DetailModal({ detail, onClose }: { detail: Detail; onClose: () => void 
         {detail.description === '' ? null : <p>{detail.description}</p>}
         {open === undefined ? null : markdown
           ? <FileBody uri={open.uri} />
-          : <Button label="Open file" onClick={() => { onClose(); void scena.commands.execute('ahp.openFile', { uri: open.uri, line: open.line }); }} />}
+          : <Button label={t('agents/customizations/openFile')} onClick={() => { onClose(); void scena.commands.execute('ahp.openFile', { uri: open.uri, line: open.line }); }} />}
       </div>
     </Modal>
   );
@@ -113,6 +116,8 @@ function DetailModal({ detail, onClose }: { detail: Detail; onClose: () => void 
 
 /** An agent's customizations in one tree: plugins and folders with their children, then MCP servers. A row with children opens and closes on click; any other row shows its detail over the page. */
 export function CustomizationTrees({ items }: { items: readonly Customization[] | undefined }): ReactElement {
+  // The rows' words are translated as they are built; reading the language here redraws them when it changes.
+  useI18n();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);

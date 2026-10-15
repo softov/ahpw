@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useScena } from '@softov/scena/react';
+import { useI18n, useScena } from '@softov/scena/react';
 import { Alert, Markdown, Spinner } from '@softov/scena/ui';
 import { linkClicks } from './clicks.js';
 import { imagesFrom } from './HostImage.js';
@@ -12,13 +12,14 @@ const folderOf = (uri: string): string => uri.replace(/\/[^/]*$/, '');
 /** A markdown file, rendered. Its links and code spans that name files open as they do in chat, and its images are read, relative to its folder. */
 export default function MarkdownPage({ uri }: { uri?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const state = useFileText(uri);
 
-  if (uri === undefined) return <PageAlert tone="warning" message="No file was named." />;
+  if (uri === undefined) return <PageAlert tone="warning" message={t('files/noFile')} />;
   const head = <FileHead uri={uri} />;
-  if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
-  if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;
-  if (state.text === null) return <div className="web-file">{head}<p className="web-note">This file is not text.</p></div>;
+  if (state === null) return <div className="web-file">{head}<Spinner label={t('files/reading')} /></div>;
+  if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title={t('files/notReadable')} message={state.error} /></div>;
+  if (state.text === null) return <div className="web-file">{head}<p className="web-note">{t('files/notText')}</p></div>;
 
   return (
     <div className="web-file">

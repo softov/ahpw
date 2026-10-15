@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { translate } from '@softov/scena';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import type { AgentInfo, SessionSummary, StateAction } from '@microsoft/agent-host-protocol';
@@ -7,8 +8,9 @@ import { AHP_AGENTS, AHP_CONNECTION, AHP_SESSIONS, dispatch, reloadSessions, req
 import { folderLabel } from '../../bridges/words.js';
 import { ExplorerList, type Dot, type Row } from '../../shell/explorer/ExplorerList.js';
 import { ACTIVE_SESSION } from './state.js';
-import { ACTIVITY_LABEL, activityOf, isArchived, isRead, type Activity } from './status.js';
-import { GROUPINGS, arrange, groupOf, type Grouping } from './grouping.js';
+import { plural, dateFormat } from '../../i18n/locales.js';
+import { activityLabel, activityOf, isArchived, isRead, type Activity } from './status.js';
+import { GROUPINGS, arrange, groupOf, groupingLabel, type Grouping } from './grouping.js';
 import { confirm, failed } from '../../shell/notify/index.js';
 import { EMOJIcon } from '../emojis.js';
 
@@ -18,7 +20,7 @@ const GROUPING_KEY = 'ahpd-web.session-grouping';
 function readGrouping(): Grouping {
   try {
     const held = localStorage.getItem(GROUPING_KEY);
-    return GROUPINGS.some((one) => one.id === held) ? held as Grouping : 'none';
+    return GROUPINGS.some((one) => one === held) ? held as Grouping : 'none';
   } catch {
     return 'none';
   }
@@ -32,8 +34,8 @@ function writeGrouping(grouping: Grouping): void {
   }
 }
 
-const sameDay = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
-const otherDay = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+const sameDay = dateFormat({ hour: '2-digit', minute: '2-digit' });
+const otherDay = dateFormat({ month: 'short', day: 'numeric' });
 
 /** When a session last changed: the time today, the date before. */
 function changedAt(iso: string, now = new Date()): string {
@@ -53,26 +55,27 @@ function menuOf(session: SessionSummary, open: () => void): PickerAction[] {
   const archived = isArchived(session.status);
   const say = (action: StateAction): void => dispatch(session.resource, action);
   return [
-    { title: 'Open', onSelect: (host) => { host.closeMenu(); open(); } },
+    { title: translate('sessions/explorer/open'), onSelect: (host) => { host.closeMenu(); open(); } },
     {
-      title: 'Rename',
+      title: translate('sessions/explorer/rename'),
       onSelect: (host) => {
         host.closeMenu();
-        const title = window.prompt('Rename the session', session.title)?.trim();
+        const title = window.prompt(translate('sessions/explorer/renamePrompt'), session.title)?.trim();
         if (title !== undefined && title !== '' && title !== session.title) say({ type: 'session/titleChanged', title } as StateAction);
       },
     },
-    { title: read ? 'Mark as unread' : 'Mark as read', onSelect: (host) => { host.closeMenu(); say({ type: 'session/isReadChanged', isRead: !read } as StateAction); } },
-    { title: archived ? 'Unarchive' : 'Archive', onSelect: (host) => { host.closeMenu(); say({ type: 'session/isArchivedChanged', isArchived: !archived } as StateAction); } },
-    { title: 'Copy link', group: 'more', onSelect: (host) => { host.closeMenu(); void navigator.clipboard?.writeText(session.resource).catch(() => undefined); } },
+    { title: translate(read ? 'sessions/explorer/markUnread' : 'sessions/explorer/markRead'), onSelect: (host) => { host.closeMenu(); say({ type: 'session/isReadChanged', isRead: !read } as StateAction); } },
+    { title: translate(archived ? 'sessions/explorer/unarchive' : 'sessions/explorer/archive'), onSelect: (host) => { host.closeMenu(); say({ type: 'session/isArchivedChanged', isArchived: !archived } as StateAction); } },
+    { title: translate('sessions/explorer/copyLink'), group: 'more', onSelect: (host) => { host.closeMenu(); void navigator.clipboard?.writeText(session.resource).catch(() => undefined); } },
     {
-      title: 'Delete',
+      title: translate('sessions/explorer/delete'),
       group: 'more',
       color: 'red',
       onSelect: (host) => {
         host.closeMenu();
-        void confirm({ title: `Delete "${session.title || 'Untitled'}"?`, body: 'Its history goes with it.', confirmLabel: 'Delete', tone: 'danger' }).then((yes) => {
-          if (yes) void request('disposeSession', { channel: session.resource }).catch((error: unknown) => failed('The session could not be deleted', error));
+        const title = session.title || translate('sessions/untitled');
+        void confirm({ title: translate('sessions/explorer/deleteTitle', { title }), body: translate('sessions/explorer/deleteBody'), confirmLabel: translate('sessions/explorer/delete'), tone: 'danger' }).then((yes) => {
+          if (yes) void request('disposeSession', { channel: session.resource }).catch((error: unknown) => failed(translate('sessions/explorer/deleteFailed'), error));
         });
       },
     },
@@ -82,6 +85,7 @@ function menuOf(session: SessionSummary, open: () => void): PickerAction[] {
 /** The sidebar: the server's sessions, newest change first. */
 export default function SessionExplorer(): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const connection = useStore<Connection>(AHP_CONNECTION);
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
@@ -106,16 +110,16 @@ export default function SessionExplorer(): ReactElement {
         const changes = one.changes;
         // The counts on every row that has any, and a running row's activity under them, as ahpapp shows both.
         const counts = changes !== undefined && (changes.additions ?? 0) + (changes.deletions ?? 0) > 0
-          ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${changes.files} files`}</>
+          ? <><span className="web-diff--add">+{changes.additions ?? 0}</span> <span className="web-diff--remove">-{changes.deletions ?? 0}</span>{changes.files === undefined ? '' : ` \u{00B7} ${plural('sessions/explorer/files', changes.files)}`}</>
           : undefined;
         const doing = activity !== 'idle'
-          ? `${ACTIVITY_LABEL[activity]}${one.activity === undefined || one.activity === '' ? '' : ` \u{00B7} ${one.activity}`}`
+          ? `${activityLabel(activity)}${one.activity === undefined || one.activity === '' ? '' : ` \u{00B7} ${one.activity}`}`
           : undefined;
         return {
           key: one.resource,
           dot: isArchived(one.status) ? 'off' : unread ? 'fresh' : DOT[activity],
-          dotLabel: isArchived(one.status) ? 'Archived' : unread ? 'Unread' : ACTIVITY_LABEL[activity],
-          title: one.title === '' ? 'Untitled' : one.title,
+          dotLabel: isArchived(one.status) ? t('sessions/status/archived') : unread ? t('sessions/status/unread') : activityLabel(activity),
+          title: one.title === '' ? t('sessions/untitled') : one.title,
           time: changedAt(one.modifiedAt),
           lines: [second, counts, doing].filter((line) => line !== undefined),
           menu: menuOf(one, () => open(one.resource)),
@@ -125,7 +129,7 @@ export default function SessionExplorer(): ReactElement {
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sessions, agents, archived, grouping],
+    [sessions, agents, archived, grouping, t],
   );
 
   const reload = (): void => {
@@ -134,26 +138,26 @@ export default function SessionExplorer(): ReactElement {
   };
 
   const notice = connection?.status === 'failed'
-    ? <Alert tone="danger" title="Not connected" message={connection.error ?? 'The server refused the connection.'} />
+    ? <Alert tone="danger" title={t('sessions/explorer/notConnected')} message={connection.error ?? t('sessions/explorer/refused')} />
     : connection?.status !== 'connected' && sessions === undefined
-      ? <Spinner label="Connecting to the server" />
-      : rows.length === 0 ? <p className="web-note">{archived ? 'No sessions.' : 'No sessions yet.'}</p> : null;
+      ? <Spinner label={t('sessions/explorer/connecting')} />
+      : rows.length === 0 ? <p className="web-note">{archived ? t('sessions/explorer/none') : t('sessions/explorer/noneYet')}</p> : null;
 
   return (
     <ExplorerList
-      title="Sessions"
+      title={t('sessions/explorer/title')}
       actions={[
-        { icon: '+', label: 'New session', run: () => void scena.commands.execute('ahp.newSession') },
-        { icon: EMOJIcon.reload, label: reloading ? 'Reloading' : 'Reload', run: reload, busy: reloading },
-        { icon: EMOJIcon.archived, label: archived ? 'Hide archived' : 'Show archived', run: () => setArchived(!archived), on: archived },
+        { icon: '+', label: t('sessions/commands/newSession'), run: () => void scena.commands.execute('ahp.newSession') },
+        { icon: EMOJIcon.reload, label: reloading ? t('sessions/explorer/reloading') : t('sessions/explorer/reload'), run: reload, busy: reloading },
+        { icon: EMOJIcon.archived, label: archived ? t('sessions/explorer/hideArchived') : t('sessions/explorer/showArchived'), run: () => setArchived(!archived), on: archived },
         {
           icon: EMOJIcon.group,
-          label: 'Group sessions',
+          label: t('sessions/explorer/group'),
           on: grouping !== 'none',
           menu: GROUPINGS.map((one) => ({
-            title: one.label,
-            ...(one.id === grouping ? { description: 'Current' } : {}),
-            onSelect: (host) => { host.closeMenu(); group(one.id); },
+            title: groupingLabel(one),
+            ...(one === grouping ? { description: t('sessions/explorer/current') } : {}),
+            onSelect: (host) => { host.closeMenu(); group(one); },
           })),
         },
       ]}
@@ -161,7 +165,7 @@ export default function SessionExplorer(): ReactElement {
       selected={active ?? null}
       onOpen={open}
       notice={notice}
-      filterLabel="Filter sessions"
+      filterLabel={t('sessions/explorer/filter')}
     />
   );
 }

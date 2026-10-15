@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactElement } from 'react';
-import { useStore } from '@softov/scena/react';
+import { useI18n, useStore } from '@softov/scena/react';
 import { ContextMenu, Modal } from '@softov/scena/ui';
 import type { BindingPath, PickerAction } from '@softov/scena/types';
 import type { MessageAttachment, SessionSummary } from '@microsoft/agent-host-protocol';
@@ -14,6 +14,7 @@ export function Attached({ attachments, folder, onRemove }: {
   folder: string | undefined;
   onRemove: (index: number) => void;
 }): ReactElement | null {
+  const { t } = useI18n();
   const [preview, setPreview] = useState<AttachmentPreviewOf | null>(null);
   if (attachments.length === 0) return null;
   return (
@@ -22,8 +23,8 @@ export function Attached({ attachments, folder, onRemove }: {
         const body = <><span className="web-attachment__icon" aria-hidden="true">{attachmentIcon(one)}</span><span className="web-attachment__label">{attachmentLabel(one)}</span></>;
         return (
           <span key={`${attachmentLabel(one)}-${index}`} className="web-attachment" title={attachmentPath(one, folder) ?? attachmentLabel(one)}>
-            {hasPreview(one) ? <button type="button" className="web-attachment__open" title={`See ${attachmentLabel(one)}`} onClick={() => setPreview(previewOf(one))}>{body}</button> : body}
-            <button type="button" className="web-attachment__remove" aria-label={`Remove ${attachmentLabel(one)}`} onClick={() => onRemove(index)}>
+            {hasPreview(one) ? <button type="button" className="web-attachment__open" title={t('sessions/attachments/see', { name: attachmentLabel(one) })} onClick={() => setPreview(previewOf(one))}>{body}</button> : body}
+            <button type="button" className="web-attachment__remove" aria-label={t('sessions/attachments/remove', { name: attachmentLabel(one) })} onClick={() => onRemove(index)}>
               {EMOJIcon.close}
             </button>
           </span>
@@ -57,6 +58,7 @@ const MENU_GAP = 4;
  * The `+` is drawn, not typed, so it sits in the middle of its circle in any font.
  */
 export function AddButton({ path, onOpenChange }: { path: BindingPath; onOpenChange: (open: boolean) => void }): ReactElement {
+  const { t } = useI18n();
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const [menu, setMenu] = useState<{ rect: DOMRect; y: number; items: PickerAction[] } | null>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -98,8 +100,8 @@ export function AddButton({ path, onOpenChange }: { path: BindingPath; onOpenCha
         ref={button}
         type="button"
         className="web-composer__add"
-        aria-label="Add context"
-        title="Add context"
+        aria-label={t('sessions/context/title')}
+        title={t('sessions/context/title')}
         aria-haspopup="menu"
         aria-expanded={menu !== null}
         // The popup closes on any mousedown outside it: kept from it, the click below closes the menu instead of opening it again.

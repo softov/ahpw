@@ -1,5 +1,5 @@
-import type { BindingPath, ComponentNode, Disposable, MountDisplay, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import type { BindingPath, ComponentNode, Disposable, Label, MountDisplay, Scena } from '@softov/scena/types';
+import { combineDisposables, resolveLabel, translate } from '@softov/scena';
 
 /** The sidebar beside the page: the open session's details and its changes, as tabs. */
 export const RIGHT_SIDEBAR = 'sidebar:right';
@@ -14,10 +14,11 @@ const SURFACE_NAME = '$/surface/name' as BindingPath;
  * Mounts a tab in the right sidebar for as long as the returned disposable
  * lives. Closed with its ×, the tab is offered again in the sidebar's "..."
  * menu as "Show <title>" with `icon`, which opens it as the active tab.
+ * A `{ t }` title follows a language switch, in the tab and in that menu.
  */
 export function mountRight(
   scena: Scena,
-  tab: { key: string; resource: ComponentNode; props: MountDisplay & { title: string } },
+  tab: { key: string; resource: ComponentNode; props: MountDisplay & { title: Label } },
   icon: string,
 ): Disposable {
   const declaration = { ...tab, surface: RIGHT_SIDEBAR } as const;
@@ -27,7 +28,9 @@ export function mountRight(
     { dispose: () => mounted.dispose() },
     scena.commands.register({
       id: `ahp.showRight.${tab.key}`,
-      title: `Show ${tab.props.title}`,
+      title: () => translate('shell/sidebar/show', {
+        title: resolveLabel(tab.props.title, { get: (path) => scena.store.get(path as BindingPath), translate }),
+      }),
       icon,
       slots: [GROUP_MENU_SLOT],
       // The menu puts its strip's surface in the store; a function `when` is asked with no snapshot.

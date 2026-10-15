@@ -1,4 +1,5 @@
 import type { MessageAttachment, SessionSummary, TextPosition } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
 import { folderLabel } from '../../bridges/words.js';
 import { EMOJIcon } from '../emojis.js';
 
@@ -30,7 +31,7 @@ export function resourceAttachment(uri: string, directory: boolean): MessageAtta
 
 /** Another session's chat, which the host reads up to its last finished turn. */
 export function chatAttachment(session: SessionSummary): MessageAttachment {
-  return { type: 'chat', label: session.title === '' ? 'Untitled' : session.title, resource: session.defaultChat } as MessageAttachment;
+  return { type: 'chat', label: session.title === '' ? translate('sessions/untitled') : session.title, resource: session.defaultChat } as MessageAttachment;
 }
 
 /** What the browser's files gave: the attachments made, and the names left out as too big or unreadable. */
@@ -56,21 +57,21 @@ export async function fromFiles(files: readonly File[]): Promise<{ attached: Mes
  * words for the greyed Add context row. The browser may ask for leave first.
  */
 export async function clipboardImage(clipboard: Pick<Clipboard, 'read'> | undefined = globalThis.navigator?.clipboard): Promise<File | string> {
-  if (typeof clipboard?.read !== 'function') return 'Needs https or localhost';
+  if (typeof clipboard?.read !== 'function') return translate('sessions/clipboard/insecure');
   let items: ClipboardItems;
   try {
     items = await clipboard.read();
   } catch {
-    return 'The browser refused';
+    return translate('sessions/clipboard/refused');
   }
   for (const item of items) {
     const type = item.types.find((one) => one.startsWith('image/'));
     if (type === undefined) continue;
     const blob = await item.getType(type);
-    if (blob.size > MAX_EMBEDDED_BYTES) return 'Over 5 MB';
+    if (blob.size > MAX_EMBEDDED_BYTES) return translate('sessions/clipboard/tooBig');
     return new File([blob], `clipboard.${type.slice('image/'.length).split('+')[0]}`, { type });
   }
-  return 'No image on the clipboard';
+  return translate('sessions/clipboard/empty');
 }
 
 /** The glyph a chip shows for an attachment. */
@@ -142,7 +143,7 @@ export function previewOf(attachment: MessageAttachment): AttachmentPreviewOf | 
 }
 
 /** What a chip names an attachment by. */
-export const attachmentLabel = (attachment: MessageAttachment): string => textOf(bagOf(attachment).label) ?? 'Attachment';
+export const attachmentLabel = (attachment: MessageAttachment): string => textOf(bagOf(attachment).label) ?? translate('sessions/attachments/unnamed');
 
 /** Where an attachment lives: its path under the workspace, or its whole path outside it. */
 export function attachmentPath(attachment: MessageAttachment, workspace: string | undefined): string | undefined {

@@ -1,5 +1,8 @@
 import { useState, type KeyboardEvent, type ReactElement } from 'react';
+import { translate } from '@softov/scena';
+import { useI18n } from '@softov/scena/react';
 import { Button, Markdown } from '@softov/scena/ui';
+import { plural } from '../../i18n/locales.js';
 import type { ChatInputAnswer, ChatInputQuestion, ChatInputRequest, StateAction } from '@microsoft/agent-host-protocol';
 import { EMPTY, allowsOther, answerWords, draftOf, encode, isChoice, optionsOf, type Draft } from './answer.js';
 import type { Send } from './Parts.js';
@@ -12,19 +15,20 @@ interface Sent {
   answers: Record<string, ChatInputAnswer>;
 }
 
-/** The line a request carries when the agent said nothing of its own. */
+/** The line a request carries when the agent said nothing of its own. The host's own words, so not translated. */
 const GENERIC = 'The agent has a question';
 
-/** What a question asks for, under its text. */
+/** The hint of each kind of question, as `sessions/question/hint/<name>`. */
+const HINT: Record<string, string> = { 'single-select': 'single', 'multi-select': 'multi', text: 'text', number: 'number', integer: 'number' };
+
+/** What a question asks for, under its text: one message per kind, with or without its own answer. */
 function hintOf(question: ChatInputQuestion): string {
-  const kind = String(question.kind);
-  const bits: string[] = [];
-  if (kind === 'single-select') bits.push('Pick one');
-  if (kind === 'multi-select') bits.push('Pick any');
-  if (kind === 'text') bits.push('Type an answer');
-  if (kind === 'number' || kind === 'integer') bits.push('Type a number');
-  if (allowsOther(question)) bits.push('or write your own');
-  return `${bits.join(', ')}${question.required === true ? '' : ' (optional)'}`;
+  const base = HINT[String(question.kind)];
+  const other = allowsOther(question);
+  const name = base === undefined ? (other ? 'other' : undefined) : other ? `${base}Other` : base;
+  if (name === undefined) return question.required === true ? '' : translate('sessions/question/hint/optional');
+  const hint = translate(`sessions/question/hint/${name}`);
+  return question.required === true ? hint : translate('sessions/question/hint/withOptional', { hint });
 }
 
 /** One question's form: option rows, an "Other" box, or a text field. */
@@ -34,6 +38,7 @@ function QuestionForm({ question, draft, set, next }: {
   set: (draft: Draft) => void;
   next: () => void;
 }): ReactElement {
+  const { t } = useI18n();
   const kind = String(question.kind);
   const many = kind === 'multi-select';
   const pick = (id: string): void => {
@@ -52,7 +57,7 @@ function QuestionForm({ question, draft, set, next }: {
     return number ? (
       <input className="web-field" type="number" autoFocus value={draft.text} onChange={(event) => set({ ...draft, text: event.target.value })} onKeyDown={enterGoesOn} />
     ) : (
-      <textarea className="web-field web-ask__text" rows={3} autoFocus value={draft.text} placeholder="Your answer" onChange={(event) => set({ ...draft, text: event.target.value })} onKeyDown={enterGoesOn} />
+      <textarea className="web-field web-ask__text" rows={3} autoFocus value={draft.text} placeholder={t('sessions/question/yourAnswer')} onChange={(event) => set({ ...draft, text: event.target.value })} onKeyDown={enterGoesOn} />
     );
   }
 
@@ -67,7 +72,7 @@ function QuestionForm({ question, draft, set, next }: {
               <span className="web-ask__option-label">
                 <span className="web-ask__key">{index + 1}</span>
                 {option.label}
-                {option.recommended === true ? <span className="web-ask__tag">Recommended</span> : null}
+                {option.recommended === true ? <span className="web-ask__tag">{t('sessions/question/recommended')}</span> : null}
               </span>
               {option.description === undefined ? null : <span className="web-ask__option-hint">{option.description}</span>}
             </span>
@@ -82,13 +87,13 @@ function QuestionForm({ question, draft, set, next }: {
             data-many={many}
             role={many ? 'checkbox' : 'radio'}
             aria-checked={draft.other}
-            aria-label="Other"
+            aria-label={t('sessions/question/other')}
             onClick={() => set({ ...draft, other: !draft.other || !many, ...(many ? {} : { picked: [] }) })}
           />
           <input
             className="web-field"
             value={draft.text}
-            placeholder="Other: write your own answer"
+            placeholder={t('sessions/question/otherPlaceholder')}
             onFocus={() => { if (!draft.other) set({ ...draft, other: true, ...(many ? {} : { picked: [] }) }); }}
             onChange={(event) => set({ ...draft, text: event.target.value, other: true, ...(many ? {} : { picked: [] }) })}
             onKeyDown={enterGoesOn}
@@ -110,6 +115,7 @@ export function InputRequest({ request, send, live, response }: {
   live: boolean;
   response: string | undefined;
 }): ReactElement {
+  const { t } = useI18n();
   const questions = request.questions ?? [];
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() => Object.fromEntries(questions.map((one) => [one.id, draftOf(request.answers?.[one.id])])));
   const [page, setPage] = useState(0);
@@ -136,8 +142,8 @@ export function InputRequest({ request, send, live, response }: {
     return (
       <div className="web-ask" data-done="true">
         <div className="web-ask__head">
-          <span className="web-ask__title">{outcome === 'decline' ? 'Question declined' : outcome === undefined ? 'Question not answered' : 'Question answered'}</span>
-          {waiting ? <span className="web-note">Sending to the agent</span> : null}
+          <span className="web-ask__title">{outcome === 'decline' ? t('sessions/question/declined') : outcome === undefined ? t('sessions/question/unanswered') : t('sessions/question/answered')}</span>
+          {waiting ? <span className="web-note">{t('sessions/question/sending')}</span> : null}
         </div>
         {outcome === 'accept' ? (
           <dl className="web-ask__summary">
@@ -177,9 +183,9 @@ export function InputRequest({ request, send, live, response }: {
   return (
     <div className="web-ask" tabIndex={-1} onKeyDown={keys}>
       <div className="web-ask__head">
-        <span className="web-ask__title"><span className="web-ask__icon" aria-hidden="true">?</span>{message === undefined ? 'The agent asks' : 'The agent asks:'}</span>
+        <span className="web-ask__title"><span className="web-ask__icon" aria-hidden="true">?</span>{message === undefined ? t('sessions/question/asks') : t('sessions/question/asksColon')}</span>
         {questions.length > 1 ? (
-          <span className="web-ask__steps" aria-label={`Question ${page + 1} of ${questions.length}`}>
+          <span className="web-ask__steps" aria-label={t('sessions/question/step', { page: page + 1, total: questions.length })}>
             {questions.map((one, index) => (
               <button
                 key={one.id}
@@ -191,7 +197,7 @@ export function InputRequest({ request, send, live, response }: {
                 onClick={() => setPage(index)}
               />
             ))}
-            <span className="web-ask__count">{page + 1} of {questions.length}</span>
+            <span className="web-ask__count">{t('sessions/question/count', { page: page + 1, total: questions.length })}</span>
           </span>
         ) : null}
       </div>
@@ -206,16 +212,16 @@ export function InputRequest({ request, send, live, response }: {
         </section>
       )}
       <div className="web-ask__actions">
-        <Button label="Decline" size="sm" onClick={() => complete('decline')} />
+        <Button label={t('sessions/question/decline')} size="sm" onClick={() => complete('decline')} />
         <span className="web-ask__spacer" />
-        {page > 0 ? <Button label="Back" size="sm" onClick={() => setPage(page - 1)} /> : null}
+        {page > 0 ? <Button label={t('sessions/question/back')} size="sm" onClick={() => setPage(page - 1)} /> : null}
         {last ? (
-          <Button label="Answer" variant="primary" size="sm" disabled={missing.length > 0} onClick={() => complete('accept')} />
+          <Button label={t('sessions/question/answer')} variant="primary" size="sm" disabled={missing.length > 0} onClick={() => complete('accept')} />
         ) : (
-          <Button label="Next" variant="primary" size="sm" disabled={stuck} onClick={next} />
+          <Button label={t('sessions/question/next')} variant="primary" size="sm" disabled={stuck} onClick={next} />
         )}
       </div>
-      {last && missing.length > 0 && !stuck ? <p className="web-note">{missing.length === 1 ? 'One question still needs an answer.' : `${missing.length} questions still need an answer.`}</p> : null}
+      {last && missing.length > 0 && !stuck ? <p className="web-note">{plural('sessions/question/missing', missing.length)}</p> : null}
     </div>
   );
 }

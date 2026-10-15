@@ -1,4 +1,5 @@
 import { Fragment, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
+import { useI18n } from '@softov/scena/react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { EMOJIcon } from '../../resources/emojis.js';
@@ -51,6 +52,7 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
   notice?: ReactNode;
   filterLabel?: string;
 }): ReactElement {
+  const { t } = useI18n();
   const [menu, setMenu] = useState<Menu | null>(null);
   const [filter, setFilter] = useState('');
   const [folded, setFolded] = useState<ReadonlySet<string>>(new Set());
@@ -175,7 +177,7 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
             );
           })}
         </ul>
-        {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">Nothing matches.</p> : null}
+        {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">{t('shell/explorer/noMatch')}</p> : null}
       </div>
       {menu === null ? null : <ContextMenu spec={{ items: menu.items }} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
     </div>

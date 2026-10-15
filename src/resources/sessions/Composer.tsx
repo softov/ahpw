@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Button, useChatPicker } from '@softov/scena/ui';
 import type { HostCtx, PickerAction } from '@softov/scena/types';
 import type {
@@ -86,6 +86,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   send: Send;
 }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const agent = agents.find((one) => one.provider === summary.provider);
   const path = useMemo(() => composerPath(chatUri), [chatUri]);
@@ -134,8 +135,8 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   const upload = useCallback(async (list: FileList | null): Promise<void> => {
     const got = await fromFiles(Array.from(list ?? []));
     for (const one of got.attached) attach(one);
-    if (got.refused.length > 0) warn('Not attached', { description: `Over 5 MB or unreadable: ${got.refused.join(', ')}` });
-  }, [attach]);
+    if (got.refused.length > 0) warn(t('sessions/upload/notAttached'), { description: t('sessions/upload/refused', { names: got.refused.join(', ') }) });
+  }, [attach, t]);
 
   // A drop: a host file attaches, or with Shift goes in as `@path` text; this computer's files attach as content.
   const insert = useCallback((words: string): void => {
@@ -314,24 +315,24 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         <ul className="web-composer__queue">
           {steering === undefined ? null : (
             <li>
-              <span className="web-chip" data-on="true">Steering</span>
+              <span className="web-chip" data-on="true">{t('sessions/composer/steering')}</span>
               <span className="web-composer__queued">{steering.message.text}</span>
-              <Button label="Remove" size="sm" onClick={() => send({ type: 'chat/pendingMessageRemoved', kind: 'steering', id: steering.id } as StateAction)} />
+              <Button label={t('sessions/composer/remove')} size="sm" onClick={() => send({ type: 'chat/pendingMessageRemoved', kind: 'steering', id: steering.id } as StateAction)} />
             </li>
           )}
           {queued.map((one, index) => (
             <li key={one.id}>
-              <span className="web-chip">Next {index + 1}</span>
+              <span className="web-chip">{t('sessions/composer/next', { number: index + 1 })}</span>
               <span className="web-composer__queued">{one.message.text}</span>
-              <Button label="Remove" size="sm" onClick={() => send({ type: 'chat/pendingMessageRemoved', kind: 'queued', id: one.id } as StateAction)} />
+              <Button label={t('sessions/composer/remove')} size="sm" onClick={() => send({ type: 'chat/pendingMessageRemoved', kind: 'queued', id: one.id } as StateAction)} />
             </li>
           ))}
         </ul>
       )}
 
       <div className="web-composer__where">
-        {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title="The folder this session works in" />}
-        <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? 'The agent running this session'} />
+        {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title={t('sessions/composer/folderHint')} />}
+        <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? t('sessions/composer/agentHint')} />
       </div>
 
       <div
@@ -354,8 +355,8 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
             className="web-composer__text"
             rows={1}
             value={text}
-            aria-label="Message"
-            placeholder={active === undefined ? 'What should it do?' : 'Queue a message for after this turn, or steer it'}
+            aria-label={t('sessions/composer/message')}
+            placeholder={active === undefined ? t('sessions/composer/placeholder') : t('sessions/composer/placeholderRunning')}
             onChange={(event) => {
               typed.current = true;
               setText(event.currentTarget.value);
@@ -387,17 +388,17 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
           </div>
           <div className="web-composer__chips web-composer__chips--right">
             {models.length === 0 ? null : (
-              <Pill {...modelLabels(modelName ?? 'default')} title="The model the next message goes to" onOpen={() => openCommand('ahp.composer.model')} />
+              <Pill {...modelLabels(modelName ?? t('sessions/values/default'))} title={t('sessions/composer/modelHint')} onOpen={() => openCommand('ahp.composer.model')} />
             )}
             {pills.filter((option) => footerSide(option) === 'right').map(settingPill)}
             {readout === null ? null : <span className="web-composer__context" title={readout.title}>{readout.text}</span>}
           </div>
-          {active === undefined || text.trim() === '' ? null : <Button label="Steer" size="sm" title="Alt+Enter steers" onClick={() => submit('steer')} />}
-          {active === undefined || text.trim() === '' ? null : <Button label="Queue" variant="primary" size="sm" title="Enter queues" onClick={() => submit('send')} />}
+          {active === undefined || text.trim() === '' ? null : <Button label={t('sessions/composer/steer')} size="sm" title={t('sessions/composer/steerHint')} onClick={() => submit('steer')} />}
+          {active === undefined || text.trim() === '' ? null : <Button label={t('sessions/composer/queue')} variant="primary" size="sm" title={t('sessions/composer/queueHint')} onClick={() => submit('send')} />}
           {active === undefined ? (
-            <button type="button" className="web-composer__round" aria-label="Send" title="Enter sends, Shift+Enter breaks the line" disabled={text.trim() === ''} onClick={() => submit('send')}>{EMOJIcon.send}</button>
+            <button type="button" className="web-composer__round" aria-label={t('sessions/composer/send')} title={t('sessions/composer/sendHint')} disabled={text.trim() === ''} onClick={() => submit('send')}>{EMOJIcon.send}</button>
           ) : (
-            <button type="button" className="web-composer__round" aria-label="Stop" title="Esc stops" onClick={stop}>{EMOJIcon.stop}</button>
+            <button type="button" className="web-composer__round" aria-label={t('sessions/commands/stop')} title={t('sessions/composer/stopHint')} onClick={stop}>{EMOJIcon.stop}</button>
           )}
         </div>
       </div>

@@ -30,11 +30,36 @@ export function english(key: string): string {
 }
 
 /**
+/** The chosen language when Intl knows it, else English: a made-up tag such as `x-aur` would make Intl throw. */
+export function intlLocale(): string {
+  const locale = getLocale();
+  try {
+    Intl.getCanonicalLocales(locale);
+    return locale;
+  } catch {
+    return 'en';
+  }
+}
+
+/** A date format that follows the chosen language; one Intl formatter is kept per language. */
+export function dateFormat(options: Intl.DateTimeFormatOptions): { format(date: Date | number): string } {
+  let held: { locale: string; format: Intl.DateTimeFormat } | null = null;
+  return {
+    format(date) {
+      const locale = intlLocale();
+      if (held?.locale !== locale) held = { locale, format: new Intl.DateTimeFormat(locale, options) };
+      return held.format.format(date);
+    },
+  };
+}
+
+/**
  * A message that changes with a count: `<key>/one` or `<key>/other`, as the
  * chosen language's plural rules pick, with `{count}` and `params` filled in.
  * scena's translate has no plurals of its own.
  */
 export function plural(key: string, count: number, params: Record<string, unknown> = {}): string {
-  const form = new Intl.PluralRules(getLocale()).select(count) === 'one' ? 'one' : 'other';
+  // 0 takes the plural in every language ahpw speaks: "0 sessões", though CLDR counts 0 as one in Portuguese.
+  const form = count !== 0 && new Intl.PluralRules(intlLocale()).select(count) === 'one' ? 'one' : 'other';
   return translate(`${key}/${form}`, { ...params, count });
 }

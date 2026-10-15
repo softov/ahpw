@@ -2,7 +2,11 @@
   "common": {
     "close": "Close",
     "retry": "Retry",
-    "reload": "Reload"
+    "reload": "Reload",
+    "loading": "Loading",
+    "dismiss": "Dismiss",
+    "moreActions": "More actions",
+    "breadcrumb": "Breadcrumb"
   },
   "auth": {
     "subtitle": "Sign in with a token credential.",
@@ -15,7 +19,9 @@
     "emailLabel": "Email address",
     "phoneLabel": "Phone number",
     "sendCode": "Send code",
-    "sendLink": "Send link"
+    "sendLink": "Send link",
+    "verifyCode": "Verify code",
+    "verifyFailed": "Verify failed"
   },
   "shell": {
     "signOut": "Sign out",
@@ -74,6 +80,67 @@
         "panel-bottom": "Panel",
         "statusbar": "Status bar"
       }
+    },
+    "notify": {
+      "region": "Notifications",
+      "more": "{count} more",
+      "raised": {
+        "one": "Raised {count} time",
+        "other": "Raised {count} times"
+      },
+      "dismiss": "Dismiss",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "commands": {
+        "enableAlerts": "Notify me when this tab is in the background",
+        "confirmModal": "Ask in the page's own dialog",
+        "confirmNative": "Ask in the browser's dialog",
+        "dismissAll": "Dismiss all notifications"
+      },
+      "alerts": {
+        "alreadyOn": "Background notifications are already on",
+        "blocked": "Background notifications are blocked",
+        "blockedHelp": "The browser will not ask again. Turn them on in the site settings beside the address bar.",
+        "on": "Background notifications are on",
+        "notAllowed": "Background notifications were not allowed"
+      }
+    },
+    "panel": {
+      "log": "Log",
+      "commands": {
+        "toggle": "Toggle panel",
+        "showLog": "Show log",
+        "clearLog": "Clear log",
+        "hide": "Hide panel"
+      }
+    },
+    "embed": {
+      "manageHosts": "Manage hosts",
+      "addHost": "Add host",
+      "status": {
+        "connected": "Connected",
+        "connecting": "Connecting",
+        "down": "Down"
+      },
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "restore": "Restore",
+      "close": "Close"
+    },
+    "copy": {
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "explorer": {
+      "noMatch": "Nothing matches."
+    },
+    "sidebar": {
+      "show": "Show {title}"
+    },
+    "view": {
+      "setMainLayout": "Set the main layout"
     }
   },
   "close": {
@@ -87,7 +154,10 @@
     "pageOf": "{page} / {pages}",
     "itemRange": "{first} – {last} of {total}",
     "perPage": "Rows per page",
-    "perPageOption": "{size} / page"
+    "perPageOption": "{size} / page",
+    "filter": "Filter…",
+    "previous": "Previous",
+    "next": "Next"
   },
   "tabs": {
     "close": "Close tab",
@@ -114,6 +184,1094 @@
     "navigate": "navigate",
     "select": "select",
     "back": "back",
-    "close": "close"
+    "close": "close",
+    "noMatches": "No matches",
+    "backTo": "Back",
+    "searching": "searching…"
+  },
+  "folders": {
+    "commands": {
+      "show": "Show the explorer",
+      "reveal": "Show the folder in the explorer"
+    },
+    "addFolder": "Add folder",
+    "entry": {
+      "newFile": "New file",
+      "newFolder": "New folder",
+      "upload": "Upload",
+      "copyPath": "Copy path",
+      "download": "Download",
+      "rename": "Rename",
+      "copy": "Copy",
+      "removeFolder": "Remove folder",
+      "delete": "Delete"
+    },
+    "failed": {
+      "newFile": "The file could not be created",
+      "newFolder": "The folder could not be created",
+      "upload": "The upload failed",
+      "copyPath": "The path could not be copied",
+      "download": "The download failed",
+      "rename": "The rename failed",
+      "copy": "The copy failed",
+      "removeFolder": "The folder could not be removed",
+      "delete": "The delete failed"
+    },
+    "ask": {
+      "create": "Create",
+      "name": "Name",
+      "cancel": "Cancel"
+    },
+    "uploaded": "{name} uploaded",
+    "uploadedFiles": {
+      "one": "{count} file uploaded",
+      "other": "{count} files uploaded"
+    },
+    "pathCopied": "Path copied",
+    "delete": {
+      "title": "Delete \"{name}\"?",
+      "body": "Everything in it goes with it."
+    },
+    "name": {
+      "empty": "Give a name.",
+      "slash": "A name has no slash.",
+      "dot": "Give a name other than a dot."
+    },
+    "copyName": "{name} copy{ext}",
+    "explorer": {
+      "title": "Explorer",
+      "refresh": "Refresh",
+      "open": "Open",
+      "openWith": "Open with {viewer}",
+      "loading": "Loading",
+      "notReadable": "Not readable",
+      "default": "default",
+      "notConnected": "Not connected",
+      "refused": "The server refused the connection.",
+      "connecting": "Connecting to the server",
+      "empty": "The server names no folder yet. Start a session in one."
+    },
+    "pick": {
+      "missing": "The path does not exist.",
+      "notFolder": "The path is not a folder.",
+      "missingHint": "The path does not exist. Use ~ to go to your home folder.",
+      "path": "Folder path",
+      "add": "Add",
+      "folders": "Folders",
+      "reading": "Reading…",
+      "noMatch": "No folder starts with {part}"
+    }
+  },
+  "files": {
+    "viewers": {
+      "text": "Text",
+      "markdown": "Markdown",
+      "image": "Image",
+      "video": "Video",
+      "audio": "Audio"
+    },
+    "openAs": "Open as {viewer}",
+    "openWith": "Open with",
+    "commands": {
+      "openFile": "Open file",
+      "showText": "Show as text",
+      "showMarkdown": "Show as Markdown",
+      "openDiff": "Open diff"
+    },
+    "openFile": "Open file",
+    "noFile": "No file was named.",
+    "reading": "Reading the file",
+    "notReadable": "Not readable",
+    "notText": "This file is not text.",
+    "unsaved": "The changes to this file are not saved.",
+    "changedOnHost": "The file changed on the server since it was opened. Copy your edit, then reopen the file.",
+    "readOnly": "Read-only",
+    "notSaved": "Not saved",
+    "cut": "This file is over 5 MB. It shows the start, read-only.",
+    "edited": "Edited",
+    "copyPath": "Copy path",
+    "tooLarge": "This file is {size}. Files over {max} are not shown.",
+    "audio": {
+      "cannotPlay": "This browser cannot play this file.",
+      "play": "Play",
+      "pause": "Pause",
+      "speed": "Speed"
+    },
+    "diff": {
+      "newFile": "new file",
+      "deleted": "deleted",
+      "viewed": "Viewed",
+      "reading": "Reading both sides",
+      "none": "No changes."
+    },
+    "image": {
+      "zoom": "Zoom",
+      "zoomOut": "Zoom out",
+      "fit": "Fit",
+      "zoomIn": "Zoom in"
+    }
+  },
+  "changes": {
+    "title": "Changes",
+    "titleOf": "Changes · {title}",
+    "untitled": "Untitled",
+    "groups": {
+      "unreviewed": "Not reviewed",
+      "reviewed": "Reviewed",
+      "staged": "Staged",
+      "changes": "Changes"
+    },
+    "grouping": {
+      "review": "By review",
+      "staging": "Staged and not",
+      "none": "Not grouped"
+    },
+    "status": {
+      "added": "Added",
+      "modified": "Modified",
+      "deleted": "Deleted",
+      "untracked": "Untracked"
+    },
+    "openChange": "Open change",
+    "openFile": "Open file",
+    "markReviewed": "Mark as reviewed",
+    "markNotReviewed": "Mark as not reviewed",
+    "noSession": "Open a session to see what it changed.",
+    "untracked": "This session tracks no changes.",
+    "notReadable": "Changes not readable",
+    "computing": "Working out the changes",
+    "none": "No changes.",
+    "viewOptions": "View options",
+    "view": {
+      "list": "Show as a list",
+      "tree": "Show as a tree",
+      "showAs": "Show as"
+    },
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "files": {
+      "one": "{count} file",
+      "other": "{count} files"
+    },
+    "filter": "Filter files",
+    "noMatch": "Nothing matches.",
+    "cancel": "Cancel",
+    "commit": {
+      "staged": {
+        "one": "The {count} staged file is committed. The rest stay as they are.",
+        "other": "The {count} staged files are committed. The rest stay as they are."
+      },
+      "all": {
+        "one": "Nothing is staged, so the {count} changed file is committed.",
+        "other": "Nothing is staged, so all {count} changed files are committed."
+      },
+      "message": "Commit message",
+      "placeholder": "What does this change do?"
+    },
+    "pr": {
+      "title": "Create a pull request",
+      "preparing": "Asking the server for a title and description",
+      "titleLabel": "Title",
+      "titlePlaceholder": "What is this request?",
+      "description": "Description",
+      "descriptionPlaceholder": "What changed, and why?",
+      "draft": "Open as a draft",
+      "cannotCreate": "This server offers no way to create the request.",
+      "explain": "The server commits what is uncommitted, pushes the branch and opens the request only when you press the button."
+    }
+  },
+  "log": {
+    "follow": {
+      "mac": "Cmd+click to open",
+      "other": "Ctrl+click to open",
+      "link": "{tip} ({how})",
+      "terminal": "Open the terminal",
+      "session": "Open the session",
+      "file": "Open the file",
+      "page": "Open the page"
+    },
+    "scopes": {
+      "connection": "Connection",
+      "session": "Session",
+      "terminal": "Terminal",
+      "traffic": "Traffic"
+    },
+    "copyLine": "Copy the line",
+    "all": "All",
+    "levelTip": "Least severe level shown",
+    "minLevel": "{level} and up",
+    "filter": "Filter (!word excludes)",
+    "copyShown": "Copy the lines shown",
+    "empty": "Nothing logged yet.",
+    "noMatch": "Nothing logged matches the filter."
+  },
+  "terminals": {
+    "terminal": "Terminal",
+    "notConnected": "Not connected to the server.",
+    "commands": {
+      "open": "Open terminal",
+      "disconnect": "Disconnect terminal",
+      "connect": "Connect terminal",
+      "kill": "Kill terminal",
+      "new": "New terminal"
+    },
+    "kill": {
+      "title": "Kill \"{title}\"?",
+      "body": "Its process ends on the host.",
+      "confirm": "Kill"
+    },
+    "failed": {
+      "kill": "The terminal could not be killed",
+      "create": "The terminal could not be created"
+    },
+    "holder": {
+      "you": "Yours",
+      "session": "Held by a session",
+      "another": "Held by another client"
+    },
+    "exited": "{holder}, exited",
+    "exitedWith": "{holder}, exited with {code}",
+    "rows": {
+      "title": "Terminal: {title}",
+      "group": "Terminals"
+    },
+    "noTerminal": "No terminal was named.",
+    "notReadable": "Not readable",
+    "disconnected": "Disconnected. The terminal keeps running on the host.",
+    "connect": "Connect",
+    "note": {
+      "exited": "Exited.",
+      "exitedWith": "Exited with {code}.",
+      "session": "A session is running this terminal. Typing is off.",
+      "another": "Another client holds this terminal. Typing is off."
+    },
+    "takeOver": "Take over"
+  },
+  "automations": {
+    "commands": {
+      "new": "New automation",
+      "show": "Show automations",
+      "edit": "Edit automation",
+      "open": "Open automation"
+    },
+    "automation": "Automation",
+    "editTitle": "Edit {title}",
+    "untitled": "Untitled",
+    "byHand": "Run by hand",
+    "cron": {
+      "everyMinutes": {
+        "one": "Every minute",
+        "other": "Every {count} minutes"
+      },
+      "everyMinute": "Every minute",
+      "everyHours": {
+        "one": "Every hour",
+        "other": "Every {count} hours"
+      },
+      "hourlyAt": "Every hour at :{minute}",
+      "dailyAt": "Every day at {time}",
+      "weekdaysAt": "Weekdays at {time}",
+      "weekly": {
+        "sunday": "Every Sunday at {time}",
+        "monday": "Every Monday at {time}",
+        "tuesday": "Every Tuesday at {time}",
+        "wednesday": "Every Wednesday at {time}",
+        "thursday": "Every Thursday at {time}",
+        "friday": "Every Friday at {time}",
+        "saturday": "Every Saturday at {time}"
+      }
+    },
+    "problems": {
+      "title": "Give it a title.",
+      "message": "Say what it sends.",
+      "schedule": "A schedule is five fields: minute, hour, day, month, weekday.",
+      "runs": "Stop after a whole number of runs."
+    },
+    "state": {
+      "running": "Running",
+      "failed": "Last run failed",
+      "on": "On",
+      "off": "Off"
+    },
+    "run": {
+      "pending": "Waiting",
+      "running": "Running",
+      "completed": "Done",
+      "failed": "Failed",
+      "cancelled": "Stopped"
+    },
+    "notices": {
+      "none": "No automations",
+      "reading": "Reading the automations",
+      "gone": "This automation is gone."
+    },
+    "defaults": {
+      "host": "The host default",
+      "agent": "The agent default"
+    },
+    "actions": {
+      "deleteTitle": "Delete \"{title}\"?",
+      "deleteBody": "Its run history goes with it.",
+      "delete": "Delete",
+      "couldNotRun": "The automation could not run",
+      "open": "Open",
+      "runNow": "Run now",
+      "turnOff": "Turn off",
+      "turnOn": "Turn on",
+      "edit": "Edit",
+      "copyLink": "Copy link"
+    },
+    "explorer": {
+      "title": "Automations",
+      "filter": "Filter automations",
+      "empty": "No automations yet.",
+      "neverRun": "Never run",
+      "runs": {
+        "one": "{count} run",
+        "other": "{count} runs"
+      },
+      "last": {
+        "pending": "last waiting {at}",
+        "running": "last running {at}",
+        "completed": "last done {at}",
+        "failed": "last failed {at}",
+        "cancelled": "last stopped {at}",
+        "other": "last {status} {at}"
+      }
+    },
+    "origin": {
+      "byHand": "By hand",
+      "scheduled": "Scheduled",
+      "scheduledFor": "Scheduled for {time}",
+      "catchUp": "Catch-up",
+      "catchUpFor": "Catch-up for {time}"
+    },
+    "facts": {
+      "afterRuns": {
+        "one": "After {count} run",
+        "other": "After {count} runs"
+      },
+      "afterDate": "After {date}",
+      "agent": "Agent",
+      "model": "Model",
+      "folder": "Folder",
+      "settings": "Settings",
+      "schedule": "Schedule",
+      "missedRuns": "Missed runs",
+      "runOnce": "Run once when back",
+      "skipped": "Skipped",
+      "byHandOnly": "Run by hand only",
+      "event": "Event",
+      "turnsOff": "Turns off",
+      "nextRun": "Next run",
+      "runs": "Runs",
+      "customizations": "Customizations",
+      "created": "Created",
+      "changed": "Changed"
+    },
+    "page": {
+      "message": "Message",
+      "runs": "Runs",
+      "noRuns": "No runs yet.",
+      "columns": {
+        "status": "Status",
+        "how": "How",
+        "started": "Started",
+        "took": "Took",
+        "tokens": "Tokens"
+      },
+      "openSession": "Open session",
+      "stop": "Stop",
+      "loadOlder": "Load older runs"
+    },
+    "edit": {
+      "noCreate": "This host does not let clients create automations.",
+      "title": "Title",
+      "message": "Message",
+      "messageHint": "What the agent is told each time it runs.",
+      "agent": "Agent",
+      "model": "Model",
+      "folder": "Folder",
+      "folderHint": "A folder on the daemon's machine.",
+      "schedule": "Schedule",
+      "presets": {
+        "byHand": "By hand only",
+        "every10Minutes": "Every 10 minutes",
+        "everyHour": "Every hour",
+        "every6Hours": "Every 6 hours",
+        "dailyAt9": "Every day at 09:00",
+        "weekdaysAt9": "Weekdays at 09:00",
+        "mondayAt5": "Every Monday at 05:00"
+      },
+      "custom": "Custom",
+      "cron": "Cron expression",
+      "cronPlaceholder": "minute hour day month weekday",
+      "byHandHint": "Runs only when started by hand.",
+      "minimum": {
+        "one": "At most every minute.",
+        "other": "At most every {count} minutes."
+      },
+      "timeZone": "Time zone",
+      "missedRuns": "Missed runs",
+      "missedHint": "What happens to a run due while the daemon was down.",
+      "skip": "Skip them",
+      "runOnce": "Run once when back",
+      "afterRuns": "Turn off after runs",
+      "afterDate": "Turn off after",
+      "keepsOn": "Empty keeps it on.",
+      "on": "On",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel"
+    }
+  },
+  "agents": {
+    "commands": {
+      "show": "Show agents",
+      "open": "Open agent"
+    },
+    "newSession": "New session",
+    "models": {
+      "none": "No models listed",
+      "count": {
+        "one": "{count} model",
+        "other": "{count} models"
+      }
+    },
+    "capabilities": {
+      "chatsAndForks": "Several chats per session, and forks",
+      "chats": "Several chats per session",
+      "foldersFirstFixed": "Several folders, the first one fixed",
+      "folders": "Several folders"
+    },
+    "limits": {
+      "context": "{size} context",
+      "output": "{size} out",
+      "images": "images"
+    },
+    "kinds": {
+      "plugin": "Plugin",
+      "directory": "Folder",
+      "mcpServer": "MCP server"
+    },
+    "counts": {
+      "agent": {
+        "one": "{count} agent",
+        "other": "{count} agents"
+      },
+      "skill": {
+        "one": "{count} skill",
+        "other": "{count} skills"
+      },
+      "prompt": {
+        "one": "{count} prompt",
+        "other": "{count} prompts"
+      },
+      "rule": {
+        "one": "{count} rule",
+        "other": "{count} rules"
+      },
+      "hook": {
+        "one": "{count} hook",
+        "other": "{count} hooks"
+      },
+      "mcpServer": {
+        "one": "{count} MCP server",
+        "other": "{count} MCP servers"
+      },
+      "item": {
+        "one": "{count} item",
+        "other": "{count} items"
+      },
+      "empty": "Empty"
+    },
+    "auth": {
+      "required": "Needs sign-in",
+      "expired": "Sign-in expired",
+      "insufficientScope": "Needs more access"
+    },
+    "states": {
+      "ready": "Ready",
+      "starting": "Starting",
+      "startingBlocking": "Starting; blocks the next turn",
+      "stopped": "Stopped",
+      "loading": "Loading"
+    },
+    "flags": {
+      "userOnly": "user only",
+      "modelOnly": "model only",
+      "pinned": "pinned to {model}",
+      "always": "always"
+    },
+    "meta": {
+      "readOnly": "read-only",
+      "on": "on",
+      "off": "off"
+    },
+    "customizations": {
+      "copyName": "Copy the name",
+      "copyDescription": "Copy the description",
+      "readingFile": "Reading the file",
+      "unreadable": "The file is not readable from here.",
+      "openFile": "Open file"
+    },
+    "explorer": {
+      "title": "Agents",
+      "offered": "Offered",
+      "sessions": {
+        "one": "{count} session",
+        "other": "{count} sessions"
+      },
+      "needsSignIn": "needs sign-in",
+      "open": "Open",
+      "empty": "This server offers no agent.",
+      "filter": "Filter agents"
+    },
+    "page": {
+      "gone": "This server no longer offers this agent.",
+      "facts": {
+        "provider": "Provider",
+        "models": "Models",
+        "sessions": "Sessions",
+        "can": "Can"
+      },
+      "oneChat": "One chat in one folder per session",
+      "needsSignIn": "Needs sign-in",
+      "models": "Models",
+      "noModels": "This agent lists no models; it picks its own.",
+      "columns": {
+        "name": "Name",
+        "id": "Id",
+        "limits": "Limits",
+        "resource": "Resource",
+        "scopes": "Scopes"
+      },
+      "policy": {
+        "disabled": "Turned off by policy",
+        "unconfigured": "Not set up"
+      },
+      "customizations": "Customizations",
+      "signIn": "Sign-in",
+      "required": "Required",
+      "optional": "Optional"
+    }
+  },
+  "commands": {
+    "commands": {
+      "open": "Open command",
+      "openItem": "Open item",
+      "run": "Run command"
+    },
+    "noManifest": "No manifest",
+    "readingManifest": "Reading the manifest",
+    "readingList": "Reading the list",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "explorer": {
+      "noGroup": "This daemon has no {group} commands."
+    },
+    "item": {
+      "gone": "The list no longer has {kind} {title}.",
+      "reading": "Reading"
+    },
+    "items": {
+      "badShape": "This list came back in a shape that cannot be listed.",
+      "empty": "Nothing yet.",
+      "reloading": "Reloading",
+      "commands": "Commands",
+      "search": "Search {title}"
+    },
+    "page": {
+      "noCommand": "This daemon has no command {id}.",
+      "run": "Run",
+      "lastRun": "Last run {time}",
+      "running": "Running",
+      "notSent": "Not sent"
+    },
+    "result": {
+      "nothing": "Nothing.",
+      "done": "Done.",
+      "view": "view",
+      "value": "value"
+    }
+  },
+  "manifest": {
+    "required": "{field} is required",
+    "removal": {
+      "question": {
+        "named": "Remove {kind} {item}?",
+        "kind": "Remove {kind}?",
+        "this": "Remove this?"
+      },
+      "action": {
+        "named": "Remove {kind} {item}",
+        "kind": "Remove {kind}",
+        "this": "Remove this"
+      }
+    }
+  },
+  "sessions": {
+    "untitled": "Untitled",
+    "activity": {
+      "completed": {
+        "one": "Completed {count} step",
+        "other": "Completed {count} steps"
+      },
+      "failed": "{count} failed",
+      "took": "in {time}",
+      "thinking": "Thinking",
+      "working": "Working on {name}",
+      "workingFor": "Working on {name} for {time}",
+      "waiting": "Waiting on {name}",
+      "waitingFor": "Waiting on {name} for {time}"
+    },
+    "status": {
+      "input": "Needs you",
+      "running": "Running",
+      "error": "Failed",
+      "idle": "Idle",
+      "unread": "Unread",
+      "archived": "Archived"
+    },
+    "alerts": {
+      "open": "Open",
+      "needsYou": "{name} needs you",
+      "failed": "{name} failed",
+      "finished": "{name} finished",
+      "finishedBody": "Finished"
+    },
+    "question": {
+      "yes": "Yes",
+      "no": "No",
+      "skipped": "Skipped",
+      "hint": {
+        "single": "Pick one",
+        "singleOther": "Pick one, or write your own",
+        "multi": "Pick any",
+        "multiOther": "Pick any, or write your own",
+        "text": "Type an answer",
+        "textOther": "Type an answer, or write your own",
+        "number": "Type a number",
+        "numberOther": "Type a number, or write your own",
+        "other": "or write your own",
+        "optional": "(optional)",
+        "withOptional": "{hint} (optional)"
+      },
+      "yourAnswer": "Your answer",
+      "recommended": "Recommended",
+      "other": "Other",
+      "otherPlaceholder": "Other: write your own answer",
+      "declined": "Question declined",
+      "unanswered": "Question not answered",
+      "answered": "Question answered",
+      "sending": "Sending to the agent",
+      "asks": "The agent asks",
+      "asksColon": "The agent asks:",
+      "step": "Question {page} of {total}",
+      "count": "{page} of {total}",
+      "decline": "Decline",
+      "back": "Back",
+      "answer": "Answer",
+      "next": "Next",
+      "missing": {
+        "one": "One question still needs an answer.",
+        "other": "{count} questions still need an answer."
+      }
+    },
+    "attachments": {
+      "see": "See {name}",
+      "open": "Open {name}",
+      "remove": "Remove {name}",
+      "unnamed": "Attachment"
+    },
+    "clipboard": {
+      "insecure": "Needs https or localhost",
+      "refused": "The browser refused",
+      "tooBig": "Over 5 MB",
+      "empty": "No image on the clipboard"
+    },
+    "context": {
+      "title": "Add context",
+      "hint": "Attach a file, a session, or a file from this computer",
+      "files": "Files and folders",
+      "filesHint": "On the server's machine",
+      "upload": "Upload",
+      "uploadHint": "From this computer, up to 5 MB each",
+      "image": "Image from clipboard",
+      "imageHint": "The image you copied",
+      "sessions": "Sessions",
+      "sessionsHint": "Another session's chat",
+      "noSessions": "No other session",
+      "commands": "Commands",
+      "commandsHint": "What the agent and this page can do"
+    },
+    "values": {
+      "default": "default",
+      "none": "none",
+      "items": {
+        "one": "{count} item",
+        "other": "{count} items"
+      },
+      "on": "on",
+      "off": "off"
+    },
+    "commands": {
+      "model": "Model",
+      "modelHint": "The model the next message is sent to",
+      "agentDefault": "Agent default",
+      "stop": "Stop",
+      "stopHint": "Stop the turn that is running",
+      "newSession": "New session",
+      "newSessionHint": "Start another session",
+      "showSessions": "Show sessions",
+      "openSession": "Open session"
+    },
+    "upload": {
+      "notAttached": "Not attached",
+      "refused": "Over 5 MB or unreadable: {names}"
+    },
+    "composer": {
+      "steering": "Steering",
+      "remove": "Remove",
+      "next": "Next {number}",
+      "folderHint": "The folder this session works in",
+      "agentHint": "The agent running this session",
+      "message": "Message",
+      "placeholder": "What should it do?",
+      "placeholderRunning": "Queue a message for after this turn, or steer it",
+      "modelHint": "The model the next message goes to",
+      "steer": "Steer",
+      "steerHint": "Alt+Enter steers",
+      "queue": "Queue",
+      "queueHint": "Enter queues",
+      "send": "Send",
+      "sendHint": "Enter sends, Shift+Enter breaks the line",
+      "stopHint": "Esc stops"
+    },
+    "details": {
+      "tab": "Session",
+      "empty": "Open a session to see its details.",
+      "openTerminal": "Open the terminal",
+      "terminal": "Terminal",
+      "session": "Session",
+      "sessionId": "Session id",
+      "chatId": "Chat id",
+      "agent": "Agent",
+      "model": "Model",
+      "folder": "Folder",
+      "revealFolder": "Show the folder in the explorer",
+      "newTerminal": "+ New terminal",
+      "newTerminalHint": "A new terminal",
+      "newTerminalInFolder": "A new terminal in the session's folder",
+      "project": "Project",
+      "started": "Started",
+      "changed": "Changed",
+      "turns": "Turns",
+      "working": "Working",
+      "tokens": "Tokens",
+      "toolCalls": "Tool calls",
+      "changes": "Changes",
+      "inFiles": {
+        "one": "in {count} file",
+        "other": "in {count} files"
+      },
+      "from": "From",
+      "automation": "An automation run",
+      "watching": "Watching"
+    },
+    "grouping": {
+      "none": "No groups",
+      "folder": "Group by folder",
+      "status": "Group by status",
+      "agent": "Group by agent",
+      "noFolder": "No folder"
+    },
+    "explorer": {
+      "title": "Sessions",
+      "open": "Open",
+      "rename": "Rename",
+      "renamePrompt": "Rename the session",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "copyLink": "Copy link",
+      "delete": "Delete",
+      "deleteTitle": "Delete \"{title}\"?",
+      "deleteBody": "Its history goes with it.",
+      "deleteFailed": "The session could not be deleted",
+      "files": {
+        "one": "{count} file",
+        "other": "{count} files"
+      },
+      "notConnected": "Not connected",
+      "refused": "The server refused the connection.",
+      "connecting": "Connecting to the server",
+      "none": "No sessions.",
+      "noneYet": "No sessions yet.",
+      "reload": "Reload",
+      "reloading": "Reloading",
+      "showArchived": "Show archived",
+      "hideArchived": "Hide archived",
+      "group": "Group sessions",
+      "current": "Current",
+      "filter": "Filter sessions"
+    },
+    "folder": {
+      "hint": "A folder on the server's machine",
+      "choose": "Choose a folder",
+      "label": "Folder",
+      "host": "Host folder",
+      "used": "Used",
+      "list": "Folders",
+      "reading": "Reading {path}",
+      "unreadable": "The host cannot list {path}",
+      "sessions": {
+        "one": "{count} session",
+        "other": "{count} sessions"
+      },
+      "open": "Open {name}"
+    },
+    "footer": {
+      "window": "The model's context window: {window} tokens",
+      "used": "{used} of {window} tokens, as of the last turn"
+    },
+    "new": {
+      "unsent": "The message is not sent.",
+      "agent": "Agent",
+      "agentHint": "The agent the session runs on",
+      "agentPill": "Agent: {name}",
+      "noAgent": "This server offers no agent.",
+      "fold": "Fold the options",
+      "unfold": "Show the options",
+      "firstMessage": "First message",
+      "readingSettings": "Reading settings",
+      "modelHint": "The model the first message goes to",
+      "starting": "Starting",
+      "create": "Create",
+      "start": "Start",
+      "startHint": "Enter starts, Shift+Enter breaks the line",
+      "notCreated": "Not created"
+    },
+    "pills": {
+      "setting": "{name}: {value}",
+      "model": "Model: {name}"
+    },
+    "tips": {
+      "slash": "lists skills and commands",
+      "mention": "refers to a file",
+      "add": "adds files, images and sessions",
+      "enter": "starts; an empty box creates the session without a message",
+      "shiftEnter": "breaks a line"
+    },
+    "turn": {
+      "stopped": "Stopped",
+      "failed": "Ended with an error",
+      "soFar": "{time} so far",
+      "cached": "{tokens} cached",
+      "toolCalls": {
+        "one": "{count} tool call",
+        "other": "{count} tool calls"
+      },
+      "copyReply": "Copy the reply",
+      "working": "Working"
+    },
+    "chat": {
+      "loading": "Loading",
+      "older": "Load older turns",
+      "gone": "This session is gone.",
+      "starting": "Starting the session",
+      "notStarted": "The session did not start",
+      "noReason": "No reason given.",
+      "sessionUnreadable": "Session not readable",
+      "chatUnreadable": "Chat not readable",
+      "reading": "Reading the chat",
+      "empty": "No messages yet."
+    },
+    "tool": {
+      "preparing": "Preparing",
+      "approval": "Needs approval",
+      "running": "Running",
+      "signIn": "Needs sign-in",
+      "review": "Review result",
+      "done": "Done",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "output": "Output",
+      "exit": "exit {code}",
+      "cutShort": "cut short",
+      "noOutput": "No output.",
+      "openFile": "Open the file",
+      "openChange": "Open the change",
+      "tool": "Tool",
+      "status": "Status",
+      "file": "File",
+      "why": "Why",
+      "risk": "Risk",
+      "safety": "{safety}/10 safe",
+      "arguments": "Arguments",
+      "acceptResult": "Accept result",
+      "reject": "Reject",
+      "thinkingAbout": "Thinking: {text}",
+      "approve": "Approve",
+      "deny": "Deny",
+      "agentError": "The agent reported an error.",
+      "ran": "Ran {name}",
+      "ranSubagent": "Ran a subagent",
+      "read": "Read {path}",
+      "denied": "Denied.",
+      "skipped": "Skipped.",
+      "resultDenied": "Result rejected.",
+      "cancelledNote": "Cancelled."
+    },
+    "start": {
+      "note": "Start a session, or open one from the list."
+    }
+  },
+  "host": {
+    "title": "Host",
+    "commands": {
+      "info": "Host information",
+      "settings": "Host settings"
+    },
+    "info": {
+      "status": "Status",
+      "host": "Host",
+      "protocol": "Protocol",
+      "connected": "Connected",
+      "connectedValue": "{when} · {elapsed}",
+      "client": "Client",
+      "serverSeq": "Server sequence",
+      "following": "Following",
+      "channels": {
+        "one": "{count} channel",
+        "other": "{count} channels"
+      },
+      "lastError": "Last error",
+      "started": "Started",
+      "startedValue": "{when} · up {elapsed}",
+      "process": "Process",
+      "address": "Address",
+      "automationsKeptIn": "Automations kept in",
+      "sessionsKeptIn": "Sessions kept in",
+      "agents": "Agents",
+      "none": "None",
+      "defaultFolder": "Default folder",
+      "activeSessions": "Active sessions",
+      "automations": "Automations",
+      "automationsNotOffered": "Not offered",
+      "automationsReadOnly": "Read only",
+      "automationsCreate": "Clients can create them",
+      "automationsInterval": {
+        "one": "at most every {count} minute",
+        "other": "at most every {count} minutes"
+      },
+      "automationsStoppable": "runs can be stopped",
+      "settings": "Settings",
+      "connection": "Connection",
+      "daemon": "Daemon",
+      "statusUnreadable": "The daemon's status is not readable: {error}",
+      "offers": "Offers",
+      "terminals": "Terminals",
+      "noTerminals": "No terminals open.",
+      "terminalTitle": "Title",
+      "terminalState": "State",
+      "running": "Running",
+      "exited": "Exited",
+      "exitedCode": "Exited ({code})"
+    },
+    "settings": {
+      "tab": "Settings",
+      "title": "Host settings",
+      "unreadable": "Settings not readable",
+      "reading": "Reading the settings",
+      "none": "This host publishes no settings.",
+      "save": "Save",
+      "fixJson": "Fix the JSON first",
+      "reset": "Reset",
+      "saved": "Saved."
+    }
+  },
+  "bridges": {
+    "state": {
+      "connecting": "Connecting",
+      "connected": "Connected",
+      "reconnecting": "Reconnecting",
+      "reconnectingTry": "Reconnecting (try {attempt})",
+      "disconnected": "Disconnected",
+      "failed": "Failed",
+      "notConnected": "Not connected"
+    },
+    "reconnectNow": "Reconnect now",
+    "connectedAt": "Connected at {time}",
+    "reconnected": {
+      "one": "Reconnected {count} time",
+      "other": "Reconnected {count} times"
+    },
+    "backAgain": "Connected to the server again",
+    "lost": "Lost the connection to the server",
+    "retryNow": "Retry now",
+    "commands": {
+      "reconnect": "Reconnect to the server"
+    },
+    "notConnected": "Not connected to the server.",
+    "untitled": "Untitled",
+    "terminal": "Terminal",
+    "daemonSilent": "The daemon did not answer."
+  },
+  "tree": {
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "form": {
+    "fields": "fields",
+    "json": "json",
+    "select": "Select…",
+    "removeItem": "Remove item",
+    "addItem": "+ add item"
+  },
+  "spatial": {
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in",
+    "fit": "Fit all cards to viewport",
+    "reset": "Reset zoom + pan",
+    "selectedActions": "Selected card actions",
+    "zoomPercent": "Zoom percent"
+  },
+  "layout": {
+    "togglePanes": "Toggle panes",
+    "groupActions": "Group actions"
+  },
+  "theme": {
+    "label": "Theme",
+    "mode": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "Follow system",
+      "next": "{mode}, click for {next}",
+      "label": "Theme mode: {mode}"
+    }
+  },
+  "groups": {
+    "Agent": "Agent",
+    "Agents": "Agents",
+    "Automations": "Automations",
+    "Files": "Files",
+    "Host": "Host",
+    "Notifications": "Notifications",
+    "Session": "Session",
+    "Sessions": "Sessions",
+    "Settings": "Settings",
+    "Terminal": "Terminal",
+    "View": "View",
+    "Open with": "Open with",
+    "more": "More",
+    "file": "File",
+    "changes": "Changes",
+    "view": "View",
+    "group": "Group by",
+    "folders": "Folders",
+    "changed": "Changed files",
+    "people": "People"
   }
 }

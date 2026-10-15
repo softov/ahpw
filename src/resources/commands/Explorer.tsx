@@ -1,5 +1,5 @@
 import { useEffect, useMemo, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import { ACTIVE_COMMAND, MANIFEST, MANIFEST_ERROR } from '../manifest/data.js';
 import { sectionsOf } from '../manifest/sections.js';
@@ -23,6 +23,7 @@ function markOf(command: ManifestCommand): ReactElement | undefined {
 /** The sidebar: the commands of one group. */
 export default function CommandExplorer({ group }: { group?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const manifest = useStore<ProgramManifest>(MANIFEST);
   const error = useStore<string | null>(MANIFEST_ERROR);
   const active = useStore<string>(ACTIVE_COMMAND);
@@ -46,9 +47,9 @@ export default function CommandExplorer({ group }: { group?: string }): ReactEle
     if (active === undefined && first !== undefined) void scena.commands.execute('ahpd.open', { id: first.id });
   }, [manifest, active, scena]);
 
-  if (error) return <div className="web-explorer__notice"><Alert tone="danger" title="No manifest" message={error} /></div>;
-  if (manifest === undefined) return <Spinner label="Reading the manifest" />;
-  if (section === undefined) return <div className="web-explorer__notice"><Alert tone="warning" message={`This daemon has no ${group ?? ''} commands.`} /></div>;
+  if (error) return <div className="web-explorer__notice"><Alert tone="danger" title={t('commands/noManifest')} message={error} /></div>;
+  if (manifest === undefined) return <Spinner label={t('commands/readingManifest')} />;
+  if (section === undefined) return <div className="web-explorer__notice"><Alert tone="warning" message={t('commands/explorer/noGroup', { group: group ?? '' })} /></div>;
   // A group that lists a kind of thing shows the things.
   const list = listOf(section.commands);
   if (list !== undefined) return <ItemExplorer manifest={manifest} title={section.title} list={list} commands={section.commands} />;

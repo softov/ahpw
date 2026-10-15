@@ -1,4 +1,5 @@
 import type { ChatInputAnswer, ChatInputQuestion } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
 
 /** What a person has filled in for one question so far. */
 export interface Draft {
@@ -15,7 +16,7 @@ export const EMPTY: Draft = { picked: [], text: '', other: false };
 /** The options a question offers; a yes/no question offers two. */
 export function optionsOf(question: ChatInputQuestion): { id: string; label: string; description?: string; recommended?: boolean }[] {
   const kind = String(question.kind);
-  if (kind === 'boolean') return [{ id: 'yes', label: 'Yes' }, { id: 'no', label: 'No' }];
+  if (kind === 'boolean') return [{ id: 'yes', label: translate('sessions/question/yes') }, { id: 'no', label: translate('sessions/question/no') }];
   return 'options' in question ? question.options : [];
 }
 
@@ -72,11 +73,11 @@ export function draftOf(answer: ChatInputAnswer | undefined): Draft {
 /** An answer in words: the labels picked and anything typed. */
 export function answerWords(question: ChatInputQuestion, answer: ChatInputAnswer | undefined): string {
   const value = (answer as { value?: { kind?: string; value?: unknown; freeformValues?: string[] } } | undefined)?.value;
-  if (value === undefined) return 'Skipped';
+  if (value === undefined) return translate('sessions/question/skipped');
   const label = (id: string): string => optionsOf(question).find((one) => one.id === id)?.label ?? id;
   const free = value.freeformValues ?? [];
   switch (value.kind) {
-    case 'boolean': return value.value === true ? 'Yes' : 'No';
+    case 'boolean': return translate(value.value === true ? 'sessions/question/yes' : 'sessions/question/no');
     case 'selected': return [label(String(value.value)), ...free].join(', ');
     case 'selected-many': return [...(Array.isArray(value.value) ? value.value.map((one) => label(String(one))) : []), ...free].join(', ');
     default: return String(value.value ?? '');

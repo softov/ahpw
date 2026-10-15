@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
+import { useI18n } from '@softov/scena/react';
 import { elapsed } from '../../bridges/words.js';
 import { hostSpan, stepDone, stepFailed, stepWaits, summaryPieces, type Group, type Doing, type Step } from './activity-parts.js';
 import { Reasoning, ToolCall, type Send } from './Parts.js';
@@ -34,6 +35,8 @@ function doingOf(step: Step, now: number): Doing {
 
 /** One run of tool calls and thinking, folded to a line that says what it did and does. */
 export function Activity({ group, send, turnId }: { group: Group; send: Send; turnId: string }): ReactElement {
+  // Subscribed so the folded line, which translates, follows a language switch.
+  useI18n();
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const last = group.steps.length - 1;

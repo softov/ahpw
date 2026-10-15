@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { Changeset, ChangesetFile } from '@microsoft/agent-host-protocol';
 import { folderLabel } from '../../bridges/words.js';
 import { ahpdKey } from '../../bridges/ahpd-meta.js';
@@ -98,15 +99,15 @@ export interface ChangeGroup {
 export function groupChanges(changes: readonly Change[], grouping: ChangeGrouping): ChangeGroup[] {
   const groups: ChangeGroup[] = grouping === 'review'
     ? [
-      { key: 'unreviewed', label: 'Not reviewed', changes: changes.filter((one) => !one.reviewed) },
-      { key: 'reviewed', label: 'Reviewed', changes: changes.filter((one) => one.reviewed) },
+      { key: 'unreviewed', label: translate('changes/groups/unreviewed'), changes: changes.filter((one) => !one.reviewed) },
+      { key: 'reviewed', label: translate('changes/groups/reviewed'), changes: changes.filter((one) => one.reviewed) },
     ]
     : grouping === 'staging'
       ? [
-        { key: 'staged', label: 'Staged', changes: changes.filter((one) => one.staged) },
-        { key: 'unstaged', label: 'Changes', changes: changes.filter((one) => !one.staged || one.unstaged) },
+        { key: 'staged', label: translate('changes/groups/staged'), changes: changes.filter((one) => one.staged) },
+        { key: 'unstaged', label: translate('changes/groups/changes'), changes: changes.filter((one) => !one.staged || one.unstaged) },
       ]
-      : [{ key: 'all', label: 'Changes', changes: [...changes] }];
+      : [{ key: 'all', label: translate('changes/groups/changes'), changes: [...changes] }];
   return groups.filter((group) => group.changes.length > 0);
 }
 

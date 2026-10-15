@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, ContextMenu, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import type { DirectoryEntry, SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_CONNECTION, AHP_DEFAULT_DIRECTORY, AHP_SESSIONS, ROOT, request, type Connection } from '../../bridges/data.js';
@@ -33,6 +33,7 @@ function nameOf(uri: string): ReactElement {
 /** The sidebar: the host's folders as a tree, one level asked for at a time. Files open on click and drag into the composer; a folder a link names opens down to it; rows and the space under them have menus. */
 export default function FolderExplorer(): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const connection = useStore<Connection>(AHP_CONNECTION);
   const defaultDirectory = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
@@ -117,8 +118,8 @@ export default function FolderExplorer(): ReactElement {
 
   /** What the space under the rows offers, and a row that is no file or folder. */
   const panelItems: PickerAction[] = [
-    { title: 'Reload', icon: EMOJIcon.reload, onSelect: (host) => { host.closeMenu(); reload(); } },
-    { title: 'Add folder', icon: EMOJIcon.folder, onSelect: (host) => { host.closeMenu(); void add(); } },
+    { title: t('common/reload'), icon: EMOJIcon.reload, onSelect: (host) => { host.closeMenu(); reload(); } },
+    { title: t('folders/addFolder'), icon: EMOJIcon.folder, onSelect: (host) => { host.closeMenu(); void add(); } },
   ];
 
   /** Open a file, in `viewer` or its default one. */
@@ -131,9 +132,9 @@ export default function FolderExplorer(): ReactElement {
   const openItems = (uri: string): PickerAction[] => {
     const viewers = viewersOf(scena, uri);
     return [
-      { title: 'Open', icon: EMOJIcon.open, onSelect: (host) => { host.closeMenu(); open(uri); } },
+      { title: t('folders/explorer/open'), icon: EMOJIcon.open, onSelect: (host) => { host.closeMenu(); open(uri); } },
       ...(viewers.length < 2 ? [] : viewers.map((viewer): PickerAction => ({
-        title: `Open with ${viewerTitle(viewer)}`,
+        title: t('folders/explorer/openWith', { viewer: viewerTitle(viewer) }),
         ...(viewer.opens?.icon === undefined ? {} : { icon: viewer.opens.icon }),
         onSelect: (host) => { host.closeMenu(); open(uri, viewer.component); },
       }))),
@@ -155,9 +156,9 @@ export default function FolderExplorer(): ReactElement {
       const children: TreeNode<DraggedHostFile>[] = branch === undefined
         ? []
         : branch === 'loading'
-          ? [{ key: `${uri}#loading`, label: 'Loading' }]
+          ? [{ key: `${uri}#loading`, label: t('folders/explorer/loading') }]
           : branch === 'failed'
-            ? [{ key: `${uri}#failed`, label: 'Not readable' }]
+            ? [{ key: `${uri}#failed`, label: t('folders/explorer/notReadable') }]
             : branch.map((entry) => {
               const child = childUri(uri, entry.name);
               return entry.type === 'directory'
@@ -174,27 +175,27 @@ export default function FolderExplorer(): ReactElement {
         ...(trailing === undefined ? {} : { trailing: <span className="web-folders__tag">{trailing}</span> }),
       };
     };
-    return roots.map((root) => folder(root.uri, nameOf(root.uri), root.isDefault ? 'default' : undefined));
-  }, [roots, branches]);
+    return roots.map((root) => folder(root.uri, nameOf(root.uri), root.isDefault ? t('folders/explorer/default') : undefined));
+  }, [roots, branches, t]);
 
   if (connection?.status !== 'connected' && roots.length === 0) {
     return connection?.status === 'failed'
-      ? <Alert tone="danger" title="Not connected" message={connection.error ?? 'The server refused the connection.'} />
-      : <Spinner label="Connecting to the server" />;
+      ? <Alert tone="danger" title={t('folders/explorer/notConnected')} message={connection.error ?? t('folders/explorer/refused')} />
+      : <Spinner label={t('folders/explorer/connecting')} />;
   }
 
   return (
     <div className="web-explorer">
       <div className="web-explorer__title">
-        <span>Explorer</span>
+        <span>{t('folders/explorer/title')}</span>
         <span className="web-explorer__actions">
-          <button type="button" className="web-explorer__action" title="Refresh" aria-label="Refresh" onClick={reload}>
+          <button type="button" className="web-explorer__action" title={t('folders/explorer/refresh')} aria-label={t('folders/explorer/refresh')} onClick={reload}>
             <span className="web-explorer__icon">{EMOJIcon.reload}</span>
           </button>
         </span>
       </div>
       <div className="web-explorer__scroll" ref={box} onContextMenuCapture={() => { byMenu.current = true; }} onContextMenu={openPanelMenu}>
-        {roots.length === 0 ? <p className="web-note web-explorer__empty">The server names no folder yet. Start a session in one.</p> : null}
+        {roots.length === 0 ? <p className="web-note web-explorer__empty">{t('folders/explorer/empty')}</p> : null}
         <Tree<DraggedHostFile>
           nodes={nodes}
           selectedKey={selected}

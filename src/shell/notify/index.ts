@@ -1,5 +1,6 @@
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { english } from '../../i18n/locales.js';
 import { initNotifications, resetNotifications } from './context.js';
 import { DEFAULT_CONFIRM_STYLE, confirmStyle, initConfirm, resetConfirm, setConfirmStyle } from './confirm.js';
 import { canAsk, createBrowserChannel, granted, requestAlerts } from './browser-channel.js';
@@ -34,20 +35,21 @@ export function registerNotifications(scena: Scena): Disposable {
 
     scena.commands.register({
       id: 'notifications.enableAlerts',
-      title: 'Notify me when this tab is in the background',
+      title: () => translate('shell/notify/commands/enableAlerts'),
+      keywords: [english('shell/notify/commands/enableAlerts')],
       category: 'Notifications',
       slots: [PALETTE_SLOT],
       run: async () => {
         if (granted()) {
-          notifications.publish({ type: 'default', tone: 'success', title: 'Background notifications are already on' });
+          notifications.publish({ type: 'default', tone: 'success', title: translate('shell/notify/alerts/alreadyOn') });
           return;
         }
         if (!canAsk()) {
           notifications.publish({
             type: 'default',
             tone: 'warning',
-            title: 'Background notifications are blocked',
-            description: 'The browser will not ask again. Turn them on in the site settings beside the address bar.',
+            title: translate('shell/notify/alerts/blocked'),
+            description: translate('shell/notify/alerts/blockedHelp'),
             dismissTime: DISMISS_SLOW_MS,
           });
           return;
@@ -56,20 +58,22 @@ export function registerNotifications(scena: Scena): Disposable {
         notifications.publish({
           type: 'default',
           tone: answer === 'granted' ? 'success' : 'warning',
-          title: answer === 'granted' ? 'Background notifications are on' : 'Background notifications were not allowed',
+          title: answer === 'granted' ? translate('shell/notify/alerts/on') : translate('shell/notify/alerts/notAllowed'),
         });
       },
     }),
     scena.commands.register({
       id: 'notifications.confirmStyle',
-      title: () => (confirmStyle() === 'native' ? "Ask in the page's own dialog" : "Ask in the browser's dialog"),
+      title: () => (confirmStyle() === 'native' ? translate('shell/notify/commands/confirmModal') : translate('shell/notify/commands/confirmNative')),
+      keywords: [english('shell/notify/commands/confirmModal'), english('shell/notify/commands/confirmNative')],
       category: 'Notifications',
       slots: [PALETTE_SLOT],
       run: () => setConfirmStyle(confirmStyle() === 'native' ? 'modal' : 'native'),
     }),
     scena.commands.register({
       id: 'notifications.dismissAll',
-      title: 'Dismiss all notifications',
+      title: () => translate('shell/notify/commands/dismissAll'),
+      keywords: [english('shell/notify/commands/dismissAll')],
       category: 'Notifications',
       slots: [PALETTE_SLOT],
       run: () => {

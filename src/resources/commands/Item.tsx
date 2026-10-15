@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Spinner, Text } from '@softov/scena/ui';
 import { MANIFEST, runPath, type Run } from '../manifest/data.js';
 import { itemActionsOf, itemCommandsOf, keyOf, keyValuesOf, removalQuestion, roleOf, rowsOf, rowTitle, type ItemAction } from '../manifest/roles.js';
@@ -13,6 +13,7 @@ const words = (value: unknown): string => (value === null || value === undefined
 /** One item of a list: what the list says of it, what its get answers, and what can be done to it. */
 export default function ItemPage({ list, kind, title }: { list?: string; kind?: string; title?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const manifest = useStore<ProgramManifest>(MANIFEST);
   const listed = useStore<Run>(runPath(list ?? ''));
   const [asking, setAsking] = useState<ItemAction | null>(null);
@@ -30,9 +31,9 @@ export default function ItemPage({ list, kind, title }: { list?: string; kind?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [get?.id, getKey]);
 
-  if (manifest === undefined) return <Spinner label="Reading the manifest" />;
+  if (manifest === undefined) return <Spinner label={t('commands/readingManifest')} />;
   if (row === undefined) {
-    return listed?.state === 'running' ? <Spinner label="Reading the list" /> : <Alert tone="warning" message={`The list no longer has ${kind ?? ''} ${title ?? ''}.`} />;
+    return listed?.state === 'running' ? <Spinner label={t('commands/readingList')} /> : <Alert tone="warning" message={t('commands/item/gone', { kind: kind ?? '', title: title ?? '' })} />;
   }
 
   const actions = itemActionsOf(manifest, kind ?? '', row);
@@ -59,8 +60,8 @@ export default function ItemPage({ list, kind, title }: { list?: string; kind?: 
         {asking !== null ? (
           <span className="web-result__ask">
             {removalQuestion(asking.command, asking.values)}
-            <Button label="Remove" variant="danger" onClick={() => go(asking)} />
-            <Button label="Cancel" onClick={() => setAsking(null)} />
+            <Button label={t('commands/remove')} variant="danger" onClick={() => go(asking)} />
+            <Button label={t('commands/cancel')} onClick={() => setAsking(null)} />
           </span>
         ) : actions.map((action) => (
           <Button
@@ -76,7 +77,7 @@ export default function ItemPage({ list, kind, title }: { list?: string; kind?: 
       {get === undefined || got === undefined ? null : (
         <>
           <Text variant="h3" text={get.summary} />
-          {got.state === 'running' ? <Spinner label="Reading" />
+          {got.state === 'running' ? <Spinner label={t('commands/item/reading')} />
             : got.state === 'failed' ? <Alert tone="danger" message={got.message} />
             : <Result value={got.data} />}
         </>

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, AutomationCapabilities } from '@microsoft/agent-host-protocol';
 // import { call } from '../../lib/api.js';
@@ -7,6 +7,7 @@ import { AHP_AGENTS, AHP_AUTOMATION_CAPS, AHP_CONNECTION, AHP_DEFAULT_DIRECTORY,
 import { elapsed, folderLabel } from '../../bridges/words.js';
 import { when } from '../sessions/turn.js';
 import { AGENTS_SECTION } from '../agents/index.js';
+import { plural } from '../../i18n/locales.js';
 
 /** What `GET /api/status` says about the daemon process. */
 interface DaemonStatus {
@@ -19,12 +20,13 @@ interface DaemonStatus {
 
 type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info';
 
-const CONNECTION: Record<string, { tone: Tone; text: string }> = {
-  connected: { tone: 'success', text: 'Connected' },
-  connecting: { tone: 'info', text: 'Connecting' },
-  reconnecting: { tone: 'warning', text: 'Reconnecting' },
-  disconnected: { tone: 'default', text: 'Disconnected' },
-  failed: { tone: 'danger', text: 'Failed' },
+/** Each connection state's tone, and its word under `bridges/state`. */
+const CONNECTION: Record<string, { tone: Tone; word: string }> = {
+  connected: { tone: 'success', word: 'connected' },
+  connecting: { tone: 'info', word: 'connecting' },
+  reconnecting: { tone: 'warning', word: 'reconnecting' },
+  disconnected: { tone: 'default', word: 'disconnected' },
+  failed: { tone: 'danger', word: 'failed' },
 };
 
 /** The daemon's status, asked again on every new connection. */
@@ -57,6 +59,7 @@ function useNow(): number {
 /** The host: the connection to it, the daemon process, and what it offers. */
 export default function HostInfoPage(): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const connection = useStore<Connection>(AHP_CONNECTION);
   const host = useStore<HostFacts | null>(AHP_HOST);
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
@@ -65,44 +68,45 @@ export default function HostInfoPage(): ReactElement {
   const { status, error } = useDaemonStatus(connection?.generation ?? 0);
   const now = useNow();
   const shown = CONNECTION[connection?.status ?? 'disconnected'] ?? CONNECTION['disconnected']!;
+  const shownText = t(`bridges/state/${shown.word}`);
   const started = status?.startedAt === undefined ? NaN : Date.parse(status.startedAt);
 
-  const link: DetailItem[] = [{ label: 'Status', value: shown.text }];
+  const link: DetailItem[] = [{ label: t('host/info/status'), value: shownText }];
   if (host !== null && host !== undefined) {
-    link.push({ label: 'Host', value: host.label });
-    if (host.protocolVersion !== null) link.push({ label: 'Protocol', value: host.protocolVersion });
-    if (host.connectedAt !== null) link.push({ label: 'Connected', value: `${when(host.connectedAt)} \u{00B7} ${elapsed(now - host.connectedAt)}` });
-    link.push({ label: 'Client', value: <code>{host.clientId}</code> }, { label: 'Server sequence', value: String(host.serverSeq) }, { label: 'Following', value: `${host.subscriptions} channels` });
+    link.push({ label: t('host/info/host'), value: host.label });
+    if (host.protocolVersion !== null) link.push({ label: t('host/info/protocol'), value: host.protocolVersion });
+    if (host.connectedAt !== null) link.push({ label: t('host/info/connected'), value: t('host/info/connectedValue', { when: when(host.connectedAt), elapsed: elapsed(now - host.connectedAt) }) });
+    link.push({ label: t('host/info/client'), value: <code>{host.clientId}</code> }, { label: t('host/info/serverSeq'), value: String(host.serverSeq) }, { label: t('host/info/following'), value: plural('host/info/channels', host.subscriptions) });
   }
-  if (connection?.error !== null && connection?.error !== undefined) link.push({ label: 'Last error', value: connection.error });
+  if (connection?.error !== null && connection?.error !== undefined) link.push({ label: t('host/info/lastError'), value: connection.error });
 
   const daemon: DetailItem[] = [];
   if (status !== null) {
-    if (!Number.isNaN(started)) daemon.push({ label: 'Started', value: `${when(started)} \u{00B7} up ${elapsed(now - started)}` });
-    if (status.pid !== undefined) daemon.push({ label: 'Process', value: String(status.pid) });
-    if (status.url !== undefined) daemon.push({ label: 'Address', value: <code>{status.url}</code> });
-    if (status.automations !== undefined) daemon.push({ label: 'Automations kept in', value: status.automations });
-    if ((status.paths ?? []).length > 0) daemon.push({ label: 'Sessions kept in', value: <span className="web-lines">{status.paths!.map((one) => <code key={one}>{one}</code>)}</span> });
+    if (!Number.isNaN(started)) daemon.push({ label: t('host/info/started'), value: t('host/info/startedValue', { when: when(started), elapsed: elapsed(now - started) }) });
+    if (status.pid !== undefined) daemon.push({ label: t('host/info/process'), value: String(status.pid) });
+    if (status.url !== undefined) daemon.push({ label: t('host/info/address'), value: <code>{status.url}</code> });
+    if (status.automations !== undefined) daemon.push({ label: t('host/info/automationsKeptIn'), value: status.automations });
+    if ((status.paths ?? []).length > 0) daemon.push({ label: t('host/info/sessionsKeptIn'), value: <span className="web-lines">{status.paths!.map((one) => <code key={one}>{one}</code>)}</span> });
   }
 
   const offers: DetailItem[] = [
     {
-      label: 'Agents',
+      label: t('host/info/agents'),
       value: (
         <button type="button" className="web-link" onClick={() => void scena.commands.execute('sidebar.activate', { section: AGENTS_SECTION })}>
-          {agents.length === 0 ? 'None' : agents.map((one) => one.displayName).join(', ')}
+          {agents.length === 0 ? t('host/info/none') : agents.map((one) => one.displayName).join(', ')}
         </button>
       ),
     },
-    { label: 'Default folder', value: home === null || home === undefined ? 'None' : <code>{folderLabel(home)}</code> },
+    { label: t('host/info/defaultFolder'), value: home === null || home === undefined ? t('host/info/none') : <code>{folderLabel(home)}</code> },
   ];
-  if (host?.activeSessions !== null && host?.activeSessions !== undefined) offers.push({ label: 'Active sessions', value: String(host.activeSessions) });
+  if (host?.activeSessions !== null && host?.activeSessions !== undefined) offers.push({ label: t('host/info/activeSessions'), value: String(host.activeSessions) });
   offers.push({
-    label: 'Automations',
-    value: caps === null || caps === undefined ? 'Not offered' : [
-      caps.create === undefined ? 'Read only' : 'Clients can create them',
-      caps.schedules?.minIntervalMinutes === undefined ? undefined : `at most every ${caps.schedules.minIntervalMinutes} minutes`,
-      caps.runCancellation === undefined ? undefined : 'runs can be stopped',
+    label: t('host/info/automations'),
+    value: caps === null || caps === undefined ? t('host/info/automationsNotOffered') : [
+      caps.create === undefined ? t('host/info/automationsReadOnly') : t('host/info/automationsCreate'),
+      caps.schedules?.minIntervalMinutes === undefined ? undefined : plural('host/info/automationsInterval', caps.schedules.minIntervalMinutes),
+      caps.runCancellation === undefined ? undefined : t('host/info/automationsStoppable'),
     ].filter((bit) => bit !== undefined).join(', '),
   });
 
@@ -111,30 +115,30 @@ export default function HostInfoPage(): ReactElement {
     <div className="web-page">
       <div className="web-page__head">
         <div className="web-chat__title">
-          <Text variant="h2" text="Host" />
-          <Badge tone={shown.tone} text={shown.text} />
+          <Text variant="h2" text={t('host/title')} />
+          <Badge tone={shown.tone} text={shownText} />
         </div>
         <div className="web-page__actions">
-          {connection?.status === 'connected' ? null : <Button label="Reconnect now" variant="primary" onClick={reconnect} />}
-          <Button label="Settings" onClick={() => void scena.commands.execute('ahp.openSettings')} />
+          {connection?.status === 'connected' ? null : <Button label={t('bridges/reconnectNow')} variant="primary" onClick={reconnect} />}
+          <Button label={t('host/info/settings')} onClick={() => void scena.commands.execute('ahp.openSettings')} />
         </div>
       </div>
 
-      <Text variant="h3" text="Connection" />
+      <Text variant="h3" text={t('host/info/connection')} />
       <DetailList items={link} columns={2} />
 
-      {status === null && error === null ? null : <Text variant="h3" text="Daemon" />}
-      {error === null ? null : <Alert tone="warning" message={`The daemon's status is not readable: ${error}`} />}
+      {status === null && error === null ? null : <Text variant="h3" text={t('host/info/daemon')} />}
+      {error === null ? null : <Alert tone="warning" message={t('host/info/statusUnreadable', { error })} />}
       {daemon.length === 0 ? null : <DetailList items={daemon} columns={2} />}
 
-      <Text variant="h3" text="Offers" />
+      <Text variant="h3" text={t('host/info/offers')} />
       <DetailList items={offers} columns={2} />
 
-      <Text variant="h3" text="Terminals" />
-      {terminals.length === 0 ? <p className="web-note">No terminals open.</p> : (
+      <Text variant="h3" text={t('host/info/terminals')} />
+      {terminals.length === 0 ? <p className="web-note">{t('host/info/noTerminals')}</p> : (
         <table className="web-runs web-table">
           <thead>
-            <tr><th>Title</th><th>State</th></tr>
+            <tr><th>{t('host/info/terminalTitle')}</th><th>{t('host/info/terminalState')}</th></tr>
           </thead>
           <tbody>
             {terminals.map((one) => {
@@ -142,7 +146,7 @@ export default function HostInfoPage(): ReactElement {
               return (
                 <tr key={one.resource}>
                   <td>{one.title}</td>
-                  <td>{life.status === 'exited' ? `Exited${life.exitCode === undefined ? '' : ` (${life.exitCode})`}` : 'Running'}</td>
+                  <td>{life.status !== 'exited' ? t('host/info/running') : life.exitCode === undefined ? t('host/info/exited') : t('host/info/exitedCode', { code: life.exitCode })}</td>
                 </tr>
               );
             })}

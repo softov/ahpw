@@ -1,16 +1,15 @@
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
 import { folderLabel } from '../../bridges/words.js';
 import { activityOf, isArchived, isRead } from './status.js';
 
 /** What the session list is grouped by. */
 export type Grouping = 'none' | 'folder' | 'status' | 'agent';
 
-export const GROUPINGS: { id: Grouping; label: string }[] = [
-  { id: 'none', label: 'No groups' },
-  { id: 'folder', label: 'Group by folder' },
-  { id: 'status', label: 'Group by status' },
-  { id: 'agent', label: 'Group by agent' },
-];
+export const GROUPINGS: readonly Grouping[] = ['none', 'folder', 'status', 'agent'];
+
+/** The words a grouping is offered with. */
+export const groupingLabel = (grouping: Grouping): string => translate(`sessions/grouping/${grouping}`);
 
 /** A group a session falls in. */
 export interface Group {
@@ -18,21 +17,16 @@ export interface Group {
   label: string;
 }
 
-/** Status groups, in the order they are shown: what needs a person first. */
-const STATUS: Group[] = [
-  { key: 'input', label: 'Needs you' },
-  { key: 'running', label: 'Running' },
-  { key: 'error', label: 'Failed' },
-  { key: 'unread', label: 'Unread' },
-  { key: 'idle', label: 'Idle' },
-  { key: 'archived', label: 'Archived' },
-];
+/** Status groups, in the order they are shown: what needs a person first. Each one's label is `sessions/status/<key>`. */
+const STATUS = ['input', 'running', 'error', 'unread', 'idle', 'archived'] as const;
+
+const statusGroup = (key: (typeof STATUS)[number]): Group => ({ key, label: translate(`sessions/status/${key}`) });
 
 function statusOf(session: SessionSummary): Group {
-  if (isArchived(session.status)) return STATUS[5]!;
+  if (isArchived(session.status)) return statusGroup('archived');
   const activity = activityOf(session.status);
-  if (activity === 'idle' && !isRead(session.status)) return STATUS[3]!;
-  return STATUS.find((one) => one.key === activity)!;
+  if (activity === 'idle' && !isRead(session.status)) return statusGroup('unread');
+  return statusGroup(activity);
 }
 
 /** The group of one session, or undefined when the list is not grouped. */
@@ -46,7 +40,7 @@ export function groupOf(session: SessionSummary, by: Grouping, agentName: (provi
       return { key: session.provider, label: agentName(session.provider) };
     case 'folder': {
       const folder = session.workingDirectories?.[0];
-      return folder === undefined ? { key: '', label: 'No folder' } : { key: folder, label: folderLabel(folder) };
+      return folder === undefined ? { key: '', label: translate('sessions/grouping/noFolder') } : { key: folder, label: folderLabel(folder) };
     }
   }
 }
@@ -59,7 +53,7 @@ export function groupOf(session: SessionSummary, by: Grouping, agentName: (provi
 export function arrange<T>(items: readonly T[], groupFor: (item: T) => Group | undefined, by: Grouping): T[] {
   if (by === 'none') return [...items];
   const rank = new Map<string, number>();
-  if (by === 'status') STATUS.forEach((one, index) => rank.set(one.key, index));
+  if (by === 'status') STATUS.forEach((key, index) => rank.set(key, index));
   for (const item of items) {
     const key = groupFor(item)?.key ?? '';
     if (!rank.has(key)) rank.set(key, rank.size + STATUS.length);

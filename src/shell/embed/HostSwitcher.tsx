@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { useI18n } from '@softov/scena/react';
 import type { EmbedHost, EmbedHostStatus, Embedder } from './index.js';
 
 /**
@@ -8,6 +9,7 @@ import type { EmbedHost, EmbedHostStatus, Embedder } from './index.js';
  * its form for a new one.
  */
 export default function HostSwitcher({ embedder }: { embedder: Embedder }): ReactElement {
+  const { t } = useI18n();
   const [mine, setMine] = useState<EmbedHost | null>(null);
   const [list, setList] = useState<EmbedHost[]>([]);
   const [statuses, setStatuses] = useState<Record<string, EmbedHostStatus>>({});
@@ -48,7 +50,7 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
     };
   }, [open]);
 
-  const dot = (id: string) => <span className={`embed-dot embed-dot--${statuses[id] ?? 'connecting'}`} aria-label={statuses[id] ?? 'connecting'} />;
+  const dot = (id: string) => <span className={`embed-dot embed-dot--${statuses[id] ?? 'connecting'}`} aria-label={t(`shell/embed/status/${statuses[id] ?? 'connecting'}`)} />;
 
   return (
     <div className="embed-host" ref={ref}>
@@ -89,7 +91,7 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
             }}
           >
             <span aria-hidden="true">☰</span>
-            <span className="embed-host__name">Manage hosts</span>
+            <span className="embed-host__name">{t('shell/embed/manageHosts')}</span>
           </button>
           <button
             type="button"
@@ -101,7 +103,7 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
             }}
           >
             <span aria-hidden="true">+</span>
-            <span className="embed-host__name">Add host</span>
+            <span className="embed-host__name">{t('shell/embed/addHost')}</span>
           </button>
         </div>
       )}

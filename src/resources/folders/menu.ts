@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { BindingPath } from '@softov/scena/types';
 import { folderUri } from '../../bridges/words.js';
 import { EMOJIcon } from '../emojis.js';
@@ -25,17 +26,17 @@ export type EntryAction = 'newFile' | 'newFolder' | 'upload' | 'copyPath' | 'dow
 /** Every action in draw order: what adds first, then what reads, then what changes, Delete last. */
 export const ENTRY_ACTIONS: readonly EntryAction[] = ['newFile', 'newFolder', 'upload', 'copyPath', 'download', 'rename', 'copy', 'removeFolder', 'delete'];
 
-/** Each action's title and icon. */
-export const ENTRY_WORDS: Record<EntryAction, { title: string; icon: string }> = {
-  newFile: { title: 'New file', icon: EMOJIcon.file },
-  newFolder: { title: 'New folder', icon: EMOJIcon.folder },
-  upload: { title: 'Upload', icon: EMOJIcon.upload },
-  copyPath: { title: 'Copy path', icon: EMOJIcon.link },
-  download: { title: 'Download', icon: EMOJIcon.download },
-  rename: { title: 'Rename', icon: EMOJIcon.edit },
-  copy: { title: 'Copy', icon: EMOJIcon.copy },
-  removeFolder: { title: 'Remove folder', icon: EMOJIcon.clear },
-  delete: { title: 'Delete', icon: EMOJIcon.trash },
+/** Each action's icon; its title is the message `folders/entry/<action>`. */
+export const ENTRY_ICONS: Record<EntryAction, string> = {
+  newFile: EMOJIcon.file,
+  newFolder: EMOJIcon.folder,
+  upload: EMOJIcon.upload,
+  copyPath: EMOJIcon.link,
+  download: EMOJIcon.download,
+  rename: EMOJIcon.edit,
+  copy: EMOJIcon.copy,
+  removeFolder: EMOJIcon.clear,
+  delete: EMOJIcon.trash,
 };
 
 /** The actions only a folder offers. */
@@ -76,9 +77,9 @@ export function parentOf(uri: string): string {
 /** What the name box says is wrong with a name, or null when it can be used. */
 export function nameProblem(name: string): string | null {
   const trimmed = name.trim();
-  if (trimmed === '') return 'Give a name.';
-  if (trimmed.includes('/') || trimmed.includes('\\')) return 'A name has no slash.';
-  if (trimmed === '.' || trimmed === '..') return 'Give a name other than a dot.';
+  if (trimmed === '') return translate('folders/name/empty');
+  if (trimmed.includes('/') || trimmed.includes('\\')) return translate('folders/name/slash');
+  if (trimmed === '.' || trimmed === '..') return translate('folders/name/dot');
   return null;
 }
 
@@ -88,7 +89,7 @@ export const siblingUri = (uri: string, name: string): string => childUri(parent
 /** The name a copy starts with: the same name with " copy" before its extension. */
 export function copyNameOf(name: string): string {
   const dot = name.lastIndexOf('.');
-  return dot <= 0 ? `${name} copy` : `${name.slice(0, dot)} copy${name.slice(dot)}`;
+  return dot <= 0 ? translate('folders/copyName', { name, ext: '' }) : translate('folders/copyName', { name: name.slice(0, dot), ext: name.slice(dot) });
 }
 
 /** A folder path or `file://` URI as a folder URI, or null when it is neither. */

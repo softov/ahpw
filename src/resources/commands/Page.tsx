@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, Markdown, SchemaForm, Spinner, Text } from '@softov/scena/ui';
 import { MANIFEST, runPath, type Run } from '../manifest/data.js';
 import { fieldsOf, schemaOf } from '../manifest/input.js';
@@ -8,16 +8,18 @@ import type { ProgramManifest } from '../manifest/types.js';
 import Result from './Result.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
+import { dateFormat } from '../../i18n/locales.js';
 
 /** What a command's effect looks like on its badge. */
 const EFFECT_TONE: Record<string, 'info' | 'success' | 'warning' | 'danger'> = { read: 'info', add: 'success', change: 'warning', remove: 'danger' };
 
 /** How a run's time is shown. */
-const clock = new Intl.DateTimeFormat(undefined, { timeStyle: 'medium' });
+const clock = dateFormat({ timeStyle: 'medium' });
 
 /** One command: what it is, its inputs as a form, and its last answer. */
 export default function CommandPage({ commandId, initial }: { commandId?: string; initial?: Record<string, unknown> }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const manifest = useStore<ProgramManifest>(MANIFEST);
   const command = manifest?.commands.find((one) => one.id === commandId);
   const run = useStore<Run>(runPath(commandId ?? ''));
@@ -38,8 +40,8 @@ export default function CommandPage({ commandId, initial }: { commandId?: string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [command?.id]);
 
-  if (manifest === undefined) return <Spinner label="Reading the manifest" />;
-  if (command === undefined) return <PageAlert tone="warning" message={`This daemon has no command ${commandId ?? ''}.`} />;
+  if (manifest === undefined) return <Spinner label={t('commands/readingManifest')} />;
+  if (command === undefined) return <PageAlert tone="warning" message={t('commands/page/noCommand', { id: commandId ?? '' })} />;
 
   const reads = command.effect === undefined ? command.http.method === 'GET' : command.effect === 'read';
   const removes = command.effect === 'remove';
@@ -64,26 +66,26 @@ export default function CommandPage({ commandId, initial }: { commandId?: string
         {asking ? (
           <span className="web-result__ask">
             {removalQuestion(command, values)}
-            <Button label="Remove" variant="danger" onClick={execute} />
-            <Button label="Cancel" onClick={() => setAsking(false)} />
+            <Button label={t('commands/remove')} variant="danger" onClick={execute} />
+            <Button label={t('commands/cancel')} onClick={() => setAsking(false)} />
           </span>
         ) : (
           <Button
-            label={reads ? (run !== undefined && canRunWith(command, {}) ? 'Reload' : 'Run') : command.summary}
+            label={reads ? (run !== undefined && canRunWith(command, {}) ? t('common/reload') : t('commands/page/run')) : command.summary}
             variant={removes ? 'danger' : 'primary'}
             disabled={run?.state === 'running' || !jsonValid}
             onClick={removes ? () => setAsking(true) : execute}
           />
         )}
         {run !== undefined && run.state !== 'running' ? (
-          <Text muted variant="caption" text={`Last run ${clock.format(run.at)}`} />
+          <Text muted variant="caption" text={t('commands/page/lastRun', { time: clock.format(run.at) })} />
         ) : null}
       </div>
 
       {run === undefined ? null
-        : run.state === 'running' ? <Spinner label="Running" />
+        : run.state === 'running' ? <Spinner label={t('commands/page/running')} />
         : run.state === 'failed' ? (
-          <Alert tone="danger" title={run.status === 0 ? 'Not sent' : `HTTP ${run.status}`} message={run.message} />
+          <Alert tone="danger" title={run.status === 0 ? t('commands/page/notSent') : `HTTP ${run.status}`} message={run.message} />
         ) : (
           <Result value={run.data} />
         )}

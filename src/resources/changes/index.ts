@@ -11,6 +11,6 @@ export function registerChanges(scena: Scena): Disposable {
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Explorer.js') },
     }),
-    mountRight(scena, { key: 'changes:explorer', resource: { component: 'ChangesExplorer' }, props: { title: 'Changes' } }, EMOJIcon.diff),
+    mountRight(scena, { key: 'changes:explorer', resource: { component: 'ChangesExplorer' }, props: { title: { t: 'changes/title' } } }, EMOJIcon.diff),
   );
 }

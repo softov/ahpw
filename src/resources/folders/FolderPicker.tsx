@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
-import { useStore } from '@softov/scena/react';
+import { useI18n, useStore } from '@softov/scena/react';
 import { kindOfResource } from '../../bridges/data.js';
 import { folderUri } from '../../bridges/words.js';
 import { childFolders, expandHome, parentPath, splitPath } from './folder-path.js';
@@ -24,6 +24,7 @@ const UP = '..';
  * is a folder.
  */
 function PickerCard({ request }: { request: FolderRequest }): ReactElement {
+  const { t } = useI18n();
   const [value, setValue] = useState(request.start);
   const [listings, setListings] = useState<ReadonlyMap<string, Listing>>(new Map());
   const [picked, setPicked] = useState(-1);
@@ -73,7 +74,7 @@ function PickerCard({ request }: { request: FolderRequest }): ReactElement {
     if (path === '') return;
     const kind = await kindOfResource(folderUri(path)).catch(() => null);
     if (kind === 'directory') settleFolder(path);
-    else setProblem(kind === null ? 'The path does not exist.' : 'The path is not a folder.');
+    else setProblem(kind === null ? t('folders/pick/missing') : t('folders/pick/notFolder'));
   };
 
   const onKey = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -100,7 +101,7 @@ function PickerCard({ request }: { request: FolderRequest }): ReactElement {
   };
 
   const message = problem
-    ?? (listing?.state === 'missing' ? 'The path does not exist. Use ~ to go to your home folder.' : null);
+    ?? (listing?.state === 'missing' ? t('folders/pick/missingHint') : null);
 
   return (
     <div className="web-pick" onClick={() => settleFolder(null)}>
@@ -112,16 +113,16 @@ function PickerCard({ request }: { request: FolderRequest }): ReactElement {
             className="web-pick__input"
             value={value}
             spellCheck={false}
-            aria-label="Folder path"
+            aria-label={t('folders/pick/path')}
             aria-controls="web-pick-list"
             aria-activedescendant={picked >= 0 ? `web-pick-${picked}` : undefined}
             onChange={(event) => type(event.currentTarget.value)}
             onKeyDown={onKey}
           />
-          <button type="button" className="web-pick__add" onClick={() => void add()}>Add</button>
+          <button type="button" className="web-pick__add" onClick={() => void add()}>{t('folders/pick/add')}</button>
         </div>
         {message === null ? null : <p className="web-pick__message">{message}</p>}
-        <ul ref={list} id="web-pick-list" className="web-pick__list" role="listbox" aria-label="Folders">
+        <ul ref={list} id="web-pick-list" className="web-pick__list" role="listbox" aria-label={t('folders/pick/folders')}>
           {lines.map((line, index) => (
             <li
               key={line}
@@ -135,8 +136,8 @@ function PickerCard({ request }: { request: FolderRequest }): ReactElement {
               {line}
             </li>
           ))}
-          {listing?.state === 'loading' ? <li className="web-pick__note">Reading…</li> : null}
-          {listing?.state === 'ok' && names.length === 0 && part !== '' ? <li className="web-pick__note">No folder starts with {part}</li> : null}
+          {listing?.state === 'loading' ? <li className="web-pick__note">{t('folders/pick/reading')}</li> : null}
+          {listing?.state === 'ok' && names.length === 0 && part !== '' ? <li className="web-pick__note">{t('folders/pick/noMatch', { part })}</li> : null}
         </ul>
       </div>
     </div>

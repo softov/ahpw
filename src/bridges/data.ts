@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov/scena/types';
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
@@ -159,13 +160,13 @@ export async function reloadSessions(): Promise<void> {
   const result = await request('listSessions', { channel: ROOT } as never) as { items: SessionSummary[] };
   newer = listed(result.items);
   store.set(AHP_SESSIONS, sessionsByChange(result.items));
-  for (const summary of result.items) store.set(titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
+  for (const summary of result.items) store.set(titlePath(summary.resource), summary.title === '' ? translate('bridges/untitled') : summary.title);
 }
 
 /** A channel's state read once, without holding the subscription unless a page follows it. */
 export async function readOnce<S>(uri: string): Promise<S | undefined> {
   const multi = client;
-  if (multi === undefined) throw new Error('Not connected to the server.');
+  if (multi === undefined) throw new Error(translate('bridges/notConnected'));
   const result = await multi.subscribe(HOST, uri);
   if (!followed.has(uri)) void multi.unsubscribe(HOST, uri).catch(() => undefined);
   return result.snapshot?.state as S | undefined;
@@ -261,7 +262,7 @@ export function dispatch(channel: string, action: StateAction): void {
 /** Ask the daemon one command. */
 export async function request<M extends keyof CommandMap>(method: M, params: CommandMap[M]['params']): Promise<CommandMap[M]['result']> {
   const raw = client?.client(HOST)?.rawClient();
-  if (raw === undefined) throw new Error('Not connected to the server.');
+  if (raw === undefined) throw new Error(translate('bridges/notConnected'));
   return raw.request(method, params);
 }
 
@@ -273,7 +274,7 @@ function setIfChanged(store: ReactiveStore, path: BindingPath, value: unknown): 
 function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   const summaries = sessionsByChange(multi.aggregatedSessions().map((one) => laid(one.summary, newer)));
   store.set(AHP_SESSIONS, summaries);
-  for (const summary of summaries) setIfChanged(store, titlePath(summary.resource), summary.title === '' ? 'Untitled' : summary.title);
+  for (const summary of summaries) setIfChanged(store, titlePath(summary.resource), summary.title === '' ? translate('bridges/untitled') : summary.title);
   const counts = countsOf(summaries.map((one) => one.status));
   setIfChanged(store, AHP_SESSIONS_UNREAD, counts.unread);
   setIfChanged(store, AHP_SESSIONS_WORKING, counts.working);
@@ -281,7 +282,7 @@ function publishHost(store: ReactiveStore, multi: MultiHostClient): void {
   store.set(AHP_AGENTS, (host?.agents ?? []) as AgentInfo[]);
   store.set(AHP_DEFAULT_DIRECTORY, host?.defaultDirectory ?? null);
   store.set(AHP_AUTOMATION_CAPS, host?.automations ?? null);
-  for (const terminal of host?.terminals ?? []) setIfChanged(store, titlePath(terminal.resource), terminal.title === '' ? 'Terminal' : terminal.title);
+  for (const terminal of host?.terminals ?? []) setIfChanged(store, titlePath(terminal.resource), terminal.title === '' ? translate('bridges/terminal') : terminal.title);
   store.set(AHP_HOST, host === undefined ? null : {
     label: host.label,
     clientId: host.clientId,

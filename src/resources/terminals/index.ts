@@ -1,5 +1,6 @@
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { english } from '../../i18n/locales.js';
 import { AHP_DEFAULT_DIRECTORY, AHP_DETACHED, AHP_HOST, request, titlePath, type HostFacts } from '../../bridges/data.js';
 import { confirm, failed } from '../../shell/notify/index.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
@@ -73,13 +74,13 @@ export function registerTerminals(scena: Scena): Disposable {
   /** A terminal in `folder`, else in the host's default directory, named for that folder. */
   const create = async (folder?: string): Promise<void> => {
     const host = scena.store.get<HostFacts | null>(AHP_HOST);
-    if (host === null || host === undefined) throw new Error('Not connected to the server.');
+    if (host === null || host === undefined) throw new Error(translate('terminals/notConnected'));
     const cwd = folder ?? scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY);
     const uri = newTerminalUri();
     await request('createTerminal', {
       channel: uri,
       claim: clientClaim(host.clientId),
-      name: cwd === null || cwd === undefined ? 'Terminal' : folderName(cwd),
+      name: cwd === null || cwd === undefined ? translate('terminals/terminal') : folderName(cwd),
       ...(cwd === null || cwd === undefined ? {} : { cwd }),
     } as never);
     open(uri);
@@ -105,7 +106,7 @@ export function registerTerminals(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.openTerminal',
-      title: 'Open terminal',
+      title: () => translate('terminals/commands/open'),
       run: (_ctx, args) => {
         const uri = (args as TerminalArgs | undefined)?.uri;
         if (uri === undefined) return;
@@ -115,7 +116,7 @@ export function registerTerminals(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.disconnectTerminal',
-      title: 'Disconnect terminal',
+      title: () => translate('terminals/commands/disconnect'),
       icon: EMOJIcon.pause,
       slots: [STRIP_SLOT],
       when: (ctx) => onPanelTab('TerminalPage')(ctx) && !detached().includes(uriOf(ctx['$/tab/key'] as string | undefined) ?? ''),
@@ -126,7 +127,7 @@ export function registerTerminals(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.connectTerminal',
-      title: 'Connect terminal',
+      title: () => translate('terminals/commands/connect'),
       icon: EMOJIcon.run,
       slots: [STRIP_SLOT],
       when: (ctx) => onPanelTab('TerminalPage')(ctx) && detached().includes(uriOf(ctx['$/tab/key'] as string | undefined) ?? ''),
@@ -137,43 +138,45 @@ export function registerTerminals(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.killTerminal',
-      title: 'Kill terminal',
+      title: () => translate('terminals/commands/kill'),
       icon: EMOJIcon.trash,
       slots: [STRIP_SLOT],
       when: onPanelTab('TerminalPage'),
       run: async (_ctx, args) => {
         const uri = argOf(args);
         if (uri === undefined) return;
-        const title = scena.store.get<string>(titlePath(uri)) ?? 'Terminal';
-        if (!(await confirm({ title: `Kill "${title}"?`, body: 'Its process ends on the host.', confirmLabel: 'Kill', tone: 'danger' }))) return;
+        const title = scena.store.get<string>(titlePath(uri)) ?? translate('terminals/terminal');
+        if (!(await confirm({ title: translate('terminals/kill/title', { title }), body: translate('terminals/kill/body'), confirmLabel: translate('terminals/kill/confirm'), tone: 'danger' }))) return;
         try {
           await request('disposeTerminal', { channel: uri } as never);
           closeTab(uri);
         } catch (error) {
-          failed('The terminal could not be killed', error, { source: 'ahp.killTerminal' });
+          failed(translate('terminals/failed/kill'), error, { source: 'ahp.killTerminal' });
         }
       },
     }),
     scena.commands.register({
       id: 'ahp.newTerminal',
-      title: 'New terminal',
+      title: () => translate('terminals/commands/new'),
+      keywords: [english('terminals/commands/new')],
       category: 'Terminal',
       icon: '+',
       slots: [PALETTE_SLOT, STRIP_SLOT],
       when: onPanel,
-      run: (_ctx, args) => create((args as { cwd?: string } | undefined)?.cwd).catch((error: unknown) => failed('The terminal could not be created', error, { source: 'ahp.newTerminal' })),
+      run: (_ctx, args) => create((args as { cwd?: string } | undefined)?.cwd).catch((error: unknown) => failed(translate('terminals/failed/create'), error, { source: 'ahp.newTerminal' })),
     }),
     // A terminal tab's menu. Closing the tab only hides it; the process keeps running.
     scena.mountMenus.register('tab:context', (mount) => {
       const node = mount.component as { component?: unknown; uri?: unknown };
       if (node.component !== 'TerminalPage' || typeof node.uri !== 'string') return [];
       const uri = node.uri;
+      const group = translate('terminals/terminal');
       return [
-        { title: 'New terminal', group: 'Terminal', icon: TERMINAL_ICON, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.newTerminal'); } },
+        { title: translate('terminals/commands/new'), group, icon: TERMINAL_ICON, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.newTerminal'); } },
         detached().includes(uri)
-          ? { title: 'Connect terminal', group: 'Terminal', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.connectTerminal', { uri }); } }
-          : { title: 'Disconnect terminal', group: 'Terminal', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.disconnectTerminal', { uri }); } },
-        { title: 'Kill terminal', group: 'Terminal', color: 'red', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.killTerminal', { uri }); } },
+          ? { title: translate('terminals/commands/connect'), group, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.connectTerminal', { uri }); } }
+          : { title: translate('terminals/commands/disconnect'), group, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.disconnectTerminal', { uri }); } },
+        { title: translate('terminals/commands/kill'), group, color: 'red', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.killTerminal', { uri }); } },
       ];
     }),
   );

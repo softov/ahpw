@@ -1,5 +1,5 @@
 import type { ContextSnapshot, Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
 import { FILE_KIND, fileTabKey, fileTabOf, MARKDOWN_VIEWER, openAsItems, TEXT_VIEWER, viewersOf } from './viewers.js';
 import { EMOJIcon } from '../emojis.js';
 import { AUDIO, IMAGES, selectorOf, VIDEOS } from './icons.js';
@@ -52,35 +52,35 @@ export function registerFiles(scena: Scena): Disposable {
       category: 'page',
       props: { icon: EMOJIcon.file },
       renderer: { kind: 'react', load: () => import('./FilePage.js') },
-      opens: { resourceKinds: [FILE_KIND], title: 'Text', icon: EMOJIcon.file, priority: 10 },
+      opens: { resourceKinds: [FILE_KIND], title: { t: 'files/viewers/text' }, icon: EMOJIcon.file, priority: 10 },
     }),
     scena.components.register({
       component: MARKDOWN_VIEWER,
       category: 'page',
       props: { icon: EMOJIcon.markdown },
       renderer: { kind: 'react', load: () => import('./MarkdownPage.js') },
-      opens: { resourceKinds: [FILE_KIND], title: 'Markdown', icon: EMOJIcon.markdown, priority: 20, selector: '$/resource/ext == "md" || $/resource/ext == "markdown"' },
+      opens: { resourceKinds: [FILE_KIND], title: { t: 'files/viewers/markdown' }, icon: EMOJIcon.markdown, priority: 20, selector: '$/resource/ext == "md" || $/resource/ext == "markdown"' },
     }),
     scena.components.register({
       component: 'ImagePage',
       category: 'page',
       props: { icon: EMOJIcon.image },
       renderer: { kind: 'react', load: () => import('./ImagePage.js') },
-      opens: { resourceKinds: [FILE_KIND], title: 'Image', icon: EMOJIcon.image, priority: 20, selector: selectorOf(IMAGES) },
+      opens: { resourceKinds: [FILE_KIND], title: { t: 'files/viewers/image' }, icon: EMOJIcon.image, priority: 20, selector: selectorOf(IMAGES) },
     }),
     scena.components.register({
       component: 'VideoPage',
       category: 'page',
       props: { icon: EMOJIcon.video },
       renderer: { kind: 'react', load: () => import('./VideoPage.js') },
-      opens: { resourceKinds: [FILE_KIND], title: 'Video', icon: EMOJIcon.video, priority: 20, selector: selectorOf(VIDEOS) },
+      opens: { resourceKinds: [FILE_KIND], title: { t: 'files/viewers/video' }, icon: EMOJIcon.video, priority: 20, selector: selectorOf(VIDEOS) },
     }),
     scena.components.register({
       component: 'AudioPage',
       category: 'page',
       props: { icon: EMOJIcon.audio },
       renderer: { kind: 'react', load: () => import('./AudioPage.js') },
-      opens: { resourceKinds: [FILE_KIND], title: 'Audio', icon: EMOJIcon.audio, priority: 20, selector: selectorOf(AUDIO) },
+      opens: { resourceKinds: [FILE_KIND], title: { t: 'files/viewers/audio' }, icon: EMOJIcon.audio, priority: 20, selector: selectorOf(AUDIO) },
     }),
     scena.components.register({
       component: 'DiffPage',
@@ -90,7 +90,7 @@ export function registerFiles(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.openFile',
-      title: 'Open file',
+      title: () => translate('files/commands/openFile'),
       run: (ctx, args) => {
         const target = args as OpenFileArgs | undefined;
         if (target?.uri === undefined) return;
@@ -109,7 +109,7 @@ export function registerFiles(scena: Scena): Disposable {
     // A Markdown file's tab switches between the text and the drawn page.
     scena.commands.register({
       id: 'ahp.showFileText',
-      title: 'Show as text',
+      title: () => translate('files/commands/showText'),
       icon: EMOJIcon.file,
       slots: [STRIP_SLOT],
       when: (ctx) => switchable(ctx, MARKDOWN_VIEWER, TEXT_VIEWER) !== undefined,
@@ -117,7 +117,7 @@ export function registerFiles(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.showFileMarkdown',
-      title: 'Show as Markdown',
+      title: () => translate('files/commands/showMarkdown'),
       icon: EMOJIcon.markdown,
       slots: [STRIP_SLOT],
       when: (ctx) => switchable(ctx, TEXT_VIEWER, MARKDOWN_VIEWER) !== undefined,
@@ -132,7 +132,7 @@ export function registerFiles(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.openDiff',
-      title: 'Open diff',
+      title: () => translate('files/commands/openDiff'),
       run: (ctx, args) => {
         const target = args as OpenDiffArgs | undefined;
         if (target?.file === undefined) return;

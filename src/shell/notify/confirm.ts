@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { BindingPath, ReactiveStore } from '@softov/scena/types';
 
 /** The question the dialog shows, or null. */
@@ -64,8 +65,8 @@ export function confirm(options: ConfirmOptions): Promise<boolean> {
     id: sequence,
     title: options.title,
     ...(options.body === undefined ? {} : { body: options.body }),
-    confirmLabel: options.confirmLabel ?? 'Confirm',
-    cancelLabel: options.cancelLabel ?? 'Cancel',
+    confirmLabel: options.confirmLabel ?? translate('shell/notify/confirm'),
+    cancelLabel: options.cancelLabel ?? translate('shell/notify/cancel'),
     tone: options.tone ?? 'default',
   } satisfies ConfirmRequest);
   return new Promise<boolean>((resolve) => {

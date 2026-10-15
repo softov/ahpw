@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
-import { useStore } from '@softov/scena/react';
+import { useI18n, useStore } from '@softov/scena/react';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_DEFAULT_DIRECTORY, AHP_SESSIONS } from '../../bridges/data.js';
 import { folderLabel } from '../../bridges/words.js';
@@ -8,6 +8,7 @@ import { EMOJIcon } from '../emojis.js';
 import { ADDED_FOLDERS } from '../folders/added.js';
 import { childFolders, parentPath } from '../folders/folder-path.js';
 import { usedFolders } from '../folders/used.js';
+import { plural } from '../../i18n/locales.js';
 
 /** A line of the menu: a folder to pick, or the way up. */
 interface Line {
@@ -32,23 +33,24 @@ const asFolder = (path: string): string => (/^([A-Za-z]:)?\/$/.test(path) ? path
  * folder, then the folders the host's sessions and the workspace use.
  */
 export function FolderPill({ value, onChange }: { value: string; onChange: (next: string) => void }): ReactElement {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const pill = useRef<HTMLSpanElement>(null);
   const input = useRef<HTMLInputElement>(null);
 
   return (
-    <span ref={pill} className="web-chip web-chip--text web-folder-pill" title="A folder on the server's machine">
+    <span ref={pill} className="web-chip web-chip--text web-folder-pill" title={t('sessions/folder/hint')}>
       <button
         type="button"
         className="web-folder-pill__mark"
-        aria-label="Choose a folder"
+        aria-label={t('sessions/folder/choose')}
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((was) => !was)}
       >
         {EMOJIcon.folder}
       </button>
-      <input ref={input} aria-label="Folder" value={value} placeholder="/path/to/project" spellCheck={false} onChange={(event) => onChange(event.currentTarget.value)} />
+      <input ref={input} aria-label={t('sessions/folder/label')} value={value} placeholder="/path/to/project" spellCheck={false} onChange={(event) => onChange(event.currentTarget.value)} />
       {open && pill.current !== null ? (
         <FolderMenu
           anchor={pill.current}
@@ -69,6 +71,7 @@ export function FolderPill({ value, onChange }: { value: string; onChange: (next
 }
 
 function FolderMenu({ anchor, current, onPick, onClose }: { anchor: HTMLElement; current: string; onPick: (path: string) => void; onClose: () => void }): ReactElement {
+  const { t } = useI18n();
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const added = useStore<string[]>(ADDED_FOLDERS);
   const defaultDirectory = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
@@ -100,10 +103,10 @@ function FolderMenu({ anchor, current, onPick, onClose }: { anchor: HTMLElement;
       if (up !== null) out.push({ kind: 'up', path: asFolder(up), label: asFolder(up) });
       if (Array.isArray(names)) for (const name of names) out.push({ kind: 'here', path: `${view}${name}`, label: name });
     }
-    if (hostPath !== null) out.push({ kind: 'host', path: hostPath, label: hostPath, heading: 'Host folder' });
-    used.forEach((one, at) => out.push({ kind: 'used', path: one.path, label: one.path, sessions: one.sessions, ...(at === 0 ? { heading: 'Used' } : {}) }));
+    if (hostPath !== null) out.push({ kind: 'host', path: hostPath, label: hostPath, heading: t('sessions/folder/host') });
+    used.forEach((one, at) => out.push({ kind: 'used', path: one.path, label: one.path, sessions: one.sessions, ...(at === 0 ? { heading: t('sessions/folder/used') } : {}) }));
     return out;
-  }, [view, names, hostPath, used]);
+  }, [view, names, hostPath, used, t]);
 
   // Start on the session's folder among its siblings, or on the first line.
   useEffect(() => {
@@ -168,13 +171,13 @@ function FolderMenu({ anchor, current, onPick, onClose }: { anchor: HTMLElement;
       ref={menu}
       className="web-folder-menu"
       role="listbox"
-      aria-label="Folders"
+      aria-label={t('sessions/folder/list')}
       tabIndex={-1}
       style={place === null ? { visibility: 'hidden' } : { left: place.left, bottom: place.bottom, maxHeight: place.maxHeight }}
       onKeyDown={keys}
     >
-      {view !== null && names === 'loading' ? <div className="web-folder-menu__note">Reading {asFolder(view)}</div> : null}
-      {view !== null && names === 'failed' ? <div className="web-folder-menu__note">The host cannot list {asFolder(view)}</div> : null}
+      {view !== null && names === 'loading' ? <div className="web-folder-menu__note">{t('sessions/folder/reading', { path: asFolder(view) })}</div> : null}
+      {view !== null && names === 'failed' ? <div className="web-folder-menu__note">{t('sessions/folder/unreadable', { path: asFolder(view) })}</div> : null}
       <div className="web-folder-menu__list">{lines.map((line, at) => (line.kind === 'up' || line.kind === 'here' ? row(line, at) : null))}</div>
       {lines.map((line, at) => (line.kind === 'host' || line.kind === 'used' ? row(line, at) : null))}
     </div>,
@@ -198,12 +201,12 @@ function FolderMenu({ anchor, current, onPick, onClose }: { anchor: HTMLElement;
           >
             <span className="web-folder-menu__mark" aria-hidden="true">{line.kind === 'up' ? '↑' : EMOJIcon.folder}</span>
             <span className="web-folder-menu__label">{line.label}</span>
-            {line.sessions === undefined || line.sessions === 0 ? null : <span className="web-folder-menu__count" title={`${line.sessions} sessions`}>{line.sessions}</span>}
+            {line.sessions === undefined || line.sessions === 0 ? null : <span className="web-folder-menu__count" title={plural('sessions/folder/sessions', line.sessions)}>{line.sessions}</span>}
             {line.kind === 'up' ? null : (
               <button
                 type="button"
                 className="web-folder-menu__walk"
-                aria-label={`Open ${line.label}`}
+                aria-label={t('sessions/folder/open', { name: line.label })}
                 tabIndex={-1}
                 onClick={(event) => {
                   event.stopPropagation();

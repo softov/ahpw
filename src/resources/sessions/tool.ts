@@ -1,4 +1,5 @@
 import type { ToolCallState } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
 import { folderLabel, textOf } from '../../bridges/words.js';
 
 /** The `toolInput` keys that name what a call acts on, most telling first. */
@@ -138,7 +139,7 @@ export function outputOf(call: ToolCallState): Output[] {
       const result = item['result'] as { exitCode?: number; preview?: string; truncated?: boolean } | undefined;
       out.push({
         kind: 'terminal',
-        title: String(item['title'] ?? 'Terminal'),
+        title: String(item['title'] ?? translate('sessions/details/terminal')),
         text: stripAnsi(result?.preview ?? ''),
         ...(result?.exitCode === undefined ? {} : { exitCode: result.exitCode }),
         truncated: result?.truncated === true,
@@ -158,8 +159,10 @@ export function outputOf(call: ToolCallState): Output[] {
         ...(diff?.added === undefined ? {} : { added: diff.added }),
         ...(diff?.removed === undefined ? {} : { removed: diff.removed }),
       });
-    } else if (kind === 'subagent') out.push({ kind: 'note', text: `Ran ${String(item['agentName'] ?? item['title'] ?? 'a subagent')}` });
-    else if (kind === 'resource') out.push({ kind: 'note', text: `Read ${folderLabel(String(item['uri'] ?? ''))}` });
+    } else if (kind === 'subagent') {
+      const name = item['agentName'] ?? item['title'];
+      out.push({ kind: 'note', text: name === undefined || name === null ? translate('sessions/tool/ranSubagent') : translate('sessions/tool/ran', { name: String(name) }) });
+    } else if (kind === 'resource') out.push({ kind: 'note', text: translate('sessions/tool/read', { path: folderLabel(String(item['uri'] ?? '')) }) });
   }
   if (call.status === 'completed' || call.status === 'pending-result-confirmation') {
     // A failed call often carries its error as its output too; say it once.
@@ -168,8 +171,8 @@ export function outputOf(call: ToolCallState): Output[] {
     if (message !== undefined && message !== '' && !said) out.push({ kind: 'note', text: message });
   }
   if (call.status === 'cancelled') {
-    const reason = textOf(call.reasonMessage) || ({ denied: 'Denied.', skipped: 'Skipped.', 'result-denied': 'Result rejected.' } as Record<string, string>)[String(call.reason)] || 'Cancelled.';
-    out.push({ kind: 'note', text: reason });
+    const why = ({ denied: 'denied', skipped: 'skipped', 'result-denied': 'resultDenied' } as Record<string, string>)[String(call.reason)] ?? 'cancelledNote';
+    out.push({ kind: 'note', text: textOf(call.reasonMessage) || translate(`sessions/tool/${why}`) });
   }
   return out;
 }

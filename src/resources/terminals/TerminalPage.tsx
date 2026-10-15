@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert } from '@softov/scena/ui';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
@@ -23,6 +23,7 @@ function cssVar(element: HTMLElement, name: string, fallback: string): string {
  */
 export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const holder = useRef<HTMLDivElement>(null);
   const raw = useStore<unknown>(channelPath(uri ?? ''));
   const error = useStore<string | null>(channelErrorPath(uri ?? ''));
@@ -107,24 +108,26 @@ export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
     };
   }, [scena, uri]);
 
-  if (uri === undefined) return <Alert tone="warning" message="No terminal was named." />;
+  if (uri === undefined) return <Alert tone="warning" message={t('terminals/noTerminal')} />;
   const takeOver = (): void => {
     if (clientId !== null) dispatch(uri, { type: 'terminal/claimed', claim: clientClaim(clientId) } as unknown as StateAction);
   };
   return (
     <div className="web-terminal">
-      {error === null || error === undefined ? null : <Alert tone="danger" title="Not readable" message={error} />}
+      {error === null || error === undefined ? null : <Alert tone="danger" title={t('terminals/notReadable')} message={error} />}
       {detached ? (
         <div className="web-terminal__note">
-          Disconnected. The terminal keeps running on the host.
-          <button type="button" className="web-tool__copy" onClick={() => void scena.commands.execute('ahp.connectTerminal', { uri })}>Connect</button>
+          {t('terminals/disconnected')}
+          <button type="button" className="web-tool__copy" onClick={() => void scena.commands.execute('ahp.connectTerminal', { uri })}>{t('terminals/connect')}</button>
         </div>
       ) : state === null || typing ? null : (
         <div className="web-terminal__note">
           {exited
-            ? `Exited${typeof (state.lifecycle as { exitCode?: number }).exitCode === 'number' ? ` with ${(state.lifecycle as { exitCode: number }).exitCode}` : ''}.`
-            : owner?.kind === 'session' ? 'A session is running this terminal. Typing is off.' : 'Another client holds this terminal. Typing is off.'}
-          {exited || clientId === null ? null : <button type="button" className="web-tool__copy" onClick={takeOver}>Take over</button>}
+            ? typeof (state.lifecycle as { exitCode?: number }).exitCode === 'number'
+              ? t('terminals/note/exitedWith', { code: (state.lifecycle as { exitCode: number }).exitCode })
+              : t('terminals/note/exited')
+            : t(owner?.kind === 'session' ? 'terminals/note/session' : 'terminals/note/another')}
+          {exited || clientId === null ? null : <button type="button" className="web-tool__copy" onClick={takeOver}>{t('terminals/takeOver')}</button>}
         </div>
       )}
       <div className="web-terminal__screen" ref={holder} />

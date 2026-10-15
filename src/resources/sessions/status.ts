@@ -1,3 +1,5 @@
+import { translate } from '@softov/scena';
+
 /**
  * The session status bitset, read as one activity.
  *
@@ -36,12 +38,7 @@ export function isArchived(status: number): boolean {
 }
 
 /** The words a session's activity is shown with. */
-export const ACTIVITY_LABEL: Record<Activity, string> = {
-  input: 'Needs you',
-  running: 'Running',
-  error: 'Failed',
-  idle: 'Idle',
-};
+export const activityLabel = (activity: Activity): string => translate(`sessions/status/${activity}`);
 
 /** The badge tone of an activity. */
 export const ACTIVITY_TONE: Record<Activity, 'warning' | 'info' | 'danger' | 'default'> = {

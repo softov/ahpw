@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { BindingPath, ReactiveStore } from '@softov/scena/types';
 
 /** The name the dialog asks for, as `NameRequest`, or null. */
@@ -46,7 +47,7 @@ export function askName(options: NameOptions): Promise<string | null> {
   store.set(NAME_REQUEST, {
     id: sequence,
     title: options.title,
-    label: options.label ?? 'Name',
+    label: options.label ?? translate('folders/ask/name'),
     value: options.value ?? '',
     confirmLabel: options.confirmLabel,
   } satisfies NameRequest);

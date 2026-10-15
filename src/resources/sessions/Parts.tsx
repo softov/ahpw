@@ -1,5 +1,5 @@
 import { memo, useContext, useState, type MouseEvent, type ReactElement } from 'react';
-import { useScena } from '@softov/scena/react';
+import { useI18n, useScena } from '@softov/scena/react';
 import { Alert, Button, Markdown } from '@softov/scena/ui';
 import type {
   ResponsePart,
@@ -22,16 +22,16 @@ export type Send = (action: StateAction) => void;
 const PENDING_CONFIRMATION = 'pending-confirmation';
 const PENDING_RESULT_CONFIRMATION = 'pending-result-confirmation';
 
-/** The mark a call carries collapsed, and the word behind it. */
+/** The mark a call carries collapsed, and the key of the word behind it. */
 const MARK: Record<Outcome, { glyph: string; label: string }> = {
-  preparing: { glyph: EMOJIcon.pending, label: 'Preparing' },
-  approval: { glyph: EMOJIcon.waiting, label: 'Needs approval' },
-  running: { glyph: EMOJIcon.running, label: 'Running' },
-  'sign-in': { glyph: EMOJIcon.waiting, label: 'Needs sign-in' },
-  review: { glyph: EMOJIcon.waiting, label: 'Review result' },
-  done: { glyph: EMOJIcon.check, label: 'Done' },
-  failed: { glyph: EMOJIcon.cross, label: 'Failed' },
-  cancelled: { glyph: EMOJIcon.cross, label: 'Cancelled' },
+  preparing: { glyph: EMOJIcon.pending, label: 'sessions/tool/preparing' },
+  approval: { glyph: EMOJIcon.waiting, label: 'sessions/tool/approval' },
+  running: { glyph: EMOJIcon.running, label: 'sessions/tool/running' },
+  'sign-in': { glyph: EMOJIcon.waiting, label: 'sessions/tool/signIn' },
+  review: { glyph: EMOJIcon.waiting, label: 'sessions/tool/review' },
+  done: { glyph: EMOJIcon.check, label: 'sessions/tool/done' },
+  failed: { glyph: EMOJIcon.cross, label: 'sessions/tool/failed' },
+  cancelled: { glyph: EMOJIcon.cross, label: 'sessions/tool/cancelled' },
 };
 
 /** Clicks inside an agent's text, relative paths from the session's folder. */
@@ -53,6 +53,7 @@ const KIND_ICON: Record<ToolKind, string> = {
 /** A call's line, each file it names a link that opens the file and leaves the row closed. */
 function ToolLine({ line, file }: { line: string; file: string | undefined }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const workspace = useContext(WorkspaceContext);
   return (
     <span className="web-tool__line">
@@ -70,7 +71,7 @@ function ToolLine({ line, file }: { line: string; file: string | undefined }): R
             role="link"
             tabIndex={0}
             className="web-tool__ref"
-            title={`Open ${folderLabel(target.uri)}`}
+            title={t('sessions/attachments/open', { name: folderLabel(target.uri) })}
             onClick={open}
             onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') open(event); }}
           >
@@ -97,23 +98,26 @@ function Block({ title, text }: { title: string; text: string }): ReactElement {
 
 function OutputView({ out }: { out: Output }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   switch (out.kind) {
     case 'text':
-      return <Block title="Output" text={out.text} />;
-    case 'terminal':
+      return <Block title={t('sessions/tool/output')} text={out.text} />;
+    case 'terminal': {
+      const exit = out.exitCode === undefined ? '' : ` \u{00B7} ${t('sessions/tool/exit', { code: out.exitCode })}`;
       return (
         <Block
-          title={`${out.title}${out.exitCode === undefined ? '' : ` \u{00B7} exit ${out.exitCode}`}${out.truncated ? ' \u{00B7} cut short' : ''}`}
-          text={out.text === '' ? 'No output.' : out.text}
+          title={`${out.title}${exit}${out.truncated ? ` \u{00B7} ${t('sessions/tool/cutShort')}` : ''}`}
+          text={out.text === '' ? t('sessions/tool/noOutput') : out.text}
         />
       );
+    }
     case 'file':
       return (
         <p className="web-tool__file">
           <button
             type="button"
             className="web-link"
-            title={out.before === undefined && out.after === undefined ? 'Open the file' : 'Open the change'}
+            title={out.before === undefined && out.after === undefined ? t('sessions/tool/openFile') : t('sessions/tool/openChange')}
             onClick={() => void (out.before === undefined && out.after === undefined
               ? scena.commands.execute('ahp.openFile', { uri: out.file })
               : scena.commands.execute('ahp.openDiff', { file: out.file, ...(out.before === undefined ? {} : { before: out.before }), ...(out.after === undefined ? {} : { after: out.after }) }))}
@@ -142,32 +146,34 @@ export function ToolCall({ call, send, live, turnId }: { call: ToolCallState; se
   const risk = call.status === PENDING_CONFIRMATION ? call.riskAssessment : undefined;
   const file = fileOf(call);
   const scena = useScena();
+  const { t } = useI18n();
+  const mark = t(MARK[outcome].label);
   return (
     <div className="web-tool" data-outcome={outcome}>
-      <button type="button" className="web-tool__row" aria-expanded={shown} title={MARK[outcome].label} onClick={() => setOpen(!open)}>
-        <span className="web-tool__mark" aria-label={MARK[outcome].label}>{KIND_ICON[kindOf(call)]}</span>
+      <button type="button" className="web-tool__row" aria-expanded={shown} title={mark} onClick={() => setOpen(!open)}>
+        <span className="web-tool__mark" aria-label={mark}>{KIND_ICON[kindOf(call)]}</span>
         <ToolLine line={lineOf(call)} file={file} />
-        {outcome === 'failed' || outcome === 'cancelled' ? <span className="web-tool__state">{MARK[outcome].label}</span> : null}
+        {outcome === 'failed' || outcome === 'cancelled' ? <span className="web-tool__state">{mark}</span> : null}
         {duration === undefined || duration < 1000 ? null : <span className="web-tool__time">{elapsed(duration)}</span>}
       </button>
       {shown ? (
         <div className="web-tool__body">
           <dl className="web-tool__facts">
-            <dt>Tool</dt><dd><code>{call.toolName}</code>{name === call.toolName ? null : ` (${name})`}</dd>
-            <dt>Status</dt><dd>{MARK[outcome].label}</dd>
+            <dt>{t('sessions/tool/tool')}</dt><dd><code>{call.toolName}</code>{name === call.toolName ? null : ` (${name})`}</dd>
+            <dt>{t('sessions/tool/status')}</dt><dd>{mark}</dd>
             {file === undefined ? null : (
-              <><dt>File</dt><dd><button type="button" className="web-link" onClick={() => void scena.commands.execute('ahp.openFile', { uri: file })}>{folderLabel(file)}</button></dd></>
+              <><dt>{t('sessions/tool/file')}</dt><dd><button type="button" className="web-link" onClick={() => void scena.commands.execute('ahp.openFile', { uri: file })}>{folderLabel(file)}</button></dd></>
             )}
-            {call.intention === undefined ? null : <><dt>Why</dt><dd>{call.intention}</dd></>}
-            {risk === undefined || risk.status !== 'complete' ? null : <><dt>Risk</dt><dd>{`${risk.safety}/10 safe \u{00B7} ${risk.reason}`}</dd></>}
+            {call.intention === undefined ? null : <><dt>{t('sessions/tool/why')}</dt><dd>{call.intention}</dd></>}
+            {risk === undefined || risk.status !== 'complete' ? null : <><dt>{t('sessions/tool/risk')}</dt><dd>{`${t('sessions/tool/safety', { safety: risk.safety })} \u{00B7} ${risk.reason}`}</dd></>}
           </dl>
-          {input === '' ? null : <Block title="Arguments" text={input} />}
+          {input === '' ? null : <Block title={t('sessions/tool/arguments')} text={input} />}
           {output.map((one, index) => <OutputView key={index} out={one} />)}
           {live && call.status === PENDING_CONFIRMATION ? <Confirm call={call} send={send} turnId={turnId} /> : null}
           {live && call.status === PENDING_RESULT_CONFIRMATION ? (
             <div className="web-tool__actions">
-              <Button label="Accept result" variant="primary" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: true } as StateAction)} />
-              <Button label="Reject" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: false } as StateAction)} />
+              <Button label={t('sessions/tool/acceptResult')} variant="primary" onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: true } as StateAction)} />
+              <Button label={t('sessions/tool/reject')} onClick={() => send({ type: 'chat/toolCallResultConfirmed', turnId, toolCallId: call.toolCallId, approved: false } as StateAction)} />
             </div>
           ) : null}
         </div>
@@ -178,13 +184,14 @@ export function ToolCall({ call, send, live, turnId }: { call: ToolCallState; se
 
 /** One stretch of thinking: its opening words on the line, and opened, the whole text under a line that no longer repeats it. */
 export function Reasoning({ text, running }: { text: string; running: boolean }): ReactElement {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const opening = text.replace(/[*_`#>]/g, '').replace(/\s+/g, ' ').trim();
   return (
     <div className="web-tool" data-outcome={running ? 'running' : 'thought'}>
       <button type="button" className="web-tool__row" aria-expanded={open} onClick={() => setOpen(!open)}>
         <span className="web-tool__mark" aria-hidden="true">{EMOJIcon.thinking}</span>
-        <span className="web-tool__line">{open ? 'Thinking' : `Thinking: ${opening}`}</span>
+        <span className="web-tool__line">{open ? t('sessions/activity/thinking') : t('sessions/tool/thinkingAbout', { text: opening })}</span>
       </button>
       {open ? <div className="web-tool__body web-md"><Markdown text={text} /></div> : null}
     </div>
@@ -193,6 +200,7 @@ export function Reasoning({ text, running }: { text: string; running: boolean })
 
 /** The host's options for a call awaiting approval, or approve and deny when it offers none. */
 function Confirm({ call, send, turnId }: { call: ToolCallState; send: Send; turnId: string }): ReactElement {
+  const { t } = useI18n();
   const approve = (optionId?: string): void => send({
     type: 'chat/toolCallConfirmed',
     turnId,
@@ -217,8 +225,8 @@ function Confirm({ call, send, turnId }: { call: ToolCallState; send: Send; turn
       <div className="web-tool__actions">
         {options.length === 0 ? (
           <>
-            <Button label="Approve" variant="primary" onClick={() => approve()} />
-            <Button label="Deny" onClick={() => deny()} />
+            <Button label={t('sessions/tool/approve')} variant="primary" onClick={() => approve()} />
+            <Button label={t('sessions/tool/deny')} onClick={() => deny()} />
           </>
         ) : options.map((option) => (
           <Button
@@ -237,6 +245,7 @@ function Confirm({ call, send, turnId }: { call: ToolCallState; send: Send; turn
 export const Part = memo(function Part({ part, send, live, turnId }: { part: ResponsePart; send: Send; live: boolean; turnId: string }): ReactElement | null {
   const clicks = useLinkClicks();
   const scena = useScena();
+  const { t } = useI18n();
   switch (String(part.kind)) {
     case 'markdown':
       return 'content' in part ? <div className="web-md" onClick={clicks}><Markdown text={part.content as string} /></div> : null;
@@ -255,7 +264,7 @@ export const Part = memo(function Part({ part, send, live, turnId }: { part: Res
     case 'inputRequest':
       return 'request' in part ? <InputRequest request={part.request} send={send} live={live} response={'response' in part && part.response !== undefined ? String(part.response) : undefined} /> : null;
     case 'error':
-      return <Alert tone="danger" message={'error' in part && part.error.message !== '' ? part.error.message : 'The agent reported an error.'} />;
+      return <Alert tone="danger" message={'error' in part && part.error.message !== '' ? part.error.message : t('sessions/tool/agentError')} />;
     case 'systemNotification':
       return <p className="web-note">{'content' in part ? textOf(part.content as string) : ''}</p>;
     default:

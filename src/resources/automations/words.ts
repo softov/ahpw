@@ -1,7 +1,9 @@
 import type { AutomationDefinition, AutomationEntry, AutomationRunSummary, AutomationScheduleTrigger, AutomationTrigger } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
 import { folderLabel, folderUri } from '../../bridges/words.js';
+import { plural, dateFormat } from '../../i18n/locales.js';
 
-const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+const when = dateFormat({ dateStyle: 'medium', timeStyle: 'short' });
 
 /** An ISO time as a person reads it, or the text as given. */
 export function timeOf(iso: string | undefined): string {
@@ -17,9 +19,9 @@ export function triggerLine(trigger: AutomationTrigger): string {
 }
 
 /** An automation's title, or a stand-in when it has none. */
-export const titleOf = (entry: AutomationEntry): string => (entry.definition.title === '' ? 'Untitled' : entry.definition.title);
+export const titleOf = (entry: AutomationEntry): string => (entry.definition.title === '' ? translate('automations/untitled') : entry.definition.title);
 
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const pad = (value: string): string => value.padStart(2, '0');
 
 /** A cron expression in words when it is one of the common shapes, or the expression as given. */
@@ -29,17 +31,17 @@ export function cronWords(expression: string): string {
   const [minute, hour, day, month, week] = parts as [string, string, string, string, string];
   const every = /^\*\/(\d+)$/;
   if (day === '*' && month === '*' && week === '*') {
-    if (hour === '*' && every.test(minute)) return `Every ${every.exec(minute)![1]} minutes`;
-    if (hour === '*' && minute === '*') return 'Every minute';
-    if (/^\d+$/.test(minute) && every.test(hour)) return `Every ${every.exec(hour)![1]} hours`;
-    if (/^\d+$/.test(minute) && hour === '*') return `Every hour at :${pad(minute)}`;
-    if (/^\d+$/.test(minute) && /^\d+$/.test(hour)) return `Every day at ${pad(hour)}:${pad(minute)}`;
+    if (hour === '*' && every.test(minute)) return plural('automations/cron/everyMinutes', Number(every.exec(minute)![1]));
+    if (hour === '*' && minute === '*') return translate('automations/cron/everyMinute');
+    if (/^\d+$/.test(minute) && every.test(hour)) return plural('automations/cron/everyHours', Number(every.exec(hour)![1]));
+    if (/^\d+$/.test(minute) && hour === '*') return translate('automations/cron/hourlyAt', { minute: pad(minute) });
+    if (/^\d+$/.test(minute) && /^\d+$/.test(hour)) return translate('automations/cron/dailyAt', { time: `${pad(hour)}:${pad(minute)}` });
   }
   if (day === '*' && month === '*' && /^\d$/.test(week) && /^\d+$/.test(minute) && /^\d+$/.test(hour)) {
-    return `Every ${DAYS[Number(week) % 7]} at ${pad(hour)}:${pad(minute)}`;
+    return translate(`automations/cron/weekly/${DAYS[Number(week) % 7]}`, { time: `${pad(hour)}:${pad(minute)}` });
   }
   if (day === '*' && month === '*' && week === '1-5' && /^\d+$/.test(minute) && /^\d+$/.test(hour)) {
-    return `Weekdays at ${pad(hour)}:${pad(minute)}`;
+    return translate('automations/cron/weekdaysAt', { time: `${pad(hour)}:${pad(minute)}` });
   }
   return expression;
 }
@@ -47,7 +49,7 @@ export function cronWords(expression: string): string {
 /** An automation's triggers in one line: its schedules in words, its events by title, or by hand. */
 export function whenLine(entry: AutomationEntry): string {
   const triggers = entry.definition.triggers;
-  if (triggers.length === 0) return 'Run by hand';
+  if (triggers.length === 0) return translate('automations/byHand');
   return triggers.map((trigger) => ('schedule' in trigger ? cronWords(trigger.schedule.expression) : trigger.title)).join(', ');
 }
 
@@ -131,10 +133,10 @@ export function draftOf(entry: AutomationEntry | undefined, defaults: { provider
 
 /** Why a draft cannot be saved, or nothing when it can. */
 export function draftProblem(draft: Draft): string | undefined {
-  if (draft.title.trim() === '') return 'Give it a title.';
-  if (draft.message.trim() === '') return 'Say what it sends.';
-  if (draft.expression.trim() !== '' && draft.expression.trim().split(/\s+/).length !== 5) return 'A schedule is five fields: minute, hour, day, month, weekday.';
-  if (draft.afterRuns.trim() !== '' && !/^[1-9]\d*$/.test(draft.afterRuns.trim())) return 'Stop after a whole number of runs.';
+  if (draft.title.trim() === '') return translate('automations/problems/title');
+  if (draft.message.trim() === '') return translate('automations/problems/message');
+  if (draft.expression.trim() !== '' && draft.expression.trim().split(/\s+/).length !== 5) return translate('automations/problems/schedule');
+  if (draft.afterRuns.trim() !== '' && !/^[1-9]\d*$/.test(draft.afterRuns.trim())) return translate('automations/problems/runs');
   return undefined;
 }
 

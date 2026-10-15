@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { ExplorerList, type Row } from '../../shell/explorer/ExplorerList.js';
 import { ACTIVE_ITEM, runPath, type Run } from '../manifest/data.js';
-import { createOf, itemActionsOf, keyOf, removalQuestion, rowLine, rowsOf, rowTitle, type ItemAction } from '../manifest/roles.js';
+import { createOf, itemActionsOf, keyOf, removalAction, rowLine, rowsOf, rowTitle, type ItemAction } from '../manifest/roles.js';
 import type { ManifestCommand, ProgramManifest } from '../manifest/types.js';
 import { EMOJIcon } from '../emojis.js';
 
@@ -27,6 +27,7 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
   commands: readonly ManifestCommand[];
 }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const run = useStore<Run>(runPath(list.id));
   const active = useStore<string>(ACTIVE_ITEM);
   const [failure, setFailure] = useState<string | null>(null);
@@ -67,7 +68,7 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
           title: action.command.summary,
           color: 'red',
           onSelect: (host) => host.pushList({
-            items: [{ title: removalQuestion(action.command, action.values).replace(/\?$/u, ''), color: 'red', onSelect: (inner) => { inner.closeMenu(); go(); } }],
+            items: [{ title: removalAction(action.command, action.values), color: 'red', onSelect: (inner) => { inner.closeMenu(); go(); } }],
           }),
         };
       });
@@ -81,7 +82,7 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
       } satisfies Row;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [run, manifest, kind, key]);
+  }, [run, manifest, kind, key, t]);
 
   const openItem = (rowKey: string): void => {
     const items = run?.state === 'done' ? rowsOf(run.data) ?? [] : [];
@@ -90,10 +91,10 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
   };
 
   const notice = failure !== null ? <Alert tone="danger" message={failure} />
-    : run === undefined || (run.state === 'running' && rows.length === 0) ? <Spinner label="Reading the list" />
+    : run === undefined || (run.state === 'running' && rows.length === 0) ? <Spinner label={t('commands/readingList')} />
     : run.state === 'failed' ? <Alert tone="danger" message={run.message} />
-    : run.state === 'done' && rowsOf(run.data) === undefined ? <p className="web-note web-explorer__empty">This list came back in a shape that cannot be listed.</p>
-    : rows.length === 0 ? <p className="web-note web-explorer__empty">Nothing yet.</p>
+    : run.state === 'done' && rowsOf(run.data) === undefined ? <p className="web-note web-explorer__empty">{t('commands/items/badShape')}</p>
+    : rows.length === 0 ? <p className="web-note web-explorer__empty">{t('commands/items/empty')}</p>
     : null;
 
   return (
@@ -101,10 +102,10 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
       title={title}
       actions={[
         ...(create === undefined ? [] : [{ icon: '+', label: create.summary, run: () => open(create) }]),
-        { icon: EMOJIcon.reload, label: run?.state === 'running' ? 'Reloading' : 'Reload', run: reload, busy: run?.state === 'running' },
+        { icon: EMOJIcon.reload, label: run?.state === 'running' ? t('commands/items/reloading') : t('common/reload'), run: reload, busy: run?.state === 'running' },
         {
           icon: EMOJIcon.more,
-          label: 'Commands',
+          label: t('commands/items/commands'),
           menu: commands.map((command) => ({ title: command.pattern.join(' '), description: command.summary, onSelect: (host) => { host.closeMenu(); open(command); } })),
         },
       ]}
@@ -112,7 +113,7 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
       selected={active ?? null}
       onOpen={openItem}
       notice={notice}
-      filterLabel={`Search ${title.toLowerCase()}`}
+      filterLabel={t('commands/items/search', { title: title.toLowerCase() })}
     />
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactElement, type WheelEvent } from 'react';
+import { useI18n } from '@softov/scena/react';
 import { MediaFrame } from './media.js';
 import { percentOf } from './zoom.js';
 
@@ -9,6 +10,7 @@ const STEP = 1.25;
 
 /** An image, drawn through `<img>`, so an SVG's scripts never run. The bar and the wheel zoom, drag pans, double-click fits. */
 function Zoomable({ url, alt }: { url: string; alt: string }): ReactElement {
+  const { t } = useI18n();
   const frame = useRef<HTMLDivElement>(null);
   const image = useRef<HTMLImageElement>(null);
   const [scale, setScale] = useState(MIN_SCALE);
@@ -67,10 +69,10 @@ function Zoomable({ url, alt }: { url: string; alt: string }): ReactElement {
   const zoomed = scale > MIN_SCALE;
   return (
     <div className="web-image__view">
-      <div className="web-image__bar" role="toolbar" aria-label="Zoom">
-        <button type="button" className="web-image__step" title="Zoom out" aria-label="Zoom out" disabled={!zoomed} onClick={() => zoomTo(scale / STEP)}>−</button>
-        <button type="button" className="web-image__step web-image__percent" title="Fit" aria-label="Fit" disabled={!zoomed} onClick={reset}>{percentOf(scale, size.fitted, size.natural)}%</button>
-        <button type="button" className="web-image__step" title="Zoom in" aria-label="Zoom in" disabled={scale >= MAX_SCALE} onClick={() => zoomTo(scale * STEP)}>+</button>
+      <div className="web-image__bar" role="toolbar" aria-label={t('files/image/zoom')}>
+        <button type="button" className="web-image__step" title={t('files/image/zoomOut')} aria-label={t('files/image/zoomOut')} disabled={!zoomed} onClick={() => zoomTo(scale / STEP)}>−</button>
+        <button type="button" className="web-image__step web-image__percent" title={t('files/image/fit')} aria-label={t('files/image/fit')} disabled={!zoomed} onClick={reset}>{percentOf(scale, size.fitted, size.natural)}%</button>
+        <button type="button" className="web-image__step" title={t('files/image/zoomIn')} aria-label={t('files/image/zoomIn')} disabled={scale >= MAX_SCALE} onClick={() => zoomTo(scale * STEP)}>+</button>
       </div>
       <div
         ref={frame}

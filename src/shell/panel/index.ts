@@ -1,5 +1,6 @@
 import type { ContextSnapshot, Disposable, MountDisplay, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { bound, english } from '../../i18n/locales.js';
 import { clearLog } from '../../resources/log/log.js';
 import { PALETTE_SLOT } from '../CommandPalette.js';
 import { EMOJIcon } from '../../resources/emojis.js';
@@ -34,7 +35,7 @@ export function redrawPanel(scena: Scena): void {
 /** Open the log tab when it is not open, pinned so it stays the first tab. */
 function ensureLog(scena: Scena): void {
   if (scena.surfaces.listAt(PANEL).some((mount) => mount.key === LOG_KEY)) return;
-  scena.surfaces.open({ surface: PANEL, key: LOG_KEY, resource: { component: 'LogPage' }, props: { title: 'Log', icon: EMOJIcon.log } });
+  scena.surfaces.open({ surface: PANEL, key: LOG_KEY, resource: { component: 'LogPage' }, props: { title: bound('shell/panel/log'), icon: EMOJIcon.log } });
   const current = scena.layout.get().surfaces[PANEL];
   const pinned = current?.split?.pinned ?? [];
   if (!pinned.includes(LOG_KEY)) scena.layout.setSurface(PANEL, { ...current, split: { ...(current?.split ?? {}), pinned: [LOG_KEY, ...pinned] } });
@@ -72,7 +73,8 @@ export function registerPanel(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'panel.toggle',
-      title: 'Toggle panel',
+      title: () => translate('shell/panel/commands/toggle'),
+      keywords: [english('shell/panel/commands/toggle')],
       category: 'View',
       slots: [PALETTE_SLOT],
       keys: ['ctrl+`', 'ctrl+j'],
@@ -84,7 +86,8 @@ export function registerPanel(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'panel.showLog',
-      title: 'Show log',
+      title: () => translate('shell/panel/commands/showLog'),
+      keywords: [english('shell/panel/commands/showLog')],
       category: 'View',
       slots: [PALETTE_SLOT],
       run: () => {
@@ -95,7 +98,8 @@ export function registerPanel(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'log.clear',
-      title: 'Clear log',
+      title: () => translate('shell/panel/commands/clearLog'),
+      keywords: [english('shell/panel/commands/clearLog')],
       category: 'View',
       icon: EMOJIcon.clear,
       slots: [PALETTE_SLOT, STRIP_SLOT],
@@ -109,7 +113,8 @@ export function registerPanel(scena: Scena): Disposable {
 export function registerPanelHide(scena: Scena): Disposable {
   return scena.commands.register({
     id: 'panel.hide',
-    title: 'Hide panel',
+    title: () => translate('shell/panel/commands/hide'),
+    keywords: [english('shell/panel/commands/hide')],
     icon: EMOJIcon.close,
     slots: [STRIP_SLOT],
     when: onPanel,

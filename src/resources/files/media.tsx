@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react';
+import { useI18n } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import { readBlob, sizeOf } from '../../bridges/data.js';
 import { mediaTypeOf } from './icons.js';
@@ -39,13 +40,14 @@ export function useFileUrl(uri: string | undefined): FileUrl {
 
 /** A media file's page: its head, then what `children` draws once the file is read, or why it is not. */
 export function MediaFrame({ uri, children }: { uri: string | undefined; children: (url: string) => ReactNode }): ReactElement {
+  const { t } = useI18n();
   const state = useFileUrl(uri);
-  if (uri === undefined) return <PageAlert tone="warning" message="No file was named." />;
+  if (uri === undefined) return <PageAlert tone="warning" message={t('files/noFile')} />;
   const head = <FileHead uri={uri} />;
-  if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
-  if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;
+  if (state === null) return <div className="web-file">{head}<Spinner label={t('files/reading')} /></div>;
+  if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title={t('files/notReadable')} message={state.error} /></div>;
   if ('size' in state) {
-    return <div className="web-file">{head}<p className="web-note web-media__note">This file is {megabytes(state.size)}. Files over {megabytes(MAX_BYTES)} are not shown.</p></div>;
+    return <div className="web-file">{head}<p className="web-note web-media__note">{t('files/tooLarge', { size: megabytes(state.size), max: megabytes(MAX_BYTES) })}</p></div>;
   }
   return <div className="web-file">{head}<div className="web-file__body web-media">{children(state.url)}</div></div>;
 }

@@ -1,23 +1,21 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { useStore } from '@softov/scena/react';
+import { useI18n, useStore } from '@softov/scena/react';
 import { AHP_CONNECTION, AHP_HOST, AHP_SERVER, reconnect, type Connection, type HostFacts } from './data.js';
 import { serverLabel, type ServerInfo } from './server-info.js';
 import { elapsed } from './words.js';
 import { EMOJIcon } from '../resources/emojis.js';
+import { plural, dateFormat } from '../i18n/locales.js';
 
-/** The connection's state, in words. */
+/** The connection's state, as its word under `bridges/state`. */
 const WORDS: Record<Connection['status'], string> = {
-  connecting: 'Connecting',
-  connected: 'Connected',
-  reconnecting: 'Reconnecting',
-  disconnected: 'Disconnected',
-  failed: 'Not connected',
+  connecting: 'connecting',
+  connected: 'connected',
+  reconnecting: 'reconnecting',
+  disconnected: 'disconnected',
+  failed: 'notConnected',
 };
 
-const clock = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-/** The retry the SDK is on, when it says. */
-const attemptOf = (connection: Connection | undefined): string => (connection?.attempt === undefined ? '' : ` (try ${connection.attempt})`);
+const clock = dateFormat({ hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 /** A clock that moves once a second while `on`. */
 function useNow(on: boolean): number {
@@ -38,6 +36,7 @@ function useNow(on: boolean): number {
  * address, which the tooltip always gives.
  */
 export default function ConnectionStatus(): ReactElement {
+  const { t } = useI18n();
   const connection = useStore<Connection>(AHP_CONNECTION);
   const host = useStore<HostFacts | null>(AHP_HOST);
   const server = useStore<ServerInfo | null>(AHP_SERVER);
@@ -52,19 +51,23 @@ export default function ConnectionStatus(): ReactElement {
     name,
     name === host?.label ? undefined : host?.label,
     host?.protocolVersion === null || host?.protocolVersion === undefined ? undefined : `AHP ${host.protocolVersion}`,
-    since === null ? undefined : `Connected at ${clock.format(since)}`,
-    reconnects === 0 ? undefined : `Reconnected ${reconnects} ${reconnects === 1 ? 'time' : 'times'}`,
+    since === null ? undefined : t('bridges/connectedAt', { time: clock.format(since) }),
+    reconnects === 0 ? undefined : plural('bridges/reconnected', reconnects),
     connection?.error ?? undefined,
   ].filter((bit) => bit !== undefined).join('\n');
+  // The retry the SDK is on, when it says.
+  const word = status === 'reconnecting' && connection?.attempt !== undefined
+    ? t('bridges/state/reconnectingTry', { attempt: connection.attempt })
+    : WORDS[status] === undefined ? status : t(`bridges/state/${WORDS[status]}`);
 
   return (
     <span className="web-connection" data-status={status} title={tip === '' ? undefined : tip}>
       <span className="web-connection__dot" aria-hidden="true" />
       {name === undefined ? null : <span className="web-connection__host">{name}</span>}
-      <span>{WORDS[status] ?? status}{status === 'reconnecting' ? attemptOf(connection) : ''}</span>
+      <span>{word}</span>
       {since === null ? null : <span className="web-connection__uptime">{elapsed(now - since)}</span>}
       {reconnects === 0 ? null : <span className="web-connection__uptime">{`${EMOJIcon.reload} ${reconnects}`}</span>}
-      {down ? <button type="button" className="web-connection__retry" onClick={() => void reconnect()}>Reconnect now</button> : null}
+      {down ? <button type="button" className="web-connection__retry" onClick={() => void reconnect()}>{t('bridges/reconnectNow')}</button> : null}
     </span>
   );
 }

@@ -1,11 +1,12 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables, type ModusClass } from '@softov/scena';
+import { combineDisposables, translate, type ModusClass } from '@softov/scena';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
 import { AHP_AGENTS } from '../../bridges/data.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { ACTIVE_AGENT } from './state.js';
 import { EMOJIcon } from '../emojis.js';
+import { english } from '../../i18n/locales.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -29,14 +30,15 @@ export function registerAgents(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.showAgents',
-      title: 'Show agents',
+      title: () => translate('agents/commands/show'),
+      keywords: [english('agents/commands/show')],
       category: 'Agents',
       slots: [PALETTE_SLOT],
       run: (ctx) => ctx.commands.execute('sidebar.activate', { section: AGENTS_SECTION }),
     }),
     scena.commands.register({
       id: 'ahp.openAgent',
-      title: 'Open agent',
+      title: () => translate('agents/commands/open'),
       run: (ctx, args) => {
         const provider = (args as { provider?: string } | undefined)?.provider;
         if (provider === undefined) return;

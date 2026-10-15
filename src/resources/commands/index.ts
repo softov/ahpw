@@ -1,5 +1,5 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
+import { combineDisposables, isOverlaid, resolveSurfacePresentation, translate, type ModusClass } from '@softov/scena';
 import { ApiError, call } from '../../lib/api.js';
 import { PRESENTATION } from '../../shell/presentation.js';
 import { MissingInput, requestOf } from '../manifest/input.js';
@@ -93,7 +93,7 @@ export function registerCommands(scena: Scena): Disposable {
 
     scena.commands.register({
       id: 'ahpd.open',
-      title: 'Open command',
+      title: () => translate('commands/commands/open'),
       run: (ctx, args) => {
         const { id, values } = (args as OpenArgs | undefined) ?? {};
         if (id === undefined) return;
@@ -119,7 +119,7 @@ export function registerCommands(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahpd.openItem',
-      title: 'Open item',
+      title: () => translate('commands/commands/openItem'),
       run: (ctx, args) => {
         const { list, kind, title } = (args as OpenItemArgs | undefined) ?? {};
         if (list === undefined || kind === undefined || title === undefined) return;
@@ -135,7 +135,7 @@ export function registerCommands(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahpd.run',
-      title: 'Run command',
+      title: () => translate('commands/commands/run'),
       run: async (ctx, args) => {
         if (args === undefined) return false;
         return run(ctx.scena, args as RunArgs);

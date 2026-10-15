@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { CommandRequest } from '../resources/manifest/input.js';
 import type { ProgramManifest } from '../resources/manifest/types.js';
 
@@ -66,7 +67,7 @@ async function send(path: string, init: RequestInit, token: string | null): Prom
   try {
     response = await fetch(`${API_ROOT}${path}`, { ...init, headers });
   } catch {
-    throw new ApiError(0, 'The daemon did not answer.');
+    throw new ApiError(0, translate('bridges/daemonSilent'));
   }
   const text = await response.text();
   let parsed: unknown = null;

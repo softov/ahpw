@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { useStore } from '@softov/scena/react';
+import { useI18n, useStore } from '@softov/scena/react';
 import { Button, TextField } from '@softov/scena/ui';
 import { NAME_REQUEST, nameCheck, settleName, type NameRequest } from './ask.js';
 
@@ -16,6 +16,7 @@ export function NameDialog(): ReactElement | null {
  * with the name shows under the box once it is sent.
  */
 function NameCard({ request }: { request: NameRequest }): ReactElement {
+  const { t } = useI18n();
   const card = useRef<HTMLFormElement>(null);
   const [value, setValue] = useState(request.value);
   const [problem, setProblem] = useState<string | null>(null);
@@ -64,7 +65,7 @@ function NameCard({ request }: { request: NameRequest }): ReactElement {
           }}
         />
         <div className="web-confirm__buttons">
-          <Button type="button" size="sm" variant="ghost" onClick={() => settleName(null)}>Cancel</Button>
+          <Button type="button" size="sm" variant="ghost" onClick={() => settleName(null)}>{t('folders/ask/cancel')}</Button>
           <Button type="submit" size="sm" variant="primary">{request.confirmLabel}</Button>
         </div>
       </form>

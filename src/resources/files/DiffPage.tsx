@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { useScena } from '@softov/scena/react';
+import { useI18n, useScena } from '@softov/scena/react';
 import { Alert, Button, Spinner } from '@softov/scena/ui';
 import { readText } from '../../bridges/data.js';
 import { folderLabel } from '../../bridges/words.js';
@@ -19,6 +19,7 @@ export default function DiffPage({ file, before, after, changeset, change, revie
   review?: boolean;
 }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const changes = useChangeset(changeset);
   const current = changes.files.find((one) => one.id === change);
   const fileOps = current === undefined ? [] : changes.operations.filter((one) => scoped(one, 'resource'));
@@ -46,14 +47,14 @@ export default function DiffPage({ file, before, after, changeset, change, revie
       {sides !== null && !('error' in sides) ? (
         <span>
           <span className="web-diff--add">+{counts.added}</span> <span className="web-diff--remove">-{counts.removed}</span>
-          {before === undefined ? ' \u{00B7} new file' : after === undefined ? ' \u{00B7} deleted' : ''}
+          {before === undefined ? ` \u{00B7} ${t('files/diff/newFile')}` : after === undefined ? ` \u{00B7} ${t('files/diff/deleted')}` : ''}
         </span>
       ) : null}
       <span className="web-file__actions">
         {review === true && current !== undefined ? (
           <label className="web-file__viewed">
             <input type="checkbox" checked={current.reviewed} onChange={(event) => changes.review([current], event.target.checked)} />
-            Viewed
+            {t('files/diff/viewed')}
           </label>
         ) : null}
         {current === undefined ? null : fileOps.map((operation) => (
@@ -66,17 +67,17 @@ export default function DiffPage({ file, before, after, changeset, change, revie
           />
         ))}
         {file === undefined || after === undefined ? null : (
-          <Button label="Open file" size="sm" onClick={() => void scena.commands.execute('ahp.openFile', { uri: file })} />
+          <Button label={t('files/openFile')} size="sm" onClick={() => void scena.commands.execute('ahp.openFile', { uri: file })} />
         )}
       </span>
     </div>
   );
   const said = changes.said === null ? null : <Alert tone={changes.said.tone} message={changes.said.text} />;
 
-  if (sides === null) return <div className="web-file">{head}{said}<Spinner label="Reading both sides" /></div>;
-  if ('error' in sides) return <div className="web-file">{head}{said}<Alert tone="danger" title="Not readable" message={sides.error} /></div>;
-  if (sides.before === null || sides.after === null) return <div className="web-file">{head}{said}<p className="web-note">This file is not text.</p></div>;
-  if (hunks.length === 0) return <div className="web-file">{head}{said}<p className="web-note">No changes.</p></div>;
+  if (sides === null) return <div className="web-file">{head}{said}<Spinner label={t('files/diff/reading')} /></div>;
+  if ('error' in sides) return <div className="web-file">{head}{said}<Alert tone="danger" title={t('files/notReadable')} message={sides.error} /></div>;
+  if (sides.before === null || sides.after === null) return <div className="web-file">{head}{said}<p className="web-note">{t('files/notText')}</p></div>;
+  if (hunks.length === 0) return <div className="web-file">{head}{said}<p className="web-note">{t('files/diff/none')}</p></div>;
 
   return (
     <div className="web-file">

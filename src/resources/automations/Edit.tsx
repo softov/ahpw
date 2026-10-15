@@ -1,5 +1,5 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Button, Spinner, Text } from '@softov/scena/ui';
 import {
   automationReducer,
@@ -13,16 +13,17 @@ import { useChannel } from '../../bridges/channel.js';
 import { folderLabel, newId } from '../../bridges/words.js';
 import { cronWords, definitionOf, draftOf, draftProblem, type Draft } from './words.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
+import { plural } from '../../i18n/locales.js';
 
 /** Schedules most people want, so a cron expression is something to read rather than write. */
-const PRESETS: { label: string; expression: string }[] = [
-  { label: 'By hand only', expression: '' },
-  { label: 'Every 10 minutes', expression: '*/10 * * * *' },
-  { label: 'Every hour', expression: '0 * * * *' },
-  { label: 'Every 6 hours', expression: '0 */6 * * *' },
-  { label: 'Every day at 09:00', expression: '0 9 * * *' },
-  { label: 'Weekdays at 09:00', expression: '0 9 * * 1-5' },
-  { label: 'Every Monday at 05:00', expression: '0 5 * * 1' },
+const PRESETS: { key: string; expression: string }[] = [
+  { key: 'byHand', expression: '' },
+  { key: 'every10Minutes', expression: '*/10 * * * *' },
+  { key: 'everyHour', expression: '0 * * * *' },
+  { key: 'every6Hours', expression: '0 */6 * * *' },
+  { key: 'dailyAt9', expression: '0 9 * * *' },
+  { key: 'weekdaysAt9', expression: '0 9 * * 1-5' },
+  { key: 'mondayAt5', expression: '0 5 * * 1' },
 ];
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }): ReactElement {
@@ -38,6 +39,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 /** Creates an automation, or edits the one named by `resource`. */
 export default function AutomationEditPage({ resource }: { resource?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const { state, error } = useChannel<Catalogue>(AUTOMATIONS, automationReducer);
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
@@ -45,10 +47,10 @@ export default function AutomationEditPage({ resource }: { resource?: string }):
   const entry = resource === undefined ? undefined : state?.entries.find((one) => one.resource === resource);
   const [draft, setDraft] = useState<Draft | null>(null);
 
-  if (error !== null) return <PageAlert tone="danger" title="No automations" message={error} />;
-  if (state === undefined) return <Spinner label="Reading the automations" />;
-  if (resource !== undefined && entry === undefined) return <PageAlert tone="warning" message="This automation is gone." />;
-  if (resource === undefined && caps?.create === undefined) return <PageAlert tone="warning" message="This host does not let clients create automations." />;
+  if (error !== null) return <PageAlert tone="danger" title={t('automations/notices/none')} message={error} />;
+  if (state === undefined) return <Spinner label={t('automations/notices/reading')} />;
+  if (resource !== undefined && entry === undefined) return <PageAlert tone="warning" message={t('automations/notices/gone')} />;
+  if (resource === undefined && caps?.create === undefined) return <PageAlert tone="warning" message={t('automations/edit/noCreate')} />;
 
   const shown = draft ?? draftOf(entry, { ...(agents[0] === undefined ? {} : { provider: agents[0].provider }), ...(home === null || home === undefined ? {} : { folder: folderLabel(home) }) });
   const set = (patch: Partial<Draft>): void => setDraft({ ...shown, ...patch });
@@ -74,82 +76,82 @@ export default function AutomationEditPage({ resource }: { resource?: string }):
 
   return (
     <div className="web-page web-form">
-      <Text variant="h2" text={entry === undefined ? 'New automation' : `Edit ${entry.definition.title || 'automation'}`} />
+      <Text variant="h2" text={entry === undefined ? t('automations/commands/new') : entry.definition.title === '' ? t('automations/commands/edit') : t('automations/editTitle', { title: entry.definition.title })} />
 
-      <Field label="Title">
+      <Field label={t('automations/edit/title')}>
         <input className="web-field" value={shown.title} onChange={(event) => set({ title: event.target.value })} />
       </Field>
 
-      <Field label="Message" hint="What the agent is told each time it runs.">
+      <Field label={t('automations/edit/message')} hint={t('automations/edit/messageHint')}>
         <textarea className="web-field web-form__message" rows={5} value={shown.message} onChange={(event) => set({ message: event.target.value })} />
       </Field>
 
       <div className="web-form__row">
-        <Field label="Agent">
+        <Field label={t('automations/edit/agent')}>
           <select className="web-field" value={shown.provider} onChange={(event) => set({ provider: event.target.value, model: '' })}>
-            <option value="">The host default</option>
+            <option value="">{t('automations/defaults/host')}</option>
             {agents.map((one) => <option key={one.provider} value={one.provider}>{one.displayName}</option>)}
           </select>
         </Field>
-        <Field label="Model">
+        <Field label={t('automations/edit/model')}>
           <select className="web-field" value={shown.model} onChange={(event) => set({ model: event.target.value })}>
-            <option value="">The agent default</option>
+            <option value="">{t('automations/defaults/agent')}</option>
             {(agent?.models ?? []).map((one) => <option key={one.id} value={one.id}>{one.name}</option>)}
           </select>
         </Field>
       </div>
 
-      <Field label="Folder" hint="A folder on the daemon's machine.">
+      <Field label={t('automations/edit/folder')} hint={t('automations/edit/folderHint')}>
         <input className="web-field" value={shown.folder} onChange={(event) => set({ folder: event.target.value })} />
       </Field>
 
       <div className="web-form__row">
-        <Field label="Schedule">
+        <Field label={t('automations/edit/schedule')}>
           <select className="web-field" value={preset?.expression ?? 'custom'} onChange={(event) => { if (event.target.value !== 'custom') set({ expression: event.target.value }); }}>
-            {PRESETS.map((one) => <option key={one.label} value={one.expression}>{one.label}</option>)}
-            <option value="custom">Custom</option>
+            {PRESETS.map((one) => <option key={one.key} value={one.expression}>{t(`automations/edit/presets/${one.key}`)}</option>)}
+            <option value="custom">{t('automations/edit/custom')}</option>
           </select>
         </Field>
         <Field
-          label="Cron expression"
-          hint={`${shown.expression.trim() === '' ? 'Runs only when started by hand.' : cronWords(shown.expression)}${minimum === undefined ? '' : ` At most every ${minimum} minutes.`}`}
+          label={t('automations/edit/cron')}
+          hint={`${shown.expression.trim() === '' ? t('automations/edit/byHandHint') : cronWords(shown.expression)}${minimum === undefined ? '' : ` ${plural('automations/edit/minimum', minimum)}`}`}
         >
-          <input className="web-field" value={shown.expression} placeholder="minute hour day month weekday" onChange={(event) => set({ expression: event.target.value })} />
+          <input className="web-field" value={shown.expression} placeholder={t('automations/edit/cronPlaceholder')} onChange={(event) => set({ expression: event.target.value })} />
         </Field>
       </div>
 
       {shown.expression.trim() === '' ? null : (
         <div className="web-form__row">
-          <Field label="Time zone">
+          <Field label={t('automations/edit/timeZone')}>
             <input className="web-field" value={shown.timeZone} onChange={(event) => set({ timeZone: event.target.value })} />
           </Field>
-          <Field label="Missed runs" hint="What happens to a run due while the daemon was down.">
+          <Field label={t('automations/edit/missedRuns')} hint={t('automations/edit/missedHint')}>
             <select className="web-field" value={shown.misfire} onChange={(event) => set({ misfire: event.target.value === 'runOnce' ? 'runOnce' : 'skip' })}>
-              <option value="skip">Skip them</option>
-              <option value="runOnce">Run once when back</option>
+              <option value="skip">{t('automations/edit/skip')}</option>
+              <option value="runOnce">{t('automations/edit/runOnce')}</option>
             </select>
           </Field>
         </div>
       )}
 
       <div className="web-form__row">
-        <Field label="Turn off after runs" hint="Empty keeps it on.">
+        <Field label={t('automations/edit/afterRuns')} hint={t('automations/edit/keepsOn')}>
           <input className="web-field" inputMode="numeric" value={shown.afterRuns} onChange={(event) => set({ afterRuns: event.target.value })} />
         </Field>
-        <Field label="Turn off after" hint="Empty keeps it on.">
+        <Field label={t('automations/edit/afterDate')} hint={t('automations/edit/keepsOn')}>
           <input className="web-field" type="date" value={shown.afterDate} onChange={(event) => set({ afterDate: event.target.value })} />
         </Field>
       </div>
 
       <label className="web-input__row">
         <input type="checkbox" checked={shown.enabled} onChange={(event) => set({ enabled: event.target.checked })} />
-        <span>On</span>
+        <span>{t('automations/edit/on')}</span>
       </label>
 
       {problem === undefined ? null : <p className="web-note">{problem}</p>}
       <div className="web-page__actions">
-        <Button label={entry === undefined ? 'Create' : 'Save'} variant="primary" disabled={problem !== undefined} onClick={save} />
-        <Button label="Cancel" onClick={() => scena.surfaces.close(entry === undefined ? 'automation:new' : `automation:edit:${entry.resource}`)} />
+        <Button label={t(entry === undefined ? 'automations/edit/create' : 'automations/edit/save')} variant="primary" disabled={problem !== undefined} onClick={save} />
+        <Button label={t('automations/edit/cancel')} onClick={() => scena.surfaces.close(entry === undefined ? 'automation:new' : `automation:edit:${entry.resource}`)} />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { ComponentDefinition, PickerAction, Scena } from '@softov/scena/types';
 
 /** The resource kind every file viewer opens. */
@@ -34,17 +35,21 @@ export function viewersOf(scena: Scena, uri: string): ComponentDefinition[] {
   });
 }
 
-/** A viewer's name, as the "Open as" row says it. */
-export const viewerTitle = (viewer: ComponentDefinition): string =>
-  typeof viewer.opens?.title === 'string' ? viewer.opens.title : viewer.component;
+/** A viewer's name, as the "Open as" row says it: its title, a message's when it names one. */
+export function viewerTitle(viewer: ComponentDefinition): string {
+  const title = viewer.opens?.title;
+  if (typeof title === 'string') return title;
+  if (title !== undefined && 't' in title) return translate(title.t);
+  return viewer.component;
+}
 
 /** One "Open as" row for each viewer of this file other than `current`. */
 export function openAsItems(scena: Scena, uri: string, current: string | null): PickerAction[] {
   return viewersOf(scena, uri)
     .filter((viewer) => viewer.component !== current)
     .map((viewer) => ({
-      title: `Open as ${viewerTitle(viewer)}`,
-      group: 'Open with',
+      title: translate('files/openAs', { viewer: viewerTitle(viewer) }),
+      group: translate('files/openWith'),
       ...(viewer.opens?.icon === undefined ? {} : { icon: viewer.opens.icon }),
       onSelect: (host) => {
         host.closeMenu();

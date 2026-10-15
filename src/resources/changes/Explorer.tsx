@@ -1,5 +1,5 @@
 import { useMemo, useState, type MouseEvent, type ReactElement, type ReactNode } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, ContextMenu, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { sessionReducer, type ChangesetOperation, type SessionState, type SessionSummary } from '@microsoft/agent-host-protocol';
@@ -7,6 +7,7 @@ import { AHP_SESSIONS, refresh } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { ACTIVE_SESSION } from '../sessions/state.js';
 import { openAsItems, viewersOf } from '../files/viewers.js';
+import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
 import { iconOf, openChange, scoped, toneOf, useChangeset } from './changeset.js';
 import { ChangesetForms } from './Forms.js';
@@ -18,7 +19,6 @@ type View = 'list' | 'tree';
 const VIEW_KEY = 'ahpd-web.changes-view';
 const GROUPING_KEY = 'ahpd-web.changes-grouping';
 
-const GROUPING_LABEL: Record<ChangeGrouping, string> = { review: 'By review', staging: 'Staged and not', none: 'Not grouped' };
 
 function readKept<T extends string>(key: string, allowed: readonly T[]): T | null {
   try {
@@ -37,11 +37,13 @@ function keep(key: string, value: string): void {
   }
 }
 
-const WORD: Record<ReturnType<typeof letterOf>, string> = { A: 'Added', M: 'Modified', D: 'Deleted', U: 'Untracked' };
+/** The message each letter is read as. */
+const WORD: Record<ReturnType<typeof letterOf>, string> = { A: 'changes/status/added', M: 'changes/status/modified', D: 'changes/status/deleted', U: 'changes/status/untracked' };
 
 /** The sidebar: what the open session changed, by file, with the host's operations on it. */
 export default function ChangesExplorer(): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const active = useStore<string>(ACTIVE_SESSION);
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const summary = sessions?.find((one) => one.resource === active);
@@ -72,13 +74,13 @@ export default function ChangesExplorer(): ReactElement {
   const busy = (operation: ChangesetOperation): boolean => String(operation.status) === 'running';
 
   const menuOf = (change: Change): PickerAction[] => {
-    const items: PickerAction[] = [{ title: 'Open change', onSelect: (host) => { host.closeMenu(); openChange(scena, change, scope?.uri, review); } }];
+    const items: PickerAction[] = [{ title: t('changes/openChange'), onSelect: (host) => { host.closeMenu(); openChange(scena, change, scope?.uri, review); } }];
     if (change.status !== 'deleted') {
-      items.push({ title: 'Open file', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.openFile', { uri: change.file }); } });
+      items.push({ title: t('changes/openFile'), onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.openFile', { uri: change.file }); } });
       items.push(...openAsItems(scena, change.file, viewersOf(scena, change.file)[0]?.component ?? null));
     }
     if (review) {
-      items.push({ title: change.reviewed ? 'Mark as not reviewed' : 'Mark as reviewed', onSelect: (host) => { host.closeMenu(); changes.review([change], !change.reviewed); } });
+      items.push({ title: t(change.reviewed ? 'changes/markNotReviewed' : 'changes/markReviewed'), onSelect: (host) => { host.closeMenu(); changes.review([change], !change.reviewed); } });
     }
     for (const operation of fileOps) {
       items.push({
@@ -103,12 +105,12 @@ export default function ChangesExplorer(): ReactElement {
       <span className="web-change__end">
         <span className="web-change__actions">
           {review ? (
-            <button type="button" className="web-change__action" title={change.reviewed ? 'Mark as not reviewed' : 'Mark as reviewed'} aria-label={change.reviewed ? 'Mark as not reviewed' : 'Mark as reviewed'} aria-pressed={change.reviewed} onClick={(event) => act(event, () => changes.review([change], !change.reviewed))}>
+            <button type="button" className="web-change__action" title={t(change.reviewed ? 'changes/markNotReviewed' : 'changes/markReviewed')} aria-label={t(change.reviewed ? 'changes/markNotReviewed' : 'changes/markReviewed')} aria-pressed={change.reviewed} onClick={(event) => act(event, () => changes.review([change], !change.reviewed))}>
               {EMOJIcon.check}
             </button>
           ) : null}
           {change.status === 'deleted' ? null : (
-            <button type="button" className="web-change__action" title="Open file" aria-label="Open file" onClick={(event) => act(event, () => void scena.commands.execute('ahp.openFile', { uri: change.file }))}>
+            <button type="button" className="web-change__action" title={t('changes/openFile')} aria-label={t('changes/openFile')} onClick={(event) => act(event, () => void scena.commands.execute('ahp.openFile', { uri: change.file }))}>
               {EMOJIcon.file}
             </button>
           )}
@@ -121,7 +123,7 @@ export default function ChangesExplorer(): ReactElement {
         <span className="web-change__counts">
           {change.added === undefined && change.removed === undefined ? null : <><span className="web-diff--add">+{change.added ?? 0}</span> <span className="web-diff--remove">-{change.removed ?? 0}</span></>}
         </span>
-        <span className="web-change__letter" data-letter={letter} title={WORD[letter]}>{letter}</span>
+        <span className="web-change__letter" data-letter={letter} title={t(WORD[letter])}>{letter}</span>
       </span>
     );
   };
@@ -196,13 +198,13 @@ export default function ChangesExplorer(): ReactElement {
   const status = String(changes.state?.status ?? '');
   const notice = (
     <>
-      {active === undefined ? <p className="web-note web-explorer__empty">Open a session to see what it changed.</p> : null}
-      {active !== undefined && session.state !== undefined && scopes.length === 0 ? <p className="web-note web-explorer__empty">This session tracks no changes.</p> : null}
+      {active === undefined ? <p className="web-note web-explorer__empty">{t('changes/noSession')}</p> : null}
+      {active !== undefined && session.state !== undefined && scopes.length === 0 ? <p className="web-note web-explorer__empty">{t('changes/untracked')}</p> : null}
       {changes.said === null ? null : <Alert tone={changes.said.tone} message={changes.said.text} />}
-      {changes.error === null ? null : <Alert tone="danger" title="Changes not readable" message={changes.error} />}
+      {changes.error === null ? null : <Alert tone="danger" title={t('changes/notReadable')} message={changes.error} />}
       {changes.state?.error === undefined ? null : <Alert tone="danger" message={changes.state.error.message} />}
-      {scope !== undefined && (changes.state === undefined || status === 'computing') && changes.error === null ? <Spinner label="Working out the changes" /> : null}
-      {changes.state !== undefined && status !== 'computing' && files.length === 0 ? <p className="web-note web-explorer__empty">No changes.</p> : null}
+      {scope !== undefined && (changes.state === undefined || status === 'computing') && changes.error === null ? <Spinner label={t('changes/computing')} /> : null}
+      {changes.state !== undefined && status !== 'computing' && files.length === 0 ? <p className="web-note web-explorer__empty">{t('changes/none')}</p> : null}
     </>
   );
 
@@ -255,17 +257,17 @@ export default function ChangesExplorer(): ReactElement {
       };
     });
     items.push(
-      { title: 'Show as a list', group: 'view', ...mark(view === 'list'), onSelect: (host) => { host.closeMenu(); showAs('list'); } },
-      { title: 'Show as a tree', group: 'view', ...mark(view === 'tree'), onSelect: (host) => { host.closeMenu(); showAs('tree'); } },
+      { title: t('changes/view/list'), group: 'view', ...mark(view === 'list'), onSelect: (host) => { host.closeMenu(); showAs('list'); } },
+      { title: t('changes/view/tree'), group: 'view', ...mark(view === 'tree'), onSelect: (host) => { host.closeMenu(); showAs('tree'); } },
     );
     if (groupings.length > 1) {
       for (const one of groupings) {
-        items.push({ title: GROUPING_LABEL[one], group: 'group', ...mark(one === grouping), onSelect: (host) => { host.closeMenu(); setPicked(one); keep(GROUPING_KEY, one); } });
+        items.push({ title: t(`changes/grouping/${one}`), group: 'group', ...mark(one === grouping), onSelect: (host) => { host.closeMenu(); setPicked(one); keep(GROUPING_KEY, one); } });
       }
     }
     if (branches.length > 0) {
-      items.push({ title: 'Expand all', group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set()); } });
-      items.push({ title: 'Collapse all', group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set(branches)); } });
+      items.push({ title: t('changes/expandAll'), group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set()); } });
+      items.push({ title: t('changes/collapseAll'), group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set(branches)); } });
     }
     setMenu({ x: Math.max(0, box.right - 200), y: box.bottom, items });
   };
@@ -276,7 +278,7 @@ export default function ChangesExplorer(): ReactElement {
   return (
     <div className="web-explorer web-changes">
       <div className="web-explorer__title">
-        <span className="web-explorer__name" title={summary?.title}>{summary === undefined ? 'Changes' : `Changes \u{00B7} ${summary.title || 'Untitled'}`}</span>
+        <span className="web-explorer__name" title={summary?.title}>{summary === undefined ? t('changes/title') : t('changes/titleOf', { title: summary.title || t('changes/untitled') })}</span>
         {scope === undefined ? null : (
           <span className="web-explorer__actions">
             {whole.map((operation) => headButton(iconOf(operation), operation.label, () => void changes.run(operation), {
@@ -285,8 +287,8 @@ export default function ChangesExplorer(): ReactElement {
               tone: toneOf(operation),
             }))}
             {whole.length === 0 ? null : <span className="web-explorer__sep" aria-hidden="true" />}
-            {headButton(EMOJIcon.reload, 'Reload', () => void refresh(scope.uri))}
-            {headButton(EMOJIcon.more, 'View options', openOptions)}
+            {headButton(EMOJIcon.reload, t('common/reload'), () => void refresh(scope.uri))}
+            {headButton(EMOJIcon.more, t('changes/viewOptions'), openOptions)}
           </span>
         )}
       </div>
@@ -302,14 +304,14 @@ export default function ChangesExplorer(): ReactElement {
           <span className="web-changes__totals">
             {files.length === 0 ? null : (
               <>
-                {files.length === 1 ? '1 file' : `${files.length} files`}
+                {plural('changes/files', files.length)}
                 {' '}<span className="web-diff--add">+{added}</span> <span className="web-diff--remove">{'\u{2212}'}{removed}</span>
               </>
             )}
           </span>
-          <span className="web-segments" role="group" aria-label="Show as">
+          <span className="web-segments" role="group" aria-label={t('changes/view/showAs')}>
             {(['list', 'tree'] as const).map((one) => (
-              <button key={one} type="button" className="web-segments__item web-segments__item--icon" aria-pressed={view === one} title={one === 'list' ? 'Show as a list' : 'Show as a tree'} aria-label={one === 'list' ? 'Show as a list' : 'Show as a tree'} onClick={() => showAs(one)}>
+              <button key={one} type="button" className="web-segments__item web-segments__item--icon" aria-pressed={view === one} title={t(`changes/view/${one}`)} aria-label={t(`changes/view/${one}`)} onClick={() => showAs(one)}>
                 {one === 'list' ? EMOJIcon.log : EMOJIcon.tree}
               </button>
             ))}
@@ -317,7 +319,7 @@ export default function ChangesExplorer(): ReactElement {
         </div>
       )}
       {files.length === 0 ? null : (
-        <input className="web-explorer__filter" type="search" value={filter} placeholder="Filter files" aria-label="Filter files" onChange={(event) => setFilter(event.target.value)} />
+        <input className="web-explorer__filter" type="search" value={filter} placeholder={t('changes/filter')} aria-label={t('changes/filter')} onChange={(event) => setFilter(event.target.value)} />
       )}
       <div className="web-explorer__scroll" onContextMenu={openMenu}>
         <div className="web-explorer__notice">{notice}</div>
@@ -339,7 +341,7 @@ export default function ChangesExplorer(): ReactElement {
             openChange(scena, node.data, scope?.uri, review);
           }}
         />
-        {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">Nothing matches.</p> : null}
+        {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">{t('changes/noMatch')}</p> : null}
       </div>
       <ChangesetForms form={changes.form} files={files} onCommit={changes.commit} onPullRequest={changes.pullRequest} onClose={changes.closeForm} />
       {menu === null ? null : <ContextMenu spec={{ items: menu.items }} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}

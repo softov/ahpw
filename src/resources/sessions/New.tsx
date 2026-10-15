@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { useCloseGuard, useScena, useStore } from '@softov/scena/react';
+import { translate } from '@softov/scena';
+import { useCloseGuard, useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, Text, useChatPicker } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import type { AgentInfo, MessageAttachment, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
@@ -60,6 +61,7 @@ interface Resolved {
  * switch opens its command in the box's list; a value to type is a box.
  */
 function SettingPill({ option, set, open }: { option: Option; set: (next: unknown) => void; open: (id: string) => void }): ReactElement | null {
+  const { t } = useI18n();
   const { key, schema, value } = option;
   const title = schema.title || key;
   const described = schema.description === undefined ? {} : { title: schema.description };
@@ -85,12 +87,13 @@ function SettingPill({ option, set, open }: { option: Option; set: (next: unknow
     );
   }
   // An object or a list the agent keeps, as `permissions`: shown when it holds something, as the composer does.
-  return showsPill(option) ? <Pill label={`${title}: ${optionLabel(option)}`} {...described} /> : null;
+  return showsPill(option) ? <Pill label={t('sessions/pills/setting', { name: title, value: optionLabel(option) })} {...described} /> : null;
 }
 
 /** A new session, started the way a chat is: say something, with the agent, model, folder and settings above the box. */
 export default function NewSessionPage({ provider: offered }: { provider?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const home = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
   const [provider, setProvider] = useState(offered ?? '');
@@ -105,7 +108,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   const [caret, setCaret] = useState<number | null>(null);
   const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
   const area = useRef<HTMLTextAreaElement>(null);
-  useCloseGuard(() => (text.trim() !== '' || attachments.length > 0 ? 'The message is not sent.' : null));
+  useCloseGuard(() => (text.trim() !== '' || attachments.length > 0 ? t('sessions/new/unsent') : null));
 
   useEffect(() => {
     if (provider === '' && agents[0] !== undefined) setProvider(agents[0].provider);
@@ -191,8 +194,8 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   const upload = useCallback(async (list: FileList | null): Promise<void> => {
     const got = await fromFiles(Array.from(list ?? []));
     for (const one of got.attached) attach(one);
-    if (got.refused.length > 0) warn('Not attached', { description: `Over 5 MB or unreadable: ${got.refused.join(', ')}` });
-  }, [attach]);
+    if (got.refused.length > 0) warn(t('sessions/upload/notAttached'), { description: t('sessions/upload/refused', { names: got.refused.join(', ') }) });
+  }, [attach, t]);
 
   // `@` lists the chosen folder, as there is no chat yet to ask what the text refers to.
   const textRef = useRef(text);
@@ -284,15 +287,15 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
   api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, provider };
   useEffect(() => scena.commands.register({
     id: AGENT_COMMAND,
-    title: 'Agent',
-    description: 'The agent the session runs on',
+    title: () => translate('sessions/new/agent'),
+    description: () => translate('sessions/new/agentHint'),
     category: 'Session',
     shortcut: '/agent',
     slots: [NEW_SLOT],
     run: (ctx) => {
       const now = api.current;
       ctx.host?.pushList({
-        title: 'Agent',
+        title: translate('sessions/new/agent'),
         sentinel: '/agent',
         items: now.agents.map((one) => ({
           title: one.displayName,
@@ -360,28 +363,30 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     }
   };
 
-  if (agents.length === 0) return <Alert tone="warning" message="This server offers no agent." />;
+  if (agents.length === 0) return <Alert tone="warning" message={t('sessions/new/noAgent')} />;
+
+  const agentLabel = t('sessions/new/agentPill', { name: agent?.displayName ?? provider });
 
   return (
     <div className="web-new">
-      <Text variant="h2" text="New session" />
+      <Text variant="h2" text={t('sessions/commands/newSession')} />
       {agent?.description === undefined || agent.description === '' ? null : <p className="web-note">{agent.description}</p>}
       <div className="web-composer web-new__composer">
         {/* Under the box, where the page has room, so the list never covers the box's own controls. */}
         {picker.pickerNode === null || adding ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
         {trayOpen ? (
           <div className="web-composer__where web-new__tray">
-            <Pill label={`Agent: ${agent?.displayName ?? provider}`} title="The agent the session runs on" onOpen={() => openCommand(AGENT_COMMAND)} />
+            <Pill label={agentLabel} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
             <FolderPill value={folder} onChange={setFolder} />
-            <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label="Fold the options" title="Fold the options" onClick={() => foldTray(false)}>
+            <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label={t('sessions/new/fold')} title={t('sessions/new/fold')} onClick={() => foldTray(false)}>
               {EMOJIcon.caretDown}
             </button>
           </div>
         ) : (
           <div className="web-composer__where web-new__tray">
-            <button type="button" className="web-chip web-new__tray-head" aria-expanded={false} title="Show the options" onClick={() => foldTray(true)}>
+            <button type="button" className="web-chip web-new__tray-head" aria-expanded={false} title={t('sessions/new/unfold')} onClick={() => foldTray(true)}>
               <span aria-hidden="true">{EMOJIcon.caretRight}</span>
-              {`Agent: ${agent?.displayName ?? provider}`}
+              {agentLabel}
               {folderName === '' ? null : ` · ${folderName}`}
             </button>
           </div>
@@ -394,8 +399,8 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
               className="web-composer__text"
               rows={3}
               value={text}
-              aria-label="First message"
-              placeholder="What should it do?"
+              aria-label={t('sessions/new/firstMessage')}
+              placeholder={t('sessions/composer/placeholder')}
               onChange={(event) => {
                 setText(event.currentTarget.value);
                 setCaret(event.currentTarget.selectionStart);
@@ -417,28 +422,28 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
             <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
             <div className="web-composer__chips web-composer__chips--left">
               {options.filter((option) => footerSide(option) === 'left').map(settingPill)}
-              {resolved === null && provider !== '' ? <Pill label="Reading settings" /> : null}
+              {resolved === null && provider !== '' ? <Pill label={t('sessions/new/readingSettings')} /> : null}
             </div>
             <div className="web-composer__chips web-composer__chips--right">
               {models.length === 0 ? null : (
-                <Pill {...modelLabels(modelName === '' ? 'default' : modelName)} title="The model the first message goes to" onOpen={() => openCommand('ahp.composer.model')} />
+                <Pill {...modelLabels(modelName === '' ? t('sessions/values/default') : modelName)} title={t('sessions/new/modelHint')} onOpen={() => openCommand('ahp.composer.model')} />
               )}
               {options.filter((option) => footerSide(option) === 'right').map(settingPill)}
               {readout === null ? null : <span className="web-composer__context" title={readout.title}>{readout.text}</span>}
             </div>
             <Button
-              label={busy ? 'Starting' : text.trim() === '' && attachments.length === 0 ? 'Create' : 'Start'}
+              label={busy ? t('sessions/new/starting') : text.trim() === '' && attachments.length === 0 ? t('sessions/new/create') : t('sessions/new/start')}
               variant="primary"
               size="sm"
-              title="Enter starts, Shift+Enter breaks the line"
+              title={t('sessions/new/startHint')}
               disabled={busy || provider === ''}
               onClick={() => void start()}
             />
           </div>
         </div>
       </div>
-      <p className="web-new__tip"><kbd>{tip.keys}</kbd> {tip.text}</p>
-      {error === null ? null : <Alert tone="danger" title="Not created" message={error} />}
+      <p className="web-new__tip"><kbd>{tip.keys}</kbd> {t(tip.message)}</p>
+      {error === null ? null : <Alert tone="danger" title={t('sessions/new/notCreated')} message={error} />}
     </div>
   );
 }

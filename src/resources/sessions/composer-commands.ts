@@ -1,8 +1,9 @@
 import type { BindingPath, Command, CommandContext, Disposable, PickerAction, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
 import { getActiveToken } from '@softov/scena/ui';
 import type { MessageAttachment, SessionConfigPropertySchema, SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS } from '../../bridges/data.js';
+import { plural } from '../../i18n/locales.js';
 import { chatAttachment, clipboardImage, fromFiles } from './attachments.js';
 import { EMOJIcon } from '../emojis.js';
 
@@ -96,28 +97,28 @@ export function contextItems(api: ComposerApi, sessions: readonly SessionSummary
   };
   const others = sessions.filter((one) => one.resource !== api.session() && one.defaultChat !== undefined);
   return [
-    { title: `${EMOJIcon.file} Files and folders`, description: 'On the server\'s machine', onSelect: close(() => api.type('@')) },
-    { title: `${EMOJIcon.attach} Upload`, description: 'From this computer, up to 5 MB each', onSelect: close(() => api.upload()) },
+    { title: `${EMOJIcon.file} ${translate('sessions/context/files')}`, description: translate('sessions/context/filesHint'), onSelect: close(() => api.type('@')) },
+    { title: `${EMOJIcon.attach} ${translate('sessions/context/upload')}`, description: translate('sessions/context/uploadHint'), onSelect: close(() => api.upload()) },
     typeof image === 'string'
-      ? { title: `${EMOJIcon.image} Image from clipboard`, description: image, disabled: true, onSelect: () => undefined }
+      ? { title: `${EMOJIcon.image} ${translate('sessions/context/image')}`, description: image, disabled: true, onSelect: () => undefined }
       : {
-        title: `${EMOJIcon.image} Image from clipboard`,
-        description: 'The image you copied',
+        title: `${EMOJIcon.image} ${translate('sessions/context/image')}`,
+        description: translate('sessions/context/imageHint'),
         onSelect: close(() => void fromFiles([image]).then((got) => got.attached.forEach((one) => api.attach(one)))),
       },
     {
-      title: `${EMOJIcon.sessions} Sessions`,
-      description: others.length === 0 ? 'No other session' : 'Another session\'s chat',
+      title: `${EMOJIcon.sessions} ${translate('sessions/context/sessions')}`,
+      description: translate(others.length === 0 ? 'sessions/context/noSessions' : 'sessions/context/sessionsHint'),
       disabled: others.length === 0,
       onSelect: (host) => host.pushList({
-        title: 'Sessions',
+        title: translate('sessions/context/sessions'),
         items: others.map((one) => ({
-          title: one.title === '' ? 'Untitled' : one.title,
+          title: one.title === '' ? translate('sessions/untitled') : one.title,
           onSelect: close(() => api.attach(chatAttachment(one))),
         })),
       }),
     },
-    { title: `${EMOJIcon.terminal} Commands`, description: 'What the agent and this page can do', onSelect: close(() => api.type('/')) },
+    { title: `${EMOJIcon.terminal} ${translate('sessions/context/commands')}`, description: translate('sessions/context/commandsHint'), onSelect: close(() => api.type('/')) },
     ...api.changed().map((one) => ({ title: one.title, description: one.description, group: 'changed', onSelect: close(() => api.attach(one.attachment)) })),
   ];
 }
@@ -149,14 +150,14 @@ export const slashOf = (title: string): string => `/${title.trim().toLowerCase()
 
 /** A value as a short phrase: a list by its items or its count, an object by what it holds. */
 export function valueWords(value: unknown): string {
-  if (value === undefined || value === null) return 'default';
+  if (value === undefined || value === null) return translate('sessions/values/default');
   if (Array.isArray(value)) {
-    if (value.length === 0) return 'none';
-    return value.length <= 2 && value.every((one) => typeof one === 'string') ? value.join(', ') : `${value.length} items`;
+    if (value.length === 0) return translate('sessions/values/none');
+    return value.length <= 2 && value.every((one) => typeof one === 'string') ? value.join(', ') : plural('sessions/values/items', value.length);
   }
   if (typeof value === 'object') {
     const held = Object.entries(value as Record<string, unknown>).filter(([, one]) => one !== undefined && !(Array.isArray(one) && one.length === 0));
-    return held.length === 0 ? 'none' : held.map(([key, one]) => `${key} ${valueWords(one)}`).join(', ');
+    return held.length === 0 ? translate('sessions/values/none') : held.map(([key, one]) => `${key} ${valueWords(one)}`).join(', ');
   }
   return String(value);
 }
@@ -165,7 +166,7 @@ export function valueWords(value: unknown): string {
 export function optionLabel(option: Option): string {
   const { schema, value } = option;
   const current = value ?? schema.default;
-  if (schema.type === 'boolean') return current === true ? 'on' : 'off';
+  if (schema.type === 'boolean') return translate(current === true ? 'sessions/values/on' : 'sessions/values/off');
   const index = schema.enum?.findIndex((one) => one === current) ?? -1;
   if (index >= 0) return schema.enumLabels?.[index] ?? String(current);
   return valueWords(current);
@@ -175,7 +176,7 @@ export function optionLabel(option: Option): string {
 export const pickable = (schema: SessionConfigPropertySchema): boolean => schema.type === 'boolean' || (schema.enum?.length ?? 0) > 0;
 
 /** Whether a setting gets a pill: one that holds nothing and cannot be changed has nothing to show. */
-export const showsPill = (option: Option): boolean => pickable(option.schema) || optionLabel(option) !== 'none';
+export const showsPill = (option: Option): boolean => pickable(option.schema) || optionLabel(option) !== translate('sessions/values/none');
 
 /** The command id behind a setting's pill and its `/` shortcut. */
 export const optionCommandId = (key: string): string => `ahp.composer.option.${key}`;
@@ -225,8 +226,8 @@ export function registerComposerCommands(scena: Scena): Disposable {
   return combineDisposables(
     share(scena, {
       id: 'ahp.composer.model',
-      title: 'Model',
-      description: 'The model the next message is sent to',
+      title: () => translate('sessions/commands/model'),
+      description: () => translate('sessions/commands/modelHint'),
       category: 'Settings',
       shortcut: '/model',
       slots: [COMPOSER_SLOT, NEW_SLOT],
@@ -240,10 +241,10 @@ export function registerComposerCommands(scena: Scena): Disposable {
           host.closeMenu();
         };
         ctx.host?.pushList({
-          title: 'Model',
+          title: translate('sessions/commands/model'),
           sentinel: '/model',
           items: [
-            { title: 'Agent default', active: current === undefined, onSelect: pick(undefined) },
+            { title: translate('sessions/commands/agentDefault'), active: current === undefined, onSelect: pick(undefined) },
             ...api.models().map((model) => ({ title: model.name, description: model.id, active: model.id === current, onSelect: pick(model.id) })),
           ],
         });
@@ -251,8 +252,8 @@ export function registerComposerCommands(scena: Scena): Disposable {
     }),
     share(scena, {
       id: 'ahp.composer.attach',
-      title: 'Add context',
-      description: 'Attach a file, a session, or a file from this computer',
+      title: () => translate('sessions/context/title'),
+      description: () => translate('sessions/context/hint'),
       category: 'Session',
       shortcut: '/attach',
       slots: [COMPOSER_SLOT, NEW_SLOT],
@@ -260,13 +261,13 @@ export function registerComposerCommands(scena: Scena): Disposable {
         const api = apiOf(ctx);
         if (api === undefined) return;
         const image = await clipboardImage();
-        ctx.host?.pushList({ title: 'Add context', sentinel: '/attach', items: contextItems(api, ctx.store.get<SessionSummary[]>(AHP_SESSIONS) ?? [], image) });
+        ctx.host?.pushList({ title: translate('sessions/context/title'), sentinel: '/attach', items: contextItems(api, ctx.store.get<SessionSummary[]>(AHP_SESSIONS) ?? [], image) });
       },
     }),
     share(scena, {
       id: 'ahp.composer.stop',
-      title: 'Stop',
-      description: 'Stop the turn that is running',
+      title: () => translate('sessions/commands/stop'),
+      description: () => translate('sessions/commands/stopHint'),
       category: 'Session',
       shortcut: '/stop',
       slots: [COMPOSER_SLOT],
@@ -278,8 +279,8 @@ export function registerComposerCommands(scena: Scena): Disposable {
     }),
     share(scena, {
       id: 'ahp.composer.new',
-      title: 'New session',
-      description: 'Start another session',
+      title: () => translate('sessions/commands/newSession'),
+      description: () => translate('sessions/commands/newSessionHint'),
       category: 'Session',
       shortcut: '/new',
       slots: [COMPOSER_SLOT],

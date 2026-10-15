@@ -1,6 +1,7 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
-import { combineDisposables, type ModusClass } from '@softov/scena';
+import { combineDisposables, translate, type ModusClass } from '@softov/scena';
+import { bound, english } from '../../i18n/locales.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { EMOJIcon } from '../emojis.js';
 
@@ -24,21 +25,23 @@ export function registerHost(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.openHostInfo',
-      title: 'Host information',
+      title: () => translate('host/commands/info'),
+      keywords: [english('host/commands/info')],
       category: 'Host',
       slots: [PALETTE_SLOT],
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'host:info:page', resource: { component: 'HostInfoPage' }, props: { title: 'Host' } });
+        ctx.surfaces.open({ surface: 'main', key: 'host:info:page', resource: { component: 'HostInfoPage' }, props: { title: bound('host/title') } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
     scena.commands.register({
       id: 'ahp.openSettings',
-      title: 'Host settings',
+      title: () => translate('host/commands/settings'),
+      keywords: [english('host/commands/settings')],
       category: 'Host',
       slots: [PALETTE_SLOT],
       run: (ctx) => {
-        ctx.surfaces.open({ surface: 'main', key: 'host:settings:page', resource: { component: 'HostSettingsPage' }, props: { title: 'Settings' } });
+        ctx.surfaces.open({ surface: 'main', key: 'host:settings:page', resource: { component: 'HostSettingsPage' }, props: { title: bound('host/settings/tab') } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),

@@ -1,5 +1,6 @@
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { english } from '../../i18n/locales.js';
 import { MAIN_LAYOUTS, readLayout, writeLayout } from './layouts.js';
 
 /** The main area's layout, kept per browser, and the theme picker in the title bar. */
@@ -9,7 +10,8 @@ export function registerView(scena: Scena): Disposable {
   return combineDisposables(
     scena.commands.register({
       id: 'view.setMainLayout',
-      title: 'Set the main layout',
+      title: () => translate('shell/view/setMainLayout'),
+      keywords: [english('shell/view/setMainLayout')],
       run: (ctx, args) => {
         const layout = (args as { layout?: string } | undefined)?.layout;
         if (layout === undefined || !MAIN_LAYOUTS.some((one) => one.id === layout)) return;

@@ -1,7 +1,8 @@
 import { registerComposerCommands } from './composer-commands.js';
 import { watchSessions } from './alerts.js';
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables, isOverlaid, resolveSurfacePresentation, type ModusClass } from '@softov/scena';
+import { combineDisposables, isOverlaid, resolveSurfacePresentation, translate, type ModusClass } from '@softov/scena';
+import { bound, english } from '../../i18n/locales.js';
 import { PRESENTATION } from '../../shell/presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS, titlePath } from '../../bridges/data.js';
@@ -66,27 +67,29 @@ export function registerSessions(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.showSessions',
-      title: 'Show sessions',
+      title: () => translate('sessions/commands/showSessions'),
+      keywords: [english('sessions/commands/showSessions')],
       category: 'Sessions',
       slots: [PALETTE_SLOT],
       run: (ctx) => ctx.commands.execute('sidebar.activate', { section: SESSIONS_SECTION }),
     }),
     scena.commands.register({
       id: 'ahp.newSession',
-      title: 'New session',
+      title: () => translate('sessions/commands/newSession'),
+      keywords: [english('sessions/commands/newSession')],
       category: 'Sessions',
       slots: [PALETTE_SLOT],
       run: (ctx, args) => {
         // A page already open keeps its own choices, so one asked for an agent starts afresh.
         const provider = (args as { provider?: string } | undefined)?.provider;
         if (provider !== undefined) ctx.scena.surfaces.close('session:new');
-        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: 'New session' } });
+        ctx.surfaces.open({ surface: 'main', key: 'session:new', resource: { component: 'NewSessionPage', ...(provider === undefined ? {} : { provider }) }, props: { title: bound('sessions/commands/newSession') } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },
     }),
     scena.commands.register({
       id: 'ahp.openSession',
-      title: 'Open session',
+      title: () => translate('sessions/commands/openSession'),
       run: (ctx, args) => {
         const resource = (args as OpenSessionArgs | undefined)?.resource;
         if (resource === undefined) return;
@@ -102,7 +105,8 @@ export function registerSessions(scena: Scena): Disposable {
       },
     }),
 
-    mountRight(scena, { key: 'session:details', resource: { component: 'SessionDetails' }, props: { title: 'Session' } }, EMOJIcon.info),
+    // mountRight takes the title as text, so the tab is named in the language the page opened in.
+    mountRight(scena, { key: 'session:details', resource: { component: 'SessionDetails' }, props: { title: { t: 'sessions/details/tab' } } }, EMOJIcon.info),
     scena.surfaces.mount({
       surface: 'sidebar:left',
       key: 'sessions:explorer',

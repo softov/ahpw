@@ -1,5 +1,6 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { english } from '../../i18n/locales.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { registerEntryCommands } from './actions.js';
 import { ADDED_FOLDERS, readAdded } from './added.js';
@@ -36,14 +37,15 @@ export function registerFolders(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.showFolders',
-      title: 'Show the explorer',
+      title: () => translate('folders/commands/show'),
+      keywords: [english('folders/commands/show')],
       category: 'Files',
       slots: [PALETTE_SLOT],
       run: (ctx) => ctx.commands.execute('sidebar.activate', { section: FOLDERS_SECTION }),
     }),
     scena.commands.register({
       id: 'ahp.revealFolder',
-      title: 'Show the folder in the explorer',
+      title: () => translate('folders/commands/reveal'),
       run: (ctx, args) => {
         const uri = (args as RevealFolderArgs | undefined)?.uri;
         if (uri === undefined) return;

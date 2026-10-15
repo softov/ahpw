@@ -1,13 +1,14 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
 import { AHP_DEFAULT_DIRECTORY, copyResource, deleteResource, makeFolder, moveResource, readBase64, writeResource } from '../../bridges/data.js';
 import { folderLabel } from '../../bridges/words.js';
+import { plural } from '../../i18n/locales.js';
 import { confirm, done, failed } from '../../shell/notify/index.js';
 import { ADDED_FOLDERS, withFolder, withoutFolder, writeAdded } from './added.js';
 import { askName } from './ask.js';
 import { askFolder } from './pick.js';
 import {
-  ENTRY_ACTIONS, ENTRY_SLOT, ENTRY_WORDS, MENU_ENTRY,
+  ENTRY_ACTIONS, ENTRY_ICONS, ENTRY_SLOT, MENU_ENTRY,
   base64Of, bytesOf, copyNameOf, entryActions, folderUriOf, leafOf, nameProblem, parentOf, siblingUri,
   type EntryAction, type MenuEntry,
 } from './menu.js';
@@ -31,7 +32,7 @@ export function markStale(scena: Scena, ...uris: string[]): void {
 export async function addFolder(scena: Scena): Promise<string | null> {
   const home = scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY) ?? null;
   const homePath = home === null ? null : folderLabel(home).replace(/\/+$/, '');
-  const path = await askFolder({ title: 'Add folder', start: homePath === null ? '/' : `${homePath}/`, home: homePath });
+  const path = await askFolder({ title: translate('folders/addFolder'), start: homePath === null ? '/' : `${homePath}/`, home: homePath });
   const uri = path === null ? null : folderUriOf(path);
   if (uri === null) return null;
   const added = withFolder(scena.store.get<string[]>(ADDED_FOLDERS) ?? [], uri);
@@ -67,13 +68,13 @@ const askFor = (title: string, confirmLabel: string, value = ''): Promise<string
 /** What each action does to the row its menu is open on. */
 const RUN: Record<EntryAction, (scena: Scena, entry: MenuEntry) => Promise<void>> = {
   newFile: async (scena, { uri }) => {
-    const name = await askFor('New file', 'Create');
+    const name = await askFor(translate('folders/entry/newFile'), translate('folders/ask/create'));
     if (name === null) return;
     await writeResource(childUri(uri, name), '', 'utf-8', true);
     markStale(scena, uri);
   },
   newFolder: async (scena, { uri }) => {
-    const name = await askFor('New folder', 'Create');
+    const name = await askFor(translate('folders/entry/newFolder'), translate('folders/ask/create'));
     if (name === null) return;
     await makeFolder(childUri(uri, name));
     markStale(scena, uri);
@@ -86,11 +87,12 @@ const RUN: Record<EntryAction, (scena: Scena, entry: MenuEntry) => Promise<void>
     } finally {
       markStale(scena, uri);
     }
-    done(files.length === 1 ? `${files[0]?.name ?? 'File'} uploaded` : `${files.length} files uploaded`);
+    const [only] = files;
+    done(files.length === 1 && only !== undefined ? translate('folders/uploaded', { name: only.name }) : plural('folders/uploadedFiles', files.length));
   },
   copyPath: async (_scena, { uri }) => {
     await navigator.clipboard.writeText(folderLabel(uri));
-    done('Path copied');
+    done(translate('folders/pathCopied'));
   },
   download: async (_scena, { uri }) => {
     const read = await readBase64(uri);
@@ -98,13 +100,13 @@ const RUN: Record<EntryAction, (scena: Scena, entry: MenuEntry) => Promise<void>
     save(leafOf(uri), read.encoding === 'base64' ? new Blob([bytesOf(read.data)], { type }) : new Blob([read.data], { type }));
   },
   rename: async (scena, { uri }) => {
-    const name = await askFor('Rename', 'Rename', leafOf(uri));
+    const name = await askFor(translate('folders/entry/rename'), translate('folders/entry/rename'), leafOf(uri));
     if (name === null || name === leafOf(uri)) return;
     await moveResource(uri, siblingUri(uri, name));
     markStale(scena, parentOf(uri));
   },
   copy: async (scena, { uri }) => {
-    const name = await askFor('Copy', 'Copy', copyNameOf(leafOf(uri)));
+    const name = await askFor(translate('folders/entry/copy'), translate('folders/entry/copy'), copyNameOf(leafOf(uri)));
     if (name === null) return;
     await copyResource(uri, siblingUri(uri, name));
     markStale(scena, parentOf(uri));
@@ -116,9 +118,9 @@ const RUN: Record<EntryAction, (scena: Scena, entry: MenuEntry) => Promise<void>
   },
   delete: async (scena, { uri, directory }) => {
     const asked = await confirm({
-      title: `Delete "${leafOf(uri)}"?`,
-      ...(directory ? { body: 'Everything in it goes with it.' } : {}),
-      confirmLabel: 'Delete',
+      title: translate('folders/delete/title', { name: leafOf(uri) }),
+      ...(directory ? { body: translate('folders/delete/body') } : {}),
+      confirmLabel: translate('folders/entry/delete'),
       tone: 'danger',
     });
     if (!asked) return;
@@ -127,25 +129,13 @@ const RUN: Record<EntryAction, (scena: Scena, entry: MenuEntry) => Promise<void>
   },
 };
 
-/** What a failed action says. */
-const FAILED: Record<EntryAction, string> = {
-  newFile: 'The file could not be created',
-  newFolder: 'The folder could not be created',
-  upload: 'The upload failed',
-  copyPath: 'The path could not be copied',
-  download: 'The download failed',
-  rename: 'The rename failed',
-  copy: 'The copy failed',
-  removeFolder: 'The folder could not be removed',
-  delete: 'The delete failed',
-};
 
 /** A file or folder row's commands, each shown on the rows it applies to. */
 export function registerEntryCommands(scena: Scena): Disposable {
   return combineDisposables(...ENTRY_ACTIONS.map((action) => scena.commands.register({
     id: `folders.${action}`,
-    title: ENTRY_WORDS[action].title,
-    icon: ENTRY_WORDS[action].icon,
+    title: () => translate(`folders/entry/${action}`),
+    icon: ENTRY_ICONS[action],
     ...(action === 'delete' ? { color: 'red' as const } : {}),
     slots: [ENTRY_SLOT],
     when: () => entryActions(scena.store.get<MenuEntry | null>(MENU_ENTRY)).includes(action),
@@ -156,7 +146,7 @@ export function registerEntryCommands(scena: Scena): Disposable {
       try {
         await RUN[action](scena, entry);
       } catch (error) {
-        failed(FAILED[action], error, { source: `folders.${action}` });
+        failed(translate(`folders/failed/${action}`), error, { source: `folders.${action}` });
       }
     },
   })));

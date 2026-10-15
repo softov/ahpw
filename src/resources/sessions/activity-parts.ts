@@ -1,4 +1,6 @@
 import type { ResponsePart, ToolCallState } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
+import { plural } from '../../i18n/locales.js';
 import { durationOf, startedOf } from './tool.js';
 
 /**
@@ -149,19 +151,20 @@ export interface SummaryPiece {
 export function summaryPieces(summary: Summary, words: (ms: number) => string): SummaryPiece[] {
   const pieces: SummaryPiece[] = [];
   if (summary.done > 0) {
-    pieces.push({ text: summary.done === 1 ? 'Completed 1 step' : `Completed ${summary.done} steps` });
-    if (summary.failed > 0) pieces.push({ text: ` (${summary.failed} failed)`, failed: true });
+    pieces.push({ text: plural('sessions/activity/completed', summary.done) });
+    if (summary.failed > 0) pieces.push({ text: ` (${translate('sessions/activity/failed', { count: summary.failed })})`, failed: true });
     const took = time(summary.took, words);
-    if (took !== undefined) pieces.push({ text: ` in ${took}` });
+    if (took !== undefined) pieces.push({ text: ` ${translate('sessions/activity/took', { time: took })}` });
   }
   const doing = summary.doing;
   if (doing !== undefined) {
     let text: string;
-    if (doing.what === 'thinking') text = 'Thinking';
+    if (doing.what === 'thinking') text = translate('sessions/activity/thinking');
     else {
-      const line = `${doing.what === 'waiting' ? 'Waiting on' : 'Working on'} ${doing.name}`;
       const long = time(doing.for, words);
-      text = long === undefined ? line : `${line} for ${long}`;
+      text = long === undefined
+        ? translate(`sessions/activity/${doing.what}`, { name: doing.name })
+        : translate(`sessions/activity/${doing.what}For`, { name: doing.name, time: long });
     }
     pieces.push({ text: pieces.length > 0 ? ` \u{00B7} ${text}` : text });
   }

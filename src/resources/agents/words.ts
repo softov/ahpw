@@ -13,49 +13,44 @@ import type {
   RuleCustomization,
   SessionModelInfo,
 } from '@microsoft/agent-host-protocol';
+import { translate } from '@softov/scena';
 import { folderLabel } from '../../bridges/words.js';
 import { tokens } from '../sessions/turn.js';
+import { plural } from '../../i18n/locales.js';
 
 /** How many models an agent offers, in words. */
 export function modelsLine(agent: AgentInfo): string {
   const count = agent.models.length;
-  return count === 0 ? 'No models listed' : count === 1 ? '1 model' : `${count} models`;
+  return count === 0 ? translate('agents/models/none') : plural('agents/models/count', count);
 }
 
 /** What an agent can do beyond one chat in one folder, in words. */
 export function capabilitiesOf(agent: AgentInfo): string[] {
   const out: string[] = [];
   const chats = agent.capabilities?.multipleChats;
-  if (chats !== undefined) out.push(chats.fork === true ? 'Several chats per session, and forks' : 'Several chats per session');
+  if (chats !== undefined) out.push(translate(chats.fork === true ? 'agents/capabilities/chatsAndForks' : 'agents/capabilities/chats'));
   const folders = agent.capabilities?.multipleWorkingDirectories;
-  if (folders !== undefined) out.push(folders.immutablePrimary === true ? 'Several folders, the first one fixed' : 'Several folders');
+  if (folders !== undefined) out.push(translate(folders.immutablePrimary === true ? 'agents/capabilities/foldersFirstFixed' : 'agents/capabilities/folders'));
   return out;
 }
 
 /** A model's limits, as one short line: context, output, vision. */
 export function limitsOf(model: SessionModelInfo): string {
   const bits: string[] = [];
-  if (model.maxContextWindow !== undefined) bits.push(`${tokens(model.maxContextWindow)} context`);
-  if (model.maxOutputTokens !== undefined) bits.push(`${tokens(model.maxOutputTokens)} out`);
-  if (model.supportsVision === true) bits.push('images');
+  if (model.maxContextWindow !== undefined) bits.push(translate('agents/limits/context', { size: tokens(model.maxContextWindow) }));
+  if (model.maxOutputTokens !== undefined) bits.push(translate('agents/limits/output', { size: tokens(model.maxOutputTokens) }));
+  if (model.supportsVision === true) bits.push(translate('agents/limits/images'));
   return bits.join(' \u{00B7} ');
 }
 
-/** The kind of a customization, as a person names it. */
-const KIND: Record<string, string> = { plugin: 'Plugin', directory: 'Folder', mcpServer: 'MCP server' };
+/** The customization kinds a person has a name for, under `agents/kinds/<kind>`. */
+const KINDS = new Set(['plugin', 'directory', 'mcpServer']);
 
-/** A child type as a counted noun: one and many. */
-const NOUN: Record<string, [string, string]> = {
-  agent: ['agent', 'agents'],
-  skill: ['skill', 'skills'],
-  prompt: ['prompt', 'prompts'],
-  rule: ['rule', 'rules'],
-  hook: ['hook', 'hooks'],
-  mcpServer: ['MCP server', 'MCP servers'],
-};
+/** The child types counted by name, under `agents/counts/<type>`; any other is counted as items. */
+const NOUNS = new Set(['agent', 'skill', 'prompt', 'rule', 'hook', 'mcpServer']);
 
-/** Why an MCP server waits on sign-in, as a person reads it. */
-const AUTH: Record<string, string> = { required: 'Needs sign-in', expired: 'Sign-in expired', insufficientScope: 'Needs more access' };
+/** The reasons an MCP server waits on sign-in that a person has words for, under `agents/auth/<reason>`. */
+const AUTH = new Set(['required', 'expired', 'insufficientScope']);
 
 /** What a row's dot says: its tone and its words. `busy` draws a spinner instead of a dot. */
 export interface StateWord {
@@ -108,8 +103,7 @@ export function enabledOf(item: Customization | ChildCustomization): boolean {
 
 /** `count` things of one child type, in words: "1 agent", "12 skills". */
 function counted(count: number, type: string): string {
-  const [one, many] = NOUN[type] ?? ['item', 'items'];
-  return `${count} ${count === 1 ? one : many}`;
+  return plural(`agents/counts/${NOUNS.has(type) ? type : 'item'}`, count);
 }
 
 /** What a container holds, in words: by its `contents` for a folder, by its children's types for a plugin. Nothing when the host has not parsed it yet. */
@@ -118,7 +112,7 @@ export function countOf(item: Customization): string | undefined {
   const children = (item as { children?: ChildCustomization[] }).children;
   if (children === undefined) return undefined;
   if (item.type === ('directory' as DirectoryCustomization['type'])) return counted(children.length, String((item as DirectoryCustomization).contents));
-  if (children.length === 0) return 'Empty';
+  if (children.length === 0) return translate('agents/counts/empty');
   const types = new Map<string, number>();
   for (const child of children) types.set(String(child.type), (types.get(String(child.type)) ?? 0) + 1);
   return [...types].map(([type, count]) => counted(count, type)).join(', ');
@@ -139,20 +133,20 @@ export function stateOf(item: Customization | ChildCustomization): StateWord | u
   if (String(item.type) === 'mcpServer') {
     const state = (item as McpServerCustomization).state;
     switch (String(state.kind)) {
-      case 'ready': return { tone: 'success', text: 'Ready' };
-      case 'starting': return { tone: 'info', text: (state as McpServerStartingState).blocking === true ? 'Starting; blocks the next turn' : 'Starting' };
+      case 'ready': return { tone: 'success', text: translate('agents/states/ready') };
+      case 'starting': return { tone: 'info', text: translate((state as McpServerStartingState).blocking === true ? 'agents/states/startingBlocking' : 'agents/states/starting') };
       case 'authRequired': {
         const reason = String((state as McpServerAuthRequiredState).reason);
-        return { tone: 'warning', text: AUTH[reason] ?? reason };
+        return { tone: 'warning', text: AUTH.has(reason) ? translate(`agents/auth/${reason}`) : reason };
       }
       case 'error': return { tone: 'danger', text: (state as McpServerErrorState).error.message };
-      case 'stopped': return { tone: 'default', text: 'Stopped' };
+      case 'stopped': return { tone: 'default', text: translate('agents/states/stopped') };
       default: return { tone: 'default', text: String(state.kind) };
     }
   }
   const load = (item as { load?: CustomizationLoadState }).load;
   switch (load === undefined ? undefined : String(load.kind)) {
-    case 'loading': return { tone: 'busy', text: 'Loading' };
+    case 'loading': return { tone: 'busy', text: translate('agents/states/loading') };
     case 'degraded': return { tone: 'warning', text: (load as CustomizationDegradedState).message };
     case 'error': return { tone: 'danger', text: (load as CustomizationErrorState).message };
     default: return undefined;
@@ -163,13 +157,13 @@ export function stateOf(item: Customization | ChildCustomization): StateWord | u
 export function childFlags(child: ChildCustomization): string[] {
   const flags: string[] = [];
   const bag = child as { disableModelInvocation?: boolean; disableUserInvocation?: boolean; model?: string };
-  if (bag.disableModelInvocation === true) flags.push('user only');
-  if (bag.disableUserInvocation === true) flags.push('model only');
-  if (bag.model !== undefined && bag.model !== '') flags.push(`pinned to ${bag.model}`);
+  if (bag.disableModelInvocation === true) flags.push(translate('agents/flags/userOnly'));
+  if (bag.disableUserInvocation === true) flags.push(translate('agents/flags/modelOnly'));
+  if (bag.model !== undefined && bag.model !== '') flags.push(translate('agents/flags/pinned', { model: bag.model }));
   if (child.type === ('rule' as RuleCustomization['type'])) {
     const rule = child as RuleCustomization;
     if (rule.globs !== undefined && rule.globs.length > 0) flags.push(rule.globs.join(', '));
-    else if (rule.alwaysApply === true) flags.push('always');
+    else if (rule.alwaysApply === true) flags.push(translate('agents/flags/always'));
   }
   return flags;
 }
@@ -219,10 +213,10 @@ function metaOf(item: Customization, enabled: boolean): string[] {
   const meta: string[] = [];
   const count = countOf(item);
   if (count !== undefined) meta.push(count);
-  if ((item as { writable?: boolean }).writable === false) meta.push('read-only');
+  if ((item as { writable?: boolean }).writable === false) meta.push(translate('agents/meta/readOnly'));
   const version = (item as { version?: string }).version;
   if (version !== undefined && version !== '') meta.push(`v${version}`);
-  meta.push(enabled ? 'on' : 'off');
+  meta.push(translate(enabled ? 'agents/meta/on' : 'agents/meta/off'));
   return meta;
 }
 
@@ -239,7 +233,7 @@ export function customizationRows(items: readonly Customization[] | undefined): 
       id: item.id,
       type,
       name: item.name,
-      kind: KIND[type] ?? type,
+      kind: KINDS.has(type) ? translate(`agents/kinds/${type}`) : type,
       path: shortPath(item.uri),
       meta: metaOf(item, enabled),
       enabled,

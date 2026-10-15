@@ -3,7 +3,7 @@ import en from './en.json';
 import es from './es.json';
 import pt from './pt.json';
 import { registerMessages, setLocale } from '@softov/scena';
-import { english, initialLocale, plural } from './locales.js';
+import { dateFormat, english, initialLocale, intlLocale, plural } from './locales.js';
 
 /** Every leaf key of a message tree, as `a/b/c`. */
 function keys(tree: object, prefix = ''): string[] {
@@ -54,11 +54,40 @@ describe('plural', () => {
     expect(plural('test/files', 3)).toBe('3 files');
   });
 
-  it('follows Brazilian Portuguese, where 0 is one', () => {
+  it('gives 0 the plural in Portuguese too, where CLDR counts 0 as one', () => {
     registerMessages('pt-BR', { test: { files: { one: '{count} arquivo', other: '{count} arquivos' } } });
     setLocale('pt-BR');
-    expect(plural('test/files', 0)).toBe('0 arquivo');
+    expect(plural('test/files', 0)).toBe('0 arquivos');
+    expect(plural('test/files', 1)).toBe('1 arquivo');
     expect(plural('test/files', 2)).toBe('2 arquivos');
+    setLocale('en');
+  });
+
+  it('does not throw in a made-up language Intl does not know', () => {
+    registerMessages('en', { test: { files: { one: '{count} file', other: '{count} files' } } });
+    setLocale('x-aur');
+    expect(plural('test/files', 1)).toBe('1 file');
+    setLocale('en');
+  });
+});
+
+describe('intlLocale and dateFormat', () => {
+  it('a made-up language reads as English to Intl', () => {
+    setLocale('x-aur');
+    expect(intlLocale()).toBe('en');
+    setLocale('pt-BR');
+    expect(intlLocale()).toBe('pt-BR');
+    setLocale('en');
+  });
+
+  it('a date follows a language switch', () => {
+    const month = dateFormat({ month: 'long', timeZone: 'UTC' });
+    const march = Date.UTC(2026, 2, 15);
+    expect(month.format(march)).toBe('March');
+    setLocale('pt-BR');
+    expect(month.format(march)).toBe('março');
+    setLocale('es-419');
+    expect(month.format(march)).toBe('marzo');
     setLocale('en');
   });
 });

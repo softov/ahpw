@@ -1,5 +1,6 @@
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { english } from '../i18n/locales.js';
 import { AHP_CONNECTION, ahpProvider, reconnect, type Connection } from './data.js';
 import ConnectionStatus from './Status.js';
 import { done, tryNotify } from '../shell/notify/index.js';
@@ -17,7 +18,7 @@ function watchConnection(scena: Scena): Disposable {
     if (connection.status === 'connected') {
       if (lost) {
         tryNotify((notifications) => notifications.dismiss(LOST));
-        done('Connected to the server again', { source: LOST });
+        done(translate('bridges/backAgain'), { source: LOST });
       }
       lost = false;
       wasUp = true;
@@ -29,11 +30,11 @@ function watchConnection(scena: Scena): Disposable {
       id: LOST,
       type: 'connection.lost',
       tone: 'warning',
-      title: 'Lost the connection to the server',
+      title: translate('bridges/lost'),
       ...(connection.error === null ? {} : { description: connection.error }),
       dismissAuto: false,
-      alert: { title: 'Lost the connection to the server' },
-      actions: [{ label: 'Retry now', command: 'ahp.reconnect', dismisses: false }],
+      alert: { title: translate('bridges/lost') },
+      actions: [{ label: translate('bridges/retryNow'), command: 'ahp.reconnect', dismisses: false }],
       source: LOST,
     }));
   });
@@ -44,7 +45,7 @@ export function registerConnection(scena: Scena): Disposable {
   return combineDisposables(
     scena.store.registerDataProvider(ahpProvider),
     watchConnection(scena),
-    scena.commands.register({ id: 'ahp.reconnect', title: 'Reconnect to the server', run: () => reconnect() }),
+    scena.commands.register({ id: 'ahp.reconnect', title: () => translate('bridges/commands/reconnect'), keywords: [english('bridges/commands/reconnect')], run: () => reconnect() }),
     scena.components.register({
       component: 'ConnectionStatus',
       category: 'inline',

@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { JsonSchemaField, JsonSchemaObject } from '@softov/scena/ui';
 import type { ManifestCommand, ManifestOption } from './types.js';
 
@@ -24,7 +25,7 @@ export interface CommandRequest {
 /** Thrown when a command cannot be sent without a value that was not given. */
 export class MissingInput extends Error {
   public constructor(public readonly field: string) {
-    super(`${field} is required`);
+    super(translate('manifest/required', { field }));
     this.name = 'MissingInput';
   }
 }

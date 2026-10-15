@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
-import { useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, Spinner, Text } from '@softov/scena/ui';
 import {
   chatReducer,
@@ -23,7 +23,8 @@ import { groupParts } from './activity-parts.js';
 import { Composer } from './Composer.js';
 import { WorkspaceContext } from './workspace.js';
 import { ACTIVE_SESSION } from './state.js';
-import { ACTIVITY_LABEL, ACTIVITY_TONE, activityOf, isRead } from './status.js';
+import { ACTIVITY_TONE, activityLabel, activityOf, isRead } from './status.js';
+import { plural } from '../../i18n/locales.js';
 import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
 import { attachmentIcon, attachmentLabel, hasPreview, previewOf, type AttachmentPreviewOf } from './attachments.js';
 import { AttachmentPreview } from './Attached.js';
@@ -31,8 +32,8 @@ import { EMOJIcon } from '../emojis.js';
 import { CopyButton } from '../../shell/controls/CopyButton.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 
-/** How a turn ended, in words, when it did not end well. */
-const ENDED: Record<string, string> = { cancelled: 'Stopped', error: 'Ended with an error' };
+/** How a turn ended, as the key of its words, when it did not end well. */
+const ENDED: Record<string, string> = { cancelled: 'sessions/turn/stopped', error: 'sessions/turn/failed' };
 
 /** A clock that moves once a second while `on`. */
 function useNow(on: boolean): number {
@@ -47,20 +48,22 @@ function useNow(on: boolean): number {
 
 /** The line under a turn: a copy of its reply, when, how long, the tokens, the model and the tools it called. */
 function FactLine({ facts, state, live, text }: { facts: TurnFacts; state?: string; live: boolean; text: string }): ReactElement {
+  const { t } = useI18n();
   const now = useNow(live);
   const took = live ? (facts.startedAt === undefined ? undefined : now - facts.startedAt) : facts.duration;
   const bits: string[] = [];
   if (facts.startedAt !== undefined) bits.push(when(facts.startedAt));
-  if (took !== undefined) bits.push(live ? `${elapsed(took)} so far` : elapsed(took));
+  if (took !== undefined) bits.push(live ? t('sessions/turn/soFar', { time: elapsed(took) }) : elapsed(took));
   if (facts.input !== undefined || facts.output !== undefined) bits.push(`\u{2191}${tokens(facts.input ?? 0)} \u{2193}${tokens(facts.output ?? 0)}`);
-  if (facts.cacheRead !== undefined && facts.cacheRead > 0) bits.push(`${tokens(facts.cacheRead)} cached`);
+  if (facts.cacheRead !== undefined && facts.cacheRead > 0) bits.push(t('sessions/turn/cached', { tokens: tokens(facts.cacheRead) }));
   if (facts.model !== undefined) bits.push(facts.model);
-  if (facts.tools > 0) bits.push(facts.tools === 1 ? '1 tool call' : `${facts.tools} tool calls`);
+  if (facts.tools > 0) bits.push(plural('sessions/turn/toolCalls', facts.tools));
+  const ended = state === undefined ? undefined : ENDED[state];
   return (
     <div className="web-turn__facts">
-      {live || text === '' ? null : <CopyButton text={text} label="Copy the reply" />}
+      {live || text === '' ? null : <CopyButton text={text} label={t('sessions/turn/copyReply')} />}
       {bits.join(' \u{00B7} ')}
-      {state === undefined || ENDED[state] === undefined ? null : <span className="web-turn__ended" data-state={state}>{ENDED[state]}</span>}
+      {ended === undefined ? null : <span className="web-turn__ended" data-state={state}>{t(ended)}</span>}
     </div>
   );
 }
@@ -70,6 +73,7 @@ const NONE: readonly ChatInputRequest[] = [];
 /** What a message carried along with its text: a file opens where it is one, what the message holds opens a preview. */
 function SentAttachments({ attachments }: { attachments: readonly MessageAttachment[] }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const [preview, setPreview] = useState<AttachmentPreviewOf | null>(null);
   return (
     <div className="web-turn__attached">
@@ -78,10 +82,10 @@ function SentAttachments({ attachments }: { attachments: readonly MessageAttachm
         const uri = typeof held.uri === 'string' && held.displayKind !== 'directory' ? held.uri : undefined;
         const label = attachmentLabel(attachment);
         const body = <><span className="web-attachment__icon">{attachmentIcon(attachment)}</span><span className="web-attachment__label">{label}</span></>;
-        if (hasPreview(attachment)) return <button key={index} type="button" className="web-attachment" title={`See ${label}`} onClick={() => setPreview(previewOf(attachment))}>{body}</button>;
+        if (hasPreview(attachment)) return <button key={index} type="button" className="web-attachment" title={t('sessions/attachments/see', { name: label })} onClick={() => setPreview(previewOf(attachment))}>{body}</button>;
         return uri === undefined
           ? <span key={index} className="web-attachment" title={label}>{body}</span>
-          : <button key={index} type="button" className="web-attachment" title={`Open ${label}`} onClick={() => void scena.commands.execute('ahp.openFile', { uri })}>{body}</button>;
+          : <button key={index} type="button" className="web-attachment" title={t('sessions/attachments/open', { name: label })} onClick={() => void scena.commands.execute('ahp.openFile', { uri })}>{body}</button>;
       })}
       {preview === null ? null : <AttachmentPreview preview={preview} onClose={() => setPreview(null)} />}
     </div>
@@ -96,6 +100,7 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
   /** Questions the session waits on that no part of this turn holds: what a page opened mid-question reads. */
   open?: readonly ChatInputRequest[];
 }): ReactElement {
+  const { t } = useI18n();
   const state = 'state' in turn ? String(turn.state) : undefined;
   const parts = turn.responseParts;
   return (
@@ -109,7 +114,7 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
           ? <Activity key={shown.id} group={shown} send={send} turnId={turn.id} />
           : <Part key={shown.index} part={shown.part} send={send} live={live} turnId={turn.id} />)}
         {live ? open.map((request) => <InputRequest key={request.id} request={request} send={send} live response={undefined} />) : null}
-        {live && parts.length === 0 ? <Spinner label="Working" /> : null}
+        {live && parts.length === 0 ? <Spinner label={t('sessions/turn/working')} /> : null}
       </div>
       <FactLine facts={factsOf(turn)} {...(state === undefined ? {} : { state })} live={live} text={replyText(turn)} />
     </article>
@@ -118,6 +123,7 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
 
 /** Asks the host for the page of turns before the oldest one shown. */
 function OlderTurns({ chatUri, cursor }: { chatUri: string; cursor: string }): ReactElement {
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const load = (): void => {
@@ -129,7 +135,7 @@ function OlderTurns({ chatUri, cursor }: { chatUri: string; cursor: string }): R
   };
   return (
     <div className="web-chat__older">
-      <Button label={busy ? 'Loading' : 'Load older turns'} disabled={busy} onClick={load} />
+      <Button label={busy ? t('sessions/chat/loading') : t('sessions/chat/older')} disabled={busy} onClick={load} />
       {error === null ? null : <span className="web-note">{error}</span>}
     </div>
   );
@@ -156,6 +162,7 @@ function useOpenQuestions(needed: SessionState['inputNeeded'], chatUri: string |
 /** One session: what it is, its chat, and a composer to talk to it. */
 export default function SessionPage({ resource }: { resource?: string }): ReactElement {
   const scena = useScena();
+  const { t } = useI18n();
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const summary = sessions?.find((one) => one.resource === resource);
   const session = useChannel<SessionState>(resource, sessionReducer);
@@ -187,7 +194,7 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
     if (unread && resource !== undefined) dispatch(resource, { type: 'session/isReadChanged', isRead: true } as StateAction);
   }, [unread, resource, turns]);
 
-  if (summary === undefined) return <PageAlert tone="warning" message="This session is gone." />;
+  if (summary === undefined) return <PageAlert tone="warning" message={t('sessions/chat/gone')} />;
   const activity = activityOf(summary.status);
   const lifecycle = String(session.state?.lifecycle ?? 'ready');
   const doing = chat.state?.activity ?? summary.activity;
@@ -196,8 +203,8 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
     <div className="web-chat">
       <header className="web-chat__head">
         <div className="web-chat__title">
-          <Text variant="h2" text={summary.title === '' ? 'Untitled' : summary.title} />
-          <Badge tone={ACTIVITY_TONE[activity]} text={ACTIVITY_LABEL[activity]} />
+          <Text variant="h2" text={summary.title === '' ? t('sessions/untitled') : summary.title} />
+          <Badge tone={ACTIVITY_TONE[activity]} text={activityLabel(activity)} />
           {doing === undefined || doing === '' ? null : <span className="web-note">{doing}</span>}
         </div>
       </header>
@@ -209,17 +216,17 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
           following.current = box.scrollHeight - box.scrollTop - box.clientHeight < 48;
         }}
       >
-        {lifecycle === 'creating' ? <Spinner label="Starting the session" /> : null}
-        {lifecycle === 'failed' ? <Alert tone="danger" title="The session did not start" message={session.state?.creationError?.message ?? 'No reason given.'} /> : null}
-        {session.error === null ? null : <Alert tone="danger" title="Session not readable" message={session.error} />}
-        {chat.error === null ? null : <Alert tone="danger" title="Chat not readable" message={chat.error} />}
-        {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label="Reading the chat" /> : null}
+        {lifecycle === 'creating' ? <Spinner label={t('sessions/chat/starting')} /> : null}
+        {lifecycle === 'failed' ? <Alert tone="danger" title={t('sessions/chat/notStarted')} message={session.state?.creationError?.message ?? t('sessions/chat/noReason')} /> : null}
+        {session.error === null ? null : <Alert tone="danger" title={t('sessions/chat/sessionUnreadable')} message={session.error} />}
+        {chat.error === null ? null : <Alert tone="danger" title={t('sessions/chat/chatUnreadable')} message={chat.error} />}
+        {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label={t('sessions/chat/reading')} /> : null}
         {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
         <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
           {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
           {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
         </WorkspaceContext.Provider>
-        {chat.state !== undefined && turns === 0 && chat.state.activeTurn === undefined ? <p className="web-note">No messages yet.</p> : null}
+        {chat.state !== undefined && turns === 0 && chat.state.activeTurn === undefined ? <p className="web-note">{t('sessions/chat/empty')}</p> : null}
         <div ref={end} />
       </div>
 

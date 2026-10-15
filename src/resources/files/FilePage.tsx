@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
-import { useCloseGuard } from '@softov/scena/react';
+import { useCloseGuard, useI18n } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import { etagOf, writeText } from '../../bridges/data.js';
 import CodeEditor from '../editor/CodeEditor.js';
@@ -16,6 +16,7 @@ interface SaveFailure {
 
 /** A file the daemon can read, in an editor that saves with Mod-s, scrolled to the lines a link named. */
 export default function FilePage({ uri, line, end }: { uri?: string; line?: number | null; end?: number | null }): ReactElement {
+  const { t } = useI18n();
   const state = useFileText(uri);
   const [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<SaveFailure | null>(null);
@@ -27,7 +28,7 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
   /** The version of the file the editor started from; a save is refused once the host holds another. */
   const version = useRef<string | undefined>(undefined);
 
-  useCloseGuard(() => (dirty ? 'The changes to this file are not saved.' : null));
+  useCloseGuard(() => (dirty ? t('files/unsaved') : null));
 
   const loaded = state !== null && 'text' in state && state.text !== null ? shownText(state.text) : null;
 
@@ -60,24 +61,24 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
       })
       .catch((error: unknown) => {
         const message = changedOnHost(error)
-          ? 'The file changed on the server since it was opened. Copy your edit, then reopen the file.'
+          ? t('files/changedOnHost')
           : error instanceof Error ? error.message : String(error);
         setFailure({ message, refused: refusesWrite(error) });
       })
       .finally(() => { saving.current = false; });
-  }, [uri]);
+  }, [uri, t]);
 
-  if (uri === undefined) return <PageAlert tone="warning" message="No file was named." />;
+  if (uri === undefined) return <PageAlert tone="warning" message={t('files/noFile')} />;
   const head = <FileHead uri={uri} dirty={dirty} />;
-  if (state === null) return <div className="web-file">{head}<Spinner label="Reading the file" /></div>;
-  if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title="Not readable" message={state.error} /></div>;
-  if (loaded === null) return <div className="web-file">{head}<p className="web-note">This file is not text.</p></div>;
+  if (state === null) return <div className="web-file">{head}<Spinner label={t('files/reading')} /></div>;
+  if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title={t('files/notReadable')} message={state.error} /></div>;
+  if (loaded === null) return <div className="web-file">{head}<p className="web-note">{t('files/notText')}</p></div>;
 
   return (
     <div className="web-file">
       {head}
-      {failure === null ? null : <Alert tone="danger" title={failure.refused ? 'Read-only' : 'Not saved'} message={failure.message} />}
-      {loaded.cut ? <p className="web-note">This file is over 5 MB. It shows the start, read-only.</p> : null}
+      {failure === null ? null : <Alert tone="danger" title={failure.refused ? t('files/readOnly') : t('files/notSaved')} message={failure.message} />}
+      {loaded.cut ? <p className="web-note">{t('files/cut')}</p> : null}
       <div className="web-file__body web-file__body--editor">
         <CodeEditor
           value={loaded.text}

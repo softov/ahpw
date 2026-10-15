@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useI18n } from '@softov/scena/react';
 import { Button, SchemaForm, Spinner, Text, type JsonSchemaObject } from '@softov/scena/ui';
 import { rootReducer, type RootState, type StateAction } from '@microsoft/agent-host-protocol';
 import { ROOT, dispatch } from '../../bridges/data.js';
@@ -9,6 +10,7 @@ import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 
 /** The host's settings, as the schema it publishes describes them. */
 export default function SettingsPage(): ReactElement {
+  const { t } = useI18n();
   const { state, error } = useChannel<RootState>(ROOT, rootReducer);
   const config = state?.config;
   const [values, setValues] = useState<Record<string, unknown>>({});
@@ -22,9 +24,9 @@ export default function SettingsPage(): ReactElement {
     setValues(held);
   }, [held]);
 
-  if (error !== null) return <PageAlert tone="danger" title="Settings not readable" message={error} />;
-  if (state === undefined) return <Spinner label="Reading the settings" />;
-  if (config === undefined) return <PageAlert tone="info" message="This host publishes no settings." />;
+  if (error !== null) return <PageAlert tone="danger" title={t('host/settings/unreadable')} message={error} />;
+  if (state === undefined) return <Spinner label={t('host/settings/reading')} />;
+  if (config === undefined) return <PageAlert tone="info" message={t('host/settings/none')} />;
 
   const changed = changedKeys(held, values);
   const dirty = Object.keys(changed).length > 0;
@@ -34,12 +36,12 @@ export default function SettingsPage(): ReactElement {
   };
   return (
     <div className="web-page">
-      <Text variant="h2" text="Host settings" />
+      <Text variant="h2" text={t('host/settings/title')} />
       <SchemaForm schema={config.schema as unknown as JsonSchemaObject} value={values} onChange={(next) => { setValues(next); setSaved(false); }} baseline={held} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} />
       <div className="web-page__actions">
-        <Button label="Save" variant="primary" disabled={!dirty || !jsonValid} {...(jsonValid ? {} : { title: 'Fix the JSON first' })} onClick={save} />
-        <Button label="Reset" disabled={!dirty} onClick={() => setValues(held)} />
-        {saved && !dirty ? <span className="web-note">Saved.</span> : null}
+        <Button label={t('host/settings/save')} variant="primary" disabled={!dirty || !jsonValid} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={save} />
+        <Button label={t('host/settings/reset')} disabled={!dirty} onClick={() => setValues(held)} />
+        {saved && !dirty ? <span className="web-note">{t('host/settings/saved')}</span> : null}
       </div>
     </div>
   );

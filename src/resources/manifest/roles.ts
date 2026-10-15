@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import { fieldsOf } from './input.js';
 import type { ManifestCommand, ProgramManifest } from './types.js';
 
@@ -57,12 +58,24 @@ export function runsOnOpening(command: ManifestCommand, values: Readonly<Record<
   return reads && canRunWith(command, values);
 }
 
-/** The words of the question a removal asks: `Remove user alice?`. */
-export function removalQuestion(command: ManifestCommand, values: Readonly<Record<string, unknown>>): string {
+/** A removal in words, as `form` asks it: `manifest/removal/<form>/named` names the kind and the item, `kind` the kind alone, `this` neither. */
+function removalWords(form: 'question' | 'action', command: ManifestCommand, values: Readonly<Record<string, unknown>>): string {
+  const kind = command.resource?.kind;
   const key = command.resource?.key;
   const named = key === undefined ? undefined : values[key];
-  const item = named === undefined ? '' : ` ${Array.isArray(named) ? named.join(', ') : String(named)}`;
-  return `Remove ${command.resource?.kind ?? 'this'}${item}?`;
+  if (kind === undefined) return translate(`manifest/removal/${form}/this`);
+  if (named === undefined) return translate(`manifest/removal/${form}/kind`, { kind });
+  return translate(`manifest/removal/${form}/named`, { kind, item: Array.isArray(named) ? named.join(', ') : String(named) });
+}
+
+/** The words of the question a removal asks: `Remove user alice?`. */
+export function removalQuestion(command: ManifestCommand, values: Readonly<Record<string, unknown>>): string {
+  return removalWords('question', command, values);
+}
+
+/** The words of a removal as a menu choice, which is its own answer: `Remove user alice`. */
+export function removalAction(command: ManifestCommand, values: Readonly<Record<string, unknown>>): string {
+  return removalWords('action', command, values);
 }
 
 /** The command that lists a group's items, if the group has one. */

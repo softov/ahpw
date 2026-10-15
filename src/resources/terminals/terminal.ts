@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import { terminalReducer, type TerminalAction, type TerminalClaim, type TerminalContentPart, type TerminalInfo, type TerminalState } from '@microsoft/agent-host-protocol';
 
 function bag(value: unknown): Record<string, unknown> {
@@ -99,7 +100,7 @@ export function deltaOf(drawn: string, next: string): { reset: boolean; text: st
 
 /** A terminal's name as a tab or a row shows it. */
 export function terminalTitle(info: { title?: string; resource?: string }): string {
-  return info.title !== undefined && info.title !== '' ? info.title : 'Terminal';
+  return info.title !== undefined && info.title !== '' ? info.title : translate('terminals/terminal');
 }
 
 /** Whether a terminal's directory is `folder` or under it; both are URIs. */

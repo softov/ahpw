@@ -1,3 +1,4 @@
+import { translate } from '@softov/scena';
 import type { Disposable, Scena } from '@softov/scena/types';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { AHP_SESSIONS } from '../../bridges/data.js';
@@ -25,16 +26,16 @@ export function eventOf(before: Activity | undefined, after: Activity): SessionE
 
 /** The notification for an event in a session. */
 export function noticeOf(session: SessionSummary, event: SessionEvent): NotificationInput {
-  const name = session.title === '' ? 'Untitled' : session.title;
-  const open = [{ label: 'Open', command: 'ahp.openSession', args: { resource: session.resource } }];
+  const name = session.title === '' ? translate('sessions/untitled') : session.title;
+  const open = [{ label: translate('sessions/alerts/open'), command: 'ahp.openSession', args: { resource: session.resource } }];
   const common = { id: alertId(session.resource), source: alertId(session.resource), actions: open };
   if (event === 'needs-you') {
-    return { ...common, type: 'attention', tone: 'warning', icon: EMOJIcon.warning, title: `${name} needs you`, dismissAuto: false, alert: { title: name, body: 'Needs you' } };
+    return { ...common, type: 'attention', tone: 'warning', icon: EMOJIcon.warning, title: translate('sessions/alerts/needsYou', { name }), dismissAuto: false, alert: { title: name, body: translate('sessions/status/input') } };
   }
   if (event === 'failed') {
-    return { ...common, type: 'action.finished', tone: 'danger', icon: EMOJIcon.warning, title: `${name} failed`, dismissTime: DISMISS_SLOW_MS, alert: { title: name, body: 'Failed' } };
+    return { ...common, type: 'action.finished', tone: 'danger', icon: EMOJIcon.warning, title: translate('sessions/alerts/failed', { name }), dismissTime: DISMISS_SLOW_MS, alert: { title: name, body: translate('sessions/status/error') } };
   }
-  return { ...common, type: 'action.finished', tone: 'success', icon: EMOJIcon.check, title: `${name} finished`, dismissTime: DISMISS_SLOW_MS, alert: { title: name, body: 'Finished' } };
+  return { ...common, type: 'action.finished', tone: 'success', icon: EMOJIcon.check, title: translate('sessions/alerts/finished', { name }), dismissTime: DISMISS_SLOW_MS, alert: { title: name, body: translate('sessions/alerts/finishedBody') } };
 }
 
 /** Whether somebody is looking at this session right now. */
