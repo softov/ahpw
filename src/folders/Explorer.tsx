@@ -14,6 +14,7 @@ import { setHostFile, type DraggedHostFile } from './drag.js';
 import { chainTo, childUri, orderEntries, rootsOf } from './roots.js';
 import { REVEAL_FOLDER } from './index.js';
 import { ADDED_FOLDERS } from './added.js';
+import { EXPANDED_FOLDERS, writeExpanded } from './expanded.js';
 import { STALE_FOLDERS, addFolder, type StaleFolders } from './actions.js';
 import { ENTRY_SLOT, MENU_ENTRY, type MenuEntry } from './menu.js';
 
@@ -41,7 +42,9 @@ export default function FolderExplorer(): ReactElement {
   const [revealed, setRevealed] = useState<string[]>([]);
   const roots = useMemo(() => rootsOf(defaultDirectory, sessions ?? [], revealed, added ?? []), [defaultDirectory, sessions, revealed, added]);
   const [branches, setBranches] = useState<ReadonlyMap<string, Branch>>(new Map());
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  // In the store, so the tree opens as it was left when the explorer is drawn again.
+  const held = useStore<string[] | null>(EXPANDED_FOLDERS);
+  const expanded = useMemo(() => new Set(held ?? []), [held]);
   const [selected, setSelected] = useState<string | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
@@ -55,13 +58,20 @@ export default function FolderExplorer(): ReactElement {
 
   const expand = useCallback((next: Set<string>): void => {
     for (const uri of next) if (!expanded.has(uri) && !branches.has(uri)) load(uri);
-    setExpanded(next);
+    const list = [...next];
+    scena.store.set(EXPANDED_FOLDERS, list);
+    writeExpanded(list);
   }, [expanded, branches, load]);
 
-  // The host's own folder opens by itself, once it is known.
+  // The folders left open are read again when the tree is drawn.
+  useEffect(() => {
+    for (const uri of expanded) load(uri);
+  }, []);
+
+  // The host's own folder opens by itself, once it is known, until a folder was opened or closed here.
   const first = roots[0]?.uri;
   useEffect(() => {
-    if (first !== undefined && !branches.has(first)) expand(new Set([...expanded, first]));
+    if (first !== undefined && (held ?? null) === null) expand(new Set([first]));
   }, [first]);
 
   // A folder a link named: its root and every folder down to it open, and it is selected.

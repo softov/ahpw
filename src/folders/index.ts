@@ -3,6 +3,7 @@ import { combineDisposables } from '@softov/scena';
 import { PALETTE_SLOT } from '../view/Palette.js';
 import { registerEntryCommands } from './actions.js';
 import { ADDED_FOLDERS, readAdded } from './added.js';
+import { EXPANDED_FOLDERS, readExpanded } from './expanded.js';
 import { initAsk, resetAsk } from './ask.js';
 import { FolderPicker } from './FolderPicker.js';
 import { NameDialog } from './NameDialog.js';
@@ -24,6 +25,7 @@ export function registerFolders(scena: Scena): Disposable {
   initAsk(scena.store);
   initPick(scena.store);
   scena.store.set(ADDED_FOLDERS, readAdded());
+  scena.store.set(EXPANDED_FOLDERS, readExpanded());
   return combineDisposables(
     { dispose: resetAsk },
     { dispose: resetPick },
