@@ -1,3 +1,4 @@
+import { getLocale, translate } from '@softov/scena';
 import type { DataBinding } from '@softov/scena/types';
 import en from './en.json';
 
@@ -26,4 +27,14 @@ export function english(key: string): string {
   for (const segment of key.split('/')) node = (node as Record<string, unknown> | undefined)?.[segment];
   if (typeof node !== 'string') throw new Error(`No English message for ${key}`);
   return node;
+}
+
+/**
+ * A message that changes with a count: `<key>/one` or `<key>/other`, as the
+ * chosen language's plural rules pick, with `{count}` and `params` filled in.
+ * scena's translate has no plurals of its own.
+ */
+export function plural(key: string, count: number, params: Record<string, unknown> = {}): string {
+  const form = new Intl.PluralRules(getLocale()).select(count) === 'one' ? 'one' : 'other';
+  return translate(`${key}/${form}`, { ...params, count });
 }

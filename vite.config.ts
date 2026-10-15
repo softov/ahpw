@@ -80,6 +80,8 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts', 'plugin/**/*.test.ts', 'cli/**/*.test.ts'],
+    // English is registered, so code that translates reads as it does in an English page.
+    setupFiles: ['src/i18n/test-setup.ts'],
     // Linked or installed, scena's components import their own CSS.
     server: { deps: { inline: ['@softov/scena'] } },
   },

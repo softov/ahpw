@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import en from './en.json';
 import es from './es.json';
 import pt from './pt.json';
-import { english, initialLocale } from './locales.js';
+import { registerMessages, setLocale } from '@softov/scena';
+import { english, initialLocale, plural } from './locales.js';
 
 /** Every leaf key of a message tree, as `a/b/c`. */
 function keys(tree: object, prefix = ''): string[] {
@@ -42,5 +43,22 @@ describe('english', () => {
 
   it('refuses a key English does not have', () => {
     expect(() => english('shell/nope')).toThrow('No English message for shell/nope');
+  });
+});
+
+describe('plural', () => {
+  it('picks one or other by the language, and fills the count in', () => {
+    registerMessages('en', { test: { files: { one: '{count} file', other: '{count} files' } } });
+    expect(plural('test/files', 1)).toBe('1 file');
+    expect(plural('test/files', 0)).toBe('0 files');
+    expect(plural('test/files', 3)).toBe('3 files');
+  });
+
+  it('follows Brazilian Portuguese, where 0 is one', () => {
+    registerMessages('pt-BR', { test: { files: { one: '{count} arquivo', other: '{count} arquivos' } } });
+    setLocale('pt-BR');
+    expect(plural('test/files', 0)).toBe('0 arquivo');
+    expect(plural('test/files', 2)).toBe('2 arquivos');
+    setLocale('en');
   });
 });
