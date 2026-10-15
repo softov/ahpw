@@ -5,6 +5,7 @@ import { ROOT, dispatch } from '../connection/data.js';
 import { useChannel } from '../connection/channel.js';
 import { changedKeys } from './config.js';
 import { PageAlert } from '../view/PageAlert.js';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 
 /** The host's settings, as the schema it publishes describes them. */
 export default function SettingsPage(): ReactElement {
@@ -12,6 +13,8 @@ export default function SettingsPage(): ReactElement {
   const config = state?.config;
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [saved, setSaved] = useState(false);
+  // While the JSON text does not parse, the form holds the last value that did; Save waits for it.
+  const [jsonValid, setJsonValid] = useState(true);
   const held = useMemo(() => config?.values ?? {}, [config]);
 
   // What the host holds, again whenever it changes.
@@ -32,9 +35,9 @@ export default function SettingsPage(): ReactElement {
   return (
     <div className="web-page">
       <Text variant="h2" text="Host settings" />
-      <SchemaForm schema={config.schema as unknown as JsonSchemaObject} value={values} onChange={(next) => { setValues(next); setSaved(false); }} baseline={held} />
+      <SchemaForm schema={config.schema as unknown as JsonSchemaObject} value={values} onChange={(next) => { setValues(next); setSaved(false); }} baseline={held} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} />
       <div className="web-page__actions">
-        <Button label="Save" variant="primary" disabled={!dirty} onClick={save} />
+        <Button label="Save" variant="primary" disabled={!dirty || !jsonValid} {...(jsonValid ? {} : { title: 'Fix the JSON first' })} onClick={save} />
         <Button label="Reset" disabled={!dirty} onClick={() => setValues(held)} />
         {saved && !dirty ? <span className="web-note">Saved.</span> : null}
       </div>

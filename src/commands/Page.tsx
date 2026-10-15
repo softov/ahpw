@@ -7,6 +7,7 @@ import { canRunWith, removalQuestion, runsOnOpening } from '../manifest/roles.js
 import type { ProgramManifest } from '../manifest/types.js';
 import Result from './Result.js';
 import { PageAlert } from '../view/PageAlert.js';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 
 /** What a command's effect looks like on its badge. */
 const EFFECT_TONE: Record<string, 'info' | 'success' | 'warning' | 'danger'> = { read: 'info', add: 'success', change: 'warning', remove: 'danger' };
@@ -22,6 +23,8 @@ export default function CommandPage({ commandId, initial }: { commandId?: string
   const run = useStore<Run>(runPath(commandId ?? ''));
   const [values, setValues] = useState<Record<string, unknown>>(() => initial ?? {});
   const [asking, setAsking] = useState(false);
+  // While a JSON field does not parse, the form holds the last value that did; the command waits for it.
+  const [jsonValid, setJsonValid] = useState(true);
   const schema = useMemo(() => (command === undefined ? undefined : schemaOf(command)), [command]);
   const hasFields = command !== undefined && fieldsOf(command).length > 0;
 
@@ -54,7 +57,7 @@ export default function CommandPage({ commandId, initial }: { commandId?: string
       </header>
 
       {hasFields && schema !== undefined ? (
-        <SchemaForm key={command.id} schema={schema} value={values} onChange={setValues} jsonTextRoot={false} />
+        <SchemaForm key={command.id} schema={schema} value={values} onChange={setValues} jsonTextRoot={false} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} />
       ) : null}
 
       <div className="web-page__actions">
@@ -68,7 +71,7 @@ export default function CommandPage({ commandId, initial }: { commandId?: string
           <Button
             label={reads ? (run !== undefined && canRunWith(command, {}) ? 'Reload' : 'Run') : command.summary}
             variant={removes ? 'danger' : 'primary'}
-            disabled={run?.state === 'running'}
+            disabled={run?.state === 'running' || !jsonValid}
             onClick={removes ? () => setAsking(true) : execute}
           />
         )}

@@ -26,6 +26,8 @@ export interface CodeEditorProps {
   onChange?: (text: string) => void;
   /** Called with the whole text on Mod-s. */
   onSave?: (text: string) => void;
+  /** More CodeMirror extensions, as a linter; read once, when the editor is made. */
+  extensions?: Extension;
 }
 
 /** Marks a change that came from `value`, which is not an edit. */
@@ -86,6 +88,8 @@ const theme = EditorView.theme({
     color: 'var(--oo-color-text)',
     border: '1px solid var(--oo-color-border)',
   },
+  '.cm-diagnostic-error': { borderLeftColor: 'var(--oo-color-danger)' },
+  '.cm-diagnostic-warning': { borderLeftColor: 'var(--oo-color-warning)' },
   '.cm-tooltip-autocomplete > ul > li[aria-selected]': {
     backgroundColor: 'var(--oo-color-selected)',
     color: 'var(--oo-color-text)',
@@ -127,7 +131,7 @@ function reveal(view: EditorView, line: number, end: number | null | undefined):
 }
 
 /** A code editor: line numbers, folding, bracket matching, search and the language's colours. */
-export default function CodeEditor({ value, language = null, readOnly = false, line, end, onChange, onSave }: CodeEditorProps): ReactElement {
+export default function CodeEditor({ value, language = null, readOnly = false, line, end, onChange, onSave, extensions = [] }: CodeEditorProps): ReactElement {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const languageSlot = useRef(new Compartment());
@@ -171,6 +175,7 @@ export default function CodeEditor({ value, language = null, readOnly = false, l
             indentWithTab,
           ]),
           theme,
+          extensions,
           languageSlot.current.of([]),
           readOnlySlot.current.of(editable(readOnly)),
           EditorView.updateListener.of((update) => {
