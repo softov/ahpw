@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import type { Disposable, Scena, ScopeBackendFactory } from '@softov/scena/types';
-import { createLocalStorageLayoutStorage, createModusBackend, registerLayoutCommands } from '@softov/scena';
+import { createI18nBackend, createLocalStorageLayoutStorage, createModusBackend, registerLayoutCommands } from '@softov/scena';
 import { DEFAULT_SURFACE_LAYOUTS } from '@softov/scena/core';
 import { Scena as ScenaRoot, useScena } from '@softov/scena/react/core';
-import { DefaultShell } from '@softov/scena/react';
+import { DefaultShell, useI18n } from '@softov/scena/react';
 import { Limen, PortaContextProvider, SIGILLUM_PATHS, createPorta, registerPortaBlocks, useSession } from '@softov/scena/porta';
 import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/builtins';
 import { AhpwMark } from './shell/AhpwMark.js';
@@ -12,11 +12,15 @@ import { registerShell } from './shell/register-shell.js';
 import { hostKey } from './lib/storage-keys.js';
 import { keepTabs } from './shell/tabs.js';
 import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './porta/token-provider.js';
+// Registers the languages before the first paint.
+import './i18n/messages.js';
 
 const layoutStorage = createLocalStorageLayoutStorage({ key: hostKey('ahpd-web.layout.v1') });
 
 const backendFactories: ScopeBackendFactory[] = [
   { scope: 'modus', create: () => createModusBackend() },
+  // `$/t/<key>`: the message in the chosen language.
+  { scope: 't', create: () => createI18nBackend() },
 ];
 
 /** scena's surfaces, with the right sidebar open, its panes as tabs: the open session's details and its changes. */
@@ -78,6 +82,12 @@ function PortaBridge({ children }: { children: ReactNode }): ReactElement {
   return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading" role="status" aria-label="Loading ahpw"><AhpwMark size={72} echo /></div> : children}</PortaContextProvider>;
 }
 
+/** The sign-in page's line, in the chosen language; its own component so App never re-renders on a language switch. */
+function SignInNote(): ReactElement {
+  const { t } = useI18n();
+  return <>{t('auth/subtitle')}</>;
+}
+
 export default function App(): ReactElement {
   function onRender(scena: Scena): void {
     registerLayoutCommands(scena);
@@ -88,7 +98,7 @@ export default function App(): ReactElement {
   return (
     <ScenaRoot options={options} onRender={onRender}>
       <PortaBridge>
-        <Limen permission={SIGNED_IN} title={<AhpwMark size={48} label="ahpw" set />} subtitle="Sign in with a token credential.">
+        <Limen permission={SIGNED_IN} title={<AhpwMark size={48} label="ahpw" set />} subtitle={<SignInNote />}>
           <DefaultShell presentation={PRESENTATION} />
         </Limen>
       </PortaBridge>

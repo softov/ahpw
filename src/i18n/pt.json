@@ -1,0 +1,77 @@
+{
+  "common": {
+    "close": "Fechar",
+    "retry": "Tentar novamente",
+    "reload": "Recarregar"
+  },
+  "auth": {
+    "subtitle": "Entre com um token.",
+    "token": "Token",
+    "tokenRequired": "Informe um token.",
+    "signIn": "Entrar",
+    "forgotPassword": "Esqueceu a senha?",
+    "createAccount": "Criar conta",
+    "providerLabel": "Continuar com {provider}",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefone",
+    "sendCode": "Enviar código",
+    "sendLink": "Enviar link"
+  },
+  "shell": {
+    "signOut": "Sair",
+    "language": "Idioma",
+    "toggleLeft": "Mostrar ou ocultar a barra lateral esquerda (Ctrl+B)",
+    "togglePanel": "Mostrar ou ocultar o painel (Ctrl+J)",
+    "toggleRight": "Mostrar ou ocultar a barra lateral direita (Ctrl+Alt+B)",
+    "commands": {
+      "activateSection": "Ativar seção da barra lateral",
+      "toggleLeft": "Mostrar ou ocultar a barra lateral esquerda",
+      "toggleRight": "Mostrar ou ocultar a barra lateral direita",
+      "palette": "Paleta de comandos"
+    },
+    "nav": {
+      "sessions": "Sessões",
+      "unread": "não lidas",
+      "working": "em andamento",
+      "explorer": "Explorador",
+      "automations": "Automações",
+      "host": "Host",
+      "agents": "Agentes",
+      "settings": "Configurações"
+    }
+  },
+  "close": {
+    "title": "Fechar {title}?",
+    "keep": "Manter aberto",
+    "close": "Fechar"
+  },
+  "query": {
+    "search": "Buscar…",
+    "noItems": "nada",
+    "pageOf": "{page} / {pages}",
+    "itemRange": "{first} – {last} de {total}",
+    "perPage": "Linhas por página",
+    "perPageOption": "{size} / página"
+  },
+  "tabs": {
+    "close": "Fechar aba",
+    "closeAll": "Fechar todas",
+    "closeGroup": "Fechar grupo",
+    "closeLeft": "Fechar à esquerda",
+    "closeRight": "Fechar à direita",
+    "closeOthers": "Fechar as outras",
+    "closeOthersInGroup": "Fechar as outras (exceto a ativa)",
+    "closeOtherGroups": "Fechar os outros (exceto o grupo ativo)",
+    "copyKey": "Copiar chave",
+    "pin": "Fixar aba",
+    "unpin": "Desafixar aba",
+    "openToLeft": "Abrir à esquerda",
+    "openToRight": "Abrir à direita",
+    "openToTop": "Abrir acima",
+    "openToBottom": "Abrir abaixo",
+    "splitLeft": "Dividir grupo à esquerda",
+    "splitRight": "Dividir grupo à direita",
+    "splitUp": "Dividir grupo para cima",
+    "splitDown": "Dividir grupo para baixo"
+  }
+}

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, translate } from '@softov/scena';
+import { bound } from '../i18n/locales.js';
 import { registerThemeController } from '@softov/scena/styles';
 // ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
 // import { registerCommands } from '../resources/commands/index.js';
@@ -69,7 +70,7 @@ export function registerShell(scena: Scena): Disposable {
 
     scena.commands.register({
       id: 'sidebar.activate',
-      title: 'Activate sidebar section',
+      title: () => translate('shell/commands/activateSection'),
       run: (ctx, args) => {
         const section = (args as { section?: string } | undefined)?.section;
         if (!section) return;
@@ -79,7 +80,7 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'sidebar.toggleLeft',
-      title: 'Toggle left sidebar',
+      title: () => translate('shell/commands/toggleLeft'),
       category: 'View',
       slots: [PALETTE_SLOT],
       keys: 'ctrl+b',
@@ -90,7 +91,7 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'sidebar.toggleRight',
-      title: 'Toggle right sidebar',
+      title: () => translate('shell/commands/toggleRight'),
       category: 'View',
       slots: [PALETTE_SLOT],
       keys: 'ctrl+alt+b',
@@ -101,7 +102,7 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.commands.register({
       id: 'ahp.palette',
-      title: 'Command palette',
+      title: () => translate('shell/commands/palette'),
       keys: 'ctrl+p',
       run: (ctx) => ctx.store.set(PALETTE_OPEN, ctx.store.get<boolean>(PALETTE_OPEN) !== true),
     }),
@@ -135,6 +136,11 @@ export function registerShell(scena: Scena): Disposable {
       key: 'chrome:theme-mode',
       resource: { component: 'ThemeModeToggle', slot: 'right' },
     }),
+    scena.surfaces.mount({
+      surface: 'titlebar',
+      key: 'chrome:locale',
+      resource: { component: 'LocaleToggle', slot: 'right' },
+    }),
     // In an embedder, the embedder holds the token, so there is nothing to sign out of.
     ...(embedded !== undefined
       ? []
@@ -142,24 +148,24 @@ export function registerShell(scena: Scena): Disposable {
           scena.surfaces.mount({
             surface: 'titlebar',
             key: 'chrome:sign-out',
-            resource: { component: 'ButtonBar', slot: 'right', label: 'Sign out', command: 'sigillum.signout' },
+            resource: { component: 'ButtonBar', slot: 'right', label: bound('shell/signOut'), command: 'sigillum.signout' },
           }),
         ]),
     // The layout toggles last, at the title bar's far end: left sidebar, panel, right sidebar.
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-left',
-      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelLeft, title: 'Toggle left sidebar (Ctrl+B)', command: 'sidebar.toggleLeft', active: { path: '$/layout/surfaces/sidebar:left/visible' } },
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelLeft, title: bound('shell/toggleLeft'), command: 'sidebar.toggleLeft', active: { path: '$/layout/surfaces/sidebar:left/visible' } },
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-panel',
-      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelBottom, title: 'Toggle panel (Ctrl+J)', command: 'panel.toggle', active: { path: '$/layout/surfaces/panel:bottom/visible' } },
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelBottom, title: bound('shell/togglePanel'), command: 'panel.toggle', active: { path: '$/layout/surfaces/panel:bottom/visible' } },
     }),
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-right',
-      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelRight, title: 'Toggle right sidebar (Ctrl+Alt+B)', command: 'sidebar.toggleRight', active: { path: '$/layout/surfaces/sidebar:right/visible' } },
+      resource: { component: 'ButtonBar', slot: 'right', className: 'web-layout-toggle', icon: EMOJIcon.panelRight, title: bound('shell/toggleRight'), command: 'sidebar.toggleRight', active: { path: '$/layout/surfaces/sidebar:right/visible' } },
     }),
     // In an embedder: the host switcher after the title.
     ...(embedded === undefined
@@ -211,40 +217,40 @@ export function registerShell(scena: Scena): Disposable {
       resource: {
         component: 'ActivityBarItem',
         icon: EMOJIcon.sessions,
-        label: 'Sessions',
+        label: bound('shell/nav/sessions'),
         section: SESSIONS_SECTION,
         badge: { path: AHP_SESSIONS_UNREAD },
         badgeTone: 'muted',
-        badgeLabel: 'unread',
+        badgeLabel: bound('shell/nav/unread'),
         secondBadge: { path: AHP_SESSIONS_WORKING },
         secondBadgeTone: 'info',
-        secondBadgeLabel: 'working',
+        secondBadgeLabel: bound('shell/nav/working'),
       },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'folders:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.folder, label: 'Explorer', section: FOLDERS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.folder, label: bound('shell/nav/explorer'), section: FOLDERS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'automations:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.automations, label: 'Automations', section: AUTOMATIONS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.automations, label: bound('shell/nav/automations'), section: AUTOMATIONS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'host:info:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.host, label: 'Host', pos: 'bottom', command: 'ahp.openHostInfo' },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.host, label: bound('shell/nav/host'), pos: 'bottom', command: 'ahp.openHostInfo' },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'agents:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: 'Agents', pos: 'bottom', section: AGENTS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: bound('shell/nav/agents'), pos: 'bottom', section: AGENTS_SECTION },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'host:settings:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.settings, label: 'Settings', pos: 'bottom', command: 'ahp.openSettings' },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.settings, label: bound('shell/nav/settings'), pos: 'bottom', command: 'ahp.openSettings' },
     }),
 
     registerConnection(scena),

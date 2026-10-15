@@ -1,0 +1,77 @@
+{
+  "common": {
+    "close": "Cerrar",
+    "retry": "Reintentar",
+    "reload": "Recargar"
+  },
+  "auth": {
+    "subtitle": "Inicia sesión con un token.",
+    "token": "Token",
+    "tokenRequired": "Se necesita un token.",
+    "signIn": "Iniciar sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "createAccount": "Crear cuenta",
+    "providerLabel": "Continuar con {provider}",
+    "emailLabel": "Correo electrónico",
+    "phoneLabel": "Número de teléfono",
+    "sendCode": "Enviar código",
+    "sendLink": "Enviar enlace"
+  },
+  "shell": {
+    "signOut": "Cerrar sesión",
+    "language": "Idioma",
+    "toggleLeft": "Mostrar u ocultar la barra lateral izquierda (Ctrl+B)",
+    "togglePanel": "Mostrar u ocultar el panel (Ctrl+J)",
+    "toggleRight": "Mostrar u ocultar la barra lateral derecha (Ctrl+Alt+B)",
+    "commands": {
+      "activateSection": "Activar sección de la barra lateral",
+      "toggleLeft": "Mostrar u ocultar la barra lateral izquierda",
+      "toggleRight": "Mostrar u ocultar la barra lateral derecha",
+      "palette": "Paleta de comandos"
+    },
+    "nav": {
+      "sessions": "Sesiones",
+      "unread": "sin leer",
+      "working": "en curso",
+      "explorer": "Explorador",
+      "automations": "Automatizaciones",
+      "host": "Host",
+      "agents": "Agentes",
+      "settings": "Configuración"
+    }
+  },
+  "close": {
+    "title": "¿Cerrar {title}?",
+    "keep": "Mantener abierto",
+    "close": "Cerrar"
+  },
+  "query": {
+    "search": "Buscar…",
+    "noItems": "nada",
+    "pageOf": "{page} / {pages}",
+    "itemRange": "{first} – {last} de {total}",
+    "perPage": "Filas por página",
+    "perPageOption": "{size} / página"
+  },
+  "tabs": {
+    "close": "Cerrar pestaña",
+    "closeAll": "Cerrar todas",
+    "closeGroup": "Cerrar grupo",
+    "closeLeft": "Cerrar las de la izquierda",
+    "closeRight": "Cerrar las de la derecha",
+    "closeOthers": "Cerrar las demás",
+    "closeOthersInGroup": "Cerrar las demás (excepto la activa)",
+    "closeOtherGroups": "Cerrar los demás (excepto el grupo activo)",
+    "copyKey": "Copiar clave",
+    "pin": "Fijar pestaña",
+    "unpin": "Desfijar pestaña",
+    "openToLeft": "Abrir a la izquierda",
+    "openToRight": "Abrir a la derecha",
+    "openToTop": "Abrir arriba",
+    "openToBottom": "Abrir abajo",
+    "splitLeft": "Dividir grupo a la izquierda",
+    "splitRight": "Dividir grupo a la derecha",
+    "splitUp": "Dividir grupo hacia arriba",
+    "splitDown": "Dividir grupo hacia abajo"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "common": {
+    "close": "Close",
+    "retry": "Retry",
+    "reload": "Reload"
+  },
+  "auth": {
+    "subtitle": "Sign in with a token credential.",
+    "token": "Token",
+    "tokenRequired": "A token is required.",
+    "signIn": "Sign in",
+    "forgotPassword": "Forgot password?",
+    "createAccount": "Create account",
+    "providerLabel": "Continue with {provider}",
+    "emailLabel": "Email address",
+    "phoneLabel": "Phone number",
+    "sendCode": "Send code",
+    "sendLink": "Send link"
+  },
+  "shell": {
+    "signOut": "Sign out",
+    "language": "Language",
+    "toggleLeft": "Toggle left sidebar (Ctrl+B)",
+    "togglePanel": "Toggle panel (Ctrl+J)",
+    "toggleRight": "Toggle right sidebar (Ctrl+Alt+B)",
+    "commands": {
+      "activateSection": "Activate sidebar section",
+      "toggleLeft": "Toggle left sidebar",
+      "toggleRight": "Toggle right sidebar",
+      "palette": "Command palette"
+    },
+    "nav": {
+      "sessions": "Sessions",
+      "unread": "unread",
+      "working": "working",
+      "explorer": "Explorer",
+      "automations": "Automations",
+      "host": "Host",
+      "agents": "Agents",
+      "settings": "Settings"
+    }
+  },
+  "close": {
+    "title": "Close {title}?",
+    "keep": "Keep open",
+    "close": "Close"
+  },
+  "query": {
+    "search": "Search…",
+    "noItems": "nothing",
+    "pageOf": "{page} / {pages}",
+    "itemRange": "{first} – {last} of {total}",
+    "perPage": "Rows per page",
+    "perPageOption": "{size} / page"
+  },
+  "tabs": {
+    "close": "Close tab",
+    "closeAll": "Close all",
+    "closeGroup": "Close group",
+    "closeLeft": "Close to the left",
+    "closeRight": "Close to the right",
+    "closeOthers": "Close others",
+    "closeOthersInGroup": "Close others (except active)",
+    "closeOtherGroups": "Close others (except active group)",
+    "copyKey": "Copy key",
+    "pin": "Pin tab",
+    "unpin": "Unpin tab",
+    "openToLeft": "Open to the left",
+    "openToRight": "Open to the right",
+    "openToTop": "Open to the top",
+    "openToBottom": "Open to the bottom",
+    "splitLeft": "Split group left",
+    "splitRight": "Split group right",
+    "splitUp": "Split group up",
+    "splitDown": "Split group down"
+  }
+}

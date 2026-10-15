@@ -1,4 +1,6 @@
 import type { PortaProvider, Session } from '@softov/scena/porta';
+import { translate } from '@softov/scena';
+import { bound } from '../i18n/locales.js';
 import { readServer, readToken, writeToken } from '../lib/api.js';
 import { embedder } from '../shell/embed/index.js';
 // import { ApiError, call, readManifest } from '../lib/api.js';
@@ -52,12 +54,12 @@ async function check(token: string): Promise<Session> {
 export function tokenProvider(): PortaProvider {
   return {
     id: TOKEN_PROVIDER_ID,
-    label: 'Sign in',
+    label: bound('auth/signIn'),
     kind: 'form-fields',
     fields: [
       {
         name: 'token',
-        label: 'Token',
+        label: bound('auth/token'),
         type: 'password',
         required: true,
         autoComplete: 'current-password',
@@ -65,7 +67,7 @@ export function tokenProvider(): PortaProvider {
     ],
     async signin(credentials): Promise<Session> {
       const token = String((credentials as { token?: unknown }).token ?? '').trim();
-      if (token === '') throw new Error('A token is required.');
+      if (token === '') throw new Error(translate('auth/tokenRequired'));
       return await check(token);
     },
     async signout(): Promise<void> {
