@@ -5,10 +5,52 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-15
+
+### Added
+
+- **ahpw speaks English, Latin American Spanish and Brazilian Portuguese.**
+  Every page, menu and notice is translated through scena's i18n, and dates and counts follow the chosen language.
+  The language is picked from the palette, and a command is still found by its English name.
+- **A Manage menu on the activity bar.**
+  The gear opens Language, Layout and Theme as lists in the palette, then Settings, and Sign out below a line.
+- **Customize Layout**, from the palette or the title bar: which parts show, the main area's layout, and the layout modes, each with its shortcut.
+- **The explorer stacks Open Editors over Folders.**
+  Open Editors lists the open pages; a click shows one and its x closes it.
+  It is as tall as its rows, up to half the sidebar, and a divider between the panes resizes them.
+- **The composer's + opens Add context** as a menu at the button: the clipboard's image, the session's changed files, an upload, or a mention.
+- A screenshot or a copied file pasted with Ctrl+V attaches; a click on an attachment previews it, in the composer and the transcript.
+- A new session picks its agent, model and settings from the box's own list, as an open session does; /agent, /model and each setting's / name work there too.
+- Settings and command forms write JSON in the code editor, with lint, and hold Save or Run while it does not parse.
+- The right sidebar's menu brings back Session or Changes after its tab is closed.
+- The explorer keeps its open folders across views and reloads.
+- The new ahpw logo, and the favicon made from it.
+
 ### Changed
 
 - **The page is served under `/plugins/web/`.**
   The plugin's id is `web`, because ahpd 0.12.0 takes only a slug as a plugin id. A link to `/plugins/ahpd-web/` stops answering.
+- **A narrow window works as layers.**
+  The left sidebar covers the page from the title bar to the activity bar, the right sidebar covers the left, and a tap beside them closes one at a time.
+  An activity item pressed again closes its sidebar, at every width, and the layout is the same after a reload as after a resize.
+- Sidebar sections take scena's header: a title and the section's buttons, each a command, such as New, Reload, Show archived and Group.
+- Group opens its choices as a menu under the button.
+- The title bar holds light or dark, the layout menu, and the three layout toggles; the theme picker and Sign out moved to Manage.
+- The right sidebar shows Session and Changes as tabs.
+- The palette is web-next's, with sub-lists; a list opened on its own shows only that list.
+- Composer pills go short, then icon only, as the box narrows; the footer puts session settings left and the model and context size right.
+- A file's page reads in a centred 980px column.
+- Activity bar buttons have no fill in any theme; the open one shows by its accent edge, on the bottom in a narrow window.
+- Built on scena 0.5.7 and against @ahpd/sdk 0.12.
+
+### Fixed
+
+- **A reload no longer leaves the explorer and the open files unreadable.**
+  A read made before the connection is up now waits for it, instead of failing for good.
+- A command run from the palette closes it.
+- The favicon is served by the dev server.
+- A notice on a file's page sits in the page's margins.
+- An opened thought no longer repeats its words.
 
 ## [0.3.1] - 2026-10-13
 
@@ -132,7 +174,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/softov/ahpw/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/softov/ahpw/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/softov/ahpw/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/softov/ahpw/compare/afca330...v0.2.0
