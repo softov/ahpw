@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactElement } from 'react';
 import type { HostCtx, ListSpec, PickerAction, Scena } from '@softov/scena/types';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { ActionList, type ActionListController } from '@softov/scena/ui/menu';
@@ -14,10 +14,25 @@ export const PALETTE_KEY = 'command-palette';
 /** The list the next palette opens on, when a command asks for one; the command list otherwise. */
 let opening: ListSpec | null = null;
 
-/** Opens the palette, on `list` when given (a title bar button opening the layout menu). */
+/** The open palette's way to start over on another list; null while it is closed. */
+let restart: ((list: ListSpec | null) => void) | null = null;
+
+/** The palette's first frame: `list`, or the commands. */
+function firstFrame(list: ListSpec | null): ListSpec {
+  return list === null ? { query: { slot: PALETTE_SLOT }, footerHints: true } : { ...list, footerHints: true };
+}
+
+/**
+ * Opens the palette, on `list` when given (a title bar button opening the
+ * layout menu). An open palette starts over on it: closed and opened in one
+ * go, the overlay keeps the same component, and with it the old list.
+ */
 export function openPalette(scena: Scena, list?: ListSpec): void {
+  if (restart !== null) {
+    restart(list ?? null);
+    return;
+  }
   opening = list ?? null;
-  scena.surfaces.close(PALETTE_KEY);
   scena.surfaces.open({ surface: 'overlay', key: PALETTE_KEY, resource: { component: 'CommandPalette' } });
 }
 
@@ -35,7 +50,7 @@ function matching(items: PickerAction[], search: string): PickerAction[] {
 
 // Ported from web-next's shell/CommandPalette.tsx: the ActionList picker engine
 // over the palette slot, with a stack so a command can open a sub-list
-// (languages, layouts). ahpw adds the host's terminals to the first list.
+// (languages, layouts). ahpw adds the host's terminals to the command list.
 export default function CommandPalette(): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -43,8 +58,17 @@ export default function CommandPalette(): ReactElement {
   const [stack, setStack] = useState<ListSpec[]>(() => {
     const first = opening;
     opening = null;
-    return first === null ? [{ query: { slot: PALETTE_SLOT }, footerHints: true }] : [{ ...first, footerHints: true }];
+    return [firstFrame(first)];
   });
+  useEffect(() => {
+    restart = (list) => {
+      setStack([firstFrame(list)]);
+      setSearch('');
+    };
+    return () => {
+      restart = null;
+    };
+  }, []);
   const ref = useRef<ActionListController>(null);
   const close = useCallback(() => scena.surfaces.close(PALETTE_KEY), [scena]);
 
@@ -67,13 +91,15 @@ export default function CommandPalette(): ReactElement {
   const facts = useStore<unknown>(AHP_HOST);
   const depth = stack.length;
   const top = stack[depth - 1]!;
+  // The command list, with the terminals; a list opened on its own (a language, a theme) is only that list.
+  const commands = top.query?.slot === PALETTE_SLOT;
   const spec = useMemo<ListSpec>(() => {
     const searched: ListSpec = top.query
       ? { ...top, query: { ...top.query, q: search } }
       : top.items !== undefined ? { ...top, items: matching(top.items, search) } : top;
-    return depth === 1 ? { ...searched, extraItems: terminalItems(scena, search) } : searched;
+    return commands ? { ...searched, extraItems: terminalItems(scena, search) } : searched;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scena, top, depth, search, facts]);
+  }, [scena, top, commands, search, facts]);
 
   function onKeyDown(e: ReactKeyboardEvent<HTMLInputElement>): void {
     if (e.key === 'Escape') {
@@ -93,7 +119,7 @@ export default function CommandPalette(): ReactElement {
           className="web-field web-palette__input"
           autoFocus
           value={search}
-          placeholder={t('shell/palette/placeholder')}
+          placeholder={commands ? t('shell/palette/placeholder') : top.title ?? t('shell/palette/placeholder')}
           aria-label={t('shell/commands/palette')}
           onChange={(e) => setSearch(e.currentTarget.value)}
           onKeyDown={onKeyDown}

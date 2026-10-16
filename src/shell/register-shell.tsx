@@ -23,6 +23,7 @@ import { registerBuiltinThemes } from '@softov/scena/themes';
 import { attachKeys } from './view/keys.js';
 import { registerShellCommands } from './commands.js';
 import { registerLayoutMenu } from './layout-menu.js';
+import { MANAGE_SLOT, registerManage } from './manage.js';
 import { hideOverlaidSidebar } from '../resources/sessions/index.js';
 import type { BindingPath } from '@softov/scena/types';
 import type { ModusClass } from '@softov/scena';
@@ -98,6 +99,7 @@ export function registerShell(scena: Scena): Disposable {
 
     registerShellCommands(scena),
     registerLayoutMenu(scena),
+    registerManage(scena, embedded !== undefined),
     attachKeys(scena),
     // The right sidebar opens beside the page; where it would cover it, it starts closed.
     onceKnown(scena, (modus) => hideOverlaidSidebar(scena, modus, 'sidebar:right')),
@@ -118,22 +120,17 @@ export function registerShell(scena: Scena): Disposable {
       resource: { component: 'AppTitle', slot: 'left', text: 'ahpw' },
     }),
     registerView(scena),
+    // The title bar's far end, in this order: light or dark, the layout menu, then left sidebar, panel, right sidebar.
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:theme-mode',
       resource: { component: 'ThemeModeToggle', slot: 'right' },
     }),
-    // In an embedder, the embedder holds the token, so there is nothing to sign out of.
-    ...(embedded !== undefined
-      ? []
-      : [
-          scena.surfaces.mount({
-            surface: 'titlebar',
-            key: 'chrome:sign-out',
-            resource: { component: 'ButtonBar', slot: 'right', label: bound('shell/signOut'), command: 'sigillum.signout' },
-          }),
-        ]),
-    // The layout toggles last, at the title bar's far end: left sidebar, panel, right sidebar.
+    scena.surfaces.mount({
+      surface: 'titlebar',
+      key: 'chrome:layout',
+      resource: { component: 'ButtonBar', slot: 'right', icon: EMOJIcon.layoutGroups, title: bound('shell/layout/title'), command: 'workbench.customizeLayout' },
+    }),
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:toggle-left',
@@ -231,8 +228,9 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
-      key: 'host:settings:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.settings, label: bound('shell/nav/settings'), pos: 'bottom', command: 'ahp.openSettings' },
+      key: 'manage:nav',
+      // A menu, not a page: language, layout, theme, settings and sign out (see manage.ts).
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.settings, label: bound('shell/manage/title'), pos: 'bottom', menu: MANAGE_SLOT },
     }),
 
     registerConnection(scena),

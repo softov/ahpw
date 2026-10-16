@@ -1,5 +1,5 @@
+import { getLocale } from '@softov/scena';
 import type { ActiveTurn, Turn } from '@microsoft/agent-host-protocol';
-import { intlLocale } from '../../i18n/locales.js';
 
 /** What a turn says about itself, beyond its text. */
 export interface TurnFacts {
@@ -76,6 +76,6 @@ export function when(at: number | string): string {
   const date = new Date(at);
   const today = new Date().toDateString() === date.toDateString();
   return today
-    ? date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' })
-    : date.toLocaleString(intlLocale(), { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    ? date.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' })
+    : date.toLocaleString(getLocale(), { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }

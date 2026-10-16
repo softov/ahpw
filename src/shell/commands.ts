@@ -1,5 +1,6 @@
 import { combineDisposables, getLocale, listLocaleInfo, setLocale, translate } from '@softov/scena';
-import type { Disposable, HostCtx, PickerAction, Scena, SurfaceName } from '@softov/scena/types';
+import type { Disposable, HostCtx, ListSpec, PickerAction, Scena, SurfaceName } from '@softov/scena/types';
+import { THEME_ID_PATH, listThemes } from '@softov/scena/styles';
 import { english } from '../i18n/locales.js';
 import { PALETTE_SLOT, openPalette } from './CommandPalette.js';
 
@@ -9,10 +10,43 @@ function toggle(scena: Scena, surface: SurfaceName): void {
 }
 
 
-/** Opens `items` as a sub-list when run from the palette, else opens the palette first. */
-function subList(scena: Scena, host: HostCtx | undefined, title: string, items: PickerAction[]): void {
-  if (host !== undefined) host.pushList({ title, items });
-  else openPalette(scena);
+/** Opens `list` as a sub-list when run from the palette, else opens the palette on it. */
+function subList(scena: Scena, host: HostCtx | undefined, list: ListSpec): void {
+  if (host !== undefined) host.pushList(list);
+  else openPalette(scena, list);
+}
+
+/** Every registered language, the chosen one ticked. */
+export function localeList(): ListSpec {
+  const current = getLocale();
+  return {
+    title: translate('shell/commands/selectLocale'),
+    items: listLocaleInfo().map((info): PickerAction => ({
+      title: info.name ?? info.locale,
+      description: info.locale,
+      active: info.locale === current,
+      onSelect: (host) => {
+        setLocale(info.locale);
+        host.closeMenu();
+      },
+    })),
+  };
+}
+
+/** Every registered theme, the chosen one ticked; light or dark stays the title bar's toggle. */
+export function themeList(scena: Scena): ListSpec {
+  const current = scena.store.get<string>(THEME_ID_PATH) ?? 'default';
+  return {
+    title: translate('shell/commands/selectTheme'),
+    items: listThemes().map((theme): PickerAction => ({
+      title: theme.label,
+      active: theme.id === current,
+      onSelect: (host) => {
+        scena.store.set(THEME_ID_PATH, theme.id);
+        host.closeMenu();
+      },
+    })),
+  };
 }
 
 // Ported from web-next's shell/commands.ts: the palette itself, the layout of
@@ -96,18 +130,16 @@ export function registerShellCommands(scena: Scena): Disposable {
       keywords: [english('shell/commands/selectLocale'), 'language', 'locale'],
       category: 'View',
       slots: [PALETTE_SLOT],
-      run: (ctx) => {
-        const current = getLocale();
-        subList(ctx.scena, ctx.host, translate('shell/commands/selectLocale'), listLocaleInfo().map((info): PickerAction => ({
-          title: info.name ?? info.locale,
-          description: info.locale,
-          active: info.locale === current,
-          onSelect: (host) => {
-            setLocale(info.locale);
-            host.closeMenu();
-          },
-        })));
-      },
+      run: (ctx) => subList(ctx.scena, ctx.host, localeList()),
+    }),
+    // The theme, as a sub-list of every registered one.
+    scena.commands.register({
+      id: 'workbench.selectTheme',
+      title: () => translate('shell/commands/selectTheme'),
+      keywords: [english('shell/commands/selectTheme'), 'theme', 'color'],
+      category: 'View',
+      slots: [PALETTE_SLOT],
+      run: (ctx) => subList(ctx.scena, ctx.host, themeList(ctx.scena)),
     }),
   );
 }

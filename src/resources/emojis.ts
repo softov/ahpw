@@ -111,6 +111,11 @@ export const EMOJIcon = {
   layoutStack: '☰',
   layoutSingle: '□',
 
+  // the Manage menu
+  language: mono('🌐'),
+  theme: mono('🎨'),
+  signOut: '⇥',
+
   // what an agent is customized with
   plugin: mono('🧩'),
   mcpServer: mono('🔌'),

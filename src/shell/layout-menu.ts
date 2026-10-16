@@ -1,7 +1,7 @@
 import { combineDisposables, translate } from '@softov/scena';
 import type { Disposable, HostCtx, ListSpec, PickerAction, Scena, SurfaceName } from '@softov/scena/types';
 import { EMOJIcon } from '../resources/emojis.js';
-import { bound, english } from '../i18n/locales.js';
+import { english } from '../i18n/locales.js';
 import { PALETTE_SLOT, openPalette } from './CommandPalette.js';
 import { MAIN_LAYOUTS } from './view/layouts.js';
 
@@ -47,7 +47,7 @@ function applyMode(scena: Scena, mode: LayoutMode): void {
 }
 
 /** The menu as it stands now; a choice applies itself and draws the menu again. */
-function layoutMenu(scena: Scena): ListSpec {
+export function layoutMenu(scena: Scena): ListSpec {
   const again = (host: HostCtx): void => host.replaceList(layoutMenu(scena));
   const main = scena.layout.get().surfaces.main?.layout ?? 'tab';
   const views = MAIN_LAYOUTS.map((one): PickerAction => ({
@@ -85,7 +85,7 @@ function layoutMenu(scena: Scena): ListSpec {
   return { title: translate('shell/layout/title'), items: [...zones, ...views, ...modes] };
 }
 
-/** The layout menu: a command in the palette, a button in the title bar, and the modes' own shortcuts. */
+/** The layout menu: a command in the palette (its title bar button is the shell's), and the modes' own shortcuts. */
 export function registerLayoutMenu(scena: Scena): Disposable {
   return combineDisposables(
     scena.commands.register({
@@ -110,10 +110,5 @@ export function registerLayoutMenu(scena: Scena): Disposable {
       keys: mode.keys,
       run: (ctx) => applyMode(ctx.scena, mode),
     })),
-    scena.surfaces.mount({
-      surface: 'titlebar',
-      key: 'chrome:layout',
-      resource: { component: 'ButtonBar', slot: 'right', icon: EMOJIcon.layoutGroups, title: bound('shell/layout/title'), command: 'workbench.customizeLayout' },
-    }),
   );
 }

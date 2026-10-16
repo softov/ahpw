@@ -20,9 +20,6 @@ registerMessages('en', en as MessageTree);
 registerMessages('es-419', es as MessageTree, { name: 'Español (Latinoamérica)' });
 registerMessages('pt-BR', pt as MessageTree, { name: 'Português (Brasil)' });
 
-// Invented languages, to try the language list at size; never in a build.
-if (import.meta.env.DEV) void import('./fictional.js');
-
 setLocale(initialLocale(stored(), navigator.languages));
 document.documentElement.lang = getLocale();
 

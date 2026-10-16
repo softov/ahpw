@@ -24,7 +24,6 @@
     "verifyFailed": "Falha na verificação"
   },
   "shell": {
-    "signOut": "Sair",
     "toggleLeft": "Mostrar ou ocultar a barra lateral esquerda (Ctrl+B)",
     "togglePanel": "Mostrar ou ocultar o painel (Ctrl+J)",
     "toggleRight": "Mostrar ou ocultar a barra lateral direita (Ctrl+Alt+B)",
@@ -37,7 +36,8 @@
       "toggleActivityBar": "Mostrar ou ocultar a barra de atividades",
       "toggleStatusBar": "Mostrar ou ocultar a barra de status",
       "toggleTitleBar": "Mostrar ou ocultar a barra de título",
-      "selectLocale": "Mudar idioma…"
+      "selectLocale": "Mudar idioma…",
+      "selectTheme": "Mudar tema…"
     },
     "nav": {
       "sessions": "Sessões",
@@ -46,8 +46,7 @@
       "explorer": "Explorador",
       "automations": "Automações",
       "host": "Host",
-      "agents": "Agentes",
-      "settings": "Configurações"
+      "agents": "Agentes"
     },
     "palette": {
       "placeholder": "Digite um comando ou um terminal"
@@ -141,6 +140,14 @@
     },
     "view": {
       "setMainLayout": "Definir o layout principal"
+    },
+    "manage": {
+      "title": "Gerenciar",
+      "language": "Idioma",
+      "layout": "Layout",
+      "theme": "Tema",
+      "settings": "Configurações",
+      "signOut": "Sair"
     }
   },
   "close": {

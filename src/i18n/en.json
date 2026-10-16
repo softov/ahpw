@@ -24,7 +24,6 @@
     "verifyFailed": "Verify failed"
   },
   "shell": {
-    "signOut": "Sign out",
     "toggleLeft": "Toggle left sidebar (Ctrl+B)",
     "togglePanel": "Toggle panel (Ctrl+J)",
     "toggleRight": "Toggle right sidebar (Ctrl+Alt+B)",
@@ -37,7 +36,8 @@
       "toggleActivityBar": "Toggle activity bar",
       "toggleStatusBar": "Toggle status bar",
       "toggleTitleBar": "Toggle title bar",
-      "selectLocale": "Change language…"
+      "selectLocale": "Change language…",
+      "selectTheme": "Change theme…"
     },
     "nav": {
       "sessions": "Sessions",
@@ -46,8 +46,7 @@
       "explorer": "Explorer",
       "automations": "Automations",
       "host": "Host",
-      "agents": "Agents",
-      "settings": "Settings"
+      "agents": "Agents"
     },
     "palette": {
       "placeholder": "Type a command or a terminal"
@@ -141,6 +140,14 @@
     },
     "view": {
       "setMainLayout": "Set the main layout"
+    },
+    "manage": {
+      "title": "Manage",
+      "language": "Language",
+      "layout": "Layout",
+      "theme": "Theme",
+      "settings": "Settings",
+      "signOut": "Sign out"
     }
   },
   "close": {

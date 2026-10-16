@@ -3,7 +3,7 @@ import { combineDisposables, translate } from '@softov/scena';
 import { english } from '../../i18n/locales.js';
 import { MAIN_LAYOUTS, readLayout, writeLayout } from './layouts.js';
 
-/** The main area's layout, kept per browser, and the theme picker in the title bar. */
+/** The main area's layout, kept per browser. */
 export function registerView(scena: Scena): Disposable {
   const held = readLayout();
   if (held !== null) scena.layout.setSurface('main', { ...scena.layout.get().surfaces.main, layout: held });
@@ -18,11 +18,6 @@ export function registerView(scena: Scena): Disposable {
         ctx.scena.layout.setSurface('main', { ...ctx.scena.layout.get().surfaces.main, layout });
         writeLayout(layout);
       },
-    }),
-    scena.surfaces.mount({
-      surface: 'titlebar',
-      key: 'chrome:theme',
-      resource: { component: 'ThemePicker', slot: 'right', compact: true },
     }),
   );
 }
