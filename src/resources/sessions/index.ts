@@ -1,6 +1,6 @@
 import { registerComposerCommands } from './composer-commands.js';
 import { watchSessions } from './alerts.js';
-import type { BindingPath, Disposable, ListSpec, PickerAction, Scena } from '@softov/scena/types';
+import type { BindingPath, Disposable, ListSpec, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, translate, type ModusClass } from '@softov/scena';
 import { bound, english } from '../../i18n/locales.js';
 import { PRESENTATION } from '../../shell/presentation.js';
@@ -31,21 +31,12 @@ export interface OpenSessionArgs {
   resource: string;
 }
 
-/** The groupings, as a list the palette shows; the current one is ticked. */
-function groupingList(scena: Scena): ListSpec {
-  const current = scena.store.get<Grouping | null>(SESSIONS_GROUPING) ?? 'none';
-  return {
-    title: translate('sessions/explorer/group'),
-    items: GROUPINGS.map((one): PickerAction => ({
-      title: groupingLabel(one),
-      active: one === current,
-      onSelect: (host) => {
-        scena.store.set(SESSIONS_GROUPING, one === 'none' ? null : one);
-        writeGrouping(one);
-        host.closeMenu();
-      },
-    })),
-  };
+/** The groupings, one command each: the header's Group menu and the palette's list; the current one is ticked. */
+const GROUPING_SLOT = 'sessions:grouping';
+
+/** The groupings as a palette list. */
+function groupingList(): ListSpec {
+  return { title: translate('sessions/explorer/group'), query: { slot: GROUPING_SLOT } };
 }
 
 /** The sessions list and the session page. */
@@ -66,7 +57,7 @@ export function registerSessions(scena: Scena): Disposable {
           { command: 'ahp.newSession', icon: '+', label: { t: 'sessions/commands/newSession' } },
           { command: 'sessions.reload', icon: EMOJIcon.reload, label: { t: 'sessions/explorer/reload' }, busy: `${SESSIONS_RELOADING} == true` },
           { command: 'sessions.toggleArchived', icon: EMOJIcon.archived, label: { t: 'sessions/explorer/showArchived' }, active: `${SESSIONS_ARCHIVED} == true` },
-          { command: 'sessions.group', icon: EMOJIcon.group, label: { t: 'sessions/explorer/group' }, active: `${SESSIONS_GROUPING} != null` },
+          { command: 'sessions.group', menu: GROUPING_SLOT, icon: EMOJIcon.group, label: { t: 'sessions/explorer/group' }, active: `${SESSIONS_GROUPING} != null` },
         ],
       },
     }),
@@ -93,10 +84,20 @@ export function registerSessions(scena: Scena): Disposable {
       id: 'sessions.group',
       title: () => translate('sessions/explorer/group'),
       run: (ctx) => {
-        if (ctx.host !== undefined) ctx.host.pushList(groupingList(ctx.scena));
-        else openPalette(ctx.scena, groupingList(ctx.scena));
+        if (ctx.host !== undefined) ctx.host.pushList(groupingList());
+        else openPalette(ctx.scena, groupingList());
       },
     }),
+    ...GROUPINGS.map((one) => scena.commands.register({
+      id: `sessions.groupBy.${one}`,
+      title: () => groupingLabel(one),
+      slots: [GROUPING_SLOT],
+      active: (ctx) => (ctx.store.get<Grouping | null>(SESSIONS_GROUPING) ?? 'none') === one,
+      run: (ctx) => {
+        ctx.store.set(SESSIONS_GROUPING, one === 'none' ? null : one);
+        writeGrouping(one);
+      },
+    })),
     scena.components.register({
       component: 'SessionPage',
       category: 'page',

@@ -62,7 +62,11 @@ export function registerShellCommands(scena: Scena): Disposable {
         const section = (args as { section?: string } | undefined)?.section;
         if (!section) return;
         const current = ctx.scena.layout.get().surfaces['sidebar:left'];
-        ctx.scena.layout.setSurface('sidebar:left', { ...current, section, visible: true });
+        // An activity item passes `toggle`: its section, already showing, closes the sidebar, as in VS Code;
+        // on a narrow window it is the way back to the page. Anything else asking to show a section shows it.
+        const toggle = (args as { toggle?: boolean } | undefined)?.toggle === true;
+        const showing = current?.visible !== false && current?.section === section;
+        ctx.scena.layout.setSurface('sidebar:left', { ...current, section, visible: !(toggle && showing) });
       },
     }),
     scena.commands.register({

@@ -24,12 +24,7 @@ import { attachKeys } from './view/keys.js';
 import { registerShellCommands } from './commands.js';
 import { registerLayoutMenu } from './layout-menu.js';
 import { MANAGE_SLOT, registerManage } from './manage.js';
-import { hideOverlaidSidebar } from '../resources/sessions/index.js';
 import type { BindingPath } from '@softov/scena/types';
-import type { ModusClass } from '@softov/scena';
-
-/** The display size class the modus backend publishes. */
-const MODUS_CLASS = '$/modus/class' as BindingPath;
 import { THEME_ID_KEY, THEME_MODE_KEY } from '../lib/theme-keys.js';
 import { embedder } from './embed/index.js';
 
@@ -37,21 +32,8 @@ function AppTitle({ text }: { text?: string }): ReactElement {
   return <span className="web-title">{text ?? 'ahpw'}</span>;
 }
 
-/** Runs `then` once with the display size class, as soon as it is known. */
-function onceKnown(scena: Scena, then: (modus: ModusClass) => void): Disposable {
-  const now = scena.store.get<ModusClass>(MODUS_CLASS);
-  if (now !== undefined) {
-    then(now);
-    return { dispose: () => undefined };
-  }
-  const sub = scena.store.subscribe(MODUS_CLASS, () => {
-    const known = scena.store.get<ModusClass>(MODUS_CLASS);
-    if (known === undefined) return;
-    sub.dispose();
-    then(known);
-  });
-  return sub;
-}
+/** What an activity item passes to `sidebar.activate`: pressed again, it closes the sidebar. */
+const TOGGLE = { toggle: true };
 
 /** The left sidebar's active section, as the layout mirrors it into the store. */
 const SECTION = '$/layout/surfaces/sidebar:left/section' as BindingPath;
@@ -101,8 +83,6 @@ export function registerShell(scena: Scena): Disposable {
     registerLayoutMenu(scena),
     registerManage(scena, embedded !== undefined),
     attachKeys(scena),
-    // The right sidebar opens beside the page; where it would cover it, it starts closed.
-    onceKnown(scena, (modus) => hideOverlaidSidebar(scena, modus, 'sidebar:right')),
     scena.components.register({
       component: 'CommandPalette',
       category: 'chrome',
@@ -198,6 +178,7 @@ export function registerShell(scena: Scena): Disposable {
         icon: EMOJIcon.sessions,
         label: bound('shell/nav/sessions'),
         section: SESSIONS_SECTION,
+        args: TOGGLE,
         badge: { path: AHP_SESSIONS_UNREAD },
         badgeTone: 'muted',
         badgeLabel: bound('shell/nav/unread'),
@@ -209,12 +190,12 @@ export function registerShell(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'folders:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.folder, label: bound('shell/nav/explorer'), section: FOLDERS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.folder, label: bound('shell/nav/explorer'), section: FOLDERS_SECTION, args: TOGGLE },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'automations:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.automations, label: bound('shell/nav/automations'), section: AUTOMATIONS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.automations, label: bound('shell/nav/automations'), section: AUTOMATIONS_SECTION, args: TOGGLE },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
@@ -224,7 +205,7 @@ export function registerShell(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'agents:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: bound('shell/nav/agents'), pos: 'bottom', section: AGENTS_SECTION },
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: bound('shell/nav/agents'), pos: 'bottom', section: AGENTS_SECTION, args: TOGGLE },
     }),
     scena.surfaces.mount({
       surface: 'activitybar',

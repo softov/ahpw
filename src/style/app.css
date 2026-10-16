@@ -1,9 +1,8 @@
 /* Theme tokens only, so every theme applies. */
 
-/* The activity bar pinned to the bottom edge overlays main; keep main clear of it. */
-.oo-shell:has(.oo-surface--activitybar[data-presentation='bar']) .oo-surface--main {
-  padding-bottom: var(--oo-surface-bar-size);
-  box-sizing: border-box;
+/* On a narrow window the left sidebar covers the page from the title bar down; its activity item, pressed again, is the way back. */
+:root {
+  --oo-surface-sheet-height: 100%;
 }
 
 /*
