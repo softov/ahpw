@@ -2992,3 +2992,30 @@
 .web-file > .web-note {
   padding: var(--oo-spacing-sm) var(--oo-spacing-lg);
 }
+
+/* A notice on a file page (not readable, not saved) sits in the page's margins, not against its edges. */
+.web-file > .oo-alert {
+  flex: none;
+  margin: var(--oo-spacing-sm) var(--oo-spacing-lg);
+}
+
+/* Open editors: a row's x shows on hover or while it is the open page, as in VS Code. */
+.web-open-editors__close {
+  visibility: hidden;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.oo-tree__row:hover .web-open-editors__close,
+.oo-tree__row[aria-selected='true'] .web-open-editors__close {
+  visibility: visible;
+}
+
+.web-open-editors__close:hover {
+  color: var(--oo-color-text);
+}

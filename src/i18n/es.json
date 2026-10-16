@@ -249,7 +249,8 @@
       "notConnected": "Sin conexión",
       "refused": "El servidor rechazó la conexión.",
       "connecting": "Conectando con el servidor",
-      "empty": "El servidor aún no indica ninguna carpeta. Inicia una sesión en una."
+      "empty": "El servidor aún no indica ninguna carpeta. Inicia una sesión en una.",
+      "folders": "Carpetas"
     },
     "pick": {
       "missing": "La ruta no existe.",
@@ -260,6 +261,11 @@
       "folders": "Carpetas",
       "reading": "Leyendo…",
       "noMatch": "Ninguna carpeta empieza con {part}"
+    },
+    "openEditors": {
+      "title": "Editores abiertos",
+      "close": "Cerrar",
+      "empty": "No hay nada abierto."
     }
   },
   "files": {

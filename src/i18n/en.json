@@ -249,7 +249,8 @@
       "notConnected": "Not connected",
       "refused": "The server refused the connection.",
       "connecting": "Connecting to the server",
-      "empty": "The server names no folder yet. Start a session in one."
+      "empty": "The server names no folder yet. Start a session in one.",
+      "folders": "Folders"
     },
     "pick": {
       "missing": "The path does not exist.",
@@ -260,6 +261,11 @@
       "folders": "Folders",
       "reading": "Reading…",
       "noMatch": "No folder starts with {part}"
+    },
+    "openEditors": {
+      "title": "Open editors",
+      "close": "Close",
+      "empty": "Nothing is open."
     }
   },
   "files": {

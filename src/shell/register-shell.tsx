@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables } from '@softov/scena';
+import { combineDisposables, subscribeI18n, translate } from '@softov/scena';
 import { bound } from '../i18n/locales.js';
 import { registerThemeController } from '@softov/scena/styles';
 // ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
@@ -52,6 +52,30 @@ function onceKnown(scena: Scena, then: (modus: ModusClass) => void): Disposable 
   return sub;
 }
 
+/** The left sidebar's active section, as the layout mirrors it into the store. */
+const SECTION = '$/layout/surfaces/sidebar:left/section' as BindingPath;
+
+/**
+ * A section that stacks its panes, and the title strip over them; every other
+ * section shows one page under its own header. Ported from web-next's
+ * register-shell (SECTION_SHELL): the explorer is Open Editors over the folders.
+ */
+const SECTION_SHELL: Record<string, { layout: 'stack'; container: { title: string; icon: string } }> = {
+  [FOLDERS_SECTION]: { layout: 'stack', container: { title: 'folders/explorer/title', icon: EMOJIcon.folder } },
+};
+
+/** Lays the left sidebar out for its section, with the strip's title in the chosen language. */
+function applySidebarShell(scena: Scena): void {
+  const section = scena.store.get<string>(SECTION) ?? '';
+  const shell = SECTION_SHELL[section];
+  const current = scena.layout.get().surfaces['sidebar:left'];
+  scena.layout.setSurface('sidebar:left', {
+    ...current,
+    layout: shell?.layout ?? 'single',
+    ...(shell === undefined ? {} : { stack: { ...current?.stack, container: { ...shell.container, title: translate(shell.container.title) } } }),
+  });
+}
+
 /** Everything that exists while somebody is signed in. */
 export function registerShell(scena: Scena): Disposable {
   // Before the controller, so a saved theme is one it knows.
@@ -62,9 +86,12 @@ export function registerShell(scena: Scena): Disposable {
   // The right sidebar shows its panes as tabs; a layout saved before it did kept them stacked.
   const right = scena.layout.get().surfaces['sidebar:right'];
   if (right?.layout === 'stack') scena.layout.setSurface('sidebar:right', { ...right, layout: 'tab' });
+  applySidebarShell(scena);
   const embedded = embedder;
   const controls = embedder?.window;
   return combineDisposables(
+    scena.store.subscribe(SECTION, () => applySidebarShell(scena)),
+    { dispose: subscribeI18n(() => applySidebarShell(scena)) },
     // First, so anything registered after it can say something.
     registerNotifications(scena),
     registerThemeController(scena, { idKey: THEME_ID_KEY, modeKey: THEME_MODE_KEY }),

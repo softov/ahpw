@@ -95,6 +95,36 @@ let held: ReactiveStore | undefined;
 let newer: Newer = NOTHING_NEWER;
 const followed = new Map<string, Followed>();
 
+/** Requests waiting for a connection; see `ready`. */
+const waiting = new Set<{ resolve: () => void; reject: (error: Error) => void }>();
+
+/** Let the waiting requests go: on, once a connection is up, or refused with `error`. */
+function settleWaiting(error?: Error): void {
+  const all = [...waiting];
+  waiting.clear();
+  for (const one of all) {
+    if (error === undefined) one.resolve();
+    else one.reject(error);
+  }
+}
+
+/**
+ * The client, once it can answer. A request made while the page connects or
+ * reconnects waits for the connection, so a page restored on a reload reads
+ * when the socket is up instead of failing first; one made after the host
+ * gave up is refused.
+ */
+async function ready(): Promise<MultiHostClient> {
+  for (;;) {
+    const multi = client;
+    if (multi === undefined) throw new Error(translate('bridges/notConnected'));
+    const status = multi.host(HOST)?.state.status;
+    if (status === 'connected' && multi.client(HOST)?.rawClient() !== undefined) return multi;
+    if (status === 'failed') throw new Error(translate('bridges/notConnected'));
+    await new Promise<void>((resolve, reject) => waiting.add({ resolve, reject }));
+  }
+}
+
 /** The SDK's own reason, without its class name. */
 const reasonOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
@@ -165,8 +195,7 @@ export async function reloadSessions(): Promise<void> {
 
 /** A channel's state read once, without holding the subscription unless a page follows it. */
 export async function readOnce<S>(uri: string): Promise<S | undefined> {
-  const multi = client;
-  if (multi === undefined) throw new Error(translate('bridges/notConnected'));
+  const multi = await ready();
   const result = await multi.subscribe(HOST, uri);
   if (!followed.has(uri)) void multi.unsubscribe(HOST, uri).catch(() => undefined);
   return result.snapshot?.state as S | undefined;
@@ -261,7 +290,7 @@ export function dispatch(channel: string, action: StateAction): void {
 
 /** Ask the daemon one command. */
 export async function request<M extends keyof CommandMap>(method: M, params: CommandMap[M]['params']): Promise<CommandMap[M]['result']> {
-  const raw = client?.client(HOST)?.rawClient();
+  const raw = (await ready()).client(HOST)?.rawClient();
   if (raw === undefined) throw new Error(translate('bridges/notConnected'));
   return raw.request(method, params);
 }
@@ -309,6 +338,7 @@ async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<
     if (event.type === 'stateChanged') {
       const state = event.state;
       noteStatus(state);
+      if (state.status === 'failed') settleWaiting(new Error(translate('bridges/notConnected')));
       store.set(AHP_CONNECTION, {
         status: state.status,
         error: state.status === 'failed' ? state.error.message : event.lastError?.message ?? null,
@@ -324,6 +354,7 @@ async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<
       publishHost(store, multi);
       // A new connection starts with no subscriptions of this page's own.
       for (const uri of followed.keys()) void snapshot(uri);
+      settleWaiting();
     }
   }
 }
@@ -414,6 +445,7 @@ async function connect(store: ReactiveStore, multi: MultiHostClient): Promise<vo
     });
   } catch (error) {
     store.set(AHP_CONNECTION, { status: 'failed', error: reasonOf(error), generation: 0 } satisfies Connection);
+    settleWaiting(new Error(translate('bridges/notConnected')));
   }
 }
 
@@ -473,6 +505,7 @@ export const ahpProvider: DataProviderDefinition = {
       const multi = client;
       client = undefined;
       held = undefined;
+      settleWaiting(new Error(translate('bridges/notConnected')));
       newer = NOTHING_NEWER;
       for (const entry of followed.values()) clearTimeout(entry.release);
       followed.clear();

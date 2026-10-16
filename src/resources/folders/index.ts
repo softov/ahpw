@@ -80,11 +80,29 @@ export function registerFolders(scena: Scena): Disposable {
     }),
     scena.surfaces.mount({ surface: 'overlay', key: 'folders:pick', resource: { component: 'Folders.Pick' } }),
     registerEntryCommands(scena),
+    // The explorer section stacks two panes (see SECTION_SHELL in the shell): what is open, then the folders.
+    scena.components.register({
+      component: 'OpenEditors',
+      category: 'page',
+      renderer: { kind: 'react', load: () => import('./OpenEditors.js') },
+      props: { title: { t: 'folders/openEditors/title' } },
+    }),
+    scena.surfaces.mount({
+      surface: 'sidebar:left',
+      key: 'folders:open-editors',
+      when: `$/layout/surfaces/sidebar:left/section == "${FOLDERS_SECTION}"`,
+      resource: { component: 'OpenEditors' },
+      // Its rows, up to half the sidebar, until a divider gives it a size.
+      policy: { closable: false, fitContent: true },
+    }),
     scena.surfaces.mount({
       surface: 'sidebar:left',
       key: 'folders:explorer',
       when: `$/layout/surfaces/sidebar:left/section == "${FOLDERS_SECTION}"`,
       resource: { component: 'FolderExplorer' },
+      policy: { closable: false },
+      // Under the strip that says Explorer, the pane is the folders.
+      props: { title: { t: 'folders/explorer/folders' } },
     }),
   );
 }

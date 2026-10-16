@@ -249,7 +249,8 @@
       "notConnected": "Sem conexão",
       "refused": "O servidor recusou a conexão.",
       "connecting": "Conectando ao servidor",
-      "empty": "O servidor ainda não indica nenhuma pasta. Inicie uma sessão em uma."
+      "empty": "O servidor ainda não indica nenhuma pasta. Inicie uma sessão em uma.",
+      "folders": "Pastas"
     },
     "pick": {
       "missing": "O caminho não existe.",
@@ -260,6 +261,11 @@
       "folders": "Pastas",
       "reading": "Lendo…",
       "noMatch": "Nenhuma pasta começa com {part}"
+    },
+    "openEditors": {
+      "title": "Editores abertos",
+      "close": "Fechar",
+      "empty": "Nada aberto."
     }
   },
   "files": {
