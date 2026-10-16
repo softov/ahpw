@@ -1312,7 +1312,7 @@
 }
 
 .web-file__doc {
-  max-width: 860px;
+  max-width: 980px;
   margin: 0 auto;
   padding: var(--oo-spacing-lg) var(--oo-spacing-xl, 24px);
 }
