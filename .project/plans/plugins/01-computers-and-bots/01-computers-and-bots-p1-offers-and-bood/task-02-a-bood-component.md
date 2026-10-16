@@ -1,6 +1,6 @@
 ---
 title: A bood component draws a bot
-status: blocked
+status: done
 depends: []
 layer: "src/resources/bots"
 refs:
@@ -36,5 +36,4 @@ A bot record's `body` and `color` map to bood's body and hex colour.
 ## Resume
 
 - Done 2026-10-16: `look.ts`, `look.test.ts`, `Bood.tsx` (breath and blink unless `still`), the `.web-bood` rule.
-- Blocked on the publish: `package.json` has `"@cofold/bood": "link:../cofold/packages/bood"`, which must not be committed.
-- Once 0.1.0 is on npm: `pnpm add @cofold/bood@^0.1.0`, then this task is done.
+- `@cofold/bood` 0.1.0 is on npm; `package.json` takes `^0.1.0`, and `pnpm-workspace.yaml` lets the fresh release in.

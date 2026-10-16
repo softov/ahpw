@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useI18n, useScena } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Button, DetailList, Spinner, Text, type DetailItem } from '@softov/scena/ui';
 import { useChannel } from '../../bridges/channel.js';
 import { embedMode } from '../../shell/embed/index.js';
@@ -8,12 +8,15 @@ import { PageAlert } from '../../shell/view/PageAlert.js';
 import { timeOf } from '../automations/words.js';
 import { Bood } from './Bood.js';
 import { BOTS, botsReducer, type BotsState } from './catalogue.js';
+import { refKey } from '../../bridges/hosts.js';
+import { BOT_CHAT_OPENING } from './state.js';
 
 /** One bot: its figure, what it is for, whose it is, and its chat. */
 export default function BotPage({ host, slug }: { host: string; slug?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const { state, error } = useChannel<BotsState>(host, BOTS, botsReducer);
+  const opening = useStore<string | null>(BOT_CHAT_OPENING) === refKey(host, slug ?? '');
   if (error !== null) return <PageAlert tone="danger" title={t('bots/notices/none')} message={error} />;
   if (state === undefined) return <Spinner label={t('bots/notices/reading')} />;
   const bot = state.bots.find((one) => one.id === slug);
@@ -38,16 +41,16 @@ export default function BotPage({ host, slug }: { host: string; slug?: string })
         <Bood body={bot.body} color={bot.color} width={120} />
         <div className="web-bot__words">
           <Text variant="h2" text={bot.name} />
-          {bot.description === undefined ? null : <p className="web-bot__description">{bot.description}</p>}
+          {(bot.description ?? '').trim() === '' ? null : <p className="web-bot__description">{bot.description}</p>}
           <div className="web-page__actions">
-            {bot.session === undefined ? null : <Button label={t('bots/actions/chat')} variant="primary" onClick={() => run('ahp.chatWithBot')} />}
+            <Button label={t(opening ? 'bots/chat/opening' : 'bots/actions/chat')} variant="primary" disabled={opening} onClick={() => run('ahp.chatWithBot')} />
             <Button label={t('bots/actions/edit')} onClick={() => run('ahp.editBot')} />
             <Button label={t('bots/actions/delete')} onClick={() => run('ahp.deleteBot')} />
           </div>
         </div>
       </div>
       <DetailList items={facts} columns={2} />
-      {bot.instructions === undefined ? null : (
+      {(bot.instructions ?? '').trim() === '' ? null : (
         <>
           <Text variant="h3" text={t('bots/facts/instructions')} />
           <p className="web-bot__instructions">{bot.instructions}</p>

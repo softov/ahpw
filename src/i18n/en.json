@@ -49,7 +49,10 @@
       "host": "Host",
       "agents": "Agents",
       "computers": "Computers",
-      "bots": "Bots"
+      "bots": "Bots",
+      "users": "Users",
+      "teams": "Teams",
+      "usage": "Usage"
     },
     "palette": {
       "placeholder": "Type a command or a terminal"
@@ -823,7 +826,9 @@
       "instructionsLater": "A change reaches the next chats, not the first one already sent.",
       "create": "Create",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "bodyName": "Body name",
+      "bodyUnknown": "bood has no body by that name yet, so it is drawn as a square."
     },
     "colors": {
       "red": "Red",
@@ -839,10 +844,151 @@
       "black": "Black"
     },
     "layer": {
-      "noSession": "This bot has no chat yet.",
       "say": "Say something to {name}",
       "send": "Send",
       "more": "{count} more bots"
+    },
+    "chat": {
+      "cannot": "You can't chat with this bot.",
+      "opening": "Opening the chat…",
+      "failed": "Could not open the chat",
+      "reading": "Reading the chat",
+      "working": "{name} is working",
+      "noReply": "{name} finished without a reply",
+      "empty": "Say something to {name}.",
+      "download": "Save {name}",
+      "message": "Message {name}"
+    }
+  },
+  "users": {
+    "explorer": {
+      "title": "Users",
+      "users": "Users",
+      "roles": "Roles",
+      "filter": "Filter users and roles",
+      "empty": "No users yet.",
+      "notServed": "No host here lists its users."
+    },
+    "notices": {
+      "none": "No users",
+      "reading": "Reading the users",
+      "readOnly": "This host does not let you change these."
+    },
+    "commands": {
+      "new": "New",
+      "newUser": "New user",
+      "newRole": "New role",
+      "show": "Show users",
+      "openUser": "Open user",
+      "openRole": "Open role"
+    },
+    "actions": {
+      "open": "Open",
+      "delete": "Delete",
+      "failed": "The host did not do that",
+      "cancel": "Cancel",
+      "discard": "Discard changes"
+    },
+    "user": {
+      "deleteTitle": "Delete {id}?",
+      "deleteBody": "They can no longer sign in to this host.",
+      "gone": "This user is gone.",
+      "id": "Id",
+      "idHint": "How they sign in and how the host names them. It cannot be changed later.",
+      "roles": "Roles",
+      "noRoles": "This host defines no roles.",
+      "memberships": "Memberships",
+      "noMemberships": "None",
+      "dropMembership": "Remove {membership}",
+      "addMembership": "Add a membership…",
+      "membershipsHint": "What their work may be charged to: a team, every project of a team (team:*), or one project through a team (team:project).",
+      "primary": "Primary",
+      "primaryHint": "What their work is charged to when it names nothing else.",
+      "noPrimary": "None",
+      "issuer": "Issuer",
+      "issuerHint": "Where they sign in, when it is not this host: github, or an issuer URL. Empty removes it.",
+      "rolesFrom": "Roles from",
+      "rolesFromHint": "The claim in the issuer's answer that carries their roles, such as groups. Empty removes it.",
+      "token": "A token is never shown here. Make one on the host with: ahpd user token {id}",
+      "create": "Create user",
+      "save": "Save",
+      "dropAdminTitle": "Take admin away from yourself?",
+      "dropAdminBody": "You may not be able to change users or roles on this host again."
+    },
+    "role": {
+      "deleteTitle": "Delete the role {id}?",
+      "deleteBody": "The people who hold it lose what it grants.",
+      "gone": "This role is gone.",
+      "id": "Id",
+      "idHint": "The name users hold it by. It cannot be changed later.",
+      "grants": "Grants",
+      "grantsHint": "One a line, each subject:operation, such as session:write; read, write or * for every operation.",
+      "badGrant": "Line {line}, {text}, is not subject:operation.",
+      "grantCount": "Grants: {count}",
+      "create": "Create role",
+      "save": "Save",
+      "builtIn": "built in",
+      "builtInNote": "Built into ahpd. Saving writes a role of this name to the host, which then replaces the built-in.",
+      "replacesNote": "This role replaces ahpd's built-in of the same name. Deleting it brings the built-in back."
+    }
+  },
+  "teams": {
+    "explorer": {
+      "title": "Teams",
+      "teams": "Teams",
+      "projects": "Projects",
+      "filter": "Filter teams and projects",
+      "empty": "No teams yet.",
+      "notServed": "No host here lists its teams.",
+      "members": "Members: {count}"
+    },
+    "notices": {
+      "none": "No teams",
+      "reading": "Reading the teams",
+      "readOnly": "This host does not let you change these."
+    },
+    "commands": {
+      "new": "New",
+      "newTeam": "New team",
+      "newProject": "New project",
+      "show": "Show teams",
+      "openTeam": "Open team",
+      "openProject": "Open project"
+    },
+    "actions": {
+      "open": "Open",
+      "delete": "Delete",
+      "failed": "The host did not do that",
+      "cancel": "Cancel",
+      "discard": "Discard changes"
+    },
+    "named": {
+      "id": "Id",
+      "title": "Title",
+      "titleHint": "What is shown instead of the id. Empty shows the id.",
+      "save": "Save",
+      "members": "Members",
+      "noMembers": "Nobody yet.",
+      "primary": "Their primary",
+      "addWho": "Add somebody…",
+      "through": "Through which team…",
+      "add": "Add"
+    },
+    "team": {
+      "idHint": "The name memberships are written with. It cannot be changed later.",
+      "create": "Create team",
+      "gone": "This team is gone.",
+      "deleteTitle": "Delete the team {id}?",
+      "deleteBody": "A host refuses while anybody still belongs to it.",
+      "membersHint": "Everybody whose memberships name this team: the team, every project of it, or one project through it."
+    },
+    "project": {
+      "idHint": "The name memberships are written with, after a team. It cannot be changed later.",
+      "create": "Create project",
+      "gone": "This project is gone.",
+      "deleteTitle": "Delete the project {id}?",
+      "deleteBody": "A host refuses while anybody still works on it.",
+      "membersHint": "Everybody who works on it through a team, or through every project of a team."
     }
   },
   "agents": {
@@ -1543,6 +1689,70 @@
       "connecting": "Connecting",
       "down": "Down",
       "refused": "Token refused"
+    }
+  },
+  "usage": {
+    "explorer": {
+      "title": "Usage",
+      "filter": "Filter usage",
+      "period": "Period",
+      "group": "Group",
+      "empty": "Nothing was charged yet.",
+      "notServed": "No host here keeps usage.",
+      "nothing": "Nothing charged",
+      "none": "None",
+      "refused": "Not read"
+    },
+    "period": {
+      "day": "Today",
+      "week": "This week",
+      "month": "This month",
+      "range": "Range"
+    },
+    "group": {
+      "none": "Pools",
+      "user": "By user",
+      "team": "By team",
+      "project": "By project"
+    },
+    "kind": {
+      "user": "Users",
+      "team": "Teams",
+      "project": "Projects",
+      "root": "Hosts",
+      "plugin": "Plugins"
+    },
+    "range": {
+      "from": "From",
+      "until": "Until"
+    },
+    "total": {
+      "tokens": {
+        "one": "{n} token",
+        "other": "{n} tokens"
+      },
+      "calls": {
+        "one": "{n} call",
+        "other": "{n} calls"
+      },
+      "hours": "{count} h"
+    },
+    "notices": {
+      "none": "No usage",
+      "reading": "Reading the usage"
+    },
+    "commands": {
+      "show": "Show usage",
+      "open": "Open usage pool"
+    },
+    "actions": {
+      "open": "Open"
+    },
+    "pool": {
+      "range": "Over a range",
+      "records": "Records",
+      "noRecords": "No records in these days.",
+      "openSession": "Open session"
     }
   }
 }

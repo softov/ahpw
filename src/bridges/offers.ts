@@ -21,6 +21,8 @@ export interface Offers {
   methods: string[];
   channels: string[];
   providers: Record<string, Provider>;
+  /** Who this connection is, `user:<id>` or `root:<host>`; absent on a host with no users. */
+  principal?: string;
 }
 
 export const NO_OFFERS: Offers = { methods: [], channels: [], providers: {} };
@@ -55,10 +57,12 @@ export function offersOf(meta: unknown): Offers {
     const provider = providerOf(value);
     if (provider !== null) providers[scheme] = provider;
   }
+  const principal = ahpdKey(meta, 'principal');
   return {
     methods: namesOf(ahpdKey(meta, 'methods'), 'method'),
     channels: namesOf(ahpdKey(meta, 'channels'), 'scheme'),
     providers,
+    ...(typeof principal === 'string' && principal !== '' ? { principal } : {}),
   };
 }
 

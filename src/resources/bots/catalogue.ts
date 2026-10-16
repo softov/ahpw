@@ -30,7 +30,7 @@ export interface BotRecord {
   preset?: string;
   workspace: string;
   computer?: string;
-  /** The session the bot talks in, which the host starts when it makes the bot. */
+  /** The bot's own session, on a host that does not run bot chats yet. */
   session?: string;
   /** `user:<id>`, `team:<team>`, `project:<team>:<project>` or `root:<host>`. */
   owner: string;
@@ -92,6 +92,26 @@ export async function makeBot(host: string, offers: Offers, slugs: readonly stri
 /** Edits a bot, refused when it changed on the host since `updatedAt`. */
 export async function editBot(host: string, offers: Offers, bot: BotRecord, body: BotBody): Promise<void> {
   await hostBridge(host).writeText(botUri(botsRoot(offers), bot.id), JSON.stringify(body), bot.updatedAt);
+}
+
+/** The agent a host runs bot chats with; a host without it keeps one session per bot. */
+export const BOT_CHAT_AGENT = 'bot-chat';
+
+/** Whether a host runs bot chats, by the agents it lists. */
+export const servesBotChats = (agents: readonly { provider: string }[] | undefined): boolean =>
+  agents?.some((one) => one.provider === BOT_CHAT_AGENT) ?? false;
+
+/**
+ * The session a person chats with a bot in. On a host that runs bot chats, a
+ * read of the bot answers `chat`, the reader's own chat, which the first read
+ * starts. On one that does not yet, it is the bot's own session. Null when
+ * this person may not chat with the bot.
+ */
+export async function readBotChat(host: string, offers: Offers, bot: BotRecord, chats: boolean): Promise<string | null> {
+  if (!chats) return bot.session ?? null;
+  const { text } = await hostBridge(host).readText(botUri(botsRoot(offers), bot.id));
+  const record = JSON.parse(text ?? '{}') as { chat?: unknown };
+  return typeof record.chat === 'string' && record.chat !== '' ? record.chat : null;
 }
 
 export async function deleteBot(host: string, offers: Offers, slug: string): Promise<void> {

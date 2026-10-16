@@ -1,5 +1,6 @@
-import { useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactElement } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactElement } from 'react';
 import { useI18n } from '@softov/scena/react';
+import { randomTransit, type BoodTransit } from '@cofold/bood';
 import { ContextMenu } from '@softov/scena/ui';
 import { useChannelOnEach } from '../../../bridges/channel.js';
 import { refKey, refOf, useShownHosts } from '../../../bridges/hosts.js';
@@ -15,6 +16,8 @@ const WIDTH = 48;
 const DRAG_PX = 6;
 /** How long a press is held before a drag takes the whole puck. */
 const HOLD_MS = 300;
+/** How long a dropped bot takes to show at its new place, as ahpapp. */
+const ARRIVE_MS = 1300;
 
 interface Opened {
   key: string;
@@ -55,7 +58,8 @@ function besideOf(box: DOMRect, edge: Edge): { x: number; y: number } {
  * in each, a count of the rest. Hovering one makes it look up; opening one
  * makes it glad, and lets a person talk to it. A bot dragged out rests on the
  * nearest edge, or joins the puck it is dropped on; held first, the whole puck
- * moves. Where they rest is kept in this browser.
+ * moves, and each bot dropped shows at its new place with a bood transit, as
+ * though it teleported there. Where they rest is kept in this browser.
  */
 export default function BotLayer(): ReactElement | null {
   const { t } = useI18n();
@@ -66,6 +70,13 @@ export default function BotLayer(): ReactElement | null {
   const [opened, setOpened] = useState<Opened | null>(null);
   const [overflow, setOverflow] = useState<{ x: number; y: number; bots: string[] } | null>(null);
   const [drag, setDrag] = useState<{ bots: string[]; x: number; y: number; target: string | null } | null>(null);
+  // The bots just dropped, each with the transit it shows with; the `at` tells a drop from the last one.
+  const [arriving, setArriving] = useState<{ bots: ReadonlyMap<string, BoodTransit>; at: number } | null>(null);
+  useEffect(() => {
+    if (arriving === null) return;
+    const timer = window.setTimeout(() => setArriving((held) => (held === arriving ? null : held)), ARRIVE_MS);
+    return () => window.clearTimeout(timer);
+  }, [arriving]);
   const press = useRef<Press | null>(null);
   const puckBoxes = useRef(new Map<string, HTMLDivElement>());
 
@@ -118,6 +129,7 @@ export default function BotLayer(): ReactElement | null {
     setPucks(next);
     writePucks(next);
     setDrag(null);
+    setArriving({ bots: new Map(held.bots.map((key) => [key, randomTransit()])), at: Date.now() });
   };
   const cancel = (): void => {
     press.current = null;
@@ -147,6 +159,7 @@ export default function BotLayer(): ReactElement | null {
             {shown.map((key) => {
               const bot = bots.get(key)!;
               const mood = drag?.bots.includes(key) === true ? 'observing' : opened?.key === key ? 'happy' : hovered === key ? 'observing' : 'idle';
+              const transit = arriving?.bots.get(key);
               return (
                 <button
                   key={key}
@@ -168,7 +181,7 @@ export default function BotLayer(): ReactElement | null {
                     setOpened(opened?.key === key ? null : { key, ...besideOf(event.currentTarget.getBoundingClientRect(), puck.edge) });
                   }}
                 >
-                  <Bood body={bot.body} color={bot.color} mood={mood} width={WIDTH} />
+                  <Bood body={bot.body} color={bot.color} mood={mood} width={WIDTH} arrive={transit === undefined ? undefined : { transit, at: arriving!.at }} />
                 </button>
               );
             })}

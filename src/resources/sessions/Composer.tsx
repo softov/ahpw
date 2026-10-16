@@ -69,7 +69,7 @@ export function messageOf(text: string, model: string | undefined, attachments: 
 }
 
 /** The composer of one chat: the box, its `/` and `@` picker, the settings row, and send, queue, steer and stop. */
-export const Composer = memo(function Composer({ host, chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, summary, send }: {
+export const Composer = memo(function Composer({ host, chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, summary, send, placeholder, steers = false }: {
   /** The session's host. */
   host: string;
   chatUri: string;
@@ -86,6 +86,10 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   changesets: readonly Changeset[] | undefined;
   summary: SessionSummary;
   send: Send;
+  /** The box's prompt, in place of the agent's; a chat with a bot names the bot. */
+  placeholder?: string;
+  /** Whether a message sent while a turn runs always steers it, as a bot's chat does, rather than waiting its turn. */
+  steers?: boolean;
 }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -290,7 +294,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
     const message = messageOf(said, model, attachments);
     if (active === undefined) {
       send({ type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message } as StateAction);
-    } else if (kind === 'steer') {
+    } else if (kind === 'steer' || steers) {
       send({ type: 'chat/pendingMessageSet', kind: 'steering', id: newId(), message } as StateAction);
     } else {
       send({ type: 'chat/pendingMessageSet', kind: 'queued', id: newId(), message } as StateAction);
@@ -360,7 +364,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
             rows={1}
             value={text}
             aria-label={t('sessions/composer/message')}
-            placeholder={active === undefined ? t('sessions/composer/placeholder') : t('sessions/composer/placeholderRunning')}
+            placeholder={placeholder ?? (active === undefined ? t('sessions/composer/placeholder') : t('sessions/composer/placeholderRunning'))}
             onChange={(event) => {
               typed.current = true;
               setText(event.currentTarget.value);
@@ -397,9 +401,9 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
             {pills.filter((option) => footerSide(option) === 'right').map(settingPill)}
             {readout === null ? null : <span className="web-composer__context" title={readout.title}>{readout.text}</span>}
           </div>
-          {active === undefined || text.trim() === '' ? null : <Button label={t('sessions/composer/steer')} size="sm" title={t('sessions/composer/steerHint')} onClick={() => submit('steer')} />}
-          {active === undefined || text.trim() === '' ? null : <Button label={t('sessions/composer/queue')} variant="primary" size="sm" title={t('sessions/composer/queueHint')} onClick={() => submit('send')} />}
-          {active === undefined ? (
+          {steers || active === undefined || text.trim() === '' ? null : <Button label={t('sessions/composer/steer')} size="sm" title={t('sessions/composer/steerHint')} onClick={() => submit('steer')} />}
+          {steers || active === undefined || text.trim() === '' ? null : <Button label={t('sessions/composer/queue')} variant="primary" size="sm" title={t('sessions/composer/queueHint')} onClick={() => submit('send')} />}
+          {active === undefined || (steers && text.trim() !== '') ? (
             <button type="button" className="web-composer__round" aria-label={t('sessions/composer/send')} title={t('sessions/composer/sendHint')} disabled={text.trim() === ''} onClick={() => submit('send')}>{EMOJIcon.send}</button>
           ) : (
             <button type="button" className="web-composer__round" aria-label={t('sessions/commands/stop')} title={t('sessions/composer/stopHint')} onClick={stop}>{EMOJIcon.stop}</button>

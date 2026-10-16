@@ -63,7 +63,7 @@ export function recordBody(draft: BotDraft, fresh: boolean): BotBody {
   return {
     name: draft.name.trim(),
     labels: parseLabels(draft.labels),
-    body: draft.body,
+    body: draft.body.trim(),
     color: colorName(draft.color),
     ...(fresh ? (description === '' ? {} : { description }) : { description }),
     ...(fresh ? (instructions === '' ? {} : { instructions }) : { instructions }),

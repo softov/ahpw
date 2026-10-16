@@ -28,3 +28,9 @@ test('no _meta, or a provider without a root, offers nothing', () => {
   expect(offersOf(undefined)).toEqual({ methods: [], channels: [], providers: {} });
   expect(offersOf({ 'ahpd.resourceProviders': { bot: { title: 'Bots' } } }).providers).toEqual({});
 });
+
+test('who the connection is, when the host names one', () => {
+  expect(offersOf({ 'ahpd.principal': 'user:ana' }).principal).toBe('user:ana');
+  expect(offersOf({}).principal).toBeUndefined();
+  expect('principal' in offersOf({ 'ahpd.principal': '' })).toBe(false);
+});

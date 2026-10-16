@@ -1,4 +1,5 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
+import { saveFile } from '../../lib/save-file.js';
 import { combineDisposables, translate } from '@softov/scena';
 import { ahpPaths, hostBridge } from '../../bridges/data.js';
 import { folderLabel } from '../../bridges/words.js';
@@ -50,16 +51,6 @@ function pickFiles(onPick: (files: File[]) => void): void {
   input.click();
 }
 
-/** Save bytes from the host as a file on this computer. */
-function save(name: string, blob: Blob): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = name;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1_000);
-}
-
 /** Ask for a name that can be used. */
 const askFor = (title: string, confirmLabel: string, value = ''): Promise<string | null> =>
   askName({ title, value, confirmLabel, check: nameProblem });
@@ -96,7 +87,7 @@ const RUN: Record<EntryAction, (scena: Scena, host: string, entry: MenuEntry) =>
   download: async (_scena, host, { uri }) => {
     const read = await hostBridge(host).readBase64(uri);
     const type = read.contentType ?? 'application/octet-stream';
-    save(leafOf(uri), read.encoding === 'base64' ? new Blob([bytesOf(read.data)], { type }) : new Blob([read.data], { type }));
+    saveFile(leafOf(uri), read.encoding === 'base64' ? new Blob([bytesOf(read.data)], { type }) : new Blob([read.data], { type }));
   },
   rename: async (scena, host, { uri }) => {
     const name = await askFor(translate('folders/entry/rename'), translate('folders/entry/rename'), leafOf(uri));

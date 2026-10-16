@@ -1,16 +1,18 @@
 /**
  * How a bot looks: the body and colour ahpd keeps, drawn by bood. ahpd's
- * lists are copied, not imported: `@ahpd/bot` reads `node:fs` on load.
+ * colours are copied, not imported: `@ahpd/bot` reads `node:fs` on load.
  */
 
-import { bodyOf, type BoodBody } from '@cofold/bood';
+import { BOOD_RELEASED, bodyOf, type BoodBody } from '@cofold/bood';
 
-/** The bodies a host takes, as `@ahpd/bot`'s `BOT_BODIES`. */
-export const BOT_BODIES = [
-  'robot', 'humanoid', 'alien', 'gumbo', 'circle', 'semicircle', 'smash', 'square',
-  'triangle', 'pentagon', 'hexagon', 'drop', 'bean', 'cloud', 'ghost',
-] as const;
-export type BotBody = (typeof BOT_BODIES)[number];
+/**
+ * The bodies a bot is offered: bood's released ones. A host keeps any word as
+ * a body, so these are suggestions, not a limit.
+ */
+export const BOT_BODIES: readonly BoodBody[] = BOOD_RELEASED;
+
+/** What a body bood does not know is drawn as. */
+const UNKNOWN_BODY: BoodBody = 'square';
 
 /**
  * The colour names a host keeps, and the bood colour each is drawn in, as
@@ -38,10 +40,13 @@ export function colorName(hex: string): string {
   return Object.entries(COLOR_HEX).find(([, value]) => value === lower)?.[0] ?? lower;
 }
 
-/** The bood body a host's body is drawn as; ahpd's `semicircle` is bood's `jelly`. */
+/** The bood body a host's body is drawn as: by its name or an old one (`semicircle` is `jelly`), else a square. */
 export function boodBody(body: string): BoodBody {
-  return bodyOf(body) ?? 'robot';
+  return bodyOf(body.trim().toLowerCase()) ?? UNKNOWN_BODY;
 }
+
+/** Whether bood draws this body as itself, rather than as a square. */
+export const knowsBody = (body: string): boolean => bodyOf(body.trim().toLowerCase()) !== undefined;
 
 /** Whether a host takes this as a bot's slug: lowercase letters, digits and dashes, 1 to 40, starting with a letter. */
 export const isSlug = (value: string): boolean => /^[a-z][a-z0-9-]{0,39}$/.test(value);

@@ -1,12 +1,13 @@
-import { useState, type ReactElement } from 'react';
-import { useI18n, useScena } from '@softov/scena/react';
-import { Button, Popup } from '@softov/scena/ui';
-import { chatReducer, sessionReducer, type ChatState, type SessionState, type StateAction } from '@microsoft/agent-host-protocol';
-import { hostBridge } from '../../../bridges/data.js';
+import { useEffect, useState, type ReactElement } from 'react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
+import { Button, Popup, Spinner } from '@softov/scena/ui';
+import { chatReducer, sessionReducer, type AgentInfo, type ChatState, type SessionState, type StateAction } from '@microsoft/agent-host-protocol';
+import { ahpPaths, hostBridge } from '../../../bridges/data.js';
+import { NO_OFFERS, type Offers } from '../../../bridges/offers.js';
 import { useChannel } from '../../../bridges/channel.js';
 import { newId } from '../../../bridges/words.js';
 import { messageOf } from '../../sessions/Composer.js';
-import type { BotRecord } from '../catalogue.js';
+import { readBotChat, servesBotChats, type BotRecord } from '../catalogue.js';
 
 /**
  * A floating bot, opened: what it is for, a line to say something in its chat,
@@ -16,7 +17,20 @@ import type { BotRecord } from '../catalogue.js';
 export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: BotRecord; x: number; y: number; onClose: () => void }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const session = useChannel<SessionState>(host, bot.session, sessionReducer);
+  const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
+  const chats = servesBotChats(useStore<AgentInfo[]>(ahpPaths(host).agents));
+  // The person's own chat with the bot, which the first read starts: undefined while reading, null when they may not chat.
+  const [chatSession, setChatSession] = useState<string | null | undefined>(undefined);
+  const [failure, setFailure] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    void readBotChat(host, offers, bot, chats).then(
+      (uri) => { if (live) setChatSession(uri); },
+      (error: unknown) => { if (live) setFailure(error instanceof Error ? error.message : String(error)); },
+    );
+    return () => { live = false; };
+  }, [host, offers, bot, chats]);
+  const session = useChannel<SessionState>(host, chatSession ?? undefined, sessionReducer);
   const chatUri = session.state?.defaultChat;
   const chat = useChannel<ChatState>(host, chatUri, chatReducer);
   const [text, setText] = useState('');
@@ -41,7 +55,9 @@ export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: Bo
         {bot.labels.length === 0 ? null : <span className="web-bot-popover__labels">{bot.labels.join(', ')}</span>}
       </div>
       {bot.description === undefined ? null : <p className="web-bot-popover__description">{bot.description}</p>}
-      {bot.session === undefined ? <p className="web-note">{t('bots/layer/noSession')}</p> : (
+      {failure !== null ? <p className="web-bot-popover__failure">{failure}</p>
+        : chatSession === undefined ? <Spinner label={t('bots/chat/opening')} />
+          : chatSession === null ? <p className="web-note">{t('bots/chat/cannot')}</p> : (
         <form className="web-bot-popover__say" onSubmit={(event) => { event.preventDefault(); send(); }}>
           <input
             className="web-field"
@@ -55,7 +71,7 @@ export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: Bo
         </form>
       )}
       <div className="web-bot-popover__actions">
-        {bot.session === undefined ? null : <Button label={t('bots/actions/chat')} size="sm" onClick={() => run('ahp.chatWithBot')} />}
+        {chatSession === null || chatSession === undefined ? null : <Button label={t('bots/actions/chat')} size="sm" onClick={() => run('ahp.chatWithBot')} />}
         <Button label={t('bots/actions/edit')} size="sm" onClick={() => run('ahp.editBot')} />
       </div>
     </Popup>

@@ -26,10 +26,19 @@ What exists today: [00-hosts.md](hosts/00-hosts.md).
 | [02 - A window with every host](hosts/02-a-window-with-every-host/plan.md) | built | - |
 | [03 - Hosts, filters and the folder pill](hosts/03-hosts-filters-and-the-folder-pill/plan.md) | built | - |
 
+## organization
+
+What exists today: [00-organization.md](organization/00-organization.md).
+
+| Plan | Status | Next |
+| --- | --- | --- |
+| [01 - Users, teams and usage](organization/01-users-teams-and-usage/plan.md) | built | what waits is in its [deferred.md](organization/01-users-teams-and-usage/deferred.md) |
+
 ## plugins
 
 What exists today: [00-plugins.md](plugins/00-plugins.md).
 
 | Plan | Status | Next |
 | --- | --- | --- |
-| [01 - Computers and bots](plugins/01-computers-and-bots/plan.md) | active | waits on the bood publish to close p1 |
+| [01 - Computers and bots](plugins/01-computers-and-bots/plan.md) | built | - |
+| [02 - Bot chat and bood life](plugins/02-bot-chat-and-bood-life/plan.md) | active | waits: Softov's approval to commit 01, 02 and 04, npm approval of bood 0.1.2 (03) |

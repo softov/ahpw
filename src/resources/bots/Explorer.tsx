@@ -43,7 +43,7 @@ export default function BotExplorer(): ReactElement {
         ].filter((line) => line !== ''),
         menu: [
           item(t('bots/actions/open'), 'ahp.openBot'),
-          ...(bot.session === undefined ? [] : [item(t('bots/actions/chat'), 'ahp.chatWithBot')]),
+          item(t('bots/actions/chat'), 'ahp.chatWithBot'),
           item(t('bots/actions/edit'), 'ahp.editBot'),
           item(t('bots/actions/delete'), 'ahp.deleteBot', { group: 'more', color: 'red' }),
         ],

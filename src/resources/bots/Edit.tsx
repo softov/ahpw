@@ -13,7 +13,7 @@ import { writeLastHost } from '../sessions/last-host.js';
 import { Bood } from './Bood.js';
 import { BOT_PROVIDER, BOTS, BOTS_SCHEME, botsReducer, editBot, makeBot, type BotsState } from './catalogue.js';
 import { draftOf, recordBody, type BotDraft } from './draft.js';
-import { BOT_BODIES, COLOR_HEX, slugOf } from './look.js';
+import { BOT_BODIES, COLOR_HEX, knowsBody, slugOf } from './look.js';
 
 /** How many slugs a new bot tries, since a host never gives a deleted bot's slug again. */
 const SLUG_TRIES = 5;
@@ -52,7 +52,7 @@ export default function BotEditPage({ host: opened, slug }: { host: string; slug
   const start = first.current;
   const set = (change: Partial<BotDraft>): void => setDraft((held) => ({ ...(held ?? start), ...change }));
   const hostOwner = hostOwnerOf(offers);
-  const ready = !busy && shown.name.trim() !== '';
+  const ready = !busy && shown.name.trim() !== '' && shown.body.trim() !== '';
 
   const save = (): void => {
     setBusy(true);
@@ -107,6 +107,9 @@ export default function BotEditPage({ host: opened, slug }: { host: string; slug
               </button>
             ))}
           </div>
+          {/* A host keeps any word as a body; the buttons above are the ones bood draws. */}
+          <input className="web-field web-bot-look__name" value={shown.body} aria-label={t('bots/edit/bodyName')} placeholder={t('bots/edit/bodyName')} onChange={(event) => set({ body: event.target.value })} />
+          {shown.body.trim() === '' || knowsBody(shown.body) ? null : <p className="web-note">{t('bots/edit/bodyUnknown')}</p>}
         </div>
       </div>
 

@@ -3,10 +3,14 @@ import { BOOD_BODIES } from '@cofold/bood';
 import { BOT_BODIES, boodBody, colorName, colorOf, isSlug, slugOf } from './look.js';
 
 describe('look', () => {
-  it('draws every body a host takes, semicircle as jelly', () => {
-    for (const body of BOT_BODIES) expect(BOOD_BODIES).toContain(boodBody(body));
+  it('offers bood\'s released bodies, draws each as itself, an old name as its body, and any other word as a square', () => {
+    expect(BOT_BODIES).toContain('flame');
+    expect(BOT_BODIES).not.toContain('logo');
+    for (const body of BOT_BODIES) expect(boodBody(body)).toBe(body);
+    expect(BOOD_BODIES).toContain(boodBody('semicircle'));
     expect(boodBody('semicircle')).toBe('jelly');
-    expect(boodBody('nothing')).toBe('robot');
+    expect(boodBody(' Flame ')).toBe('flame');
+    expect(boodBody('zebra')).toBe('square');
   });
 
   it('turns colour names into hex and back, and keeps a hex', () => {

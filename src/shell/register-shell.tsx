@@ -1,19 +1,25 @@
 import type { ReactElement } from 'react';
 import type { Disposable, Scena } from '@softov/scena/types';
-import { combineDisposables, subscribeI18n, translate } from '@softov/scena';
+import { combineDisposables, subscribeI18n, translate, type ModusClass } from '@softov/scena';
 import { bound } from '../i18n/locales.js';
 import { registerThemeController } from '@softov/scena/styles';
 // ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
 // import { registerCommands } from '../resources/commands/index.js';
 import { registerConnection } from '../bridges/index.js';
 import { registerHosts, sessionCountPaths } from '../bridges/hosts.js';
-import { SESSIONS_SECTION, registerSessions } from '../resources/sessions/index.js';
+import { SESSIONS_SECTION, hideOverlaidSidebar, registerSessions } from '../resources/sessions/index.js';
 import { AGENTS_SECTION, registerAgents } from '../resources/agents/index.js';
 import { AUTOMATIONS_SECTION, registerAutomations } from '../resources/automations/index.js';
 import { COMPUTERS_SECTION, registerComputers } from '../resources/computers/index.js';
 import { COMPUTERS_SERVED } from '../resources/computers/state.js';
 import { BOTS_SECTION, registerBots } from '../resources/bots/index.js';
 import { BOTS_SERVED } from '../resources/bots/state.js';
+import { registerUsers, USERS_SECTION } from '../resources/users/index.js';
+import { USERS_SERVED } from '../resources/users/state.js';
+import { registerTeams, TEAMS_SECTION } from '../resources/teams/index.js';
+import { TEAMS_SERVED } from '../resources/teams/state.js';
+import { registerUsage, USAGE_SECTION } from '../resources/usage/index.js';
+import { USAGE_SERVED } from '../resources/usage/state.js';
 import { FOLDERS_SECTION, registerFolders } from '../resources/folders/index.js';
 import { ahpPaths, windowHost } from '../bridges/data.js';
 import { EMOJIcon } from '../resources/emojis.js';
@@ -52,6 +58,30 @@ const SECTION_SHELL: Record<string, { layout: 'stack'; container: { title: strin
   [FOLDERS_SECTION]: { layout: 'stack', container: { title: 'folders/explorer/title', icon: EMOJIcon.folder } },
 };
 
+/** The display size class the modus backend publishes, and whether each sidebar shows, as the layout mirrors it. */
+const MODUS_CLASS = '$/modus/class' as BindingPath;
+const LEFT_SHOWN = '$/layout/surfaces/sidebar:left/visible' as BindingPath;
+const RIGHT_SHOWN = '$/layout/surfaces/sidebar:right/visible' as BindingPath;
+
+/**
+ * On a narrow screen both sidebars float over the page, and one over the other
+ * hides both, so showing one puts the other away. Both shown at once, as a wide
+ * screen's layout leaves them, keeps the left.
+ */
+function oneOverlaidSidebar(scena: Scena): Disposable {
+  const shown = (surface: 'sidebar:left' | 'sidebar:right'): boolean => scena.layout.get().surfaces[surface]?.visible !== false;
+  const keep = (surface: 'sidebar:left' | 'sidebar:right'): void => {
+    const other = surface === 'sidebar:left' ? 'sidebar:right' : 'sidebar:left';
+    if (shown(surface) && shown(other)) hideOverlaidSidebar(scena, scena.store.get<ModusClass>(MODUS_CLASS) ?? 'large', other);
+  };
+  keep('sidebar:left');
+  return combineDisposables(
+    scena.store.subscribe(LEFT_SHOWN, () => keep('sidebar:left')),
+    scena.store.subscribe(RIGHT_SHOWN, () => keep('sidebar:right')),
+    scena.store.subscribe(MODUS_CLASS, () => keep('sidebar:left')),
+  );
+}
+
 /** Lays the left sidebar out for its section, with the strip's title in the chosen language. */
 function applySidebarShell(scena: Scena): void {
   const section = scena.store.get<string>(SECTION) ?? '';
@@ -79,6 +109,7 @@ export function registerShell(scena: Scena): Disposable {
   const controls = embedder?.window;
   return combineDisposables(
     scena.store.subscribe(SECTION, () => applySidebarShell(scena)),
+    oneOverlaidSidebar(scena),
     { dispose: subscribeI18n(() => applySidebarShell(scena)) },
     // First, so anything registered after it can say something.
     registerNotifications(scena),
@@ -226,6 +257,27 @@ export function registerShell(scena: Scena): Disposable {
       when: `${BOTS_SERVED} == true`,
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.bots, label: bound('shell/nav/bots'), pos: 'bottom', section: BOTS_SECTION, args: TOGGLE },
     }),
+    // Shown while a host lists its users.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'users:nav',
+      when: `${USERS_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.users, label: bound('shell/nav/users'), pos: 'bottom', section: USERS_SECTION, args: TOGGLE },
+    }),
+    // Shown while a host lists its teams.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'teams:nav',
+      when: `${TEAMS_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.teams, label: bound('shell/nav/teams'), pos: 'bottom', section: TEAMS_SECTION, args: TOGGLE },
+    }),
+    // Shown while a host keeps usage.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'usage:nav',
+      when: `${USAGE_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.usage, label: bound('shell/nav/usage'), pos: 'bottom', section: USAGE_SECTION, args: TOGGLE },
+    }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'manage:nav',
@@ -241,6 +293,9 @@ export function registerShell(scena: Scena): Disposable {
     registerAutomations(scena),
     registerComputers(scena),
     registerBots(scena),
+    registerUsers(scena),
+    registerTeams(scena),
+    registerUsage(scena),
     registerFolders(scena),
     registerHost(scena),
     registerFiles(scena),

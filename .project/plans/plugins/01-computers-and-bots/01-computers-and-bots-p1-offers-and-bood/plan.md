@@ -1,7 +1,7 @@
 ---
 title: Offers and bood
 domain: plugins
-status: active
+status: built
 priority: medium
 created: 2026-10-16
 revalidated: 2026-10-16
@@ -31,7 +31,7 @@ The answers are in the parent plan's *Answers* table, rows marked p1.
 | Task | Status | Depends on |
 | --- | --- | --- |
 | [01 - a host's offers in the store](task-01-a-hosts-offers-in-the-store.md) | done | - |
-| [02 - a bood component](task-02-a-bood-component.md) | blocked | - |
+| [02 - a bood component](task-02-a-bood-component.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -39,13 +39,13 @@ The answers are in the parent plan's *Answers* table, rows marked p1.
 
 ## Resume state
 
-- **Done so far:** task 01; task 02 in code, 2026-10-16.
-- **Next action:** swap the local link for `@cofold/bood@^0.1.0` once Softov publishes it.
+- **Done so far:** both tasks, 2026-10-16; see [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** do not commit the local `link:` to bood.
 
 ## Final verification checklist
 
-- [ ] `ahpPaths(host).offers` holds the methods, channels and providers of a host serving both plugins.
-- [ ] `Bood` draws every body in `BOT_BODIES`, `semicircle` too.
-- [ ] `pnpm test` and `pnpm typecheck` pass.
+- [x] `ahpPaths(host).offers` holds the methods, channels and providers of a host serving both plugins.
+- [x] `Bood` draws every body in `BOT_BODIES`, `semicircle` too.
+- [x] `pnpm test` and `pnpm typecheck` pass.

@@ -49,7 +49,10 @@
       "host": "Host",
       "agents": "Agentes",
       "computers": "Computadoras",
-      "bots": "Bots"
+      "bots": "Bots",
+      "users": "Usuarios",
+      "teams": "Equipos",
+      "usage": "Uso"
     },
     "palette": {
       "placeholder": "Escribe un comando o una terminal"
@@ -823,7 +826,9 @@
       "instructionsLater": "Un cambio llega a los próximos chats, no al primero ya enviado.",
       "create": "Crear",
       "save": "Guardar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "bodyName": "Nombre del cuerpo",
+      "bodyUnknown": "bood aún no tiene un cuerpo con ese nombre, así que se dibuja como un cuadrado."
     },
     "colors": {
       "red": "Rojo",
@@ -839,10 +844,151 @@
       "black": "Negro"
     },
     "layer": {
-      "noSession": "Este bot todavía no tiene chat.",
       "say": "Dile algo a {name}",
       "send": "Enviar",
       "more": "{count} bots más"
+    },
+    "chat": {
+      "cannot": "No puedes chatear con este bot.",
+      "opening": "Abriendo el chat…",
+      "failed": "No se pudo abrir el chat",
+      "reading": "Leyendo el chat",
+      "working": "{name} está trabajando",
+      "noReply": "{name} terminó sin responder",
+      "empty": "Dile algo a {name}.",
+      "download": "Guardar {name}",
+      "message": "Escribe a {name}"
+    }
+  },
+  "users": {
+    "explorer": {
+      "title": "Usuarios",
+      "users": "Usuarios",
+      "roles": "Roles",
+      "filter": "Filtrar usuarios y roles",
+      "empty": "Aún no hay usuarios.",
+      "notServed": "Ningún host aquí lista sus usuarios."
+    },
+    "notices": {
+      "none": "Sin usuarios",
+      "reading": "Leyendo los usuarios",
+      "readOnly": "Este host no te deja cambiar esto."
+    },
+    "commands": {
+      "new": "Nuevo",
+      "newUser": "Nuevo usuario",
+      "newRole": "Nuevo rol",
+      "show": "Mostrar usuarios",
+      "openUser": "Abrir usuario",
+      "openRole": "Abrir rol"
+    },
+    "actions": {
+      "open": "Abrir",
+      "delete": "Eliminar",
+      "failed": "El host no lo hizo",
+      "cancel": "Cancelar",
+      "discard": "Descartar cambios"
+    },
+    "user": {
+      "deleteTitle": "¿Eliminar a {id}?",
+      "deleteBody": "Ya no podrá iniciar sesión en este host.",
+      "gone": "Este usuario ya no existe.",
+      "id": "Id",
+      "idHint": "Con qué inicia sesión y cómo lo nombra el host. No se puede cambiar después.",
+      "roles": "Roles",
+      "noRoles": "Este host no define roles.",
+      "memberships": "Membresías",
+      "noMemberships": "Ninguna",
+      "dropMembership": "Quitar {membership}",
+      "addMembership": "Añadir una membresía…",
+      "membershipsHint": "A qué se puede cargar su trabajo: un equipo, todos los proyectos de un equipo (equipo:*) o un proyecto a través de un equipo (equipo:proyecto).",
+      "primary": "Principal",
+      "primaryHint": "A qué se carga su trabajo cuando no indica otra cosa.",
+      "noPrimary": "Ninguna",
+      "issuer": "Emisor",
+      "issuerHint": "Dónde inicia sesión, si no es en este host: github o la URL de un emisor. Vacío lo quita.",
+      "rolesFrom": "Roles desde",
+      "rolesFromHint": "El claim de la respuesta del emisor que trae sus roles, como groups. Vacío lo quita.",
+      "token": "Aquí nunca se muestra un token. Créalo en el host con: ahpd user token {id}",
+      "create": "Crear usuario",
+      "save": "Guardar",
+      "dropAdminTitle": "¿Quitarte admin a ti mismo?",
+      "dropAdminBody": "Puede que ya no puedas cambiar usuarios ni roles en este host."
+    },
+    "role": {
+      "deleteTitle": "¿Eliminar el rol {id}?",
+      "deleteBody": "Quienes lo tienen pierden lo que concede.",
+      "gone": "Este rol ya no existe.",
+      "id": "Id",
+      "idHint": "El nombre con que los usuarios lo tienen. No se puede cambiar después.",
+      "grants": "Permisos",
+      "grantsHint": "Uno por línea, cada uno sujeto:operación, como session:write; read, write o * para todas las operaciones.",
+      "badGrant": "La línea {line}, {text}, no es sujeto:operación.",
+      "grantCount": "Permisos: {count}",
+      "create": "Crear rol",
+      "save": "Guardar",
+      "builtIn": "incorporado",
+      "builtInNote": "Incorporado en ahpd. Al guardar se escribe en el host un rol con este nombre, que reemplaza al incorporado.",
+      "replacesNote": "Este rol reemplaza al incorporado de ahpd con el mismo nombre. Al eliminarlo vuelve el incorporado."
+    }
+  },
+  "teams": {
+    "explorer": {
+      "title": "Equipos",
+      "teams": "Equipos",
+      "projects": "Proyectos",
+      "filter": "Filtrar equipos y proyectos",
+      "empty": "Aún no hay equipos.",
+      "notServed": "Ningún host aquí lista sus equipos.",
+      "members": "Miembros: {count}"
+    },
+    "notices": {
+      "none": "Sin equipos",
+      "reading": "Leyendo los equipos",
+      "readOnly": "Este host no te deja cambiar esto."
+    },
+    "commands": {
+      "new": "Nuevo",
+      "newTeam": "Nuevo equipo",
+      "newProject": "Nuevo proyecto",
+      "show": "Mostrar equipos",
+      "openTeam": "Abrir equipo",
+      "openProject": "Abrir proyecto"
+    },
+    "actions": {
+      "open": "Abrir",
+      "delete": "Eliminar",
+      "failed": "El host no lo hizo",
+      "cancel": "Cancelar",
+      "discard": "Descartar cambios"
+    },
+    "named": {
+      "id": "Id",
+      "title": "Título",
+      "titleHint": "Lo que se muestra en lugar del id. Vacío muestra el id.",
+      "save": "Guardar",
+      "members": "Miembros",
+      "noMembers": "Nadie aún.",
+      "primary": "Su principal",
+      "addWho": "Añadir a alguien…",
+      "through": "A través de qué equipo…",
+      "add": "Añadir"
+    },
+    "team": {
+      "idHint": "El nombre con que se escriben las membresías. No se puede cambiar después.",
+      "create": "Crear equipo",
+      "gone": "Este equipo ya no existe.",
+      "deleteTitle": "¿Eliminar el equipo {id}?",
+      "deleteBody": "El host lo rechaza mientras alguien pertenezca a él.",
+      "membersHint": "Todos cuyas membresías nombran este equipo: el equipo, todos sus proyectos o un proyecto a través de él."
+    },
+    "project": {
+      "idHint": "El nombre con que se escriben las membresías, tras un equipo. No se puede cambiar después.",
+      "create": "Crear proyecto",
+      "gone": "Este proyecto ya no existe.",
+      "deleteTitle": "¿Eliminar el proyecto {id}?",
+      "deleteBody": "El host lo rechaza mientras alguien trabaje en él.",
+      "membersHint": "Todos los que trabajan en él a través de un equipo, o de todos los proyectos de un equipo."
     }
   },
   "agents": {
@@ -1543,6 +1689,70 @@
       "connecting": "Conectando",
       "down": "Caído",
       "refused": "Token rechazado"
+    }
+  },
+  "usage": {
+    "explorer": {
+      "title": "Uso",
+      "filter": "Filtrar uso",
+      "period": "Período",
+      "group": "Agrupar",
+      "empty": "Aún no se cobró nada.",
+      "notServed": "Ningún host aquí guarda el uso.",
+      "nothing": "Nada cobrado",
+      "none": "Ninguno",
+      "refused": "No leído"
+    },
+    "period": {
+      "day": "Hoy",
+      "week": "Esta semana",
+      "month": "Este mes",
+      "range": "Intervalo"
+    },
+    "group": {
+      "none": "Grupos de cobro",
+      "user": "Por usuario",
+      "team": "Por equipo",
+      "project": "Por proyecto"
+    },
+    "kind": {
+      "user": "Usuarios",
+      "team": "Equipos",
+      "project": "Proyectos",
+      "root": "Hosts",
+      "plugin": "Plugins"
+    },
+    "range": {
+      "from": "Desde",
+      "until": "Hasta"
+    },
+    "total": {
+      "tokens": {
+        "one": "{n} token",
+        "other": "{n} tokens"
+      },
+      "calls": {
+        "one": "{n} llamada",
+        "other": "{n} llamadas"
+      },
+      "hours": "{count} h"
+    },
+    "notices": {
+      "none": "Sin uso",
+      "reading": "Leyendo el uso"
+    },
+    "commands": {
+      "show": "Mostrar uso",
+      "open": "Abrir grupo de cobro"
+    },
+    "actions": {
+      "open": "Abrir"
+    },
+    "pool": {
+      "range": "En un intervalo",
+      "records": "Registros",
+      "noRecords": "No hay registros en estos días.",
+      "openSession": "Abrir sesión"
     }
   }
 }

@@ -31,6 +31,8 @@ import { AttachmentPreview } from './Attached.js';
 import { EMOJIcon } from '../emojis.js';
 import { CopyButton } from '../../shell/controls/CopyButton.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
+import { BotChat } from '../bots/chat/BotChat.js';
+import { botMarkOf } from '../bots/chat/mark.js';
 
 /** How a turn ended, as the key of its words, when it did not end well. */
 const ENDED: Record<string, string> = { cancelled: 'sessions/turn/stopped', error: 'sessions/turn/failed' };
@@ -195,6 +197,9 @@ export default function SessionPage({ host, resource }: { host: string; resource
   }, [unread, resource, turns]);
 
   if (summary === undefined) return <PageAlert tone="warning" message={t('sessions/chat/gone')} />;
+  // A session with a bot's mark is a chat with that bot, whatever its provider: only what is said shows.
+  const mark = botMarkOf(summary._meta) ?? botMarkOf(session.state?._meta);
+  if (mark !== undefined) return <BotChat host={host} mark={mark} summary={summary} session={session} chat={chat} chatUri={chatUri} send={send} />;
   const activity = activityOf(summary.status);
   const lifecycle = String(session.state?.lifecycle ?? 'ready');
   const doing = chat.state?.activity ?? summary.activity;

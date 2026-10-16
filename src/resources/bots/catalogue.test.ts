@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { botsReducer, type BotRecord, type BotsState } from './catalogue.js';
+import { botsReducer, readBotChat, servesBotChats, type BotRecord, type BotsState } from './catalogue.js';
 import { draftOf, freshLook, parseLabels, recordBody } from './draft.js';
 
 const bot = (id: string, extra: Partial<BotRecord> = {}): BotRecord => ({
@@ -34,5 +34,19 @@ describe('draft', () => {
     expect(recordBody(fresh, true)).toEqual({ name: 'Ana', labels: ['a', 'b'], body: 'ghost', color: 'blue', owner: 'root:h' });
     const edited = { ...draftOf(bot('a', { description: 'old', instructions: 'Be kind.' }), []), description: '' };
     expect(recordBody(edited, false)).toEqual({ name: 'a', labels: [], body: 'robot', color: 'blue', description: '', instructions: 'Be kind.' });
+  });
+});
+
+describe('bot chats', () => {
+  it('runs them only on a host that lists the bot-chat agent', () => {
+    expect(servesBotChats(undefined)).toBe(false);
+    expect(servesBotChats([{ provider: 'cofold' }])).toBe(false);
+    expect(servesBotChats([{ provider: 'cofold' }, { provider: 'bot-chat' }])).toBe(true);
+  });
+
+  it('chats in the bot\'s own session on a host without bot chats, and not at all without one', async () => {
+    const offers = { methods: [], channels: [], providers: {} };
+    expect(await readBotChat('h', offers, bot('nimbo', { session: 'cofold:/abc' }), false)).toBe('cofold:/abc');
+    expect(await readBotChat('h', offers, bot('nimbo'), false)).toBeNull();
   });
 });

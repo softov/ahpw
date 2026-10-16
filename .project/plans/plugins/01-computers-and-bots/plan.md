@@ -1,7 +1,7 @@
 ---
 title: Computers and bots
 domain: plugins
-status: active
+status: built
 priority: medium
 created: 2026-10-16
 revalidated: 2026-10-16
@@ -88,7 +88,7 @@ form -> x-ahpd/computers/create | resourceWrite bot:// (createOnly | ifMatch) ->
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [p1 - Offers and bood](01-computers-and-bots-p1-offers-and-bood/plan.md) | active | - |
+| [p1 - Offers and bood](01-computers-and-bots-p1-offers-and-bood/plan.md) | built | - |
 | [p2 - Computers](01-computers-and-bots-p2-computers/plan.md) | built | p1 |
 | [p3 - Bots](01-computers-and-bots-p3-bots/plan.md) | built | p1 |
 | [p4 - The bot layer](01-computers-and-bots-p4-the-bot-layer/plan.md) | built | p3 |
@@ -101,8 +101,8 @@ form -> x-ahpd/computers/create | resourceWrite bot:// (createOnly | ifMatch) ->
 
 ## Resume state
 
-- **Done so far:** p2 to p5 built, 2026-10-16; p1 in code, waiting on the bood publish.
-- **Next action:** once `@cofold/bood` 0.1.0 is on npm, swap the local link for `^0.1.0` and close p1, then this plan.
+- **Done so far:** p1 to p5 built, 2026-10-16; see [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** take only types from `@ahpd/bot` and `@ahpd/computer`, since their code imports `node:fs`.
 
@@ -111,4 +111,4 @@ form -> x-ahpd/computers/create | resourceWrite bot:// (createOnly | ifMatch) ->
 - [x] With a host serving both plugins, computers and bots list, open and are made from ahpw, mono and multi.
 - [x] A host serving neither shows no computers or bots entry, and no error.
 - [x] Bots float on the right edge; a click talks to the bot; a drag moves it.
-- [ ] `plans/index.md` updated.
+- [x] `plans/index.md` updated.
