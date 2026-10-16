@@ -4,9 +4,9 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "types": [],
-    "rootDir": "src/embed",
+    "rootDir": "src/shell/embed",
     "outDir": "dist/embed",
     "declaration": true
   },
-  "files": ["src/embed/index.ts"]
+  "files": ["src/shell/embed/index.ts"]
 }

@@ -1,0 +1,1290 @@
+{
+  "common": {
+    "close": "Fechar",
+    "retry": "Tentar novamente",
+    "reload": "Recarregar",
+    "loading": "Carregando",
+    "dismiss": "Dispensar",
+    "moreActions": "Mais ações",
+    "breadcrumb": "Trilha de navegação"
+  },
+  "auth": {
+    "subtitle": "Entre com um token.",
+    "token": "Token",
+    "tokenRequired": "Informe um token.",
+    "signIn": "Entrar",
+    "forgotPassword": "Esqueceu a senha?",
+    "createAccount": "Criar conta",
+    "providerLabel": "Continuar com {provider}",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefone",
+    "sendCode": "Enviar código",
+    "sendLink": "Enviar link",
+    "verifyCode": "Verificar código",
+    "verifyFailed": "Falha na verificação"
+  },
+  "shell": {
+    "toggleLeft": "Mostrar ou ocultar a barra lateral esquerda (Ctrl+B)",
+    "togglePanel": "Mostrar ou ocultar o painel (Ctrl+J)",
+    "toggleRight": "Mostrar ou ocultar a barra lateral direita (Ctrl+Alt+B)",
+    "commands": {
+      "activateSection": "Ativar seção da barra lateral",
+      "toggleLeft": "Mostrar ou ocultar a barra lateral esquerda",
+      "toggleRight": "Mostrar ou ocultar a barra lateral direita",
+      "palette": "Paleta de comandos",
+      "showCommands": "Mostrar todos os comandos",
+      "toggleActivityBar": "Mostrar ou ocultar a barra de atividades",
+      "toggleStatusBar": "Mostrar ou ocultar a barra de status",
+      "toggleTitleBar": "Mostrar ou ocultar a barra de título",
+      "selectLocale": "Mudar idioma…",
+      "selectTheme": "Mudar tema…"
+    },
+    "nav": {
+      "sessions": "Sessões",
+      "unread": "não lidas",
+      "working": "em andamento",
+      "explorer": "Explorador",
+      "automations": "Automações",
+      "host": "Host",
+      "agents": "Agentes"
+    },
+    "palette": {
+      "placeholder": "Digite um comando ou um terminal"
+    },
+    "layouts": {
+      "tab": "Abas",
+      "tab-panel": "Grupos de abas",
+      "split": "Dividido",
+      "spatial": "Espacial",
+      "stack": "Empilhado",
+      "single": "Único"
+    },
+    "layout": {
+      "title": "Personalizar layout",
+      "view": "Layout principal",
+      "modes": {
+        "title": "Modos",
+        "default": "Padrão",
+        "focus": "Foco",
+        "zen": "Zen",
+        "wide": "Amplo",
+        "split": "Visão dividida"
+      },
+      "zones": {
+        "title": "Mostrar",
+        "titlebar": "Barra de título",
+        "activitybar": "Barra de atividades",
+        "sidebar-left": "Barra lateral esquerda",
+        "sidebar-right": "Barra lateral direita",
+        "panel-bottom": "Painel",
+        "statusbar": "Barra de status"
+      }
+    },
+    "notify": {
+      "region": "Notificações",
+      "more": "mais {count}",
+      "raised": {
+        "one": "Exibida {count} vez",
+        "other": "Exibida {count} vezes"
+      },
+      "dismiss": "Dispensar",
+      "showDetails": "Mostrar detalhes",
+      "hideDetails": "Ocultar detalhes",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "commands": {
+        "enableAlerts": "Notificar-me quando esta aba estiver em segundo plano",
+        "confirmModal": "Perguntar no diálogo da página",
+        "confirmNative": "Perguntar no diálogo do navegador",
+        "dismissAll": "Dispensar todas as notificações"
+      },
+      "alerts": {
+        "alreadyOn": "As notificações em segundo plano já estão ativadas",
+        "blocked": "As notificações em segundo plano estão bloqueadas",
+        "blockedHelp": "O navegador não vai perguntar de novo. Ative-as nas configurações do site, ao lado da barra de endereços.",
+        "on": "As notificações em segundo plano estão ativadas",
+        "notAllowed": "As notificações em segundo plano não foram permitidas"
+      }
+    },
+    "panel": {
+      "log": "Log",
+      "commands": {
+        "toggle": "Mostrar ou ocultar o painel",
+        "showLog": "Mostrar log",
+        "clearLog": "Limpar log",
+        "hide": "Ocultar painel"
+      }
+    },
+    "embed": {
+      "manageHosts": "Gerenciar hosts",
+      "addHost": "Adicionar host",
+      "status": {
+        "connected": "Conectado",
+        "connecting": "Conectando",
+        "down": "Fora do ar"
+      },
+      "minimize": "Minimizar",
+      "maximize": "Maximizar",
+      "restore": "Restaurar",
+      "close": "Fechar"
+    },
+    "copy": {
+      "copy": "Copiar",
+      "copied": "Copiado"
+    },
+    "explorer": {
+      "noMatch": "Nenhum resultado."
+    },
+    "sidebar": {
+      "show": "Mostrar {title}"
+    },
+    "view": {
+      "setMainLayout": "Definir o layout principal"
+    },
+    "manage": {
+      "title": "Gerenciar",
+      "language": "Idioma",
+      "layout": "Layout",
+      "theme": "Tema",
+      "settings": "Configurações",
+      "signOut": "Sair"
+    }
+  },
+  "close": {
+    "title": "Fechar {title}?",
+    "keep": "Manter aberto",
+    "close": "Fechar"
+  },
+  "query": {
+    "search": "Buscar…",
+    "noItems": "nada",
+    "pageOf": "{page} / {pages}",
+    "itemRange": "{first} – {last} de {total}",
+    "perPage": "Linhas por página",
+    "perPageOption": "{size} / página",
+    "filter": "Filtrar…",
+    "previous": "Anterior",
+    "next": "Próxima"
+  },
+  "tabs": {
+    "close": "Fechar aba",
+    "closeAll": "Fechar todas",
+    "closeGroup": "Fechar grupo",
+    "closeLeft": "Fechar à esquerda",
+    "closeRight": "Fechar à direita",
+    "closeOthers": "Fechar as outras",
+    "closeOthersInGroup": "Fechar as outras (exceto a ativa)",
+    "closeOtherGroups": "Fechar os outros (exceto o grupo ativo)",
+    "copyKey": "Copiar chave",
+    "pin": "Fixar aba",
+    "unpin": "Desafixar aba",
+    "openToLeft": "Abrir à esquerda",
+    "openToRight": "Abrir à direita",
+    "openToTop": "Abrir acima",
+    "openToBottom": "Abrir abaixo",
+    "splitLeft": "Dividir grupo à esquerda",
+    "splitRight": "Dividir grupo à direita",
+    "splitUp": "Dividir grupo para cima",
+    "splitDown": "Dividir grupo para baixo"
+  },
+  "picker": {
+    "navigate": "navegar",
+    "select": "escolher",
+    "back": "voltar",
+    "close": "fechar",
+    "noMatches": "Nenhum resultado",
+    "backTo": "Voltar",
+    "searching": "buscando…"
+  },
+  "folders": {
+    "commands": {
+      "show": "Mostrar o explorador",
+      "reveal": "Mostrar a pasta no explorador"
+    },
+    "addFolder": "Adicionar pasta",
+    "entry": {
+      "newFile": "Novo arquivo",
+      "newFolder": "Nova pasta",
+      "upload": "Enviar",
+      "copyPath": "Copiar caminho",
+      "download": "Baixar",
+      "rename": "Renomear",
+      "copy": "Copiar",
+      "removeFolder": "Remover pasta",
+      "delete": "Excluir"
+    },
+    "failed": {
+      "newFile": "Não foi possível criar o arquivo",
+      "newFolder": "Não foi possível criar a pasta",
+      "upload": "O envio falhou",
+      "copyPath": "Não foi possível copiar o caminho",
+      "download": "O download falhou",
+      "rename": "Não foi possível renomear",
+      "copy": "Não foi possível copiar",
+      "removeFolder": "Não foi possível remover a pasta",
+      "delete": "Não foi possível excluir"
+    },
+    "ask": {
+      "create": "Criar",
+      "name": "Nome",
+      "cancel": "Cancelar"
+    },
+    "uploaded": "{name} enviado",
+    "uploadedFiles": {
+      "one": "{count} arquivo enviado",
+      "other": "{count} arquivos enviados"
+    },
+    "pathCopied": "Caminho copiado",
+    "delete": {
+      "title": "Excluir \"{name}\"?",
+      "body": "Tudo o que ela contém também é excluído."
+    },
+    "name": {
+      "empty": "Digite um nome.",
+      "slash": "Um nome não pode ter barras.",
+      "dot": "Digite um nome que não seja um ponto."
+    },
+    "copyName": "{name} cópia{ext}",
+    "explorer": {
+      "title": "Explorador",
+      "refresh": "Atualizar",
+      "open": "Abrir",
+      "openWith": "Abrir com {viewer}",
+      "loading": "Carregando",
+      "notReadable": "Não foi possível ler",
+      "default": "padrão",
+      "notConnected": "Sem conexão",
+      "refused": "O servidor recusou a conexão.",
+      "connecting": "Conectando ao servidor",
+      "empty": "O servidor ainda não indica nenhuma pasta. Inicie uma sessão em uma.",
+      "folders": "Pastas"
+    },
+    "pick": {
+      "missing": "O caminho não existe.",
+      "notFolder": "O caminho não é uma pasta.",
+      "missingHint": "O caminho não existe. Use ~ para ir à sua pasta pessoal.",
+      "path": "Caminho da pasta",
+      "add": "Adicionar",
+      "folders": "Pastas",
+      "reading": "Lendo…",
+      "noMatch": "Nenhuma pasta começa com {part}"
+    },
+    "openEditors": {
+      "title": "Editores abertos",
+      "close": "Fechar",
+      "empty": "Nada aberto."
+    }
+  },
+  "files": {
+    "viewers": {
+      "text": "Texto",
+      "markdown": "Markdown",
+      "image": "Imagem",
+      "video": "Vídeo",
+      "audio": "Áudio"
+    },
+    "openAs": "Abrir como {viewer}",
+    "openWith": "Abrir com",
+    "commands": {
+      "openFile": "Abrir arquivo",
+      "showText": "Mostrar como texto",
+      "showMarkdown": "Mostrar como Markdown",
+      "openDiff": "Abrir diferenças"
+    },
+    "openFile": "Abrir arquivo",
+    "noFile": "Nenhum arquivo foi indicado.",
+    "reading": "Lendo o arquivo",
+    "notReadable": "Não foi possível ler",
+    "notText": "Este arquivo não é texto.",
+    "unsaved": "As alterações deste arquivo não foram salvas.",
+    "changedOnHost": "O arquivo mudou no servidor desde que foi aberto. Copie sua edição e abra o arquivo de novo.",
+    "readOnly": "Somente leitura",
+    "notSaved": "Não salvo",
+    "cut": "Este arquivo tem mais de 5 MB. O início é mostrado, somente leitura.",
+    "edited": "Editado",
+    "copyPath": "Copiar caminho",
+    "tooLarge": "Este arquivo tem {size}. Arquivos com mais de {max} não são mostrados.",
+    "audio": {
+      "cannotPlay": "Este navegador não consegue reproduzir este arquivo.",
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "speed": "Velocidade"
+    },
+    "diff": {
+      "newFile": "arquivo novo",
+      "deleted": "excluído",
+      "viewed": "Visto",
+      "reading": "Lendo as duas versões",
+      "none": "Nenhuma alteração."
+    },
+    "image": {
+      "zoom": "Zoom",
+      "zoomOut": "Diminuir zoom",
+      "fit": "Ajustar",
+      "zoomIn": "Aumentar zoom"
+    }
+  },
+  "changes": {
+    "title": "Alterações",
+    "titleOf": "Alterações · {title}",
+    "untitled": "Sem título",
+    "groups": {
+      "unreviewed": "Não revisados",
+      "reviewed": "Revisados",
+      "staged": "Preparados",
+      "changes": "Alterações"
+    },
+    "grouping": {
+      "review": "Por revisão",
+      "staging": "Preparados e não preparados",
+      "none": "Sem agrupar"
+    },
+    "status": {
+      "added": "Adicionado",
+      "modified": "Modificado",
+      "deleted": "Excluído",
+      "untracked": "Não rastreado"
+    },
+    "openChange": "Abrir alteração",
+    "openFile": "Abrir arquivo",
+    "markReviewed": "Marcar como revisado",
+    "markNotReviewed": "Marcar como não revisado",
+    "noSession": "Abra uma sessão para ver o que ela alterou.",
+    "untracked": "Esta sessão não registra alterações.",
+    "notReadable": "Não foi possível ler as alterações",
+    "computing": "Calculando as alterações",
+    "none": "Nenhuma alteração.",
+    "viewOptions": "Opções de visualização",
+    "view": {
+      "list": "Mostrar como lista",
+      "tree": "Mostrar como árvore",
+      "showAs": "Mostrar como"
+    },
+    "expandAll": "Expandir tudo",
+    "collapseAll": "Recolher tudo",
+    "files": {
+      "one": "{count} arquivo",
+      "other": "{count} arquivos"
+    },
+    "filter": "Filtrar arquivos",
+    "noMatch": "Nada corresponde.",
+    "cancel": "Cancelar",
+    "commit": {
+      "staged": {
+        "one": "O {count} arquivo preparado é confirmado. O resto fica como está.",
+        "other": "Os {count} arquivos preparados são confirmados. O resto fica como está."
+      },
+      "all": {
+        "one": "Nada está preparado, então o {count} arquivo alterado é confirmado.",
+        "other": "Nada está preparado, então todos os {count} arquivos alterados são confirmados."
+      },
+      "message": "Mensagem do commit",
+      "placeholder": "O que esta alteração faz?"
+    },
+    "pr": {
+      "title": "Criar um pull request",
+      "preparing": "Pedindo ao servidor um título e uma descrição",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Do que se trata esta solicitação?",
+      "description": "Descrição",
+      "descriptionPlaceholder": "O que mudou, e por quê?",
+      "draft": "Abrir como rascunho",
+      "cannotCreate": "Este servidor não oferece uma forma de criar a solicitação.",
+      "explain": "O servidor confirma o que está pendente, envia o branch e abre a solicitação somente quando você clica no botão."
+    }
+  },
+  "log": {
+    "follow": {
+      "mac": "Cmd+clique para abrir",
+      "other": "Ctrl+clique para abrir",
+      "link": "{tip} ({how})",
+      "terminal": "Abrir o terminal",
+      "session": "Abrir a sessão",
+      "file": "Abrir o arquivo",
+      "page": "Abrir a página"
+    },
+    "scopes": {
+      "connection": "Conexão",
+      "session": "Sessão",
+      "terminal": "Terminal",
+      "traffic": "Tráfego"
+    },
+    "copyLine": "Copiar a linha",
+    "all": "Tudo",
+    "levelTip": "Nível menos grave mostrado",
+    "minLevel": "{level} e acima",
+    "filter": "Filtrar (!palavra exclui)",
+    "copyShown": "Copiar as linhas mostradas",
+    "empty": "Nada registrado ainda.",
+    "noMatch": "Nada registrado corresponde ao filtro."
+  },
+  "terminals": {
+    "terminal": "Terminal",
+    "notConnected": "Sem conexão com o servidor.",
+    "commands": {
+      "open": "Abrir terminal",
+      "disconnect": "Desconectar terminal",
+      "connect": "Conectar terminal",
+      "kill": "Encerrar terminal",
+      "new": "Novo terminal"
+    },
+    "kill": {
+      "title": "Encerrar \"{title}\"?",
+      "body": "O processo dele é encerrado no host.",
+      "confirm": "Encerrar"
+    },
+    "failed": {
+      "kill": "Não foi possível encerrar o terminal",
+      "create": "Não foi possível criar o terminal"
+    },
+    "holder": {
+      "you": "Seu",
+      "session": "Em uso por uma sessão",
+      "another": "Em uso por outro cliente"
+    },
+    "exited": "{holder}, encerrado",
+    "exitedWith": "{holder}, encerrado com {code}",
+    "rows": {
+      "title": "Terminal: {title}",
+      "group": "Terminais"
+    },
+    "noTerminal": "Nenhum terminal foi indicado.",
+    "notReadable": "Não foi possível ler",
+    "disconnected": "Desconectado. O terminal continua rodando no host.",
+    "connect": "Conectar",
+    "note": {
+      "exited": "Encerrado.",
+      "exitedWith": "Encerrado com {code}.",
+      "session": "Uma sessão está usando este terminal. A digitação está desativada.",
+      "another": "Outro cliente está com este terminal. A digitação está desativada."
+    },
+    "takeOver": "Assumir o controle"
+  },
+  "automations": {
+    "commands": {
+      "new": "Nova automação",
+      "show": "Mostrar automações",
+      "edit": "Editar automação",
+      "open": "Abrir automação"
+    },
+    "automation": "Automação",
+    "editTitle": "Editar {title}",
+    "untitled": "Sem título",
+    "byHand": "Executada manualmente",
+    "cron": {
+      "everyMinutes": {
+        "one": "A cada minuto",
+        "other": "A cada {count} minutos"
+      },
+      "everyMinute": "A cada minuto",
+      "everyHours": {
+        "one": "A cada hora",
+        "other": "A cada {count} horas"
+      },
+      "hourlyAt": "A cada hora aos :{minute}",
+      "dailyAt": "Todos os dias às {time}",
+      "weekdaysAt": "De segunda a sexta às {time}",
+      "weekly": {
+        "sunday": "Todo domingo às {time}",
+        "monday": "Toda segunda-feira às {time}",
+        "tuesday": "Toda terça-feira às {time}",
+        "wednesday": "Toda quarta-feira às {time}",
+        "thursday": "Toda quinta-feira às {time}",
+        "friday": "Toda sexta-feira às {time}",
+        "saturday": "Todo sábado às {time}"
+      }
+    },
+    "problems": {
+      "title": "Dê um título.",
+      "message": "Diga o que ela envia.",
+      "schedule": "Um agendamento tem cinco campos: minuto, hora, dia, mês, dia da semana.",
+      "runs": "Pare após um número inteiro de execuções."
+    },
+    "state": {
+      "running": "Em execução",
+      "failed": "A última execução falhou",
+      "on": "Ativada",
+      "off": "Desativada"
+    },
+    "run": {
+      "pending": "Aguardando",
+      "running": "Em execução",
+      "completed": "Concluída",
+      "failed": "Falhou",
+      "cancelled": "Interrompida"
+    },
+    "notices": {
+      "none": "Nenhuma automação",
+      "reading": "Lendo as automações",
+      "gone": "Esta automação não existe mais."
+    },
+    "defaults": {
+      "host": "O padrão do host",
+      "agent": "O padrão do agente"
+    },
+    "actions": {
+      "deleteTitle": "Excluir \"{title}\"?",
+      "deleteBody": "O histórico de execuções também será excluído.",
+      "delete": "Excluir",
+      "couldNotRun": "Não foi possível executar a automação",
+      "open": "Abrir",
+      "runNow": "Executar agora",
+      "turnOff": "Desativar",
+      "turnOn": "Ativar",
+      "edit": "Editar",
+      "copyLink": "Copiar link"
+    },
+    "explorer": {
+      "title": "Automações",
+      "filter": "Filtrar automações",
+      "empty": "Ainda não há automações.",
+      "neverRun": "Nunca executada",
+      "runs": {
+        "one": "{count} execução",
+        "other": "{count} execuções"
+      },
+      "last": {
+        "pending": "última aguardando {at}",
+        "running": "última em execução {at}",
+        "completed": "última concluída {at}",
+        "failed": "última falhou {at}",
+        "cancelled": "última interrompida {at}",
+        "other": "última {status} {at}"
+      }
+    },
+    "origin": {
+      "byHand": "Manual",
+      "scheduled": "Agendada",
+      "scheduledFor": "Agendada para {time}",
+      "catchUp": "De recuperação",
+      "catchUpFor": "De recuperação para {time}"
+    },
+    "facts": {
+      "afterRuns": {
+        "one": "Após {count} execução",
+        "other": "Após {count} execuções"
+      },
+      "afterDate": "Após {date}",
+      "agent": "Agente",
+      "model": "Modelo",
+      "folder": "Pasta",
+      "settings": "Configurações",
+      "schedule": "Agendamento",
+      "missedRuns": "Execuções perdidas",
+      "runOnce": "Executar uma vez ao voltar",
+      "skipped": "Ignoradas",
+      "byHandOnly": "Executada só manualmente",
+      "event": "Evento",
+      "turnsOff": "Desativa",
+      "nextRun": "Próxima execução",
+      "runs": "Execuções",
+      "customizations": "Personalizações",
+      "created": "Criada",
+      "changed": "Alterada"
+    },
+    "page": {
+      "message": "Mensagem",
+      "runs": "Execuções",
+      "noRuns": "Ainda não há execuções.",
+      "columns": {
+        "status": "Status",
+        "how": "Como",
+        "started": "Início",
+        "took": "Duração",
+        "tokens": "Tokens"
+      },
+      "openSession": "Abrir sessão",
+      "stop": "Parar",
+      "loadOlder": "Carregar execuções anteriores"
+    },
+    "edit": {
+      "noCreate": "Este host não permite que clientes criem automações.",
+      "title": "Título",
+      "message": "Mensagem",
+      "messageHint": "O que é dito ao agente a cada execução.",
+      "agent": "Agente",
+      "model": "Modelo",
+      "folder": "Pasta",
+      "folderHint": "Uma pasta na máquina do daemon.",
+      "schedule": "Agendamento",
+      "presets": {
+        "byHand": "Só manualmente",
+        "every10Minutes": "A cada 10 minutos",
+        "everyHour": "A cada hora",
+        "every6Hours": "A cada 6 horas",
+        "dailyAt9": "Todos os dias às 09:00",
+        "weekdaysAt9": "De segunda a sexta às 09:00",
+        "mondayAt5": "Toda segunda-feira às 05:00"
+      },
+      "custom": "Personalizado",
+      "cron": "Expressão cron",
+      "cronPlaceholder": "minuto hora dia mês dia-da-semana",
+      "byHandHint": "Só executa quando iniciada manualmente.",
+      "minimum": {
+        "one": "No máximo a cada minuto.",
+        "other": "No máximo a cada {count} minutos."
+      },
+      "timeZone": "Fuso horário",
+      "missedRuns": "Execuções perdidas",
+      "missedHint": "O que acontece com uma execução prevista enquanto o daemon estava parado.",
+      "skip": "Ignorá-las",
+      "runOnce": "Executar uma vez ao voltar",
+      "afterRuns": "Desativar após execuções",
+      "afterDate": "Desativar após",
+      "keepsOn": "Vazio a mantém ativada.",
+      "on": "Ativada",
+      "create": "Criar",
+      "save": "Salvar",
+      "cancel": "Cancelar"
+    }
+  },
+  "agents": {
+    "commands": {
+      "show": "Mostrar agentes",
+      "open": "Abrir agente"
+    },
+    "newSession": "Nova sessão",
+    "models": {
+      "none": "Nenhum modelo listado",
+      "count": {
+        "one": "{count} modelo",
+        "other": "{count} modelos"
+      }
+    },
+    "capabilities": {
+      "chatsAndForks": "Vários chats por sessão, e bifurcações",
+      "chats": "Vários chats por sessão",
+      "foldersFirstFixed": "Várias pastas, a primeira fixa",
+      "folders": "Várias pastas"
+    },
+    "limits": {
+      "context": "{size} de contexto",
+      "output": "{size} de saída",
+      "images": "imagens"
+    },
+    "kinds": {
+      "plugin": "Plugin",
+      "directory": "Pasta",
+      "mcpServer": "Servidor MCP"
+    },
+    "counts": {
+      "agent": {
+        "one": "{count} agente",
+        "other": "{count} agentes"
+      },
+      "skill": {
+        "one": "{count} skill",
+        "other": "{count} skills"
+      },
+      "prompt": {
+        "one": "{count} prompt",
+        "other": "{count} prompts"
+      },
+      "rule": {
+        "one": "{count} regra",
+        "other": "{count} regras"
+      },
+      "hook": {
+        "one": "{count} hook",
+        "other": "{count} hooks"
+      },
+      "mcpServer": {
+        "one": "{count} servidor MCP",
+        "other": "{count} servidores MCP"
+      },
+      "item": {
+        "one": "{count} item",
+        "other": "{count} itens"
+      },
+      "empty": "Vazio"
+    },
+    "auth": {
+      "required": "Requer login",
+      "expired": "O login expirou",
+      "insufficientScope": "Requer mais acesso"
+    },
+    "states": {
+      "ready": "Pronto",
+      "starting": "Iniciando",
+      "startingBlocking": "Iniciando; bloqueia o próximo turno",
+      "stopped": "Parado",
+      "loading": "Carregando"
+    },
+    "flags": {
+      "userOnly": "só usuário",
+      "modelOnly": "só modelo",
+      "pinned": "fixado em {model}",
+      "always": "sempre"
+    },
+    "meta": {
+      "readOnly": "somente leitura",
+      "on": "ativado",
+      "off": "desativado"
+    },
+    "customizations": {
+      "copyName": "Copiar o nome",
+      "copyDescription": "Copiar a descrição",
+      "readingFile": "Lendo o arquivo",
+      "unreadable": "Não é possível ler o arquivo daqui.",
+      "openFile": "Abrir arquivo"
+    },
+    "explorer": {
+      "title": "Agentes",
+      "offered": "Disponível",
+      "sessions": {
+        "one": "{count} sessão",
+        "other": "{count} sessões"
+      },
+      "needsSignIn": "requer login",
+      "open": "Abrir",
+      "empty": "Este servidor não oferece nenhum agente.",
+      "filter": "Filtrar agentes"
+    },
+    "page": {
+      "gone": "Este servidor não oferece mais este agente.",
+      "facts": {
+        "provider": "Provedor",
+        "models": "Modelos",
+        "sessions": "Sessões",
+        "can": "Pode"
+      },
+      "oneChat": "Um chat em uma pasta por sessão",
+      "needsSignIn": "Requer login",
+      "models": "Modelos",
+      "noModels": "Este agente não lista modelos; ele escolhe o seu.",
+      "columns": {
+        "name": "Nome",
+        "id": "ID",
+        "limits": "Limites",
+        "resource": "Recurso",
+        "scopes": "Escopos"
+      },
+      "policy": {
+        "disabled": "Desativado por política",
+        "unconfigured": "Não configurado"
+      },
+      "customizations": "Personalizações",
+      "signIn": "Login",
+      "required": "Obrigatório",
+      "optional": "Opcional"
+    }
+  },
+  "commands": {
+    "commands": {
+      "open": "Abrir comando",
+      "openItem": "Abrir item",
+      "run": "Executar comando"
+    },
+    "noManifest": "Sem manifesto",
+    "readingManifest": "Lendo o manifesto",
+    "readingList": "Lendo a lista",
+    "remove": "Remover",
+    "cancel": "Cancelar",
+    "explorer": {
+      "noGroup": "Este daemon não tem comandos de {group}."
+    },
+    "item": {
+      "gone": "A lista não tem mais {kind} {title}.",
+      "reading": "Lendo"
+    },
+    "items": {
+      "badShape": "Esta lista voltou em um formato que não pode ser listado.",
+      "empty": "Ainda não há nada.",
+      "reloading": "Recarregando",
+      "commands": "Comandos",
+      "search": "Pesquisar em {title}"
+    },
+    "page": {
+      "noCommand": "Este daemon não tem o comando {id}.",
+      "run": "Executar",
+      "lastRun": "Última execução {time}",
+      "running": "Executando",
+      "notSent": "Não enviado"
+    },
+    "result": {
+      "nothing": "Nada.",
+      "done": "Pronto.",
+      "view": "visualização",
+      "value": "valor"
+    }
+  },
+  "manifest": {
+    "required": "{field} é obrigatório",
+    "removal": {
+      "question": {
+        "named": "Remover {kind} {item}?",
+        "kind": "Remover {kind}?",
+        "this": "Remover isto?"
+      },
+      "action": {
+        "named": "Remover {kind} {item}",
+        "kind": "Remover {kind}",
+        "this": "Remover isto"
+      }
+    }
+  },
+  "sessions": {
+    "untitled": "Sem título",
+    "activity": {
+      "completed": {
+        "one": "{count} etapa concluída",
+        "other": "{count} etapas concluídas"
+      },
+      "failed": "{count} com falha",
+      "took": "em {time}",
+      "thinking": "Pensando",
+      "working": "Trabalhando em {name}",
+      "workingFor": "Trabalhando em {name} há {time}",
+      "waiting": "Aguardando {name}",
+      "waitingFor": "Aguardando {name} há {time}"
+    },
+    "status": {
+      "input": "Precisa de você",
+      "running": "Em andamento",
+      "error": "Falhou",
+      "idle": "Ociosa",
+      "unread": "Não lida",
+      "archived": "Arquivada"
+    },
+    "alerts": {
+      "open": "Abrir",
+      "needsYou": "{name} precisa de você",
+      "failed": "{name} falhou",
+      "finished": "{name} terminou",
+      "finishedBody": "Terminou"
+    },
+    "question": {
+      "yes": "Sim",
+      "no": "Não",
+      "skipped": "Ignorada",
+      "hint": {
+        "single": "Escolha uma",
+        "singleOther": "Escolha uma ou escreva a sua",
+        "multi": "Escolha quantas quiser",
+        "multiOther": "Escolha quantas quiser ou escreva a sua",
+        "text": "Digite uma resposta",
+        "textOther": "Digite uma resposta ou escreva a sua",
+        "number": "Digite um número",
+        "numberOther": "Digite um número ou escreva a sua resposta",
+        "other": "ou escreva a sua",
+        "optional": "(opcional)",
+        "withOptional": "{hint} (opcional)"
+      },
+      "yourAnswer": "Sua resposta",
+      "recommended": "Recomendada",
+      "other": "Outra",
+      "otherPlaceholder": "Outra: escreva sua própria resposta",
+      "declined": "Pergunta recusada",
+      "unanswered": "Pergunta não respondida",
+      "answered": "Pergunta respondida",
+      "sending": "Enviando ao agente",
+      "asks": "O agente pergunta",
+      "asksColon": "O agente pergunta:",
+      "step": "Pergunta {page} de {total}",
+      "count": "{page} de {total}",
+      "decline": "Recusar",
+      "back": "Voltar",
+      "answer": "Responder",
+      "next": "Próxima",
+      "missing": {
+        "one": "Uma pergunta ainda precisa de resposta.",
+        "other": "{count} perguntas ainda precisam de resposta."
+      }
+    },
+    "attachments": {
+      "see": "Ver {name}",
+      "open": "Abrir {name}",
+      "remove": "Remover {name}",
+      "unnamed": "Anexo"
+    },
+    "clipboard": {
+      "insecure": "Requer https ou localhost",
+      "refused": "O navegador recusou",
+      "tooBig": "Mais de 5 MB",
+      "empty": "Nenhuma imagem na área de transferência"
+    },
+    "context": {
+      "title": "Adicionar contexto",
+      "hint": "Anexe um arquivo, uma sessão ou um arquivo deste computador",
+      "files": "Arquivos e pastas",
+      "filesHint": "Na máquina do servidor",
+      "upload": "Enviar",
+      "uploadHint": "Deste computador, até 5 MB cada",
+      "image": "Imagem da área de transferência",
+      "imageHint": "A imagem que você copiou",
+      "sessions": "Sessões",
+      "sessionsHint": "O chat de outra sessão",
+      "noSessions": "Nenhuma outra sessão",
+      "commands": "Comandos",
+      "commandsHint": "O que o agente e esta página podem fazer"
+    },
+    "values": {
+      "default": "padrão",
+      "none": "nenhum",
+      "items": {
+        "one": "{count} item",
+        "other": "{count} itens"
+      },
+      "on": "ligado",
+      "off": "desligado"
+    },
+    "commands": {
+      "model": "Modelo",
+      "modelHint": "O modelo para o qual a próxima mensagem é enviada",
+      "agentDefault": "Padrão do agente",
+      "stop": "Parar",
+      "stopHint": "Para o turno em andamento",
+      "newSession": "Nova sessão",
+      "newSessionHint": "Inicia outra sessão",
+      "showSessions": "Mostrar sessões",
+      "openSession": "Abrir sessão"
+    },
+    "upload": {
+      "notAttached": "Não anexado",
+      "refused": "Mais de 5 MB ou ilegível: {names}"
+    },
+    "composer": {
+      "steering": "Redirecionando",
+      "remove": "Remover",
+      "next": "Próxima {number}",
+      "folderHint": "A pasta em que esta sessão trabalha",
+      "agentHint": "O agente que executa esta sessão",
+      "message": "Mensagem",
+      "placeholder": "O que ele deve fazer?",
+      "placeholderRunning": "Coloque uma mensagem na fila para depois deste turno, ou redirecione-o",
+      "modelHint": "O modelo que recebe a próxima mensagem",
+      "steer": "Redirecionar",
+      "steerHint": "Alt+Enter redireciona",
+      "queue": "Pôr na fila",
+      "queueHint": "Enter coloca na fila",
+      "send": "Enviar",
+      "sendHint": "Enter envia, Shift+Enter quebra a linha",
+      "stopHint": "Esc para"
+    },
+    "details": {
+      "tab": "Sessão",
+      "empty": "Abra uma sessão para ver os detalhes.",
+      "openTerminal": "Abrir o terminal",
+      "terminal": "Terminal",
+      "session": "Sessão",
+      "sessionId": "Id da sessão",
+      "chatId": "Id do chat",
+      "agent": "Agente",
+      "model": "Modelo",
+      "folder": "Pasta",
+      "revealFolder": "Mostrar a pasta no explorador",
+      "newTerminal": "+ Novo terminal",
+      "newTerminalHint": "Um novo terminal",
+      "newTerminalInFolder": "Um novo terminal na pasta da sessão",
+      "project": "Projeto",
+      "started": "Início",
+      "changed": "Última alteração",
+      "turns": "Turnos",
+      "working": "Tempo de trabalho",
+      "tokens": "Tokens",
+      "toolCalls": "Chamadas de ferramentas",
+      "changes": "Alterações",
+      "inFiles": {
+        "one": "em {count} arquivo",
+        "other": "em {count} arquivos"
+      },
+      "from": "Origem",
+      "automation": "Uma execução de automação",
+      "watching": "Assistindo"
+    },
+    "grouping": {
+      "none": "Sem grupos",
+      "folder": "Agrupar por pasta",
+      "status": "Agrupar por status",
+      "agent": "Agrupar por agente",
+      "noFolder": "Sem pasta"
+    },
+    "explorer": {
+      "title": "Sessões",
+      "open": "Abrir",
+      "rename": "Renomear",
+      "renamePrompt": "Renomear a sessão",
+      "markRead": "Marcar como lida",
+      "markUnread": "Marcar como não lida",
+      "archive": "Arquivar",
+      "unarchive": "Desarquivar",
+      "copyLink": "Copiar link",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir \"{title}\"?",
+      "deleteBody": "O histórico vai junto.",
+      "deleteFailed": "Não foi possível excluir a sessão",
+      "files": {
+        "one": "{count} arquivo",
+        "other": "{count} arquivos"
+      },
+      "notConnected": "Sem conexão",
+      "refused": "O servidor recusou a conexão.",
+      "connecting": "Conectando ao servidor",
+      "none": "Nenhuma sessão.",
+      "noneYet": "Nenhuma sessão ainda.",
+      "reload": "Recarregar",
+      "reloading": "Recarregando",
+      "showArchived": "Mostrar arquivadas",
+      "hideArchived": "Ocultar arquivadas",
+      "group": "Agrupar sessões",
+      "current": "Atual",
+      "filter": "Filtrar sessões"
+    },
+    "folder": {
+      "hint": "Uma pasta na máquina do servidor",
+      "choose": "Escolher uma pasta",
+      "label": "Pasta",
+      "host": "Pasta do host",
+      "used": "Usadas",
+      "list": "Pastas",
+      "reading": "Lendo {path}",
+      "unreadable": "O host não consegue listar {path}",
+      "sessions": {
+        "one": "{count} sessão",
+        "other": "{count} sessões"
+      },
+      "open": "Abrir {name}"
+    },
+    "footer": {
+      "window": "Janela de contexto do modelo: {window} tokens",
+      "used": "{used} de {window} tokens, segundo o último turno"
+    },
+    "new": {
+      "unsent": "A mensagem não foi enviada.",
+      "agent": "Agente",
+      "agentHint": "O agente em que a sessão roda",
+      "agentPill": "Agente: {name}",
+      "noAgent": "Este servidor não oferece nenhum agente.",
+      "fold": "Recolher as opções",
+      "unfold": "Mostrar as opções",
+      "firstMessage": "Primeira mensagem",
+      "readingSettings": "Lendo as configurações",
+      "modelHint": "O modelo que recebe a primeira mensagem",
+      "starting": "Iniciando",
+      "create": "Criar",
+      "start": "Iniciar",
+      "startHint": "Enter inicia, Shift+Enter quebra a linha",
+      "notCreated": "Não criada"
+    },
+    "pills": {
+      "setting": "{name}: {value}",
+      "model": "Modelo: {name}"
+    },
+    "tips": {
+      "slash": "lista habilidades e comandos",
+      "mention": "faz referência a um arquivo",
+      "add": "adiciona arquivos, imagens e sessões",
+      "enter": "inicia; com a caixa vazia, cria a sessão sem mensagem",
+      "shiftEnter": "quebra a linha"
+    },
+    "turn": {
+      "stopped": "Parado",
+      "failed": "Terminou com um erro",
+      "soFar": "{time} até agora",
+      "cached": "{tokens} em cache",
+      "toolCalls": {
+        "one": "{count} chamada de ferramenta",
+        "other": "{count} chamadas de ferramentas"
+      },
+      "copyReply": "Copiar a resposta",
+      "working": "Trabalhando"
+    },
+    "chat": {
+      "loading": "Carregando",
+      "older": "Carregar turnos anteriores",
+      "gone": "Esta sessão não existe mais.",
+      "starting": "Iniciando a sessão",
+      "notStarted": "A sessão não foi iniciada",
+      "noReason": "Nenhum motivo informado.",
+      "sessionUnreadable": "Não foi possível ler a sessão",
+      "chatUnreadable": "Não foi possível ler o chat",
+      "reading": "Lendo o chat",
+      "empty": "Nenhuma mensagem ainda."
+    },
+    "tool": {
+      "preparing": "Preparando",
+      "approval": "Precisa de aprovação",
+      "running": "Em andamento",
+      "signIn": "Precisa de login",
+      "review": "Revisar resultado",
+      "done": "Concluída",
+      "failed": "Falhou",
+      "cancelled": "Cancelada",
+      "output": "Saída",
+      "exit": "saída {code}",
+      "cutShort": "truncada",
+      "noOutput": "Sem saída.",
+      "openFile": "Abrir o arquivo",
+      "openChange": "Abrir a alteração",
+      "tool": "Ferramenta",
+      "status": "Status",
+      "file": "Arquivo",
+      "why": "Motivo",
+      "risk": "Risco",
+      "safety": "{safety}/10 seguro",
+      "arguments": "Argumentos",
+      "acceptResult": "Aceitar resultado",
+      "reject": "Rejeitar",
+      "thinkingAbout": "Pensando: {text}",
+      "approve": "Aprovar",
+      "deny": "Negar",
+      "agentError": "O agente informou um erro.",
+      "ran": "Executou {name}",
+      "ranSubagent": "Executou um subagente",
+      "read": "Leu {path}",
+      "denied": "Negada.",
+      "skipped": "Ignorada.",
+      "resultDenied": "Resultado rejeitado.",
+      "cancelledNote": "Cancelada."
+    },
+    "start": {
+      "note": "Inicie uma sessão ou abra uma da lista."
+    }
+  },
+  "host": {
+    "title": "Host",
+    "commands": {
+      "info": "Informações do host",
+      "settings": "Configurações do host"
+    },
+    "info": {
+      "status": "Status",
+      "host": "Host",
+      "protocol": "Protocolo",
+      "connected": "Conectado",
+      "connectedValue": "{when} · {elapsed}",
+      "client": "Cliente",
+      "serverSeq": "Sequência do servidor",
+      "following": "Acompanhando",
+      "channels": {
+        "one": "{count} canal",
+        "other": "{count} canais"
+      },
+      "lastError": "Último erro",
+      "started": "Iniciado",
+      "startedValue": "{when} · ativo há {elapsed}",
+      "process": "Processo",
+      "address": "Endereço",
+      "automationsKeptIn": "Automações salvas em",
+      "sessionsKeptIn": "Sessões salvas em",
+      "agents": "Agentes",
+      "none": "Nenhum",
+      "defaultFolder": "Pasta padrão",
+      "activeSessions": "Sessões ativas",
+      "automations": "Automações",
+      "automationsNotOffered": "Não disponíveis",
+      "automationsReadOnly": "Somente leitura",
+      "automationsCreate": "Os clientes podem criá-las",
+      "automationsInterval": {
+        "one": "no máximo a cada {count} minuto",
+        "other": "no máximo a cada {count} minutos"
+      },
+      "automationsStoppable": "as execuções podem ser interrompidas",
+      "settings": "Configurações",
+      "connection": "Conexão",
+      "daemon": "Daemon",
+      "statusUnreadable": "Não foi possível ler o status do daemon: {error}",
+      "offers": "Oferece",
+      "terminals": "Terminais",
+      "noTerminals": "Nenhum terminal aberto.",
+      "terminalTitle": "Título",
+      "terminalState": "Estado",
+      "running": "Em execução",
+      "exited": "Encerrado",
+      "exitedCode": "Encerrado ({code})"
+    },
+    "settings": {
+      "tab": "Configurações",
+      "title": "Configurações do host",
+      "unreadable": "Não foi possível ler as configurações",
+      "reading": "Lendo as configurações",
+      "none": "Este host não publica nenhuma configuração.",
+      "save": "Salvar",
+      "fixJson": "Corrija o JSON primeiro",
+      "reset": "Redefinir",
+      "saved": "Salvo."
+    }
+  },
+  "bridges": {
+    "state": {
+      "connecting": "Conectando",
+      "connected": "Conectado",
+      "reconnecting": "Reconectando",
+      "reconnectingTry": "Reconectando (tentativa {attempt})",
+      "disconnected": "Desconectado",
+      "failed": "Falhou",
+      "notConnected": "Sem conexão"
+    },
+    "reconnectNow": "Reconectar agora",
+    "connectedAt": "Conectado às {time}",
+    "reconnected": {
+      "one": "Reconectado {count} vez",
+      "other": "Reconectado {count} vezes"
+    },
+    "backAgain": "Conectado ao servidor novamente",
+    "lost": "A conexão com o servidor foi perdida",
+    "retryNow": "Tentar agora",
+    "commands": {
+      "reconnect": "Reconectar ao servidor"
+    },
+    "notConnected": "Sem conexão com o servidor.",
+    "untitled": "Sem título",
+    "terminal": "Terminal",
+    "daemonSilent": "O daemon não respondeu."
+  },
+  "tree": {
+    "collapse": "Recolher",
+    "expand": "Expandir"
+  },
+  "form": {
+    "fields": "campos",
+    "json": "json",
+    "select": "Escolher…",
+    "removeItem": "Remover item",
+    "addItem": "+ adicionar item"
+  },
+  "spatial": {
+    "zoomOut": "Diminuir zoom",
+    "zoomIn": "Aumentar zoom",
+    "fit": "Ajustar todos os cartões à tela",
+    "reset": "Redefinir zoom e posição",
+    "selectedActions": "Ações do cartão selecionado",
+    "zoomPercent": "Porcentagem de zoom"
+  },
+  "layout": {
+    "togglePanes": "Mostrar ou ocultar painéis",
+    "groupActions": "Ações do grupo"
+  },
+  "theme": {
+    "label": "Tema",
+    "mode": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Seguir o sistema",
+      "next": "{mode}, clique para {next}",
+      "label": "Modo do tema: {mode}"
+    }
+  },
+  "groups": {
+    "Agent": "Agente",
+    "Agents": "Agentes",
+    "Automations": "Automações",
+    "Files": "Arquivos",
+    "Host": "Host",
+    "Notifications": "Notificações",
+    "Session": "Sessão",
+    "Sessions": "Sessões",
+    "Settings": "Configurações",
+    "Terminal": "Terminal",
+    "View": "Exibir",
+    "Open with": "Abrir com",
+    "more": "Mais",
+    "file": "Arquivo",
+    "changes": "Alterações",
+    "view": "Exibir",
+    "group": "Agrupar por",
+    "folders": "Pastas",
+    "changed": "Arquivos alterados",
+    "people": "Pessoas"
+  }
+}

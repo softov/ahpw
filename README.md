@@ -155,7 +155,7 @@ AHPW_SCENA=../scena pnpm dev
 
 An app that embeds ahpw, as [ahp-desk](https://github.com/softov/ahp-desk) does, sets `globalThis.ahpwEmbedder` before ahpw's scripts run.
 ahpw then takes its host and token from it instead of the address bar, and draws the window's frame when it gives one.
-The contract is `src/embed/index.ts`, and its types are exported as `@ahpd/web/embed`.
+The contract is `src/shell/embed/index.ts`, and its types are exported as `@ahpd/web/embed`.
 
 To try a local build in ahpd:
 
@@ -198,24 +198,31 @@ npm sets a trusted publisher on a package that exists, so the first version is p
 | --- | --- |
 | `plugin/` | The ahpd plugin: one route serving `dist/app` |
 | `cli/` | `ahpw serve`: the same route on its own server, and the socket proxy |
-| `src/connection/` | The AHP connection, the socket address, the protocol versions offered |
-| `src/sessions/` | The sessions list, a new session, a session's chat and details |
-| `src/folders/` | The explorer: the host's folders, and a host file dragged to the composer |
-| `src/agents/` | The agents the server offers |
-| `src/changes/` | What a session changed |
-| `src/files/` | File, Markdown and diff viewers |
-| `src/terminals/` | The server's terminals |
-| `src/log/` | The log page |
-| `src/panel/` | The bottom panel |
-| `src/automations/` | The automations list and an automation's page |
-| `src/commands/` | The command list, the command page, the result view |
-| `src/manifest/` | The manifest's types, commands to forms and requests |
-| `src/host/` | The host's settings |
-| `src/notify/` | Toasts, confirm dialogs, browser notifications |
-| `src/view/` | The palette, layouts and key bindings |
-| `src/explorer/` | The list the sidebar sections share |
-| `src/AhpwMark.tsx` | The logo, on the sign-in page and while loading |
-| `src/token-provider.ts` | Sign-in with a token |
+| `src/main.tsx`, `src/App.tsx` | The entry: the theme before the first paint, the scena root, sign-in or the shell |
+| `src/bridges/` | The AHP connection, the socket address, the protocol versions offered |
+| `src/porta/` | Sign-in with a token |
+| `src/lib/` | The API root, the token and the storage keys |
+| `src/resources/` | What the host offers, one folder each, each with an `index.ts` that registers it |
+| `src/resources/sessions/` | The sessions list, a new session, a session's chat and details |
+| `src/resources/folders/` | The explorer: the host's folders, and a host file dragged to the composer |
+| `src/resources/agents/` | The agents the server offers |
+| `src/resources/changes/` | What a session changed |
+| `src/resources/files/` | File, Markdown and diff viewers |
+| `src/resources/editor/` | The code editor the viewers and forms use |
+| `src/resources/terminals/` | The server's terminals |
+| `src/resources/log/` | The log page |
+| `src/resources/automations/` | The automations list and an automation's page |
+| `src/resources/commands/` | The command list, the command page, the result view |
+| `src/resources/manifest/` | The manifest's types, commands to forms and requests |
+| `src/resources/host/` | The host's settings and information |
+| `src/shell/` | The chrome: `register-shell.tsx` registers every resource, the activity bar and the sidebars |
+| `src/shell/panel/` | The bottom panel |
+| `src/shell/notify/` | Toasts, confirm dialogs, browser notifications |
+| `src/shell/view/` | The palette, layouts and key bindings |
+| `src/shell/explorer/` | The list the sidebar sections share |
+| `src/shell/embed/` | The contract with an app that embeds ahpw |
+| `src/shell/AhpwMark.tsx` | The logo, on the sign-in page and while loading |
+| `src/style/` | ahpw's own styles |
 
 ---
 

@@ -1,0 +1,94 @@
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
+import { Alert, Badge, Button, Markdown, SchemaForm, Spinner, Text } from '@softov/scena/ui';
+import { MANIFEST, runPath, type Run } from '../manifest/data.js';
+import { fieldsOf, schemaOf } from '../manifest/input.js';
+import { canRunWith, removalQuestion, runsOnOpening } from '../manifest/roles.js';
+import type { ProgramManifest } from '../manifest/types.js';
+import Result from './Result.js';
+import { PageAlert } from '../../shell/view/PageAlert.js';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
+import { dateFormat } from '../../i18n/locales.js';
+
+/** What a command's effect looks like on its badge. */
+const EFFECT_TONE: Record<string, 'info' | 'success' | 'warning' | 'danger'> = { read: 'info', add: 'success', change: 'warning', remove: 'danger' };
+
+/** How a run's time is shown. */
+const clock = dateFormat({ timeStyle: 'medium' });
+
+/** One command: what it is, its inputs as a form, and its last answer. */
+export default function CommandPage({ commandId, initial }: { commandId?: string; initial?: Record<string, unknown> }): ReactElement {
+  const scena = useScena();
+  const { t } = useI18n();
+  const manifest = useStore<ProgramManifest>(MANIFEST);
+  const command = manifest?.commands.find((one) => one.id === commandId);
+  const run = useStore<Run>(runPath(commandId ?? ''));
+  const [values, setValues] = useState<Record<string, unknown>>(() => initial ?? {});
+  const [asking, setAsking] = useState(false);
+  // While a JSON field does not parse, the form holds the last value that did; the command waits for it.
+  const [jsonValid, setJsonValid] = useState(true);
+  const schema = useMemo(() => (command === undefined ? undefined : schemaOf(command)), [command]);
+  const hasFields = command !== undefined && fieldsOf(command).length > 0;
+
+  const execute = (): void => {
+    setAsking(false);
+    if (command !== undefined) void scena.commands.execute('ahpd.run', { id: command.id, values });
+  };
+  // A read with every value it needs is run on opening, once.
+  useEffect(() => {
+    if (command !== undefined && run === undefined && runsOnOpening(command, values)) execute();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [command?.id]);
+
+  if (manifest === undefined) return <Spinner label={t('commands/readingManifest')} />;
+  if (command === undefined) return <PageAlert tone="warning" message={t('commands/page/noCommand', { id: commandId ?? '' })} />;
+
+  const reads = command.effect === undefined ? command.http.method === 'GET' : command.effect === 'read';
+  const removes = command.effect === 'remove';
+  return (
+    <div className="web-page">
+      <header className="web-page__head">
+        <Text variant="h2" text={command.summary} />
+        <div className="web-page__route">
+          {command.effect === undefined
+            ? <Badge label={command.http.method} tone={reads ? 'info' : 'warning'} />
+            : <Badge label={command.resource === undefined ? command.effect : `${command.effect} ${command.resource.kind}`} tone={EFFECT_TONE[command.effect] ?? 'info'} />}
+          <code>{command.pattern.join(' ')}</code>
+        </div>
+        {command.description === undefined ? null : <Markdown text={command.description} />}
+      </header>
+
+      {hasFields && schema !== undefined ? (
+        <SchemaForm key={command.id} schema={schema} value={values} onChange={setValues} jsonTextRoot={false} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} />
+      ) : null}
+
+      <div className="web-page__actions">
+        {asking ? (
+          <span className="web-result__ask">
+            {removalQuestion(command, values)}
+            <Button label={t('commands/remove')} variant="danger" onClick={execute} />
+            <Button label={t('commands/cancel')} onClick={() => setAsking(false)} />
+          </span>
+        ) : (
+          <Button
+            label={reads ? (run !== undefined && canRunWith(command, {}) ? t('common/reload') : t('commands/page/run')) : command.summary}
+            variant={removes ? 'danger' : 'primary'}
+            disabled={run?.state === 'running' || !jsonValid}
+            onClick={removes ? () => setAsking(true) : execute}
+          />
+        )}
+        {run !== undefined && run.state !== 'running' ? (
+          <Text muted variant="caption" text={t('commands/page/lastRun', { time: clock.format(run.at) })} />
+        ) : null}
+      </div>
+
+      {run === undefined ? null
+        : run.state === 'running' ? <Spinner label={t('commands/page/running')} />
+        : run.state === 'failed' ? (
+          <Alert tone="danger" title={run.status === 0 ? t('commands/page/notSent') : `HTTP ${run.status}`} message={run.message} />
+        ) : (
+          <Result value={run.data} />
+        )}
+    </div>
+  );
+}

@@ -58,8 +58,10 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     port: 5180,
+    // A key starting with ^ is a pattern. Plain '/ahp' was a prefix, so it also
+    // sent '/ahpw.svg' (the favicon) to the daemon, and the page had no icon.
     proxy: {
-      '/api': {
+      '^/api(?:[/?]|$)': {
         target: daemon,
         changeOrigin: true,
         // The daemon refuses an Origin it does not serve, and this dev server
@@ -70,7 +72,7 @@ export default defineConfig({
       },
       // The daemon's AHP socket answers at its root, which this dev server
       // keeps for the page, so the page connects here instead.
-      '/ahp': {
+      '^/ahp(?:[/?]|$)': {
         target: daemon,
         ws: true,
         changeOrigin: true,
@@ -80,6 +82,8 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts', 'plugin/**/*.test.ts', 'cli/**/*.test.ts'],
+    // English is registered, so code that translates reads as it does in an English page.
+    setupFiles: ['src/i18n/test-setup.ts'],
     // Linked or installed, scena's components import their own CSS.
     server: { deps: { inline: ['@softov/scena'] } },
   },
