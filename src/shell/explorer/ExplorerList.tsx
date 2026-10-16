@@ -24,28 +24,19 @@ export interface Row {
   action?: { icon: string; label: string; run: () => void };
 }
 
-/** An icon button in the explorer's title. */
-export interface HeadAction {
-  icon: string;
-  label: string;
-  run?: () => void;
-  /** A menu the button opens instead of running. */
-  menu?: PickerAction[];
-  on?: boolean;
-  /** Running: the icon turns and the button takes no clicks. */
-  busy?: boolean;
-}
-
 interface Menu {
   x: number;
   y: number;
   items: PickerAction[];
 }
 
-/** A sidebar list: a title with its actions, a filter, and rows that open on click and offer a menu on right-click. */
-export function ExplorerList({ title, actions, rows, selected, onOpen, notice, filterLabel }: {
-  title: string;
-  actions: HeadAction[];
+/**
+ * A sidebar list: a filter, and rows that open on click and offer a menu on
+ * right-click. Its section's title and buttons are scena's header, declared on
+ * the section's component; `label` only names the list for assistive tech.
+ */
+export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabel }: {
+  label: string;
   rows: Row[];
   selected: string | null;
   onOpen: (key: string) => void;
@@ -71,31 +62,6 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
 
   return (
     <div className="web-explorer">
-      <div className="web-explorer__title">
-        <span>{title}</span>
-        <span className="web-explorer__actions">
-          {actions.map((action) => (
-            <button
-              key={action.label}
-              type="button"
-              className="web-explorer__action"
-              title={action.label}
-              aria-label={action.label}
-              aria-pressed={action.on}
-              data-on={action.on === true ? 'true' : 'false'}
-              data-busy={action.busy === true ? 'true' : undefined}
-              disabled={action.busy === true}
-              onClick={(event) => {
-                if (action.menu === undefined) return action.run?.();
-                const box = event.currentTarget.getBoundingClientRect();
-                setMenu({ x: box.left, y: box.bottom, items: action.menu });
-              }}
-            >
-              <span className="web-explorer__icon">{action.icon}</span>
-            </button>
-          ))}
-        </span>
-      </div>
       {filterLabel === undefined ? null : (
         <input
           className="web-explorer__filter"
@@ -108,7 +74,7 @@ export function ExplorerList({ title, actions, rows, selected, onOpen, notice, f
       )}
       <div className="web-explorer__scroll">
         {notice === undefined || notice === null ? null : <div className="web-explorer__notice">{notice}</div>}
-        <ul className="web-explorer__list" role="listbox" aria-label={title}>
+        <ul className="web-explorer__list" role="listbox" aria-label={label}>
           {shown.map((row, index) => {
             const group = row.group;
             const opens = group !== undefined && shown[index - 1]?.group?.key !== group.key;

@@ -35,10 +35,12 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
   const key = keyOf(manifest, kind);
   const create = createOf(manifest, kind);
 
-  const reload = (): void => {
-    setFailure(null);
-    void scena.commands.execute('ahpd.run', { id: list.id, values: {} });
-  };
+  const reload = (): void => void scena.commands.execute('ahpd.run', { id: list.id, values: {} });
+
+  // A new listing, from here or the header's Reload, clears the last item action's failure.
+  useEffect(() => {
+    if (run?.state === 'running') setFailure(null);
+  }, [run?.state]);
 
   // Listed the first time the group is shown.
   useEffect(() => {
@@ -99,16 +101,7 @@ export default function ItemExplorer({ manifest, title, list, commands }: {
 
   return (
     <ExplorerList
-      title={title}
-      actions={[
-        ...(create === undefined ? [] : [{ icon: '+', label: create.summary, run: () => open(create) }]),
-        { icon: EMOJIcon.reload, label: run?.state === 'running' ? t('commands/items/reloading') : t('common/reload'), run: reload, busy: run?.state === 'running' },
-        {
-          icon: EMOJIcon.more,
-          label: t('commands/items/commands'),
-          menu: commands.map((command) => ({ title: command.pattern.join(' '), description: command.summary, onSelect: (host) => { host.closeMenu(); open(command); } })),
-        },
-      ]}
+      label={title}
       rows={rows}
       selected={active ?? null}
       onOpen={openItem}

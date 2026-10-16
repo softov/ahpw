@@ -1,38 +1,18 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, type ReactElement } from 'react';
 import { translate } from '@softov/scena';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import type { AgentInfo, SessionSummary, StateAction } from '@microsoft/agent-host-protocol';
-import { AHP_AGENTS, AHP_CONNECTION, AHP_SESSIONS, dispatch, reloadSessions, request, type Connection } from '../../bridges/data.js';
+import { AHP_AGENTS, AHP_CONNECTION, AHP_SESSIONS, dispatch, request, type Connection } from '../../bridges/data.js';
 import { folderLabel } from '../../bridges/words.js';
 import { ExplorerList, type Dot, type Row } from '../../shell/explorer/ExplorerList.js';
-import { ACTIVE_SESSION } from './state.js';
+import { ACTIVE_SESSION, SESSIONS_ARCHIVED, SESSIONS_GROUPING } from './state.js';
 import { plural, dateFormat } from '../../i18n/locales.js';
 import { activityLabel, activityOf, isArchived, isRead, type Activity } from './status.js';
-import { GROUPINGS, arrange, groupOf, groupingLabel, type Grouping } from './grouping.js';
+import { arrange, groupOf, type Grouping } from './grouping.js';
 import { confirm, failed } from '../../shell/notify/index.js';
 import { EMOJIcon } from '../emojis.js';
-
-/** Where the chosen grouping is kept, per browser. */
-const GROUPING_KEY = 'ahpd-web.session-grouping';
-
-function readGrouping(): Grouping {
-  try {
-    const held = localStorage.getItem(GROUPING_KEY);
-    return GROUPINGS.some((one) => one === held) ? held as Grouping : 'none';
-  } catch {
-    return 'none';
-  }
-}
-
-function writeGrouping(grouping: Grouping): void {
-  try {
-    localStorage.setItem(GROUPING_KEY, grouping);
-  } catch {
-    // Not kept, which only means the next visit starts ungrouped.
-  }
-}
 
 const sameDay = dateFormat({ hour: '2-digit', minute: '2-digit' });
 const otherDay = dateFormat({ month: 'short', day: 'numeric' });
@@ -90,10 +70,8 @@ export default function SessionExplorer(): ReactElement {
   const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
   const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
   const active = useStore<string>(ACTIVE_SESSION);
-  const [archived, setArchived] = useState(false);
-  const [grouping, setGrouping] = useState<Grouping>(readGrouping);
-  const group = (next: Grouping): void => { setGrouping(next); writeGrouping(next); };
-  const [reloading, setReloading] = useState(false);
+  const archived = useStore<boolean>(SESSIONS_ARCHIVED) === true;
+  const grouping = useStore<Grouping | null>(SESSIONS_GROUPING) ?? 'none';
 
   const open = (resource: string): void => void scena.commands.execute('ahp.openSession', { resource });
   const rows = useMemo<Row[]>(
@@ -132,11 +110,6 @@ export default function SessionExplorer(): ReactElement {
     [sessions, agents, archived, grouping, t],
   );
 
-  const reload = (): void => {
-    setReloading(true);
-    void reloadSessions().catch(() => undefined).finally(() => setReloading(false));
-  };
-
   const notice = connection?.status === 'failed'
     ? <Alert tone="danger" title={t('sessions/explorer/notConnected')} message={connection.error ?? t('sessions/explorer/refused')} />
     : connection?.status !== 'connected' && sessions === undefined
@@ -145,22 +118,7 @@ export default function SessionExplorer(): ReactElement {
 
   return (
     <ExplorerList
-      title={t('sessions/explorer/title')}
-      actions={[
-        { icon: '+', label: t('sessions/commands/newSession'), run: () => void scena.commands.execute('ahp.newSession') },
-        { icon: EMOJIcon.reload, label: reloading ? t('sessions/explorer/reloading') : t('sessions/explorer/reload'), run: reload, busy: reloading },
-        { icon: EMOJIcon.archived, label: archived ? t('sessions/explorer/hideArchived') : t('sessions/explorer/showArchived'), run: () => setArchived(!archived), on: archived },
-        {
-          icon: EMOJIcon.group,
-          label: t('sessions/explorer/group'),
-          on: grouping !== 'none',
-          menu: GROUPINGS.map((one) => ({
-            title: groupingLabel(one),
-            ...(one === grouping ? { description: t('sessions/explorer/current') } : {}),
-            onSelect: (host) => { host.closeMenu(); group(one); },
-          })),
-        },
-      ]}
+      label={t('sessions/explorer/title')}
       rows={rows}
       selected={active ?? null}
       onOpen={open}

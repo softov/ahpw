@@ -42,8 +42,7 @@ export default function AgentExplorer(): ReactElement {
 
   return (
     <ExplorerList
-      title={t('agents/explorer/title')}
-      actions={[]}
+      label={t('agents/explorer/title')}
       rows={rows}
       selected={active ?? null}
       onOpen={open}

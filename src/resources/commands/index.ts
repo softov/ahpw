@@ -1,4 +1,4 @@
-import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
+import type { BindingPath, Disposable, MountAction, PickerAction, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, translate, type ModusClass } from '@softov/scena';
 import { ApiError, call } from '../../lib/api.js';
 import { PRESENTATION } from '../../shell/presentation.js';
@@ -6,7 +6,10 @@ import { MissingInput, requestOf } from '../manifest/input.js';
 import { ACTIVE_COMMAND, ACTIVE_ITEM, MANIFEST, manifestProvider, runPath, type Run } from '../manifest/data.js';
 import { sectionId, sectionsOf } from '../manifest/sections.js';
 import type { ManifestCommand, ProgramManifest } from '../manifest/types.js';
-import { roleOf } from '../manifest/roles.js';
+import { createOf, listOf, roleOf } from '../manifest/roles.js';
+import type { Section } from '../manifest/sections.js';
+import { openPalette } from '../../shell/CommandPalette.js';
+import { EMOJIcon } from '../emojis.js';
 import { SESSIONS_SECTION } from '../sessions/index.js';
 
 
@@ -152,6 +155,43 @@ export function registerCommands(scena: Scena): Disposable {
  * Mounted when the manifest arrives and again if it changes. A sidebar showing
  * a group this manifest no longer has is moved to the sessions.
  */
+/**
+ * A section's header: for a section that lists a kind of thing, Create (when
+ * the kind has one), Reload (busy while the list runs) and the section's
+ * commands; each is a command, registered for as long as the section is.
+ */
+function sectionHeader(scena: Scena, manifest: ProgramManifest, section: Section): { actions: MountAction[]; commands: Disposable } {
+  const list = listOf(section.commands);
+  if (list === undefined) return { actions: [], commands: { dispose: () => undefined } };
+  const create = createOf(manifest, list.resource?.kind ?? '');
+  const id = (what: string): string => `section.${section.name}.${what}`;
+  const open = (command: ManifestCommand): void => void scena.commands.execute('ahpd.open', { id: command.id });
+  const commandList = (): PickerAction[] => section.commands.map((command): PickerAction => ({
+    title: command.pattern.join(' '),
+    description: command.summary,
+    onSelect: (host) => { host.closeMenu(); open(command); },
+  }));
+  const commands = combineDisposables(
+    ...(create === undefined ? [] : [scena.commands.register({ id: id('create'), title: create.summary, run: () => open(create) })]),
+    scena.commands.register({ id: id('reload'), title: () => translate('common/reload'), run: (ctx) => ctx.commands.execute('ahpd.run', { id: list.id, values: {} }) }),
+    scena.commands.register({
+      id: id('commands'),
+      title: () => translate('commands/items/commands'),
+      run: (ctx) => {
+        const spec = { title: section.title, items: commandList() };
+        if (ctx.host !== undefined) ctx.host.pushList(spec);
+        else openPalette(ctx.scena, spec);
+      },
+    }),
+  );
+  const actions: MountAction[] = [
+    ...(create === undefined ? [] : [{ command: id('create'), icon: '+', label: create.summary }]),
+    { command: id('reload'), icon: EMOJIcon.reload, label: { t: 'common/reload' }, busy: `${runPath(list.id)}/state == "running"` },
+    { command: id('commands'), icon: EMOJIcon.more, label: { t: 'commands/items/commands' } },
+  ];
+  return { actions, commands };
+}
+
 function registerSections(scena: Scena): Disposable {
   let mounted: Disposable | undefined;
   const mount = (manifest: ProgramManifest | undefined): void => {
@@ -159,7 +199,10 @@ function registerSections(scena: Scena): Disposable {
     mounted = undefined;
     if (manifest === undefined) return;
     const sections = sectionsOf(manifest);
-    mounted = combineDisposables(...sections.flatMap((section) => [
+    mounted = combineDisposables(...sections.flatMap((section) => {
+      const header = sectionHeader(scena, manifest, section);
+      return [
+      header.commands,
       scena.surfaces.mount({
         surface: 'activitybar',
         key: `section:${section.name}:nav`,
@@ -170,8 +213,11 @@ function registerSections(scena: Scena): Disposable {
         key: `section:${section.name}:explorer`,
         when: `$/layout/surfaces/sidebar:left/section == "${sectionId(section.name)}"`,
         resource: { component: 'CommandExplorer', group: section.name },
+        // scena draws the section's header from these; the title is the manifest's.
+        props: { title: section.title, actions: header.actions },
       }),
-    ]));
+    ];
+    }));
     const current = scena.layout.get().surfaces['sidebar:left'];
     const gone = current?.section?.startsWith(sectionId('')) === true && !sections.some((section) => sectionId(section.name) === current.section);
     if (gone) scena.layout.setSurface('sidebar:left', { ...current, section: SESSIONS_SECTION });

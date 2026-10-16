@@ -1,13 +1,14 @@
 import { registerComposerCommands } from './composer-commands.js';
 import { watchSessions } from './alerts.js';
-import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
+import type { BindingPath, Disposable, ListSpec, PickerAction, Scena } from '@softov/scena/types';
 import { combineDisposables, isOverlaid, resolveSurfacePresentation, translate, type ModusClass } from '@softov/scena';
 import { bound, english } from '../../i18n/locales.js';
 import { PRESENTATION } from '../../shell/presentation.js';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS, titlePath } from '../../bridges/data.js';
-import { ACTIVE_SESSION } from './state.js';
-import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
+import { AHP_SESSIONS, reloadSessions, titlePath } from '../../bridges/data.js';
+import { ACTIVE_SESSION, SESSIONS_ARCHIVED, SESSIONS_GROUPING, SESSIONS_RELOADING } from './state.js';
+import { GROUPINGS, groupingLabel, readGrouping, writeGrouping, type Grouping } from './grouping.js';
+import { PALETTE_SLOT, openPalette } from '../../shell/CommandPalette.js';
 import { EMOJIcon } from '../emojis.js';
 import { mountRight } from '../../shell/right-sidebar.js';
 
@@ -30,8 +31,27 @@ export interface OpenSessionArgs {
   resource: string;
 }
 
+/** The groupings, as a list the palette shows; the current one is ticked. */
+function groupingList(scena: Scena): ListSpec {
+  const current = scena.store.get<Grouping | null>(SESSIONS_GROUPING) ?? 'none';
+  return {
+    title: translate('sessions/explorer/group'),
+    items: GROUPINGS.map((one): PickerAction => ({
+      title: groupingLabel(one),
+      active: one === current,
+      onSelect: (host) => {
+        scena.store.set(SESSIONS_GROUPING, one === 'none' ? null : one);
+        writeGrouping(one);
+        host.closeMenu();
+      },
+    })),
+  };
+}
+
 /** The sessions list and the session page. */
 export function registerSessions(scena: Scena): Disposable {
+  const grouping = readGrouping();
+  scena.store.set(SESSIONS_GROUPING, grouping === 'none' ? null : grouping);
   return combineDisposables(
     registerComposerCommands(scena),
     watchSessions(scena),
@@ -39,6 +59,43 @@ export function registerSessions(scena: Scena): Disposable {
       component: 'SessionExplorer',
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Explorer.js') },
+      // scena draws the section's header from these.
+      props: {
+        title: { t: 'sessions/explorer/title' },
+        actions: [
+          { command: 'ahp.newSession', icon: '+', label: { t: 'sessions/commands/newSession' } },
+          { command: 'sessions.reload', icon: EMOJIcon.reload, label: { t: 'sessions/explorer/reload' }, busy: `${SESSIONS_RELOADING} == true` },
+          { command: 'sessions.toggleArchived', icon: EMOJIcon.archived, label: { t: 'sessions/explorer/showArchived' }, active: `${SESSIONS_ARCHIVED} == true` },
+          { command: 'sessions.group', icon: EMOJIcon.group, label: { t: 'sessions/explorer/group' }, active: `${SESSIONS_GROUPING} != null` },
+        ],
+      },
+    }),
+    scena.commands.register({
+      id: 'sessions.reload',
+      title: () => translate('sessions/explorer/reload'),
+      run: async (ctx) => {
+        ctx.store.set(SESSIONS_RELOADING, true);
+        try {
+          await reloadSessions();
+        } catch {
+          // The connection reports its own failure; the list stays as it was.
+        } finally {
+          ctx.store.set(SESSIONS_RELOADING, false);
+        }
+      },
+    }),
+    scena.commands.register({
+      id: 'sessions.toggleArchived',
+      title: () => translate(scena.store.get<boolean>(SESSIONS_ARCHIVED) === true ? 'sessions/explorer/hideArchived' : 'sessions/explorer/showArchived'),
+      run: (ctx) => ctx.store.set(SESSIONS_ARCHIVED, ctx.store.get<boolean>(SESSIONS_ARCHIVED) !== true),
+    }),
+    scena.commands.register({
+      id: 'sessions.group',
+      title: () => translate('sessions/explorer/group'),
+      run: (ctx) => {
+        if (ctx.host !== undefined) ctx.host.pushList(groupingList(ctx.scena));
+        else openPalette(ctx.scena, groupingList(ctx.scena));
+      },
     }),
     scena.components.register({
       component: 'SessionPage',

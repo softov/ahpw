@@ -4,7 +4,7 @@ import { combineDisposables, translate, type ModusClass } from '@softov/scena';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { ACTIVE_AUTOMATION } from './state.js';
 import { titleOf } from './words.js';
-import { AUTOMATIONS, channelPath } from '../../bridges/data.js';
+import { AHP_AUTOMATION_CAPS, AUTOMATIONS, channelPath, refresh } from '../../bridges/data.js';
 import type { AutomationState } from '@microsoft/agent-host-protocol';
 import { EMOJIcon } from '../emojis.js';
 import { bound, english } from '../../i18n/locales.js';
@@ -22,6 +22,19 @@ export function registerAutomations(scena: Scena): Disposable {
       component: 'AutomationExplorer',
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Explorer.js') },
+      // scena draws the section's header from these; New shows only where the host lets clients create.
+      props: {
+        title: { t: 'automations/explorer/title' },
+        actions: [
+          { command: 'ahp.newAutomation', icon: '+', label: { t: 'automations/commands/new' }, when: `${AHP_AUTOMATION_CAPS}/create != null` },
+          { command: 'automations.reload', icon: EMOJIcon.reload, label: { t: 'common/reload' } },
+        ],
+      },
+    }),
+    scena.commands.register({
+      id: 'automations.reload',
+      title: () => translate('common/reload'),
+      run: () => refresh(AUTOMATIONS),
     }),
     scena.components.register({
       component: 'AutomationPage',

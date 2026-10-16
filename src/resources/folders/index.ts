@@ -2,6 +2,7 @@ import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, translate } from '@softov/scena';
 import { english } from '../../i18n/locales.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
+import { EMOJIcon } from '../emojis.js';
 import { registerEntryCommands } from './actions.js';
 import { ADDED_FOLDERS, readAdded } from './added.js';
 import { EXPANDED_FOLDERS, readExpanded } from './expanded.js';
@@ -12,6 +13,9 @@ import { initPick, resetPick } from './pick.js';
 
 /** The sidebar section the folder tree shows in. */
 export const FOLDERS_SECTION = 'ahp:folders';
+
+/** Bumped to have the tree read every open folder again; the header's Refresh does it. */
+export const RELOAD_FOLDERS = '$/ahp/folders/reload' as BindingPath;
 
 /** A folder the explorer is asked to show, until it does. */
 export const REVEAL_FOLDER = '$/ahp/folders/reveal' as BindingPath;
@@ -34,6 +38,16 @@ export function registerFolders(scena: Scena): Disposable {
       component: 'FolderExplorer',
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Explorer.js') },
+      // scena draws the section's header from these.
+      props: {
+        title: { t: 'folders/explorer/title' },
+        actions: [{ command: 'folders.reload', icon: EMOJIcon.reload, label: { t: 'folders/explorer/refresh' } }],
+      },
+    }),
+    scena.commands.register({
+      id: 'folders.reload',
+      title: () => translate('folders/explorer/refresh'),
+      run: (ctx) => ctx.store.set(RELOAD_FOLDERS, (ctx.store.get<number>(RELOAD_FOLDERS) ?? 0) + 1),
     }),
     scena.commands.register({
       id: 'ahp.showFolders',

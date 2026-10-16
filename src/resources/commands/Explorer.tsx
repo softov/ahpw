@@ -56,7 +56,6 @@ export default function CommandExplorer({ group }: { group?: string }): ReactEle
   return (
     <Tree<ManifestCommand>
       nodes={nodes}
-      title={section.title}
       selectedKey={active ?? null}
       onSelect={(node) => {
         if (node.data !== undefined) void scena.commands.execute('ahpd.open', { id: node.data.id });

@@ -21,6 +21,7 @@ export function registerAgents(scena: Scena): Disposable {
       component: 'AgentExplorer',
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Explorer.js') },
+      props: { title: { t: 'agents/explorer/title' } },
     }),
     scena.components.register({
       component: 'AgentPage',

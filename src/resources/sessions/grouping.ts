@@ -8,6 +8,26 @@ export type Grouping = 'none' | 'folder' | 'status' | 'agent';
 
 export const GROUPINGS: readonly Grouping[] = ['none', 'folder', 'status', 'agent'];
 
+/** Where the chosen grouping is kept, per browser. */
+const GROUPING_KEY = 'ahpd-web.session-grouping';
+
+export function readGrouping(): Grouping {
+  try {
+    const held = localStorage.getItem(GROUPING_KEY);
+    return GROUPINGS.some((one) => one === held) ? held as Grouping : 'none';
+  } catch {
+    return 'none';
+  }
+}
+
+export function writeGrouping(grouping: Grouping): void {
+  try {
+    localStorage.setItem(GROUPING_KEY, grouping);
+  } catch {
+    // Not kept, which only means the next visit starts ungrouped.
+  }
+}
+
 /** The words a grouping is offered with. */
 export const groupingLabel = (grouping: Grouping): string => translate(`sessions/grouping/${grouping}`);
 

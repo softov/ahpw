@@ -12,7 +12,7 @@ import type { BindingPath, PickerAction } from '@softov/scena/types';
 import type { ModusClass } from '@softov/scena';
 import { setHostFile, type DraggedHostFile } from './drag.js';
 import { chainTo, childUri, orderEntries, rootsOf } from './roots.js';
-import { REVEAL_FOLDER } from './index.js';
+import { RELOAD_FOLDERS, REVEAL_FOLDER } from './index.js';
 import { ADDED_FOLDERS } from './added.js';
 import { EXPANDED_FOLDERS, writeExpanded } from './expanded.js';
 import { STALE_FOLDERS, addFolder, type StaleFolders } from './actions.js';
@@ -110,6 +110,12 @@ export default function FolderExplorer(): ReactElement {
     for (const uri of expanded) load(uri);
   };
 
+  // The header's Refresh: every open folder is read again.
+  const reloads = useStore<number>(RELOAD_FOLDERS);
+  useEffect(() => {
+    if (reloads !== undefined) reload();
+  }, [reloads]);
+
   /** The folder a person names, added as a root and opened. */
   const add = async (): Promise<void> => {
     const uri = await addFolder(scena);
@@ -186,14 +192,6 @@ export default function FolderExplorer(): ReactElement {
 
   return (
     <div className="web-explorer">
-      <div className="web-explorer__title">
-        <span>{t('folders/explorer/title')}</span>
-        <span className="web-explorer__actions">
-          <button type="button" className="web-explorer__action" title={t('folders/explorer/refresh')} aria-label={t('folders/explorer/refresh')} onClick={reload}>
-            <span className="web-explorer__icon">{EMOJIcon.reload}</span>
-          </button>
-        </span>
-      </div>
       <div className="web-explorer__scroll" ref={box} onContextMenuCapture={() => { byMenu.current = true; }} onContextMenu={openPanelMenu}>
         {roots.length === 0 ? <p className="web-note web-explorer__empty">{t('folders/explorer/empty')}</p> : null}
         <Tree<DraggedHostFile>

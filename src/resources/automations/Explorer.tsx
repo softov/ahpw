@@ -2,8 +2,8 @@ import { useMemo, type ReactElement } from 'react';
 import { translate } from '@softov/scena';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
-import { automationReducer, type AutomationCapabilities, type AutomationState as Catalogue } from '@microsoft/agent-host-protocol';
-import { AHP_AUTOMATION_CAPS, AUTOMATIONS, refresh } from '../../bridges/data.js';
+import { automationReducer, type AutomationState as Catalogue } from '@microsoft/agent-host-protocol';
+import { AUTOMATIONS } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { ExplorerList, type Dot, type Row } from '../../shell/explorer/ExplorerList.js';
 import { menuOf, runNow } from './actions.js';
@@ -31,7 +31,6 @@ export default function AutomationExplorer(): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const { state, error } = useChannel<Catalogue>(AUTOMATIONS, automationReducer);
-  const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
   const active = useStore<string>(ACTIVE_AUTOMATION);
   const open = (resource: string): void => void scena.commands.execute('ahp.openAutomation', { resource });
   const edit = (resource: string): void => void scena.commands.execute('ahp.editAutomation', { resource });
@@ -75,11 +74,7 @@ export default function AutomationExplorer(): ReactElement {
 
   return (
     <ExplorerList
-      title={t('automations/explorer/title')}
-      actions={[
-        ...(caps?.create === undefined ? [] : [{ icon: '+', label: t('automations/commands/new'), run: () => void scena.commands.execute('ahp.newAutomation') }]),
-        { icon: EMOJIcon.reload, label: t('common/reload'), run: () => void refresh(AUTOMATIONS) },
-      ]}
+      label={t('automations/explorer/title')}
       rows={rows}
       selected={active ?? null}
       onOpen={open}
