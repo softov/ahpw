@@ -97,8 +97,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@softov/scena':
-        specifier: ^0.5.6
-        version: 0.5.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^0.5.7
+        version: 0.5.7(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.5
@@ -456,8 +456,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@softov/scena@0.5.6':
-    resolution: {integrity: sha512-gSAIrs/5D8ZrHg8tLYPlOeBZaHVc+qVKelMy7vHp7yc3rNDW1TJ9IhKRaOFy7z3BmZHhQNqTFVXRpAJSggfDNg==}
+  '@softov/scena@0.5.7':
+    resolution: {integrity: sha512-HSErT7KhMbtHAa/eDvKfiDViTRpMzg4HSdXsdLra2qgywuxiNgkbAFxGEU91iB4inM2DDYrLZ+T9OLkwEkEy0A==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -1379,7 +1379,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@softov/scena@0.5.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@softov/scena@0.5.7(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     optionalDependencies:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
