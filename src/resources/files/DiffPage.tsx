@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena } from '@softov/scena/react';
 import { Alert, Button, Spinner } from '@softov/scena/ui';
-import { readText } from '../../bridges/data.js';
+import { hostBridge } from '../../bridges/data.js';
 import { readFailure } from './save.js';
 import { folderLabel } from '../../bridges/words.js';
 import { countChanges, diffLines, hunkHeader } from './diff.js';
 import { iconOf, scoped, useChangeset } from '../changes/changeset.js';
 
 /** Read one side of an edit; a side that does not exist is empty. */
-const side = async (uri: string | undefined): Promise<string | null> => (uri === undefined ? '' : (await readText(uri)).text);
+const side = async (host: string, uri: string | undefined): Promise<string | null> => (uri === undefined ? '' : (await hostBridge(host).readText(uri)).text);
 
 /** An edit to one file: both sides read from the host, diffed here, with the host's operations on it when its changeset is named. */
-export default function DiffPage({ file, before, after, changeset, change, review }: {
+export default function DiffPage({ host, file, before, after, changeset, change, review }: {
+  host: string;
   file?: string;
   before?: string;
   after?: string;
@@ -21,7 +22,7 @@ export default function DiffPage({ file, before, after, changeset, change, revie
 }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const changes = useChangeset(changeset);
+  const changes = useChangeset(host, changeset);
   const current = changes.files.find((one) => one.id === change);
   const fileOps = current === undefined ? [] : changes.operations.filter((one) => scoped(one, 'resource'));
   const [sides, setSides] = useState<{ before: string | null; after: string | null } | { error: string } | null>(null);
@@ -29,11 +30,11 @@ export default function DiffPage({ file, before, after, changeset, change, revie
   useEffect(() => {
     let alive = true;
     setSides(null);
-    Promise.all([side(before), side(after)])
+    Promise.all([side(host, before), side(host, after)])
       .then(([was, is]) => { if (alive) setSides({ before: was, after: is }); })
       .catch((error: unknown) => { if (alive) setSides({ error: readFailure(error) }); });
     return () => { alive = false; };
-  }, [before, after]);
+  }, [host, before, after]);
 
   const hunks = useMemo(
     () => (sides === null || 'error' in sides || sides.before === null || sides.after === null ? [] : diffLines(sides.before, sides.after)),
@@ -68,7 +69,7 @@ export default function DiffPage({ file, before, after, changeset, change, revie
           />
         ))}
         {file === undefined || after === undefined ? null : (
-          <Button label={t('files/openFile')} size="sm" onClick={() => void scena.commands.execute('ahp.openFile', { uri: file })} />
+          <Button label={t('files/openFile')} size="sm" onClick={() => void scena.commands.execute('ahp.openFile', { host, uri: file })} />
         )}
       </span>
     </div>

@@ -21,10 +21,10 @@ test('a first sight, no change, a start and an idle session erroring say nothing
   expect(eventOf('idle', 'error')).toBeNull();
 });
 
-test('the notice names the session, opens it, and carries a browser alert', () => {
+test('the notice names the session, opens it on its host, and carries a browser alert', () => {
   const session = { resource: 'ahp-session://a', title: 'Fix the build' } as SessionSummary;
-  const notice = noticeOf(session, 'needs-you');
-  expect(notice).toMatchObject({ id: alertId('ahp-session://a'), type: 'attention', title: 'Fix the build needs you', dismissAuto: false, alert: { title: 'Fix the build', body: 'Needs you' } });
-  expect(notice.actions?.[0]).toMatchObject({ command: 'ahp.openSession', args: { resource: 'ahp-session://a' } });
-  expect(noticeOf({ ...session, title: '' }, 'finished')).toMatchObject({ type: 'action.finished', tone: 'success', title: 'Untitled finished' });
+  const notice = noticeOf('alpha', session, 'needs-you');
+  expect(notice).toMatchObject({ id: alertId('alpha', 'ahp-session://a'), type: 'attention', title: 'Fix the build needs you', dismissAuto: false, alert: { title: 'Fix the build', body: 'Needs you' } });
+  expect(notice.actions?.[0]).toMatchObject({ command: 'ahp.openSession', args: { host: 'alpha', resource: 'ahp-session://a' } });
+  expect(noticeOf('alpha', { ...session, title: '' }, 'finished')).toMatchObject({ type: 'action.finished', tone: 'success', title: 'Untitled finished' });
 });

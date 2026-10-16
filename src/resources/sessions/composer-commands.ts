@@ -2,7 +2,7 @@ import type { BindingPath, Command, CommandContext, Disposable, PickerAction, Sc
 import { combineDisposables, translate } from '@softov/scena';
 import { getActiveToken } from '@softov/scena/ui';
 import type { MessageAttachment, SessionConfigPropertySchema, SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS } from '../../bridges/data.js';
+import { ahpPaths } from '../../bridges/data.js';
 import { plural } from '../../i18n/locales.js';
 import { chatAttachment, clipboardImage, fromFiles } from './attachments.js';
 import { EMOJIcon } from '../emojis.js';
@@ -37,6 +37,8 @@ export interface ComposerApi {
   stop(): void;
   /** The session this composer writes to. */
   session(): string;
+  /** The host of that session, or of the session New session will make. */
+  host(): string;
   attach(attachment: MessageAttachment): void;
   /** Write a picker's prefix at the caret, which opens that picker. */
   type(prefix: '@' | '/'): void;
@@ -53,8 +55,8 @@ export interface ChangedFile {
   attachment: MessageAttachment;
 }
 
-/** The data context a composer's picker runs its commands under. */
-export const composerPath = (chatUri: string): BindingPath => `$/ahp/composers/${encodeURIComponent(chatUri)}` as BindingPath;
+/** The data context a composer's picker runs its commands under: one per host and chat. */
+export const composerPath = (host: string, chatUri: string): BindingPath => `$/ahp/composers/${encodeURIComponent(host)}/${encodeURIComponent(chatUri)}` as BindingPath;
 
 const composers = new Map<string, ComposerApi>();
 
@@ -261,7 +263,7 @@ export function registerComposerCommands(scena: Scena): Disposable {
         const api = apiOf(ctx);
         if (api === undefined) return;
         const image = await clipboardImage();
-        ctx.host?.pushList({ title: translate('sessions/context/title'), sentinel: '/attach', items: contextItems(api, ctx.store.get<SessionSummary[]>(AHP_SESSIONS) ?? [], image) });
+        ctx.host?.pushList({ title: translate('sessions/context/title'), sentinel: '/attach', items: contextItems(api, ctx.store.get<SessionSummary[]>(ahpPaths(api.host()).sessions) ?? [], image) });
       },
     }),
     share(scena, {

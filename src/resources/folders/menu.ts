@@ -12,6 +12,8 @@ export const MENU_ENTRY = '$/folders/menu/entry' as BindingPath;
 
 /** A row a menu is open on. */
 export interface MenuEntry {
+  /** The host the row is on. */
+  host: string;
   uri: string;
   directory: boolean;
   /** A root this browser added, which its menu can remove. */

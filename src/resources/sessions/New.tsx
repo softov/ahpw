@@ -2,9 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } 
 import { translate } from '@softov/scena';
 import { useCloseGuard, useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, Text, useChatPicker } from '@softov/scena/ui';
-import type { PickerAction } from '@softov/scena/types';
+import type { ListSpec, PickerAction } from '@softov/scena/types';
 import type { AgentInfo, MessageAttachment, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
-import { AHP_AGENTS, AHP_DEFAULT_DIRECTORY, ROOT, dispatch, readOnce, request } from '../../bridges/data.js';
+import { ahpPaths, hostBridge, ROOT, windowHost, type Connection } from '../../bridges/data.js';
+import { hostState } from '../../bridges/host-state.js';
+import { HOST_LIST, hostLabel, useHostNames, type HostName } from '../../bridges/hosts.js';
+import { embedder, embedMode } from '../../shell/embed/index.js';
+import { readLastHost, startHost, writeLastHost } from './last-host.js';
 import { folderLabel, folderUri, newId } from '../../bridges/words.js';
 import { fitToText, messageOf } from './Composer.js';
 import { AddButton, Attached } from './Attached.js';
@@ -24,7 +28,8 @@ import {
 } from './composer-commands.js';
 import { useComposerDrop } from './composer-drop.js';
 import { folderMentions, mentionQuery } from './folder-mentions.js';
-import { FolderPill } from './FolderPill.js';
+import { askFolder } from '../folders/pick.js';
+import { whereLabel, wheresOf } from './where.js';
 import { readTipCount, tipAt, tipsFor, writeTipCount } from './tips.js';
 import { readTrayOpen, writeTrayOpen } from './new-tray.js';
 import { modelLabels, settingLabels } from './pill-labels.js';
@@ -39,7 +44,8 @@ import { agentCommands, COMPOSER_FOCUS, registerHostCommands } from './host-comm
 const NEW_PREFIXES = ['/', '@'];
 
 /** Where Add context finds the new session box. */
-const NEW_PATH = composerPath('session:new');
+// One new session box, whichever host it will be on.
+const NEW_PATH = composerPath('new', 'session:new');
 
 /** Which composer focus the new session box sets, so only its `/` list offers the agent's commands. */
 const NEW_FOCUS = 'session:new';
@@ -49,6 +55,7 @@ const RESOLVE_DELAY = 300;
 
 /** The command behind the Agent pill and `/agent`: the new session box is the only place an agent is chosen. */
 const AGENT_COMMAND = 'ahp.new.agent';
+const WHERE_COMMAND = 'ahp.new.where';
 
 /** The settings the host offers for a session not yet created, and their values. */
 interface Resolved {
@@ -91,11 +98,17 @@ function SettingPill({ option, set, open }: { option: Option; set: (next: unknow
 }
 
 /** A new session, started the way a chat is: say something, with the agent, model, folder and settings above the box. */
-export default function NewSessionPage({ provider: offered }: { provider?: string }): ReactElement {
+export default function NewSessionPage({ provider: offered, host: given }: { provider?: string; host?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
-  const home = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
+  // The host the session will be on: the window's in mono; with every host, the one picked, else the last one used.
+  const multi = embedMode() === 'multi';
+  const hostList = useStore<HostName[]>(HOST_LIST);
+  const [picked, setPicked] = useState<string | null>(() => given ?? readLastHost());
+  const host = multi ? startHost((hostList ?? []).map((one) => one.id), picked) ?? '' : windowHost();
+  const hostName = useHostNames();
+  const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
+  const home = useStore<string | null>(ahpPaths(host).defaultDirectory);
   const [provider, setProvider] = useState(offered ?? '');
   const [folder, setFolder] = useState('');
   const [model, setModel] = useState('');
@@ -125,7 +138,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     if (provider === '') return;
     let alive = true;
     const timer = window.setTimeout(() => {
-      request('resolveSessionConfig', { channel: ROOT, provider, ...(where === undefined ? {} : { workingDirectory: where }), config: chosen } as never)
+      hostBridge(host).request('resolveSessionConfig', { channel: ROOT, provider, ...(where === undefined ? {} : { workingDirectory: where }), config: chosen } as never)
         .then((answer) => {
           if (!alive) return;
           const result = answer as unknown as { schema: { properties: Record<string, SessionConfigPropertySchema> }; values: Record<string, unknown> };
@@ -143,7 +156,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     if (dynamicKeys === '') return;
     let alive = true;
     for (const property of dynamicKeys.split('\n')) {
-      request('sessionConfigCompletions', { channel: ROOT, provider, ...(where === undefined ? {} : { workingDirectory: where }), config: chosen, property } as never)
+      hostBridge(host).request('sessionConfigCompletions', { channel: ROOT, provider, ...(where === undefined ? {} : { workingDirectory: where }), config: chosen, property } as never)
         .then((answer) => {
           const items = (answer as unknown as { items: { value: string; label: string }[] }).items;
           if (alive) setDynamic((held) => ({ ...held, [property]: items.map((one) => ({ value: one.value, label: one.label })) }));
@@ -211,12 +224,12 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     setText(`${before}${lead}${words}${textRef.current.slice(at)}`);
     focusCaret(before.length + lead.length + words.length);
   }, [focusCaret]);
-  const drop = useComposerDrop({ attach, insert, upload: (list) => void upload(list) });
+  const drop = useComposerDrop({ host, attach, insert, upload: (list) => void upload(list) });
   const mentions = useCallback(async (): Promise<PickerAction[]> => {
     const query = mentionQuery(textRef.current, caretRef.current ?? textRef.current.length);
     if (query === null || where === undefined) return [];
     try {
-      return (await folderMentions(where, query)).map((one) => ({
+      return (await folderMentions(host, where, query)).map((one) => ({
         title: one.title,
         onSelect: (ctx) => {
           // A folder is walked into: its path stays the `@` word, so the list follows it.
@@ -282,9 +295,94 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     setDynamic({});
   }, []);
 
+  // A folder on a host: another host has its own agents, so its agent starts again from its default.
+  const pickWhere = useCallback((next: string, path: string): void => {
+    if (next !== api.current.host) {
+      setPicked(next);
+      writeLastHost(next);
+      pickAgent('');
+    }
+    setFolder(path);
+  }, [pickAgent]);
+
   // What the box's commands read and do: the agent, the model, the settings, Add context. A session not yet made has no turn to stop.
-  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, provider });
-  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, provider };
+  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, provider, pickWhere, host, folder, hostList, hostName });
+  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, provider, pickWhere, host, folder, hostList, hostName };
+  // The folder and its host, in one list: the folders used, a host's folder picker, and with every host the hosts to manage.
+  useEffect(() => scena.commands.register({
+    id: WHERE_COMMAND,
+    title: () => translate('sessions/new/where'),
+    description: () => translate('sessions/new/whereHint'),
+    category: 'Session',
+    slots: [NEW_SLOT],
+    run: (ctx) => {
+      const now = api.current;
+      const multi = embedMode() === 'multi';
+      const hosts = multi ? (now.hostList ?? []).map((one) => one.id) : [now.host];
+      // A host that is not connected has no folders to offer; Remote still lists it, to fix it.
+      const up = hosts.filter((host) => hostState(ctx.store.get<Connection>(ahpPaths(host).connection), ctx.store.get<boolean>(ahpPaths(host).refused)) === 'connected');
+      const browse = (host: string): void => {
+        const home = ctx.store.get<string | null>(ahpPaths(host).defaultDirectory) ?? null;
+        const homePath = home === null ? null : folderLabel(home).replace(/\/+$/, '');
+        void askFolder({ host, title: translate('sessions/new/where'), start: homePath === null ? '/' : `${homePath}/`, home: homePath })
+          .then((path) => { if (path !== null) api.current.pickWhere(host, path.replace(/[\\/]+$/, '') || path); });
+      };
+      ctx.host?.pushList({
+        title: translate('sessions/new/where'),
+        items: [
+          ...wheresOf(ctx.store, up).map((one) => ({
+            title: whereLabel(one.path, multi ? now.hostName(one.host) : null),
+            description: one.path,
+            icon: EMOJIcon.folder,
+            group: translate('sessions/new/recent'),
+            active: one.host === now.host && one.path === now.folder.replace(/[\\/]+$/, ''),
+            onSelect: (menu: { closeMenu(): void }) => {
+              menu.closeMenu();
+              now.pickWhere(one.host, one.path);
+            },
+          })),
+          ...up.map((host) => ({
+            title: multi ? translate('sessions/new/folders', { host: now.hostName(host) }) : translate('sessions/new/openFolder'),
+            icon: multi ? EMOJIcon.host : EMOJIcon.open,
+            group: translate('sessions/new/browse'),
+            onSelect: (menu: { closeMenu(): void }) => {
+              menu.closeMenu();
+              browse(host);
+            },
+          })),
+          ...(multi && embedder !== undefined ? [{
+            title: translate('sessions/new/remote'),
+            icon: EMOJIcon.host,
+            group: translate('sessions/new/hosts'),
+            onSelect: (menu: { pushList(list: ListSpec): void }) => {
+              menu.pushList({
+                title: translate('sessions/new/remote'),
+                items: [
+                  ...hosts.map((host) => ({
+                    title: hostLabel(ctx.store, host),
+                    icon: EMOJIcon.host,
+                    description: translate('sessions/new/manageHost'),
+                    onSelect: (inner: { closeMenu(): void }) => {
+                      inner.closeMenu();
+                      void embedder?.manageHosts({ edit: host });
+                    },
+                  })),
+                  {
+                    title: translate('sessions/new/addHost'),
+                    icon: '+',
+                    onSelect: (inner: { closeMenu(): void }) => {
+                      inner.closeMenu();
+                      void embedder?.manageHosts({ add: true });
+                    },
+                  },
+                ],
+              });
+            },
+          }] : []),
+        ],
+      });
+    },
+  }).dispose, [scena]);
   useEffect(() => scena.commands.register({
     id: AGENT_COMMAND,
     title: () => translate('sessions/new/agent'),
@@ -317,6 +415,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     running: () => false,
     stop: () => undefined,
     session: () => '',
+    host: () => api.current.host,
     attach: (attachment) => api.current.attach(attachment),
     type: (prefix) => {
       const next = typeTrigger(textRef.current, caretRef.current ?? textRef.current.length, prefix);
@@ -340,20 +439,21 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     const said = text.trim();
     const { model: _model, ...config } = chosen;
     try {
-      await request('createSession', {
+      await hostBridge(host).request('createSession', {
         channel: resource,
         provider,
         ...(where === undefined ? {} : { workingDirectories: [where] }),
         ...(Object.keys(config).length === 0 ? {} : { config }),
       } as never);
-      await scena.commands.execute('ahp.openSession', { resource });
+      writeLastHost(host);
+      await scena.commands.execute('ahp.openSession', { host, resource });
       scena.surfaces.close('session:new');
       if (said !== '' || attachments.length > 0) {
-        const state = await readOnce<SessionState>(resource);
+        const state = await hostBridge(host).readOnce<SessionState>(resource);
         const chat = state?.defaultChat;
         if (chat !== undefined) {
           const message = messageOf(said, model === '' ? undefined : model, attachments);
-          dispatch(chat, { type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message } as StateAction);
+          hostBridge(host).dispatch(chat, { type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message } as StateAction);
         }
       }
     } catch (caught) {
@@ -363,7 +463,10 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
     }
   };
 
-  if (agents.length === 0) return <Alert tone="warning" message={t('sessions/new/noAgent')} />;
+  // The folder and its host in one pill, first: `ahpd [dev1]` with every host.
+  const wherePill = <Pill label={folder.trim() === '' ? t('sessions/new/where') : whereLabel(folder, multi ? hostName(host) : null)} title={t('sessions/new/whereHint')} onOpen={() => openCommand(WHERE_COMMAND)} />;
+  // With every host, a host with no agent still offers the pill, so another can be picked.
+  if (agents.length === 0) return <div className="web-new">{multi ? wherePill : null}<Alert tone="warning" message={t('sessions/new/noAgent')} /></div>;
 
   const agentLabel = t('sessions/new/agentPill', { name: agent?.displayName ?? provider });
 
@@ -372,12 +475,12 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
       <Text variant="h2" text={t('sessions/commands/newSession')} />
       {agent?.description === undefined || agent.description === '' ? null : <p className="web-note">{agent.description}</p>}
       <div className="web-composer web-new__composer">
-        {/* Under the box, where the page has room, so the list never covers the box's own controls. */}
+        {/* Over the box, as in an open session: the box sits at the end of the page. */}
         {picker.pickerNode === null || adding ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
         {trayOpen ? (
           <div className="web-composer__where web-new__tray">
+            {wherePill}
             <Pill label={agentLabel} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
-            <FolderPill value={folder} onChange={setFolder} />
             <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label={t('sessions/new/fold')} title={t('sessions/new/fold')} onClick={() => foldTray(false)}>
               {EMOJIcon.caretDown}
             </button>
@@ -418,7 +521,7 @@ export default function NewSessionPage({ provider: offered }: { provider?: strin
             />
           </div>
           <div className="web-composer__foot">
-            <AddButton path={NEW_PATH} onOpenChange={setAdding} />
+            <AddButton host={host} path={NEW_PATH} onOpenChange={setAdding} />
             <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
             <div className="web-composer__chips web-composer__chips--left">
               {options.filter((option) => footerSide(option) === 'left').map(settingPill)}

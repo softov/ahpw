@@ -1,9 +1,11 @@
-import type { Disposable, Scena } from '@softov/scena/types';
+import type { Disposable, ListSpec, Scena } from '@softov/scena/types';
 import { combineDisposables, translate } from '@softov/scena';
 import { english } from '../../i18n/locales.js';
-import { AHP_DEFAULT_DIRECTORY, AHP_DETACHED, AHP_HOST, request, titlePath, type HostFacts } from '../../bridges/data.js';
+import { ahpPaths, hostBridge, titlePath, windowHost, type HostFacts } from '../../bridges/data.js';
+import { everyHost, hostLabel, hostNameOf, onEachHost } from '../../bridges/hosts.js';
 import { confirm, failed } from '../../shell/notify/index.js';
-import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
+import { openPalette, PALETTE_SLOT } from '../../shell/CommandPalette.js';
+import { embedMode } from '../../shell/embed/index.js';
 import { onPanel, onPanelTab, openInPanel, PANEL, redrawPanel, STRIP_SLOT } from '../../shell/panel/index.js';
 import { TERMINAL_ICON } from './rows.js';
 import { clientClaim, newTerminalUri } from './terminal.js';
@@ -13,11 +15,21 @@ import { folderName } from '../../bridges/words.js';
 /** Arguments of the terminal commands; without one, the panel's active tab. */
 export interface TerminalArgs {
   uri: string;
+  /** The terminal's host; the window's host by default. */
+  host?: string;
 }
 
-const PREFIX = 'terminal:';
-const keyOf = (uri: string): string => `${PREFIX}${uri}`;
-const uriOf = (key: string | undefined): string | undefined => (key?.startsWith(PREFIX) === true ? key.slice(PREFIX.length) : undefined);
+/** A terminal tab: its host and the terminal. */
+interface TerminalTab {
+  host: string;
+  uri: string;
+}
+
+const keyOf = (host: string, uri: string): string => `terminal:${host}:${uri}`;
+function tabOf(key: string | undefined): TerminalTab | undefined {
+  const match = key === undefined ? null : /^terminal:([^:]+):(.+)$/.exec(key);
+  return match === null ? undefined : { host: match[1]!, uri: match[2]! };
+}
 
 /**
  * Terminals on the host, each a tab in the bottom panel after the log. A tab
@@ -25,78 +37,93 @@ const uriOf = (key: string | undefined): string | undefined => (key?.startsWith(
  * closes stays closed, and the terminal keeps running, until it is opened again.
  */
 export function registerTerminals(scena: Scena): Disposable {
-  /** Terminals whose tab the user closed. */
+  /** Tabs of terminals the user closed, by tab key. */
   const dismissed = new Set<string>();
-  /** Terminals the host has listed, so a tab is closed only for one the host dropped. */
-  const listed = new Set<string>();
-  /** Tabs this module is closing itself, which do not count as dismissed. */
+  /** The terminals each host has listed, so a tab is closed only for one its host dropped. */
+  const listed = new Map<string, Set<string>>();
+  /** Tabs this module is closing itself, by tab key, which do not count as dismissed. */
   const closing = new Set<string>();
 
-  const open = (uri: string, background = false): void => {
+  const open = ({ host, uri }: TerminalTab, background = false): void => {
     openInPanel(scena, {
-      key: keyOf(uri),
-      resource: { component: 'TerminalPage', uri },
-      props: { title: { path: titlePath(uri) }, icon: TERMINAL_ICON },
+      key: keyOf(host, uri),
+      resource: { component: 'TerminalPage', host, uri },
+      props: { title: { path: titlePath(host, uri) }, icon: TERMINAL_ICON },
     }, { background });
   };
-  const closeTab = (uri: string): void => {
-    closing.add(uri);
-    scena.surfaces.close(keyOf(uri));
-    closing.delete(uri);
+  const closeTab = ({ host, uri }: TerminalTab): void => {
+    const key = keyOf(host, uri);
+    closing.add(key);
+    scena.surfaces.close(key);
+    closing.delete(key);
   };
-  const argOf = (args: unknown): string | undefined =>
-    (args as TerminalArgs | undefined)?.uri ?? uriOf(scena.store.get<string>('$/tab/key'));
-  const detached = (): string[] => scena.store.get<string[]>(AHP_DETACHED) ?? [];
-  const attach = (uri: string, on: boolean): void => {
-    const rest = detached().filter((one) => one !== uri);
-    scena.store.set(AHP_DETACHED, on ? rest : [...rest, uri]);
+  const argOf = (args: unknown): TerminalTab | undefined => {
+    const given = args as TerminalArgs | undefined;
+    return given?.uri === undefined ? tabOf(scena.store.get<string>('$/tab/key')) : { host: given.host ?? windowHost(), uri: given.uri };
+  };
+  const detached = (host: string): string[] => scena.store.get<string[]>(ahpPaths(host).detached) ?? [];
+  const isDetached = (key: string | undefined): boolean => {
+    const tab = tabOf(key);
+    return tab !== undefined && detached(tab.host).includes(tab.uri);
+  };
+  const attach = ({ host, uri }: TerminalTab, on: boolean): void => {
+    const rest = detached(host).filter((one) => one !== uri);
+    scena.store.set(ahpPaths(host).detached, on ? rest : [...rest, uri]);
     redrawPanel(scena);
   };
 
-  /** Match the panel's terminal tabs to the host's list. */
-  const sync = (): void => {
-    const host = scena.store.get<HostFacts | null>(AHP_HOST);
-    if (host === null || host === undefined) return;
-    const live = new Set(host.terminals.map((terminal) => terminal.resource));
-    const tabs = new Set(scena.surfaces.listAt(PANEL).map((mount) => uriOf(mount.key)).filter((uri) => uri !== undefined));
-    for (const uri of listed) {
+  /** Match the panel's tabs of the host `host` to its list. */
+  const sync = (host: string): void => {
+    const facts = scena.store.get<HostFacts | null>(ahpPaths(host).host);
+    if (facts === null || facts === undefined) return;
+    const live = new Set(facts.terminals.map((terminal) => terminal.resource));
+    const tabs = new Set(scena.surfaces.listAt(PANEL).map((mount) => mount.key));
+    const known = listed.get(host) ?? new Set<string>();
+    listed.set(host, known);
+    for (const uri of known) {
       if (live.has(uri)) continue;
-      listed.delete(uri);
-      dismissed.delete(uri);
-      if (tabs.has(uri)) closeTab(uri);
+      known.delete(uri);
+      dismissed.delete(keyOf(host, uri));
+      if (tabs.has(keyOf(host, uri))) closeTab({ host, uri });
     }
     for (const uri of live) {
-      listed.add(uri);
-      if (!tabs.has(uri) && !dismissed.has(uri)) open(uri, true);
+      known.add(uri);
+      const key = keyOf(host, uri);
+      if (!tabs.has(key) && !dismissed.has(key)) open({ host, uri }, true);
     }
   };
 
+
+
   /** A terminal in `folder`, else in the host's default directory, named for that folder. */
-  const create = async (folder?: string): Promise<void> => {
-    const host = scena.store.get<HostFacts | null>(AHP_HOST);
-    if (host === null || host === undefined) throw new Error(translate('terminals/notConnected'));
-    const cwd = folder ?? scena.store.get<string | null>(AHP_DEFAULT_DIRECTORY);
+  const create = async (host: string, folder?: string): Promise<void> => {
+    const facts = scena.store.get<HostFacts | null>(ahpPaths(host).host);
+    if (facts === null || facts === undefined) throw new Error(translate('terminals/notConnected'));
+    const cwd = folder ?? scena.store.get<string | null>(ahpPaths(host).defaultDirectory);
     const uri = newTerminalUri();
-    await request('createTerminal', {
+    await hostBridge(host).request('createTerminal', {
       channel: uri,
-      claim: clientClaim(host.clientId),
+      claim: clientClaim(facts.clientId),
       name: cwd === null || cwd === undefined ? translate('terminals/terminal') : folderName(cwd),
       ...(cwd === null || cwd === undefined ? {} : { cwd }),
     } as never);
-    open(uri);
+    open({ host, uri });
   };
 
   return combineDisposables(
-    scena.store.subscribe(AHP_HOST, sync),
+    onEachHost(scena, (host) => {
+      sync(host);
+      return scena.store.subscribe(ahpPaths(host).host, () => sync(host));
+    }),
     // A tab closed by the user, not hidden with the panel and not moved, is dismissed.
     scena.events.on('scena:mount:closed', (payload) => {
       const { key, reason } = payload as { key: string; reason?: string };
-      const uri = uriOf(key);
-      if (uri === undefined || closing.has(uri) || reason?.startsWith('move:') === true) return;
+      const tab = tabOf(key);
+      if (tab === undefined || closing.has(key) || reason?.startsWith('move:') === true) return;
       queueMicrotask(() => {
         if (scena.surfaces.listAt(PANEL).some((mount) => mount.key === key)) return;
-        dismissed.add(uri);
-        attach(uri, true);
+        dismissed.add(key);
+        attach(tab, true);
       });
     }),
     scena.components.register({
@@ -108,10 +135,11 @@ export function registerTerminals(scena: Scena): Disposable {
       id: 'ahp.openTerminal',
       title: () => translate('terminals/commands/open'),
       run: (_ctx, args) => {
-        const uri = (args as TerminalArgs | undefined)?.uri;
-        if (uri === undefined) return;
-        dismissed.delete(uri);
-        open(uri);
+        const given = args as TerminalArgs | undefined;
+        if (given?.uri === undefined) return;
+        const tab = { host: given.host ?? windowHost(), uri: given.uri };
+        dismissed.delete(keyOf(tab.host, tab.uri));
+        open(tab);
       },
     }),
     scena.commands.register({
@@ -119,10 +147,10 @@ export function registerTerminals(scena: Scena): Disposable {
       title: () => translate('terminals/commands/disconnect'),
       icon: EMOJIcon.pause,
       slots: [STRIP_SLOT],
-      when: (ctx) => onPanelTab('TerminalPage')(ctx) && !detached().includes(uriOf(ctx['$/tab/key'] as string | undefined) ?? ''),
+      when: (ctx) => onPanelTab('TerminalPage')(ctx) && !isDetached(ctx['$/tab/key'] as string | undefined),
       run: (_ctx, args) => {
-        const uri = argOf(args);
-        if (uri !== undefined) attach(uri, false);
+        const tab = argOf(args);
+        if (tab !== undefined) attach(tab, false);
       },
     }),
     scena.commands.register({
@@ -130,10 +158,10 @@ export function registerTerminals(scena: Scena): Disposable {
       title: () => translate('terminals/commands/connect'),
       icon: EMOJIcon.run,
       slots: [STRIP_SLOT],
-      when: (ctx) => onPanelTab('TerminalPage')(ctx) && detached().includes(uriOf(ctx['$/tab/key'] as string | undefined) ?? ''),
+      when: (ctx) => onPanelTab('TerminalPage')(ctx) && isDetached(ctx['$/tab/key'] as string | undefined),
       run: (_ctx, args) => {
-        const uri = argOf(args);
-        if (uri !== undefined) attach(uri, true);
+        const tab = argOf(args);
+        if (tab !== undefined) attach(tab, true);
       },
     }),
     scena.commands.register({
@@ -143,13 +171,13 @@ export function registerTerminals(scena: Scena): Disposable {
       slots: [STRIP_SLOT],
       when: onPanelTab('TerminalPage'),
       run: async (_ctx, args) => {
-        const uri = argOf(args);
-        if (uri === undefined) return;
-        const title = scena.store.get<string>(titlePath(uri)) ?? translate('terminals/terminal');
+        const tab = argOf(args);
+        if (tab === undefined) return;
+        const title = scena.store.get<string>(titlePath(tab.host, tab.uri)) ?? translate('terminals/terminal');
         if (!(await confirm({ title: translate('terminals/kill/title', { title }), body: translate('terminals/kill/body'), confirmLabel: translate('terminals/kill/confirm'), tone: 'danger' }))) return;
         try {
-          await request('disposeTerminal', { channel: uri } as never);
-          closeTab(uri);
+          await hostBridge(tab.host).request('disposeTerminal', { channel: tab.uri } as never);
+          closeTab(tab);
         } catch (error) {
           failed(translate('terminals/failed/kill'), error, { source: 'ahp.killTerminal' });
         }
@@ -163,20 +191,40 @@ export function registerTerminals(scena: Scena): Disposable {
       icon: '+',
       slots: [PALETTE_SLOT, STRIP_SLOT],
       when: onPanel,
-      run: (_ctx, args) => create((args as { cwd?: string } | undefined)?.cwd).catch((error: unknown) => failed(translate('terminals/failed/create'), error, { source: 'ahp.newTerminal' })),
+      run: (ctx, args) => {
+        const { cwd, host } = (args as { cwd?: string; host?: string } | undefined) ?? {};
+        const make = (on: string): void => void create(on, cwd).catch((error: unknown) => failed(translate('terminals/failed/create'), error, { source: 'ahp.newTerminal' }));
+        if (host !== undefined || embedMode() !== 'multi') {
+          make(host ?? windowHost());
+          return;
+        }
+        // With every host and none named, the person picks the host.
+        const list: ListSpec = {
+          title: translate('terminals/newOn'),
+          items: everyHost(ctx.store).map((one) => ({
+            title: hostLabel(ctx.store, one),
+            onSelect: (menu) => {
+              menu.closeMenu();
+              make(one);
+            },
+          })),
+        };
+        if (ctx.host !== undefined) ctx.host.pushList(list);
+        else openPalette(ctx.scena, list);
+      },
     }),
     // A terminal tab's menu. Closing the tab only hides it; the process keeps running.
     scena.mountMenus.register('tab:context', (mount) => {
-      const node = mount.component as { component?: unknown; uri?: unknown };
-      if (node.component !== 'TerminalPage' || typeof node.uri !== 'string') return [];
-      const uri = node.uri;
+      const node = mount.component as { component?: unknown; host?: unknown; uri?: unknown };
+      if (node.component !== 'TerminalPage' || typeof node.uri !== 'string' || typeof node.host !== 'string') return [];
+      const tab = { host: node.host, uri: node.uri };
       const group = translate('terminals/terminal');
       return [
         { title: translate('terminals/commands/new'), group, icon: TERMINAL_ICON, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.newTerminal'); } },
-        detached().includes(uri)
-          ? { title: translate('terminals/commands/connect'), group, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.connectTerminal', { uri }); } }
-          : { title: translate('terminals/commands/disconnect'), group, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.disconnectTerminal', { uri }); } },
-        { title: translate('terminals/commands/kill'), group, color: 'red', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.killTerminal', { uri }); } },
+        detached(tab.host).includes(tab.uri)
+          ? { title: translate('terminals/commands/connect'), group, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.connectTerminal', tab); } }
+          : { title: translate('terminals/commands/disconnect'), group, onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.disconnectTerminal', tab); } },
+        { title: translate('terminals/commands/kill'), group, color: 'red', onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.killTerminal', tab); } },
       ];
     }),
   );

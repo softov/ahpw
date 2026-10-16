@@ -88,6 +88,6 @@ function Player({ url }: { url: string }): ReactElement {
 }
 
 /** An audio file, with a player. */
-export default function AudioPage({ uri }: { uri?: string }): ReactElement {
-  return <MediaFrame uri={uri}>{(url) => <Player url={url} />}</MediaFrame>;
+export default function AudioPage({ host, uri }: { host: string; uri?: string }): ReactElement {
+  return <MediaFrame host={host} uri={uri}>{(url) => <Player url={url} />}</MediaFrame>;
 }

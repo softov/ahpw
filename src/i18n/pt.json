@@ -6,7 +6,8 @@
     "loading": "Carregando",
     "dismiss": "Dispensar",
     "moreActions": "Mais ações",
-    "breadcrumb": "Trilha de navegação"
+    "breadcrumb": "Trilha de navegação",
+    "host": "Host"
   },
   "auth": {
     "subtitle": "Entre com um token.",
@@ -46,7 +47,9 @@
       "explorer": "Explorador",
       "automations": "Automações",
       "host": "Host",
-      "agents": "Agentes"
+      "agents": "Agentes",
+      "computers": "Computadores",
+      "bots": "Bots"
     },
     "palette": {
       "placeholder": "Digite um comando ou um terminal"
@@ -126,7 +129,11 @@
       "minimize": "Minimizar",
       "maximize": "Maximizar",
       "restore": "Restaurar",
-      "close": "Fechar"
+      "close": "Fechar",
+      "hostOptions": "Opções de {host}",
+      "info": "Informações",
+      "settings": "Configurações",
+      "manage": "Editar host"
     },
     "copy": {
       "copy": "Copiar",
@@ -202,6 +209,7 @@
       "reveal": "Mostrar a pasta no explorador"
     },
     "addFolder": "Adicionar pasta",
+    "addFolderOn": "{host}: Adicionar pasta",
     "entry": {
       "newFile": "Novo arquivo",
       "newFolder": "Nova pasta",
@@ -460,7 +468,8 @@
       "session": "Uma sessão está usando este terminal. A digitação está desativada.",
       "another": "Outro cliente está com este terminal. A digitação está desativada."
     },
-    "takeOver": "Assumir o controle"
+    "takeOver": "Assumir o controle",
+    "newOn": "Novo terminal em"
   },
   "automations": {
     "commands": {
@@ -552,7 +561,10 @@
         "failed": "última falhou {at}",
         "cancelled": "última interrompida {at}",
         "other": "última {status} {at}"
-      }
+      },
+      "status": "Mostrar por status",
+      "group": "Agrupar automações",
+      "sort": "Ordenar automações"
     },
     "origin": {
       "byHand": "Manual",
@@ -601,6 +613,7 @@
     },
     "edit": {
       "noCreate": "Este host não permite que clientes criem automações.",
+      "host": "Host",
       "title": "Título",
       "message": "Mensagem",
       "messageHint": "O que é dito ao agente a cada execução.",
@@ -638,6 +651,198 @@
       "create": "Criar",
       "save": "Salvar",
       "cancel": "Cancelar"
+    },
+    "group": {
+      "none": "Sem grupos",
+      "host": "Host",
+      "status": "Status",
+      "next": "Próxima execução"
+    },
+    "sort": {
+      "name": "Nome",
+      "next": "Próxima execução",
+      "last": "Última execução"
+    },
+    "next": {
+      "now": "Agora",
+      "overdue": "Atrasadas",
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "later": "Mais tarde",
+      "none": "Não agendadas"
+    },
+    "status": {
+      "all": "Todas",
+      "running": "Rodando",
+      "on": "Ligadas",
+      "off": "Desligadas",
+      "failed": "Com falha"
+    }
+  },
+  "computers": {
+    "commands": {
+      "show": "Mostrar computadores",
+      "new": "Novo computador",
+      "open": "Abrir computador"
+    },
+    "explorer": {
+      "title": "Computadores",
+      "filter": "Filtrar computadores",
+      "status": "Mostrar por estado",
+      "group": "Agrupar computadores",
+      "empty": "Ainda não há computadores.",
+      "notServed": "Nenhum host aqui oferece computadores."
+    },
+    "group": {
+      "none": "Sem grupos",
+      "host": "Host",
+      "state": "Estado"
+    },
+    "status": {
+      "all": "Todos",
+      "running": "Ligados",
+      "stopped": "Parados",
+      "problem": "Com problema"
+    },
+    "standing": {
+      "running": "ligado",
+      "stopped": "parado",
+      "problem": "com problema",
+      "oom": "sem memória"
+    },
+    "notices": {
+      "none": "Não há computadores",
+      "reading": "Lendo os computadores",
+      "gone": "Este computador não existe mais.",
+      "oom": "A máquina parou porque ficou sem memória."
+    },
+    "actions": {
+      "open": "Abrir",
+      "start": "Ligar",
+      "stop": "Parar",
+      "restart": "Reiniciar",
+      "remove": "Remover",
+      "removeTitle": "Remover {name}?",
+      "removeBody": "A máquina e o que ela guarda são apagados. As pastas do host montadas ficam.",
+      "copyName": "Copiar nome",
+      "failed": "O host não fez isso"
+    },
+    "facts": {
+      "image": "Imagem",
+      "destination": "Destino",
+      "command": "Comando",
+      "workdir": "Diretório de trabalho",
+      "network": "Rede",
+      "cores": "CPUs",
+      "memoryLimit": "Limite de memória",
+      "exitCode": "Código de saída",
+      "started": "Ligado em",
+      "created": "Criado em",
+      "container": "Contêiner",
+      "pid": "Processo"
+    },
+    "usage": {
+      "cpu": "CPU {percent}%",
+      "cpuOf": "CPU {percent}% de {cores}",
+      "memory": "Memória {used} de {limit} ({percent}%)",
+      "pids": "Processos",
+      "network": "Rede",
+      "disk": "Disco"
+    },
+    "page": {
+      "usage": "Uso",
+      "mounts": "Montagens",
+      "readOnly": "somente leitura",
+      "record": "O que o runtime diz"
+    },
+    "new": {
+      "host": "Host",
+      "name": "Nome",
+      "nameHint": "A máquina é conhecida por este nome; ele não pode mudar depois.",
+      "nameSlash": "Um nome não tem / \\ nem ?.",
+      "nameDots": "Um nome não é . nem ..",
+      "noCreate": "Este host não deixa você criar computadores.",
+      "create": "Criar",
+      "cancel": "Cancelar"
+    }
+  },
+  "bots": {
+    "commands": {
+      "show": "Mostrar bots",
+      "new": "Novo bot",
+      "open": "Abrir bot",
+      "edit": "Editar bot"
+    },
+    "editTitle": "Editar {name}",
+    "explorer": {
+      "title": "Bots",
+      "filter": "Filtrar bots",
+      "empty": "Ainda não há bots.",
+      "notServed": "Nenhum host aqui oferece bots."
+    },
+    "notices": {
+      "none": "Não há bots",
+      "reading": "Lendo os bots",
+      "gone": "Este bot não existe mais."
+    },
+    "actions": {
+      "open": "Abrir",
+      "chat": "Abrir chat",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir {name}?",
+      "deleteBody": "O bot é excluído, e o nome dele não pode ser dado a outro bot neste host.",
+      "failed": "O host não fez isso"
+    },
+    "facts": {
+      "labels": "Rótulos",
+      "owner": "Dono",
+      "agent": "Agente",
+      "model": "Modelo",
+      "computer": "Computador",
+      "workspace": "Espaço de trabalho",
+      "created": "Criado em",
+      "changed": "Alterado em",
+      "instructions": "Instruções"
+    },
+    "edit": {
+      "color": "Cor",
+      "body": "Corpo",
+      "host": "Host",
+      "name": "Nome",
+      "owner": "Dono",
+      "ownerHint": "De quem é o bot.",
+      "ownerMe": "Eu",
+      "ownerHost": "Este host",
+      "ownerKept": "Um bot mantém o dono.",
+      "labels": "Rótulos",
+      "labelsHint": "Separados por vírgula.",
+      "description": "Descrição",
+      "instructions": "Instruções",
+      "instructionsHint": "O que o bot ouve no primeiro chat.",
+      "instructionsLater": "Uma mudança chega aos próximos chats, não ao primeiro já enviado.",
+      "create": "Criar",
+      "save": "Salvar",
+      "cancel": "Cancelar"
+    },
+    "colors": {
+      "red": "Vermelho",
+      "orange": "Laranja",
+      "yellow": "Amarelo",
+      "green": "Verde",
+      "teal": "Verde-azulado",
+      "blue": "Azul",
+      "purple": "Roxo",
+      "pink": "Rosa",
+      "brown": "Marrom",
+      "grey": "Cinza",
+      "black": "Preto"
+    },
+    "layer": {
+      "noSession": "Este bot ainda não tem chat.",
+      "say": "Diga algo para {name}",
+      "send": "Enviar",
+      "more": "mais {count} bots"
     }
   },
   "agents": {
@@ -996,10 +1201,22 @@
     },
     "grouping": {
       "none": "Sem grupos",
-      "folder": "Agrupar por pasta",
-      "status": "Agrupar por status",
-      "agent": "Agrupar por agente",
-      "noFolder": "Sem pasta"
+      "folder": "Pasta",
+      "status": "Status",
+      "agent": "Agente",
+      "host": "Host",
+      "noFolder": "Sem pasta",
+      "day": "Dia",
+      "week": "Semana",
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "older": "Anteriores",
+      "thisWeek": "Esta semana",
+      "lastWeek": "Semana passada",
+      "weekOf": "Semana de {date}",
+      "pinned": "Fixadas",
+      "others": "Outras sessões",
+      "thenNone": "Nada mais"
     },
     "explorer": {
       "title": "Sessões",
@@ -1030,22 +1247,17 @@
       "hideArchived": "Ocultar arquivadas",
       "group": "Agrupar sessões",
       "current": "Atual",
-      "filter": "Filtrar sessões"
-    },
-    "folder": {
-      "hint": "Uma pasta na máquina do servidor",
-      "choose": "Escolher uma pasta",
-      "label": "Pasta",
-      "host": "Pasta do host",
-      "used": "Usadas",
-      "list": "Pastas",
-      "reading": "Lendo {path}",
-      "unreadable": "O host não consegue listar {path}",
-      "sessions": {
-        "one": "{count} sessão",
-        "other": "{count} sessões"
-      },
-      "open": "Abrir {name}"
+      "filter": "Filtrar sessões",
+      "sort": "Ordenar sessões",
+      "groupBy": "Agrupar por",
+      "thenBy": "Depois por",
+      "sortBy": "Ordenar por",
+      "order": "Ordem",
+      "flags": "Também",
+      "pin": "Fixar",
+      "unpin": "Desafixar",
+      "show": "Mostrar sessões",
+      "noneShown": "Nenhuma sessão aqui; escolha outra opção em Mostrar sessões."
     },
     "footer": {
       "window": "Janela de contexto do modelo: {window} tokens",
@@ -1066,7 +1278,17 @@
       "create": "Criar",
       "start": "Iniciar",
       "startHint": "Enter inicia, Shift+Enter quebra a linha",
-      "notCreated": "Não criada"
+      "notCreated": "Não criada",
+      "where": "Pasta",
+      "whereHint": "A pasta em que a sessão trabalha, e o seu host",
+      "folders": "Pastas de {host}",
+      "openFolder": "Abrir pasta…",
+      "remote": "Remoto",
+      "manageHost": "Editar host",
+      "addHost": "Adicionar host",
+      "recent": "Pastas recentes",
+      "browse": "Navegar",
+      "hosts": "Hosts"
     },
     "pills": {
       "setting": "{name}: {value}",
@@ -1141,6 +1363,20 @@
     },
     "start": {
       "note": "Inicie uma sessão ou abra uma da lista."
+    },
+    "sorting": {
+      "changed": "Última alteração",
+      "created": "Criação",
+      "name": "Nome",
+      "newest": "Mais recentes primeiro",
+      "oldest": "Mais antigas primeiro",
+      "urgent": "As que esperam por você primeiro"
+    },
+    "show": {
+      "all": "Todas",
+      "unread": "Não lidas",
+      "read": "Lidas",
+      "running": "Em andamento"
     }
   },
   "host": {
@@ -1224,7 +1460,9 @@
       "other": "Reconectado {count} vezes"
     },
     "backAgain": "Conectado ao servidor novamente",
+    "backAgainHost": "Conectado a {host} novamente",
     "lost": "A conexão com o servidor foi perdida",
+    "lostHost": "A conexão com {host} foi perdida",
     "retryNow": "Tentar agora",
     "commands": {
       "reconnect": "Reconectar ao servidor"
@@ -1232,7 +1470,8 @@
     "notConnected": "Sem conexão com o servidor.",
     "untitled": "Sem título",
     "terminal": "Terminal",
-    "daemonSilent": "O daemon não respondeu."
+    "daemonSilent": "O daemon não respondeu.",
+    "hostsUp": "{up} de {total} hosts"
   },
   "tree": {
     "collapse": "Recolher",
@@ -1287,6 +1526,23 @@
     "group": "Agrupar por",
     "folders": "Pastas",
     "changed": "Arquivos alterados",
-    "people": "Pessoas"
+    "people": "Pessoas",
+    "Computers": "Computadores",
+    "Bots": "Bots"
+  },
+  "hosts": {
+    "filter": "Hosts",
+    "every": "Todos os hosts",
+    "infoTab": "Host: {host}",
+    "settingsTab": "Configurações: {host}",
+    "named": "{host} · {state}",
+    "signIn": "Entrar",
+    "retry": "Reconectar",
+    "state": {
+      "connected": "Conectado",
+      "connecting": "Conectando",
+      "down": "Fora do ar",
+      "refused": "Token recusado"
+    }
   }
 }

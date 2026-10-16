@@ -37,6 +37,26 @@ export function isArchived(status: number): boolean {
   return (status & IS_ARCHIVED) !== 0;
 }
 
+/** Which sessions the list shows, as the Sessions icon counts them: idle and not read, idle and read, or at work. */
+export type SessionShow = 'all' | 'unread' | 'read' | 'running';
+
+export const SESSION_SHOWS: readonly SessionShow[] = ['all', 'unread', 'read', 'running'];
+
+/** Whether the list shows a session of this status; at work is running, or waiting on the person mid-turn. */
+export function shows(status: number, show: SessionShow): boolean {
+  const activity = activityOf(status);
+  switch (show) {
+    case 'all':
+      return true;
+    case 'unread':
+      return activity === 'idle' && !isRead(status);
+    case 'read':
+      return activity === 'idle' && isRead(status);
+    case 'running':
+      return activity === 'running' || activity === 'input';
+  }
+}
+
 /** The words a session's activity is shown with. */
 export const activityLabel = (activity: Activity): string => translate(`sessions/status/${activity}`);
 

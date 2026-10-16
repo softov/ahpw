@@ -1,5 +1,5 @@
 import type { DirectoryEntry, MessageAttachment } from '@microsoft/agent-host-protocol';
-import { ROOT, request } from '../../bridges/data.js';
+import { hostBridge, ROOT } from '../../bridges/data.js';
 import { folderLabel, folderUri } from '../../bridges/words.js';
 import { childUri, orderEntries } from '../folders/roots.js';
 import { resourceAttachment, withToken } from './attachments.js';
@@ -35,14 +35,14 @@ const isAbsolute = (path: string): boolean => path.startsWith('/') || /^[A-Za-z]
  * with `ma`. A file is cited by its full path, so two `README.md` in different
  * folders stay apart.
  */
-export async function folderMentions(folder: string, query: string): Promise<FolderMention[]> {
+export async function folderMentions(host: string, folder: string, query: string): Promise<FolderMention[]> {
   const typed = query.replace(/\\/g, '/');
   const cut = typed.lastIndexOf('/');
   const under = typed.slice(0, cut + 1);
   const start = typed.slice(cut + 1).toLowerCase();
   const base = isAbsolute(under) ? folderUri(under) : under.split('/').filter((part) => part !== '').reduce(childUri, folder);
   const basePath = folderLabel(base).replace(/\/+$/, '');
-  const found = (await request('resourceList', { channel: ROOT, uri: base } as never)) as { entries: DirectoryEntry[] };
+  const found = (await hostBridge(host).request('resourceList', { channel: ROOT, uri: base } as never)) as { entries: DirectoryEntry[] };
   return orderEntries(found.entries)
     .filter((entry) => entry.name.toLowerCase().startsWith(start))
     .slice(0, MAX_MENTIONS)

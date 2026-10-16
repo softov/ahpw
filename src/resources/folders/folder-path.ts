@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from '@microsoft/agent-host-protocol';
-import { ROOT, request } from '../../bridges/data.js';
+import { hostBridge, ROOT } from '../../bridges/data.js';
 import { folderUri } from '../../bridges/words.js';
 
 /** A typed path as the folder it is in and the start of a name in it: `/home/me/sr` is `/home/me/` and `sr`. */
@@ -23,8 +23,8 @@ export function parentPath(dir: string): string | null {
 }
 
 /** The folders in `dir` on the host, by name, ignoring case; throws when the host cannot list it. */
-export async function childFolders(dir: string): Promise<string[]> {
-  const found = (await request('resourceList', { channel: ROOT, uri: folderUri(dir) } as never)) as { entries: DirectoryEntry[] };
+export async function childFolders(host: string, dir: string): Promise<string[]> {
+  const found = (await hostBridge(host).request('resourceList', { channel: ROOT, uri: folderUri(dir) } as never)) as { entries: DirectoryEntry[] };
   return found.entries
     .filter((entry) => entry.type === 'directory')
     .map((entry) => entry.name)

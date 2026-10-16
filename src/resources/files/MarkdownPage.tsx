@@ -10,10 +10,10 @@ import { PageAlert } from '../../shell/view/PageAlert.js';
 const folderOf = (uri: string): string => uri.replace(/\/[^/]*$/, '');
 
 /** A markdown file, rendered. Its links and code spans that name files open as they do in chat, and its images are read, relative to its folder. */
-export default function MarkdownPage({ uri }: { uri?: string }): ReactElement {
+export default function MarkdownPage({ host, uri }: { host: string; uri?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const state = useFileText(uri);
+  const state = useFileText(host, uri);
 
   if (uri === undefined) return <PageAlert tone="warning" message={t('files/noFile')} />;
   const head = <FileHead uri={uri} />;
@@ -25,8 +25,8 @@ export default function MarkdownPage({ uri }: { uri?: string }): ReactElement {
     <div className="web-file">
       {head}
       <div className="web-file__body">
-        <div className="web-file__doc web-md" onClick={linkClicks(scena, folderOf(uri))}>
-          <Markdown text={state.text} image={imagesFrom(folderOf(uri))} />
+        <div className="web-file__doc web-md" onClick={linkClicks(scena, host, folderOf(uri))}>
+          <Markdown text={state.text} image={imagesFrom(host, folderOf(uri))} />
         </div>
       </div>
     </div>

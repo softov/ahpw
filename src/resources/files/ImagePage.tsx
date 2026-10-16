@@ -102,6 +102,6 @@ function Zoomable({ url, alt }: { url: string; alt: string }): ReactElement {
 const nameOf = (uri: string): string => decodeURIComponent(uri.split('/').pop() ?? uri);
 
 /** An image file, PNG to SVG, with zoom and pan. */
-export default function ImagePage({ uri }: { uri?: string }): ReactElement {
-  return <MediaFrame uri={uri}>{(url) => <Zoomable url={url} alt={nameOf(uri ?? '')} />}</MediaFrame>;
+export default function ImagePage({ host, uri }: { host: string; uri?: string }): ReactElement {
+  return <MediaFrame host={host} uri={uri}>{(url) => <Zoomable url={url} alt={nameOf(uri ?? '')} />}</MediaFrame>;
 }

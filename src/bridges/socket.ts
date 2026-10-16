@@ -21,3 +21,8 @@ export function hostSocketUrl(url: string, token: string | null): string {
   if (token === null || token === '') return url;
   return `${url}${url.includes('?') ? '&' : '?'}tkn=${encodeURIComponent(token)}`;
 }
+
+/** A socket address as a plain HTTP one, which ahpd answers 401 for a token it refuses and 426 for one it admits. */
+export function plainUrl(socket: string): string {
+  return socket.replace(/^ws(s?):/, 'http$1:');
+}

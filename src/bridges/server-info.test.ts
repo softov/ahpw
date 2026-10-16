@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { serverInfoOf, serverLabel } from './server-info.js';
+import { answerMetaOf, serverInfoOf, serverLabel } from './server-info.js';
 
 const answer = { jsonrpc: '2.0', id: 1, result: { protocolVersion: '1.0.0', serverInfo: { name: 'ahpd', version: '0.10.0' }, snapshots: [] } };
 
@@ -19,4 +19,10 @@ test('a serverInfo without a version is named alone', () => {
   expect(info).toEqual({ name: 'VS Code', version: null });
   expect(serverLabel(info!)).toBe('VS Code');
   expect(serverLabel({ name: 'ahpd', version: '0.10.0' })).toBe('ahpd 0.10.0');
+});
+
+test('the _meta of that answer comes along, for what its plugins offer', () => {
+  const meta = { 'ahpd.methods': [] };
+  expect(answerMetaOf({ id: 1, result: { serverInfo: { name: 'ahpd' }, _meta: meta } })).toEqual(meta);
+  expect(answerMetaOf(JSON.stringify(answer))).toBeUndefined();
 });

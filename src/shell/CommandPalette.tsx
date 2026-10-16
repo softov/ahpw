@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactElement } from 'react';
 import type { HostCtx, ListSpec, PickerAction, Scena } from '@softov/scena/types';
-import { useI18n, useScena, useStore } from '@softov/scena/react';
+import { useI18n, useScena } from '@softov/scena/react';
 import { ActionList, type ActionListController } from '@softov/scena/ui/menu';
-import { AHP_HOST } from '../bridges/data.js';
+import { ahpPaths } from '../bridges/data.js';
+import { useEach, useEveryHost } from '../bridges/hosts.js';
 import { terminalItems } from '../resources/terminals/rows.js';
 
 /** The slot a command joins to be listed in the palette. */
@@ -88,7 +89,8 @@ export default function CommandPalette(): ReactElement {
     [close],
   );
 
-  const facts = useStore<unknown>(AHP_HOST);
+  // Every host's facts, so the terminals among the commands follow each host's list.
+  const facts = useEach<unknown>(useEveryHost().map((host) => ahpPaths(host).host));
   const depth = stack.length;
   const top = stack[depth - 1]!;
   // The command list, with the terminals; a list opened on its own (a language, a theme) is only that list.

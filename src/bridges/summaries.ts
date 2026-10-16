@@ -12,7 +12,8 @@ import type { SessionSummary } from '@microsoft/agent-host-protocol';
  *
  * So every field a change names is kept here, a list ahpw reads replaces what
  * is kept, and the SDK's rows are read with it laid over them. Keyed by session
- * URI: ahpw shows one host. Pure: each function returns a new map.
+ * URI, so one map holds one host's sessions; the data layer keeps one per host.
+ * Pure: each function returns a new map.
  */
 export type Newer = ReadonlyMap<string, Partial<SessionSummary>>;
 

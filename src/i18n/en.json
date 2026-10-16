@@ -6,7 +6,8 @@
     "loading": "Loading",
     "dismiss": "Dismiss",
     "moreActions": "More actions",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "host": "Host"
   },
   "auth": {
     "subtitle": "Sign in with a token credential.",
@@ -46,7 +47,9 @@
       "explorer": "Explorer",
       "automations": "Automations",
       "host": "Host",
-      "agents": "Agents"
+      "agents": "Agents",
+      "computers": "Computers",
+      "bots": "Bots"
     },
     "palette": {
       "placeholder": "Type a command or a terminal"
@@ -126,7 +129,11 @@
       "minimize": "Minimize",
       "maximize": "Maximize",
       "restore": "Restore",
-      "close": "Close"
+      "close": "Close",
+      "hostOptions": "Options for {host}",
+      "info": "Info",
+      "settings": "Settings",
+      "manage": "Edit host"
     },
     "copy": {
       "copy": "Copy",
@@ -202,6 +209,7 @@
       "reveal": "Show the folder in the explorer"
     },
     "addFolder": "Add folder",
+    "addFolderOn": "{host}: Add folder",
     "entry": {
       "newFile": "New file",
       "newFolder": "New folder",
@@ -460,7 +468,8 @@
       "session": "A session is running this terminal. Typing is off.",
       "another": "Another client holds this terminal. Typing is off."
     },
-    "takeOver": "Take over"
+    "takeOver": "Take over",
+    "newOn": "New terminal on"
   },
   "automations": {
     "commands": {
@@ -552,7 +561,10 @@
         "failed": "last failed {at}",
         "cancelled": "last stopped {at}",
         "other": "last {status} {at}"
-      }
+      },
+      "status": "Show by status",
+      "group": "Group automations",
+      "sort": "Sort automations"
     },
     "origin": {
       "byHand": "By hand",
@@ -601,6 +613,7 @@
     },
     "edit": {
       "noCreate": "This host does not let clients create automations.",
+      "host": "Host",
       "title": "Title",
       "message": "Message",
       "messageHint": "What the agent is told each time it runs.",
@@ -638,6 +651,198 @@
       "create": "Create",
       "save": "Save",
       "cancel": "Cancel"
+    },
+    "group": {
+      "none": "No groups",
+      "host": "Host",
+      "status": "Status",
+      "next": "Next run"
+    },
+    "sort": {
+      "name": "Name",
+      "next": "Next run",
+      "last": "Last run"
+    },
+    "next": {
+      "now": "Now",
+      "overdue": "Overdue",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "later": "Later",
+      "none": "Not scheduled"
+    },
+    "status": {
+      "all": "All",
+      "running": "Running",
+      "on": "On",
+      "off": "Off",
+      "failed": "Failed"
+    }
+  },
+  "computers": {
+    "commands": {
+      "show": "Show computers",
+      "new": "New computer",
+      "open": "Open computer"
+    },
+    "explorer": {
+      "title": "Computers",
+      "filter": "Filter computers",
+      "status": "Show by state",
+      "group": "Group computers",
+      "empty": "No computers yet.",
+      "notServed": "No host here serves computers."
+    },
+    "group": {
+      "none": "No groups",
+      "host": "Host",
+      "state": "State"
+    },
+    "status": {
+      "all": "All",
+      "running": "Running",
+      "stopped": "Stopped",
+      "problem": "Problems"
+    },
+    "standing": {
+      "running": "running",
+      "stopped": "stopped",
+      "problem": "problem",
+      "oom": "out of memory"
+    },
+    "notices": {
+      "none": "No computers",
+      "reading": "Reading the computers",
+      "gone": "This computer is gone.",
+      "oom": "The machine was stopped because it ran out of memory."
+    },
+    "actions": {
+      "open": "Open",
+      "start": "Start",
+      "stop": "Stop",
+      "restart": "Restart",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeBody": "The machine and what it holds are deleted. Mounted host folders stay.",
+      "copyName": "Copy name",
+      "failed": "The host did not do that"
+    },
+    "facts": {
+      "image": "Image",
+      "destination": "Destination",
+      "command": "Command",
+      "workdir": "Working directory",
+      "network": "Network",
+      "cores": "CPUs",
+      "memoryLimit": "Memory limit",
+      "exitCode": "Exit code",
+      "started": "Started",
+      "created": "Created",
+      "container": "Container",
+      "pid": "Process"
+    },
+    "usage": {
+      "cpu": "CPU {percent}%",
+      "cpuOf": "CPU {percent}% of {cores}",
+      "memory": "Memory {used} of {limit} ({percent}%)",
+      "pids": "Processes",
+      "network": "Network",
+      "disk": "Disk"
+    },
+    "page": {
+      "usage": "Use",
+      "mounts": "Mounts",
+      "readOnly": "read only",
+      "record": "What the runtime says"
+    },
+    "new": {
+      "host": "Host",
+      "name": "Name",
+      "nameHint": "The machine is known by this name; it cannot change later.",
+      "nameSlash": "A name holds no / \\ or ?.",
+      "nameDots": "A name is not . or ..",
+      "noCreate": "This host does not let you make computers.",
+      "create": "Create",
+      "cancel": "Cancel"
+    }
+  },
+  "bots": {
+    "commands": {
+      "show": "Show bots",
+      "new": "New bot",
+      "open": "Open bot",
+      "edit": "Edit bot"
+    },
+    "editTitle": "Edit {name}",
+    "explorer": {
+      "title": "Bots",
+      "filter": "Filter bots",
+      "empty": "No bots yet.",
+      "notServed": "No host here serves bots."
+    },
+    "notices": {
+      "none": "No bots",
+      "reading": "Reading the bots",
+      "gone": "This bot is gone."
+    },
+    "actions": {
+      "open": "Open",
+      "chat": "Open chat",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete {name}?",
+      "deleteBody": "The bot is deleted, and its name cannot be given to another bot on this host.",
+      "failed": "The host did not do that"
+    },
+    "facts": {
+      "labels": "Labels",
+      "owner": "Owner",
+      "agent": "Agent",
+      "model": "Model",
+      "computer": "Computer",
+      "workspace": "Workspace",
+      "created": "Created",
+      "changed": "Changed",
+      "instructions": "Instructions"
+    },
+    "edit": {
+      "color": "Colour",
+      "body": "Body",
+      "host": "Host",
+      "name": "Name",
+      "owner": "Owner",
+      "ownerHint": "Who the bot belongs to.",
+      "ownerMe": "Me",
+      "ownerHost": "This host",
+      "ownerKept": "A bot keeps its owner.",
+      "labels": "Labels",
+      "labelsHint": "Separated by commas.",
+      "description": "Description",
+      "instructions": "Instructions",
+      "instructionsHint": "What the bot is told in its first chat.",
+      "instructionsLater": "A change reaches the next chats, not the first one already sent.",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "colors": {
+      "red": "Red",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "teal": "Teal",
+      "blue": "Blue",
+      "purple": "Purple",
+      "pink": "Pink",
+      "brown": "Brown",
+      "grey": "Grey",
+      "black": "Black"
+    },
+    "layer": {
+      "noSession": "This bot has no chat yet.",
+      "say": "Say something to {name}",
+      "send": "Send",
+      "more": "{count} more bots"
     }
   },
   "agents": {
@@ -996,10 +1201,22 @@
     },
     "grouping": {
       "none": "No groups",
-      "folder": "Group by folder",
-      "status": "Group by status",
-      "agent": "Group by agent",
-      "noFolder": "No folder"
+      "folder": "Folder",
+      "status": "Status",
+      "agent": "Agent",
+      "host": "Host",
+      "noFolder": "No folder",
+      "day": "Day",
+      "week": "Week",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "older": "Older",
+      "thisWeek": "This week",
+      "lastWeek": "Last week",
+      "weekOf": "Week of {date}",
+      "pinned": "Pinned",
+      "others": "Other sessions",
+      "thenNone": "Nothing more"
     },
     "explorer": {
       "title": "Sessions",
@@ -1030,22 +1247,17 @@
       "hideArchived": "Hide archived",
       "group": "Group sessions",
       "current": "Current",
-      "filter": "Filter sessions"
-    },
-    "folder": {
-      "hint": "A folder on the server's machine",
-      "choose": "Choose a folder",
-      "label": "Folder",
-      "host": "Host folder",
-      "used": "Used",
-      "list": "Folders",
-      "reading": "Reading {path}",
-      "unreadable": "The host cannot list {path}",
-      "sessions": {
-        "one": "{count} session",
-        "other": "{count} sessions"
-      },
-      "open": "Open {name}"
+      "filter": "Filter sessions",
+      "sort": "Sort sessions",
+      "groupBy": "Group by",
+      "thenBy": "Then by",
+      "sortBy": "Sort by",
+      "order": "Order",
+      "flags": "Also",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "show": "Show sessions",
+      "noneShown": "No sessions here; choose another in Show sessions."
     },
     "footer": {
       "window": "The model's context window: {window} tokens",
@@ -1066,7 +1278,17 @@
       "create": "Create",
       "start": "Start",
       "startHint": "Enter starts, Shift+Enter breaks the line",
-      "notCreated": "Not created"
+      "notCreated": "Not created",
+      "where": "Folder",
+      "whereHint": "The folder the session works in, and its host",
+      "folders": "{host} Folders",
+      "openFolder": "Open folder…",
+      "remote": "Remote",
+      "manageHost": "Edit host",
+      "addHost": "Add host",
+      "recent": "Recent folders",
+      "browse": "Browse",
+      "hosts": "Hosts"
     },
     "pills": {
       "setting": "{name}: {value}",
@@ -1141,6 +1363,20 @@
     },
     "start": {
       "note": "Start a session, or open one from the list."
+    },
+    "sorting": {
+      "changed": "Last changed",
+      "created": "Created",
+      "name": "Name",
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "urgent": "Waiting on you first"
+    },
+    "show": {
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read",
+      "running": "Running"
     }
   },
   "host": {
@@ -1224,7 +1460,9 @@
       "other": "Reconnected {count} times"
     },
     "backAgain": "Connected to the server again",
+    "backAgainHost": "Connected to {host} again",
     "lost": "Lost the connection to the server",
+    "lostHost": "Lost the connection to {host}",
     "retryNow": "Retry now",
     "commands": {
       "reconnect": "Reconnect to the server"
@@ -1232,7 +1470,8 @@
     "notConnected": "Not connected to the server.",
     "untitled": "Untitled",
     "terminal": "Terminal",
-    "daemonSilent": "The daemon did not answer."
+    "daemonSilent": "The daemon did not answer.",
+    "hostsUp": "{up} of {total} hosts"
   },
   "tree": {
     "collapse": "Collapse",
@@ -1287,6 +1526,23 @@
     "group": "Group by",
     "folders": "Folders",
     "changed": "Changed files",
-    "people": "People"
+    "people": "People",
+    "Computers": "Computers",
+    "Bots": "Bots"
+  },
+  "hosts": {
+    "filter": "Hosts",
+    "every": "Every host",
+    "infoTab": "Host: {host}",
+    "settingsTab": "Settings: {host}",
+    "named": "{host} · {state}",
+    "signIn": "Sign in",
+    "retry": "Retry",
+    "state": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "down": "Down",
+      "refused": "Token refused"
+    }
   }
 }

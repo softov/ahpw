@@ -4,13 +4,17 @@ import { elapsed } from '../../bridges/words.js';
 import { hostSpan, stepDone, stepFailed, stepWaits, summaryPieces, type Group, type Doing, type Step } from './activity-parts.js';
 import { Reasoning, ToolCall, type Send } from './Parts.js';
 import { EMOJIcon } from '../emojis.js';
+import { useSessionHost } from './workspace.js';
 
 /**
  * When this page first saw each step or run running, and first saw it done,
- * by key. A run the page never watched has no time of its own.
+ * by host and key. A run the page never watched has no time of its own.
  */
 const began = new Map<string, number>();
 const ended = new Map<string, number>();
+
+/** The key of a step or run in those maps: its host and its own key. */
+const slot = (host: string, key: string): string => `${host}\u0000${key}`;
 
 /** Notes what a step or run is doing now; called on every render that draws it. */
 function watch(key: string, running: boolean): void {
@@ -26,10 +30,10 @@ function spanOf(key: string, now: number): number | undefined {
 }
 
 /** What the run is doing now, from its running step. */
-function doingOf(step: Step, now: number): Doing {
+function doingOf(host: string, step: Step, now: number): Doing {
   if (step.kind === 'reasoning') return { what: 'thinking' };
   const name = step.call.displayName || step.call.toolName;
-  const long = spanOf(step.key, now);
+  const long = spanOf(slot(host, step.key), now);
   return { what: stepWaits(step) ? 'waiting' : 'working', name, ...(long === undefined ? {} : { for: long }) };
 }
 
@@ -37,6 +41,7 @@ function doingOf(step: Step, now: number): Doing {
 export function Activity({ group, send, turnId }: { group: Group; send: Send; turnId: string }): ReactElement {
   // Subscribed so the folded line, which translates, follows a language switch.
   useI18n();
+  const host = useSessionHost();
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const last = group.steps.length - 1;
@@ -44,8 +49,8 @@ export function Activity({ group, send, turnId }: { group: Group; send: Send; tu
   const runningIndex = done.lastIndexOf(false);
   const running = runningIndex < 0 ? undefined : group.steps[runningIndex];
 
-  watch(group.id, group.live);
-  group.steps.forEach((step, index) => watch(step.key, !done[index]));
+  watch(slot(host, group.id), group.live);
+  group.steps.forEach((step, index) => watch(slot(host, step.key), !done[index]));
 
   useEffect(() => {
     if (running === undefined) return;
@@ -58,16 +63,16 @@ export function Activity({ group, send, turnId }: { group: Group; send: Send; tu
   const shown = open || waits;
 
   const count = done.filter(Boolean).length;
-  const until = running === undefined ? now : began.get(running.key);
-  const start = began.get(group.id);
+  const until = running === undefined ? now : began.get(slot(host, running.key));
+  const start = began.get(slot(host, group.id));
   const took = group.live
     ? (start === undefined || until === undefined ? undefined : until - start)
-    : hostSpan(group.steps) ?? spanOf(group.id, now) ?? group.turnMs;
+    : hostSpan(group.steps) ?? spanOf(slot(host, group.id), now) ?? group.turnMs;
   const line = summaryPieces({
     done: count,
     failed: group.steps.filter(stepFailed).length,
     ...(took === undefined ? {} : { took }),
-    ...(running === undefined ? {} : { doing: doingOf(running, now) }),
+    ...(running === undefined ? {} : { doing: doingOf(host, running, now) }),
   }, elapsed);
 
   return (

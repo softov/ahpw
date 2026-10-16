@@ -30,10 +30,19 @@ function str(value: unknown): string | null {
   return typeof value === 'string' && value !== '' ? value : null;
 }
 
-/** What the page has asked and not yet heard back about, by request id. */
-const asked = new Map<string, { method: string; params: Bag }>();
-/** The terminals the host listed last, to say which ones came and went; null before the first list. */
-let listed: Map<string, string> | null = null;
+/** What the page has asked each host and not yet heard back about, by host, then by request id. */
+const asked = new Map<string, Map<string, { method: string; params: Bag }>>();
+/** The terminals each host listed last, to say which ones came and went; none before its first list. */
+const listed = new Map<string, Map<string, string>>();
+
+function askedOf(host: string): Map<string, { method: string; params: Bag }> {
+  let mine = asked.get(host);
+  if (mine === undefined) {
+    mine = new Map();
+    asked.set(host, mine);
+  }
+  return mine;
+}
 
 /** The session a chat channel belongs to: `ahp-chat://…/<base64 of the session URI>`. */
 export function sessionOfChannel(channel: string): string | null {
@@ -73,7 +82,7 @@ function summary(direction: 'sent' | 'received', frame: Bag): string {
 }
 
 /** The session and terminal events worth a line of their own. */
-function actionLine(envelope: Bag): void {
+function actionLine(host: string, envelope: Bag): void {
   const action = bag(envelope.action);
   const type = str(action.type) ?? '';
   const channel = str(envelope.channel) ?? '';
@@ -134,9 +143,9 @@ function actionLine(envelope: Bag): void {
         const resource = str(info.resource);
         if (resource !== null) next.set(resource, str(info.title) ?? '');
       }
-      const before = listed;
-      listed = next;
-      if (before === null) return;
+      const before = listed.get(host);
+      listed.set(host, next);
+      if (before === undefined) return;
       for (const [resource, title] of next) {
         if (!before.has(resource)) say('terminal', 'info', `opened ${title === '' ? '' : `${title} `}${resource}`);
       }
@@ -163,8 +172,8 @@ function masked(frame: Bag): Bag {
   return { ...frame, params: { ...params, token: HIDDEN } };
 }
 
-/** One frame, either way. */
-export function noteFrame(direction: 'sent' | 'received', text: string): void {
+/** One frame to or from the host `host`, either way. */
+export function noteFrame(host: string, direction: 'sent' | 'received', text: string): void {
   let frame: Bag;
   try {
     frame = bag(JSON.parse(text));
@@ -182,16 +191,16 @@ export function noteFrame(direction: 'sent' | 'received', text: string): void {
   const id = frame.id === undefined || frame.id === null ? null : String(frame.id);
   const method = str(frame.method);
   if (direction === 'sent') {
-    if (id !== null && method !== null) asked.set(id, { method, params: bag(frame.params) });
+    if (id !== null && method !== null) askedOf(host).set(id, { method, params: bag(frame.params) });
     return;
   }
   if (method === 'action') {
-    actionLine(bag(frame.params));
+    actionLine(host, bag(frame.params));
     return;
   }
   if (id === null || method !== null) return;
-  const request = asked.get(id);
-  asked.delete(id);
+  const request = askedOf(host).get(id);
+  askedOf(host).delete(id);
   if (frame.error === undefined) return;
   const error = bag(frame.error);
   const what = request === undefined ? `#${id}` : `${request.method} ${str(request.params.resource) ?? str(request.params.channel) ?? ''}`.trim();
@@ -203,26 +212,26 @@ export function noteFrame(direction: 'sent' | 'received', text: string): void {
   });
 }
 
-/** A socket closed: what it had asked is not going to be answered on it. */
-export function forgetFrames(): void {
-  asked.clear();
+/** The host's socket closed: what it had asked is not going to be answered on it. */
+export function forgetFrames(host: string): void {
+  asked.delete(host);
 }
 
 /**
  * The same transport, with each frame noted on its way past. A frame is passed
  * on untouched, so a bug here loses a log line, never the connection.
  */
-export function observing(inner: AhpTransport): AhpTransport {
+export function observing(host: string, inner: AhpTransport): AhpTransport {
   return {
     send: (message) => {
-      noteFrame('sent', typeof message === 'string' ? message : JSON.stringify(message));
+      noteFrame(host, 'sent', typeof message === 'string' ? message : JSON.stringify(message));
       return inner.send(message);
     },
     close: () => inner.close(),
     async recv() {
       const frame = await inner.recv();
-      if (frame?.kind === 'text') noteFrame('received', frame.text);
-      else if (frame?.kind === 'parsed') noteFrame('received', JSON.stringify(frame.message));
+      if (frame?.kind === 'text') noteFrame(host, 'received', frame.text);
+      else if (frame?.kind === 'parsed') noteFrame(host, 'received', JSON.stringify(frame.message));
       return frame;
     },
   };

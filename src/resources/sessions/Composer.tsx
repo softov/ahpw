@@ -13,7 +13,7 @@ import type {
   StateAction,
   UsageInfo,
 } from '@microsoft/agent-host-protocol';
-import { AHP_AGENTS, dispatch, request } from '../../bridges/data.js';
+import { ahpPaths, hostBridge } from '../../bridges/data.js';
 import { folderLabel, newId } from '../../bridges/words.js';
 import type { Send } from './Parts.js';
 import { Pill } from './pills.js';
@@ -69,7 +69,9 @@ export function messageOf(text: string, model: string | undefined, attachments: 
 }
 
 /** The composer of one chat: the box, its `/` and `@` picker, the settings row, and send, queue, steer and stop. */
-export const Composer = memo(function Composer({ chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, summary, send }: {
+export const Composer = memo(function Composer({ host, chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, summary, send }: {
+  /** The session's host. */
+  host: string;
   chatUri: string;
   activeId: string | undefined;
   activeStart: string | undefined;
@@ -87,9 +89,9 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
 }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
+  const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
   const agent = agents.find((one) => one.provider === summary.provider);
-  const path = useMemo(() => composerPath(chatUri), [chatUri]);
+  const path = useMemo(() => composerPath(host, chatUri), [host, chatUri]);
   const [focus] = useState(() => `composer-${++composers}`);
   const folder = summary.workingDirectories?.[0];
 
@@ -110,7 +112,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     if (!typed.current) return;
     const timer = window.setTimeout(() => {
       const next = text.trim() === '' && attachments.length === 0 ? undefined : messageOf(text, model, attachments);
-      dispatch(chatUri, { type: 'chat/draftChanged', draft: next } as StateAction);
+      hostBridge(host).dispatch(chatUri, { type: 'chat/draftChanged', draft: next } as StateAction);
     }, DRAFT_DELAY);
     return () => window.clearTimeout(timer);
   }, [text, model, attachments, chatUri]);
@@ -147,7 +149,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     setText(`${before}${lead}${words}${textRef.current.slice(at)}`);
     focusCaret(before.length + lead.length + words.length);
   }, [focusCaret]);
-  const drop = useComposerDrop({ attach, insert, upload: (list) => void upload(list) });
+  const drop = useComposerDrop({ host, attach, insert, upload: (list) => void upload(list) });
 
   // `@` asks the host what the text so far can refer to.
   const textRef = useRef(text);
@@ -157,7 +159,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   const mentions = useCallback(async (): Promise<PickerAction[]> => {
     const said = textRef.current;
     try {
-      const found = await request('completions', { kind: 'userMessage', channel: chatUri, text: said, offset: caretRef.current ?? said.length } as never);
+      const found = await hostBridge(host).request('completions', { kind: 'userMessage', channel: chatUri, text: said, offset: caretRef.current ?? said.length } as never);
       return (found as { items: { insertText: string; attachment: MessageAttachment }[] }).items.map((item) => {
         const where = attachmentPath(item.attachment, folder);
         return {
@@ -179,7 +181,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
   const [commands, setCommands] = useState<HostCommand[]>([]);
   useEffect(() => {
     let alive = true;
-    void request('completions', { kind: 'userMessage', channel: chatUri, text: '/', offset: 1 } as never)
+    void hostBridge(host).request('completions', { kind: 'userMessage', channel: chatUri, text: '/', offset: 1 } as never)
       .then((found) => { if (alive) setCommands(hostCommands(found)); })
       .catch(() => { if (alive) setCommands([]); });
     return () => { alive = false; };
@@ -215,7 +217,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
 
   const models = useMemo(() => (agent?.models ?? []).map((one) => ({ id: one.id, name: one.name })), [agent]);
 
-  const changes = useChangeset(useMemo(() => firstScope(scopesOf(changesets))?.uri, [changesets]));
+  const changes = useChangeset(host, useMemo(() => firstScope(scopesOf(changesets))?.uri, [changesets]));
   // A deleted file has nothing left to read.
   const changed: ChangedFile[] = useMemo(() => changes.files
     .filter((one) => one.status !== 'deleted')
@@ -230,11 +232,12 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     },
     options: () => options,
     setOption: (key, value) => {
-      dispatch(summary.resource, { type: 'session/configChanged', config: { [key]: value } } as StateAction);
+      hostBridge(host).dispatch(summary.resource, { type: 'session/configChanged', config: { [key]: value } } as StateAction);
     },
     running: () => active !== undefined,
     stop,
     session: () => summary.resource,
+    host: () => host,
     attach,
     type: (prefix) => {
       const next = typeTrigger(textRef.current, caretRef.current ?? textRef.current.length, prefix);
@@ -254,6 +257,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     running: () => api.current?.running() ?? false,
     stop: () => api.current?.stop(),
     session: () => api.current?.session() ?? '',
+    host: () => api.current?.host() ?? host,
     attach: (attachment) => api.current?.attach(attachment),
     type: (prefix) => api.current?.type(prefix),
     upload: () => api.current?.upload(),
@@ -277,7 +281,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
     setText('');
     setAttachments([]);
     typed.current = false;
-    dispatch(chatUri, { type: 'chat/draftChanged', draft: undefined } as unknown as StateAction);
+    hostBridge(host).dispatch(chatUri, { type: 'chat/draftChanged', draft: undefined } as unknown as StateAction);
   }
 
   function submit(kind: 'send' | 'steer'): void {
@@ -381,7 +385,7 @@ export const Composer = memo(function Composer({ chatUri, activeId, activeStart,
         </div>
 
         <div className="web-composer__foot">
-          <AddButton path={path} onOpenChange={setAdding} />
+          <AddButton host={host} path={path} onOpenChange={setAdding} />
           <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
           <div className="web-composer__chips web-composer__chips--left">
             {pills.filter((option) => footerSide(option) === 'left').map(settingPill)}

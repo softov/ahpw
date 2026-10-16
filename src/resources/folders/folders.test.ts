@@ -41,7 +41,8 @@ test('folders come before files, each in the host order', () => {
 
 test('a drop gives its host file, and anything else gives null', () => {
   const data = (held: string): DataTransfer => ({ getData: (type: string) => (type === HOST_FILE_TYPE ? held : '') }) as DataTransfer;
-  expect(droppedHostFile(data(JSON.stringify({ uri: 'file:///a', directory: false })))).toEqual({ uri: 'file:///a', directory: false });
+  expect(droppedHostFile(data(JSON.stringify({ host: 'h', uri: 'file:///a', directory: false })))).toEqual({ host: 'h', uri: 'file:///a', directory: false });
+  expect(droppedHostFile(data(JSON.stringify({ uri: 'file:///a', directory: false })))).toBeNull();
   expect(droppedHostFile(data(''))).toBeNull();
   expect(droppedHostFile(data(JSON.stringify({ uri: 1 })))).toBeNull();
 });

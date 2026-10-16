@@ -18,4 +18,14 @@ describe('embedder', () => {
     const { embedder } = await import('./index.js');
     expect(embedder).toBe(given);
   });
+
+  it('is mono in a browser and for an embedder that gives no mode, and multi when it says so', async () => {
+    expect((await import('./index.js')).embedMode()).toBe('mono');
+    vi.resetModules();
+    (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder = { hostUrl: 'ws://127.0.0.1:9187' } as Embedder;
+    expect((await import('./index.js')).embedMode()).toBe('mono');
+    vi.resetModules();
+    (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder = { mode: 'multi', hostUrl: 'ws://127.0.0.1:9187' } as Embedder;
+    expect((await import('./index.js')).embedMode()).toBe('multi');
+  });
 });

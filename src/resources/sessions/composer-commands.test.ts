@@ -26,7 +26,7 @@ describe('showsPill', () => {
 describe('contextItems', () => {
   const api = (changed: ChangedFile[] = []): ComposerApi => ({
     models: () => [], model: () => undefined, setModel: () => undefined, options: () => [], setOption: () => undefined,
-    running: () => false, stop: () => undefined, session: () => 'claude:/one', attach: () => undefined,
+    running: () => false, stop: () => undefined, session: () => 'claude:/one', host: () => 'daemon', attach: () => undefined,
     type: () => undefined, upload: () => undefined, changed: () => changed,
   });
   // Every item is a row of its own, not a command.

@@ -3,7 +3,7 @@ import { useI18n, useStore } from '@softov/scena/react';
 import { ContextMenu, Modal } from '@softov/scena/ui';
 import type { BindingPath, PickerAction } from '@softov/scena/types';
 import type { MessageAttachment, SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS } from '../../bridges/data.js';
+import { ahpPaths } from '../../bridges/data.js';
 import { attachmentIcon, attachmentLabel, attachmentPath, clipboardImage, hasPreview, previewOf, type AttachmentPreviewOf } from './attachments.js';
 import { composerAt, contextItems } from './composer-commands.js';
 import { EMOJIcon } from '../emojis.js';
@@ -57,9 +57,9 @@ const MENU_GAP = 4;
  * `onOpenChange` lets the composer hide its `@` or `/` list while the menu is open.
  * The `+` is drawn, not typed, so it sits in the middle of its circle in any font.
  */
-export function AddButton({ path, onOpenChange }: { path: BindingPath; onOpenChange: (open: boolean) => void }): ReactElement {
+export function AddButton({ host, path, onOpenChange }: { host: string; path: BindingPath; onOpenChange: (open: boolean) => void }): ReactElement {
   const { t } = useI18n();
-  const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
+  const sessions = useStore<SessionSummary[]>(ahpPaths(host).sessions);
   const [menu, setMenu] = useState<{ rect: DOMRect; y: number; items: PickerAction[] } | null>(null);
   const button = useRef<HTMLButtonElement>(null);
   const holder = useRef<HTMLSpanElement>(null);

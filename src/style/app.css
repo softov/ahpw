@@ -695,13 +695,6 @@
 }
 
 /* The first message's box keeps three lines, so its placeholder shows whole before anything is typed. */
-@keyframes web-slide-down {
-  from {
-    transform: translateY(-6px);
-    opacity: 0;
-  }
-}
-
 .web-new__composer .web-composer__text {
   min-height: calc(3 * 1.4em + 12px);
 }
@@ -963,6 +956,72 @@
   padding: var(--oo-spacing-sm) var(--oo-spacing-md);
 }
 
+.web-host-lines {
+  list-style: none;
+  margin: 0;
+  padding: var(--oo-spacing-xs) 0;
+  border-bottom: 1px solid var(--oo-color-border);
+}
+
+.web-host-line {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  min-width: 0;
+  min-height: 1.75rem;
+  padding: 0 var(--oo-spacing-md);
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-host-line__dot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--oo-color-warning);
+}
+
+.web-host-line[data-state='down'] .web-host-line__dot,
+.web-host-line[data-state='refused'] .web-host-line__dot,
+.web-host-tag[data-state='down'] .web-host-line__dot,
+.web-host-tag[data-state='refused'] .web-host-line__dot {
+  background: var(--oo-color-danger);
+}
+
+/* A host's name with its state's dot, in a panel's facts. */
+.web-host-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-host-tag[data-state='connected'] .web-host-line__dot {
+  background: var(--oo-color-success);
+}
+
+.web-host-line__name {
+  flex: none;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--oo-color-text);
+}
+
+/* The state gives way first, so the host's name stays readable. */
+.web-host-line__state {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-host-line > :last-child:not(.web-host-line__state) {
+  flex: none;
+  margin-left: auto;
+}
+
 .web-explorer__notice > .web-note {
   margin: 0;
   padding: 0;
@@ -1035,6 +1094,14 @@
 .web-row__dot[data-dot='fresh'] { background: var(--oo-color-accent); opacity: 1; }
 .web-row__dot[data-dot='ok'] { background: var(--oo-color-success); opacity: 1; }
 .web-row__dot[data-dot='off'] { background: none; border: 1px solid var(--oo-color-muted); box-sizing: border-box; }
+
+/* A figure in place of the dot, as a bot's; as wide as two lines are tall. */
+.web-row__icon {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  width: 32px;
+}
 
 /*
  * A running row: four dots in a square, purple, the faint one walking round them, as ahpapp's
@@ -1524,7 +1591,6 @@
 .web-changes__bar {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--oo-spacing-sm);
   flex: none;
   padding: 0 var(--oo-spacing-sm) var(--oo-spacing-xs);
@@ -1533,8 +1599,8 @@
 }
 
 .web-changes__totals {
-  flex: 1 1 auto;
-  text-align: right;
+  flex: none;
+  margin-left: auto;
   white-space: nowrap;
   color: var(--oo-color-muted);
   font-size: var(--oo-font-size-xs);
@@ -1634,141 +1700,6 @@
   padding: 0;
 }
 
-/* The session's folder: the box fits its path, between a floor and a ceiling. */
-.web-folder-pill {
-  max-width: 100%;
-}
-
-.web-folder-pill input {
-  field-sizing: content;
-  min-width: 160px;
-  max-width: min(480px, 60vw);
-  text-overflow: ellipsis;
-}
-
-.web-folder-pill__mark {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-
-/* Not scena's hover tint: the mark only brightens. */
-.web-folder-pill__mark:hover,
-.web-folder-pill__mark[aria-expanded='true'] {
-  background: none;
-  color: var(--oo-color-accent);
-}
-
-/* The folder menu, above the pill, in the page's coordinates (a portal). */
-.web-folder-menu {
-  position: fixed;
-  z-index: 1100;
-  display: flex;
-  flex-direction: column;
-  width: min(420px, calc(100vw - 32px));
-  padding: 4px;
-  background: var(--oo-popup-bg);
-  color: var(--oo-popup-fg);
-  border: 1px solid var(--oo-popup-border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
-  font-size: var(--oo-font-size-sm);
-  outline: none;
-}
-
-/* The parent and its folders scroll; the host's folder and the used ones stay by the pill. */
-.web-folder-menu__list {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-
-.web-folder-menu__heading {
-  margin: 6px 8px 2px;
-  padding-top: 6px;
-  border-top: 1px solid var(--oo-popup-border);
-  font-size: var(--oo-font-size-xs);
-  color: var(--oo-color-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.web-folder-menu__line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 4px 3px 8px;
-  border-radius: var(--oo-radius-sm);
-  cursor: pointer;
-}
-
-.web-folder-menu__line[aria-selected='true'] {
-  background: var(--oo-color-hover);
-}
-
-.web-folder-menu__line[data-current='true'] {
-  color: var(--oo-color-accent);
-  font-weight: 600;
-}
-
-.web-folder-menu__line[data-kind='up'] {
-  color: var(--oo-color-muted);
-}
-
-.web-folder-menu__mark {
-  flex: none;
-  width: 1.2em;
-  text-align: center;
-  opacity: 0.8;
-}
-
-.web-folder-menu__label {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.web-folder-menu__count {
-  flex: none;
-  padding: 0 6px;
-  border-radius: 8px;
-  background: var(--oo-color-hover);
-  font-size: var(--oo-font-size-xs);
-  color: var(--oo-color-muted);
-}
-
-.web-folder-menu__walk {
-  flex: none;
-  padding: 0 6px;
-  border: 0;
-  border-radius: var(--oo-radius-sm);
-  background: none;
-  color: var(--oo-color-muted);
-  font: inherit;
-  cursor: pointer;
-  visibility: hidden;
-}
-
-.web-folder-menu__line[aria-selected='true'] .web-folder-menu__walk {
-  visibility: visible;
-}
-
-.web-folder-menu__walk:hover {
-  background: var(--oo-color-surface);
-  color: var(--oo-color-text);
-}
-
-.web-folder-menu__note {
-  padding: 3px 8px;
-  color: var(--oo-color-muted);
-}
-
 .web-new {
   display: flex;
   flex-direction: column;
@@ -1776,13 +1707,17 @@
   width: 100%;
   max-width: 52rem;
   margin: 0 auto;
-  padding: 12vh var(--oo-spacing-lg) var(--oo-spacing-lg);
+  padding: var(--oo-spacing-lg);
   box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
 }
 
-/* The new session box sits near the top of its page, so its list opens under the box, as far from it as an open session's list sits over its box. */
+/* The new session box sits at the end of its page, as an open session's box does, so its lists open over it. An auto margin rather than flex-end, so a page taller than the panel still scrolls to its top. */
+.web-new > :first-child {
+  margin-top: auto;
+}
+
 /* The new session's once-per-session choices: open, a fold button at the row's end; folded, one muted chip. */
 .web-new__tray {
   align-items: center;
@@ -1820,16 +1755,6 @@
 .web-new__tip kbd {
   font: inherit;
   color: var(--oo-color-text);
-}
-
-.web-new__composer .web-composer__picker {
-  top: calc(100% - var(--oo-spacing-md));
-  bottom: auto;
-  left: 0;
-  right: 0;
-  margin: var(--oo-spacing-xs) 0 0;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 0.22);
-  animation-name: web-slide-down;
 }
 
 
@@ -1937,6 +1862,13 @@
 .web-explorer__fold {
   width: 1em;
   flex: none;
+}
+
+/* A group inside a group: indented under its heading, in the row's own case. */
+.web-explorer__group--sub button {
+  padding-left: calc(var(--oo-spacing-sm) + 1em);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .web-explorer__group-label {
@@ -3017,4 +2949,287 @@
 
 .web-open-editors__close:hover {
   color: var(--oo-color-text);
+}
+
+/* A bot as bood draws it; the figure fills the width at its own aspect. */
+.web-bood {
+  flex: none;
+  pointer-events: none;
+}
+
+/* A computer's page: its use as bars, its mounts, and the runtime's own record, folded. */
+.web-usage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  max-width: 480px;
+}
+
+.web-usage__meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-usage__label {
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
+}
+
+.web-mounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-mounts li {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-record summary {
+  cursor: pointer;
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
+}
+
+.web-record pre {
+  margin: var(--oo-spacing-sm) 0 0;
+  padding: var(--oo-spacing-sm);
+  overflow: auto;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+  background: var(--oo-color-surface);
+  font-family: var(--oo-font-mono);
+  font-size: var(--oo-font-size-xs);
+}
+
+/* A bot's page: its figure beside its name, what it is for and its buttons. */
+.web-bot {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-lg);
+}
+
+.web-bot__words {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  min-width: 0;
+}
+
+.web-bot__description {
+  margin: 0;
+  color: var(--oo-color-muted);
+}
+
+.web-bot__instructions {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* The bot form's look: the figure as it will be, the colours, and the bodies. */
+.web-bot-look {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-lg);
+}
+
+.web-bot-look__pickers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-md);
+  min-width: 0;
+}
+
+.web-bot-look__colors,
+.web-bot-look__bodies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-bot-look__color {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  outline: 1px solid var(--oo-color-border);
+  cursor: pointer;
+}
+
+.web-bot-look__color[aria-checked='true'] {
+  border-color: var(--oo-color-canvas);
+  outline: 2px solid var(--oo-color-accent);
+}
+
+.web-bot-look__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+.web-bot-look__body:hover {
+  background: var(--oo-color-hover);
+}
+
+.web-bot-look__body[aria-checked='true'] {
+  border-color: var(--oo-color-accent);
+  background: var(--oo-color-selected);
+}
+
+/*
+ * The floating bots: pucks resting on the window's edges, tucked a little past
+ * the edge, under the toasts. Only the bots take the pointer.
+ */
+.web-bots {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  pointer-events: none;
+}
+
+.web-bot-puck {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.web-bot-puck[data-edge='right'],
+.web-bot-puck[data-edge='left'] {
+  top: calc(var(--at) * 100%);
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+
+.web-bot-puck[data-edge='right'] { right: -6px; }
+.web-bot-puck[data-edge='left'] { left: -6px; }
+
+.web-bot-puck[data-edge='top'],
+.web-bot-puck[data-edge='bottom'] {
+  left: calc(var(--at) * 100%);
+  transform: translateX(-50%);
+}
+
+.web-bot-puck[data-edge='top'] { top: -6px; }
+.web-bot-puck[data-edge='bottom'] { bottom: -6px; }
+
+.web-bot-puck__bot {
+  display: flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 160ms ease;
+}
+
+/* The bodies overlap a little, as ahpapp's clusters do; the one under the pointer comes forward. */
+.web-bot-puck[data-edge='right'] .web-bot-puck__bot + .web-bot-puck__bot,
+.web-bot-puck[data-edge='left'] .web-bot-puck__bot + .web-bot-puck__bot {
+  margin-top: -4px;
+}
+
+.web-bot-puck[data-edge='top'] .web-bot-puck__bot + .web-bot-puck__bot,
+.web-bot-puck[data-edge='bottom'] .web-bot-puck__bot + .web-bot-puck__bot {
+  margin-left: -8px;
+}
+
+.web-bot-puck__bot:hover,
+.web-bot-puck__bot[data-open='true'] {
+  z-index: 1;
+  background: none;
+  transform: scale(1.08);
+}
+
+.web-bot-puck__more {
+  min-width: 26px;
+  margin: 2px;
+  padding: 1px 6px;
+  border: 1px solid var(--oo-color-border);
+  border-radius: 999px;
+  background: var(--oo-color-surface);
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.web-bot-popover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  width: 320px;
+  padding: var(--oo-spacing-md);
+  border: 1px solid var(--oo-popup-border);
+  border-radius: var(--oo-radius-md);
+  background: var(--oo-popup-bg);
+  color: var(--oo-popup-fg);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+}
+
+.web-bot-popover__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-bot-popover__labels,
+.web-bot-popover__description {
+  margin: 0;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-bot-popover__say {
+  display: flex;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-bot-popover__say .web-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.web-bot-popover__actions {
+  display: flex;
+  gap: var(--oo-spacing-xs);
+}
+
+/* A drag: the bots it moves fade where they were, a ghost follows the pointer, and the puck it would join is ringed. */
+.web-bot-puck__bot[data-moving='true'] {
+  opacity: 0.35;
+}
+
+.web-bot-puck[data-target='true'] {
+  border-radius: 999px;
+  outline: 2px dashed var(--oo-color-accent);
+  outline-offset: 2px;
+}
+
+.web-bots[data-dragging='true'] {
+  cursor: grabbing;
+}
+
+.web-bot-ghost {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }

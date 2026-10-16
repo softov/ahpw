@@ -3,9 +3,9 @@ import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, ContextMenu, Spinner, Tree, type TreeNode } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { sessionReducer, type ChangesetOperation, type SessionState, type SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS, refresh } from '../../bridges/data.js';
+import { ahpPaths, hostBridge } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
-import { ACTIVE_SESSION } from '../sessions/state.js';
+import { ACTIVE_SESSION, type ActiveSession } from '../sessions/state.js';
 import { openAsItems, viewersOf } from '../files/viewers.js';
 import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
@@ -44,14 +44,17 @@ const WORD: Record<ReturnType<typeof letterOf>, string> = { A: 'changes/status/a
 export default function ChangesExplorer(): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const active = useStore<string>(ACTIVE_SESSION);
-  const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
+  const opened = useStore<ActiveSession>(ACTIVE_SESSION);
+  // The active session's host; nothing is read while no session is open.
+  const at = opened?.host ?? '';
+  const active = opened?.resource;
+  const sessions = useStore<SessionSummary[]>(ahpPaths(at).sessions);
   const summary = sessions?.find((one) => one.resource === active);
-  const session = useChannel<SessionState>(active, sessionReducer);
+  const session = useChannel<SessionState>(at, active, sessionReducer);
   const scopes = useMemo(() => scopesOf(session.state?.changesets), [session.state?.changesets]);
   const [chosen, setChosen] = useState<string | undefined>(undefined);
   const scope = scopes.find((one) => one.uri === chosen) ?? firstScope(scopes);
-  const changes = useChangeset(scope?.uri);
+  const changes = useChangeset(at, scope?.uri);
   const { files, operations } = changes;
   const workspace = summary?.workingDirectories?.[0] ?? null;
 
@@ -74,10 +77,10 @@ export default function ChangesExplorer(): ReactElement {
   const busy = (operation: ChangesetOperation): boolean => String(operation.status) === 'running';
 
   const menuOf = (change: Change): PickerAction[] => {
-    const items: PickerAction[] = [{ title: t('changes/openChange'), onSelect: (host) => { host.closeMenu(); openChange(scena, change, scope?.uri, review); } }];
+    const items: PickerAction[] = [{ title: t('changes/openChange'), onSelect: (host) => { host.closeMenu(); openChange(scena, at, change, scope?.uri, review); } }];
     if (change.status !== 'deleted') {
       items.push({ title: t('changes/openFile'), onSelect: (host) => { host.closeMenu(); void scena.commands.execute('ahp.openFile', { uri: change.file }); } });
-      items.push(...openAsItems(scena, change.file, viewersOf(scena, change.file)[0]?.component ?? null));
+      items.push(...openAsItems(scena, at, change.file, viewersOf(scena, change.file)[0]?.component ?? null));
     }
     if (review) {
       items.push({ title: t(change.reviewed ? 'changes/markNotReviewed' : 'changes/markReviewed'), onSelect: (host) => { host.closeMenu(); changes.review([change], !change.reviewed); } });
@@ -287,7 +290,7 @@ export default function ChangesExplorer(): ReactElement {
               tone: toneOf(operation),
             }))}
             {whole.length === 0 ? null : <span className="web-explorer__sep" aria-hidden="true" />}
-            {headButton(EMOJIcon.reload, t('common/reload'), () => void refresh(scope.uri))}
+            {headButton(EMOJIcon.reload, t('common/reload'), () => void hostBridge(at).refresh(scope.uri))}
             {headButton(EMOJIcon.more, t('changes/viewOptions'), openOptions)}
           </span>
         )}
@@ -301,14 +304,13 @@ export default function ChangesExplorer(): ReactElement {
           ) : (
             <span className="web-changes__scope web-changes__scope--only" title={scope.description ?? scope.label}>{scope.label}</span>
           )}
-          <span className="web-changes__totals">
-            {files.length === 0 ? null : (
-              <>
-                {plural('changes/files', files.length)}
-                {' '}<span className="web-diff--add">+{added}</span> <span className="web-diff--remove">{'\u{2212}'}{removed}</span>
-              </>
-            )}
-          </span>
+          {files.length === 0 ? null : (
+            // A narrow pane has room for the file icon and the count; the words are its tip.
+            <span className="web-changes__totals" title={plural('changes/files', files.length)}>
+              <span aria-label={plural('changes/files', files.length)}><span aria-hidden="true">{EMOJIcon.file}</span> {files.length}</span>
+              {' '}<span className="web-diff--add">+{added}</span> <span className="web-diff--remove">{'\u{2212}'}{removed}</span>
+            </span>
+          )}
           <span className="web-segments" role="group" aria-label={t('changes/view/showAs')}>
             {(['list', 'tree'] as const).map((one) => (
               <button key={one} type="button" className="web-segments__item web-segments__item--icon" aria-pressed={view === one} title={t(`changes/view/${one}`)} aria-label={t(`changes/view/${one}`)} onClick={() => showAs(one)}>
@@ -338,7 +340,7 @@ export default function ChangesExplorer(): ReactElement {
               return;
             }
             setSelected(node.key);
-            openChange(scena, node.data, scope?.uri, review);
+            openChange(scena, at, node.data, scope?.uri, review);
           }}
         />
         {needle !== '' && shown.length === 0 ? <p className="web-note web-explorer__empty">{t('changes/noMatch')}</p> : null}

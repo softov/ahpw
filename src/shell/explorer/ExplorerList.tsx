@@ -3,6 +3,7 @@ import { useI18n } from '@softov/scena/react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { EMOJIcon } from '../../resources/emojis.js';
+import { HostLines } from './HostLines.js';
 
 /** The colour of a row's dot, by meaning. */
 export type Dot = 'attention' | 'working' | 'failed' | 'fresh' | 'ok' | 'quiet' | 'off';
@@ -12,6 +13,8 @@ export interface Row {
   key: string;
   dot: Dot;
   dotLabel: string;
+  /** Drawn in place of the dot, such as a bot's figure; `dotLabel` still names it. */
+  icon?: ReactNode;
   title: string;
   time?: string;
   lines: ReactNode[];
@@ -20,6 +23,8 @@ export interface Row {
   strong?: boolean;
   /** The group the row is listed under; rows come grouped already, in order. */
   group?: { key: string; label: string };
+  /** A group inside `group`, drawn as an indented heading; its key is unique across the list. */
+  subgroup?: { key: string; label: string };
   /** An icon button on the row, beside its time. */
   action?: { icon: string; label: string; run: () => void };
 }
@@ -35,13 +40,15 @@ interface Menu {
  * right-click. Its section's title and buttons are scena's header, declared on
  * the section's component; `label` only names the list for assistive tech.
  */
-export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabel }: {
+export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabel, hostLines }: {
   label: string;
   rows: Row[];
   selected: string | null;
   onOpen: (key: string) => void;
   notice?: ReactNode;
   filterLabel?: string;
+  /** With every host, a line above the rows for each shown host that is not connected. */
+  hostLines?: boolean;
 }): ReactElement {
   const { t } = useI18n();
   const [menu, setMenu] = useState<Menu | null>(null);
@@ -73,13 +80,18 @@ export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabe
         />
       )}
       <div className="web-explorer__scroll">
+        {hostLines === true ? <HostLines /> : null}
         {notice === undefined || notice === null ? null : <div className="web-explorer__notice">{notice}</div>}
         <ul className="web-explorer__list" role="listbox" aria-label={label}>
           {shown.map((row, index) => {
             const group = row.group;
             const opens = group !== undefined && shown[index - 1]?.group?.key !== group.key;
             const count = opens ? shown.filter((one) => one.group?.key === group.key).length : 0;
-            const hidden = group !== undefined && folded.has(group.key);
+            const sub = row.subgroup;
+            const subOpens = sub !== undefined && (opens || shown[index - 1]?.subgroup?.key !== sub.key);
+            const subCount = subOpens ? shown.filter((one) => one.subgroup?.key === sub.key).length : 0;
+            const groupHidden = group !== undefined && folded.has(group.key);
+            const hidden = groupHidden || (sub !== undefined && folded.has(sub.key));
             return (
               <Fragment key={row.key}>
                 {opens ? (
@@ -88,6 +100,15 @@ export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabe
                       <span className="web-explorer__fold" aria-hidden="true">{hidden ? EMOJIcon.caretRight : EMOJIcon.caretDown}</span>
                       <span className="web-explorer__group-label">{group.label}</span>
                       <span className="web-explorer__count">{count}</span>
+                    </button>
+                  </li>
+                ) : null}
+                {subOpens && !groupHidden ? (
+                  <li className="web-explorer__group web-explorer__group--sub" role="presentation">
+                    <button type="button" aria-expanded={!folded.has(sub.key)} onClick={() => fold(sub.key)}>
+                      <span className="web-explorer__fold" aria-hidden="true">{folded.has(sub.key) ? EMOJIcon.caretRight : EMOJIcon.caretDown}</span>
+                      <span className="web-explorer__group-label">{sub.label}</span>
+                      <span className="web-explorer__count">{subCount}</span>
                     </button>
                   </li>
                 ) : null}
@@ -112,9 +133,11 @@ export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabe
                     }}
                     onContextMenu={(event) => openMenu(event, row)}
                   >
-                    <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel}>
-                      {row.dot === 'working' ? <><i /><i /><i /><i /></> : null}
-                    </span>
+                    {row.icon === undefined ? (
+                      <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel}>
+                        {row.dot === 'working' ? <><i /><i /><i /><i /></> : null}
+                      </span>
+                    ) : <span className="web-row__icon" title={row.dotLabel} aria-label={row.dotLabel}>{row.icon}</span>}
                     <span className="web-row__body">
                       <span className="web-row__head">
                         <span className="web-row__title" data-strong={row.strong === true ? 'true' : 'false'}>{row.title}</span>

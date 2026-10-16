@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { useI18n, useStore } from '@softov/scena/react';
-import { AHP_CONNECTION, AHP_HOST, AHP_SERVER, reconnect, type Connection, type HostFacts } from './data.js';
+import { ahpPaths, hostBridge, windowHost, type Connection, type HostFacts } from './data.js';
+import { useEach, useEveryHost, useHostNames } from './hosts.js';
+import { embedMode } from '../shell/embed/index.js';
 import { serverLabel, type ServerInfo } from './server-info.js';
 import { elapsed } from './words.js';
 import { EMOJIcon } from '../resources/emojis.js';
@@ -36,10 +38,15 @@ function useNow(on: boolean): number {
  * address, which the tooltip always gives.
  */
 export default function ConnectionStatus(): ReactElement {
+  return embedMode() === 'multi' ? <EveryHostStatus /> : <OneHostStatus />;
+}
+
+function OneHostStatus(): ReactElement {
   const { t } = useI18n();
-  const connection = useStore<Connection>(AHP_CONNECTION);
-  const host = useStore<HostFacts | null>(AHP_HOST);
-  const server = useStore<ServerInfo | null>(AHP_SERVER);
+  const paths = ahpPaths(windowHost());
+  const connection = useStore<Connection>(paths.connection);
+  const host = useStore<HostFacts | null>(paths.host);
+  const server = useStore<ServerInfo | null>(paths.server);
   const name = server === null || server === undefined ? host?.label : serverLabel(server);
   const status = connection?.status ?? 'connecting';
   const since = status === 'connected' ? host?.connectedAt ?? null : null;
@@ -67,7 +74,33 @@ export default function ConnectionStatus(): ReactElement {
       <span>{word}</span>
       {since === null ? null : <span className="web-connection__uptime">{elapsed(now - since)}</span>}
       {reconnects === 0 ? null : <span className="web-connection__uptime">{`${EMOJIcon.reload} ${reconnects}`}</span>}
-      {down ? <button type="button" className="web-connection__retry" onClick={() => void reconnect()}>{t('bridges/reconnectNow')}</button> : null}
+      {down ? <button type="button" className="web-connection__retry" onClick={() => void hostBridge(windowHost()).reconnect()}>{t('bridges/reconnectNow')}</button> : null}
+    </span>
+  );
+}
+
+/** How bad a state is, so the worst host's state colours the dot. */
+const RANK: Record<Connection['status'], number> = { connected: 0, connecting: 1, reconnecting: 2, disconnected: 3, failed: 4 };
+
+/**
+ * With every host: how many hosts are connected, the dot of the worst state,
+ * and one line per host in the tooltip. Retry tries every host that is down.
+ */
+function EveryHostStatus(): ReactElement {
+  const { t } = useI18n();
+  const hosts = useEveryHost();
+  const hostName = useHostNames();
+  const connections = useEach<Connection>(hosts.map((host) => ahpPaths(host).connection));
+  const states = hosts.map((_, at) => connections[at]?.status ?? 'connecting');
+  const up = states.filter((one) => one === 'connected').length;
+  const worst = states.reduce<Connection['status']>((held, one) => (RANK[one] > RANK[held] ? one : held), 'connected');
+  const down = states.some((one) => one === 'disconnected' || one === 'failed' || one === 'reconnecting');
+  const tip = hosts.map((host, at) => `${hostName(host)}: ${t(`bridges/state/${WORDS[states[at]!]}`)}`).join('\n');
+  return (
+    <span className="web-connection" data-status={worst} title={tip === '' ? undefined : tip}>
+      <span className="web-connection__dot" aria-hidden="true" />
+      <span>{t('bridges/hostsUp', { up, total: hosts.length })}</span>
+      {down ? <button type="button" className="web-connection__retry" onClick={() => void Promise.all(hosts.filter((_, at) => states[at] !== 'connected').map((host) => hostBridge(host).reconnect()))}>{t('bridges/reconnectNow')}</button> : null}
     </span>
   );
 }

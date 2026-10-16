@@ -10,13 +10,13 @@ export const TEXT_VIEWER = 'FilePage';
 /** The viewer that draws Markdown. */
 export const MARKDOWN_VIEWER = 'MarkdownPage';
 
-/** A file tab's key: the viewer and the file. */
-export const fileTabKey = (component: string, uri: string): string => `file:${component}:${uri}`;
+/** A file tab's key: the host, the viewer and the file. */
+export const fileTabKey = (component: string, host: string, uri: string): string => `file:${host}:${component}:${uri}`;
 
-/** The viewer and the file of a file tab's key; undefined for any other tab. */
-export function fileTabOf(key: string | undefined): { component: string; uri: string } | undefined {
-  const match = key === undefined ? null : /^file:([^:]+):(.+)$/.exec(key);
-  return match === null ? undefined : { component: match[1]!, uri: match[2]! };
+/** The host, the viewer and the file of a file tab's key; undefined for any other tab. */
+export function fileTabOf(key: string | undefined): { host: string; component: string; uri: string } | undefined {
+  const match = key === undefined ? null : /^file:([^:]+):([^:]+):(.+)$/.exec(key);
+  return match === null ? undefined : { host: match[1]!, component: match[2]!, uri: match[3]! };
 }
 
 /** A file's extension, lower case, without the dot; '' when it has none. */
@@ -43,17 +43,17 @@ export function viewerTitle(viewer: ComponentDefinition): string {
   return viewer.component;
 }
 
-/** One "Open as" row for each viewer of this file other than `current`. */
-export function openAsItems(scena: Scena, uri: string, current: string | null): PickerAction[] {
+/** One "Open as" row for each viewer of the host's file other than `current`. */
+export function openAsItems(scena: Scena, host: string, uri: string, current: string | null): PickerAction[] {
   return viewersOf(scena, uri)
     .filter((viewer) => viewer.component !== current)
     .map((viewer) => ({
       title: translate('files/openAs', { viewer: viewerTitle(viewer) }),
       group: translate('files/openWith'),
       ...(viewer.opens?.icon === undefined ? {} : { icon: viewer.opens.icon }),
-      onSelect: (host) => {
-        host.closeMenu();
-        void scena.commands.execute('ahp.openFile', { uri, viewer: viewer.component });
+      onSelect: (menu) => {
+        menu.closeMenu();
+        void scena.commands.execute('ahp.openFile', { host, uri, viewer: viewer.component });
       },
     }));
 }

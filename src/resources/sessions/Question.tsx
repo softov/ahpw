@@ -6,8 +6,9 @@ import { plural } from '../../i18n/locales.js';
 import type { ChatInputAnswer, ChatInputQuestion, ChatInputRequest, StateAction } from '@microsoft/agent-host-protocol';
 import { EMPTY, allowsOther, answerWords, draftOf, encode, isChoice, optionsOf, type Draft } from './answer.js';
 import type { Send } from './Parts.js';
+import { useSessionHost } from './workspace.js';
 
-/** What this page sent, by request id. Kept past the card: a finished turn draws it anew, and the host may never say. */
+/** What this page sent, by host and request id. Kept past the card: a finished turn draws it anew, and the host may never say. */
 const SENT = new Map<string, Sent>();
 
 interface Sent {
@@ -116,10 +117,11 @@ export function InputRequest({ request, send, live, response }: {
   response: string | undefined;
 }): ReactElement {
   const { t } = useI18n();
+  const sentKey = `${useSessionHost()}\u0000${request.id}`;
   const questions = request.questions ?? [];
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() => Object.fromEntries(questions.map((one) => [one.id, draftOf(request.answers?.[one.id])])));
   const [page, setPage] = useState(0);
-  const [sent, setSent] = useState<Sent | null>(() => SENT.get(request.id) ?? null);
+  const [sent, setSent] = useState<Sent | null>(() => SENT.get(sentKey) ?? null);
   const answers = Object.fromEntries(questions.flatMap((one) => {
     const answer = encode(one, drafts[one.id] ?? EMPTY);
     return answer === undefined ? [] : [[one.id, answer]];
@@ -129,7 +131,7 @@ export function InputRequest({ request, send, live, response }: {
 
   const complete = (kind: 'accept' | 'decline'): void => {
     const said: Sent = { response: kind, answers: kind === 'accept' ? answers : {} };
-    SENT.set(request.id, said);
+    SENT.set(sentKey, said);
     setSent(said);
     send({ type: 'chat/inputCompleted', requestId: request.id, response: kind, ...(kind === 'accept' && Object.keys(answers).length > 0 ? { answers } : {}) } as StateAction);
   };

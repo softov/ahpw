@@ -9,7 +9,7 @@ import type {
 import { elapsed, folderLabel, textOf } from '../../bridges/words.js';
 import { codePath, fileLink } from '../files/link.js';
 import { linkClicks } from '../files/clicks.js';
-import { WorkspaceContext } from './workspace.js';
+import { useSessionHost, WorkspaceContext } from './workspace.js';
 import { CopyButton } from '../../shell/controls/CopyButton.js';
 import { InputRequest } from './Question.js';
 import { durationOf, fileOf, inputText, kindOf, lineOf, outcomeOf, outputOf, segmentsOf, type Outcome, type Output, type ToolKind } from './tool.js';
@@ -36,7 +36,7 @@ const MARK: Record<Outcome, { glyph: string; label: string }> = {
 
 /** Clicks inside an agent's text, relative paths from the session's folder. */
 function useLinkClicks(): (event: MouseEvent<HTMLElement>) => void {
-  return linkClicks(useScena(), useContext(WorkspaceContext));
+  return linkClicks(useScena(), useSessionHost(), useContext(WorkspaceContext));
 }
 
 /** The icon of each kind of call. */

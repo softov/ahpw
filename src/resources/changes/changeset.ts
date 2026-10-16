@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useScena } from '@softov/scena/react';
 import type { Scena } from '@softov/scena/types';
 import { changesetReducer, type ChangesetOperation, type ChangesetState, type StateAction } from '@microsoft/agent-host-protocol';
-import { dispatch, request } from '../../bridges/data.js';
+import { hostBridge } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { textOf } from '../../bridges/words.js';
 import { confirm } from '../../shell/notify/index.js';
@@ -43,8 +43,9 @@ export function toneOf(operation: ChangesetOperation): 'blue' | 'yellow' | 'red'
 export const iconOf = (operation: ChangesetOperation): string => ICON[operation.icon ?? ''] ?? operation.label.charAt(0);
 
 /** Opens the diff of one change, with the changeset it came from so the tab can act on it. */
-export function openChange(scena: Scena, change: Change, changeset: string | undefined, review: boolean): void {
+export function openChange(scena: Scena, host: string, change: Change, changeset: string | undefined, review: boolean): void {
   void scena.commands.execute('ahp.openDiff', {
+    host,
     file: change.file,
     ...(change.before === undefined ? {} : { before: change.before }),
     ...(change.after === undefined ? {} : { after: change.after }),
@@ -57,8 +58,8 @@ export type ChangesetForm =
   | { kind: 'commit'; operation: ChangesetOperation }
   | { kind: 'pull-request'; create: ChangesetOperation | null; draft: PullRequestDraft; preparing: boolean };
 
-/** One changeset: its files and operations, a way to run them, and what the last one said. */
-export function useChangeset(uri: string | undefined): {
+/** One changeset on the host `host`: its files and operations, a way to run them, and what the last one said. */
+export function useChangeset(host: string, uri: string | undefined): {
   state: ChangesetState | undefined;
   error: string | null;
   files: Change[];
@@ -72,7 +73,7 @@ export function useChangeset(uri: string | undefined): {
   review: (changes: readonly Change[], reviewed: boolean) => void;
 } {
   const scena = useScena();
-  const channel = useChannel<ChangesetState>(uri, changesetReducer);
+  const channel = useChannel<ChangesetState>(host, uri, changesetReducer);
   const [said, setSaid] = useState<Said | null>(null);
   const [form, setForm] = useState<ChangesetForm | null>(null);
   useEffect(() => {
@@ -87,7 +88,7 @@ export function useChangeset(uri: string | undefined): {
     if (uri === undefined) return undefined;
     setSaid(null);
     try {
-      const result = await request('invokeChangesetOperation', {
+      const result = await hostBridge(host).request('invokeChangesetOperation', {
         channel: uri,
         operationId: operation.id,
         ...(target === undefined ? {} : { target: { kind: 'resource', resource: target.file } }),
@@ -110,7 +111,7 @@ export function useChangeset(uri: string | undefined): {
       return;
     }
     const content = (followUp as { content?: { uri?: unknown } } | undefined)?.content?.uri;
-    if (typeof content === 'string' && !content.startsWith('data:')) void scena.commands.execute('ahp.openFile', { uri: content });
+    if (typeof content === 'string' && !content.startsWith('data:')) void scena.commands.execute('ahp.openFile', { host, uri: content });
   };
 
   /** The pull request form, filled by `prepare-pull-request` when the host offers it. */
@@ -161,7 +162,7 @@ export function useChangeset(uri: string | undefined): {
   };
 
   const review = (changes: readonly Change[], reviewed: boolean): void => {
-    if (uri !== undefined && changes.length > 0) dispatch(uri, { type: 'changeset/filesReviewChanged', files: changes.map((one) => one.id), reviewed } as StateAction);
+    if (uri !== undefined && changes.length > 0) hostBridge(host).dispatch(uri, { type: 'changeset/filesReviewChanged', files: changes.map((one) => one.id), reviewed } as StateAction);
   };
 
   return { state: channel.state, error: channel.error, files, operations, said, form, run, commit, pullRequest, closeForm: () => setForm(null), review };

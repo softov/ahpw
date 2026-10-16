@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { useI18n, useStore } from '@softov/scena/react';
-import { kindOfResource } from '../../bridges/data.js';
+import { hostBridge } from '../../bridges/data.js';
 import { folderUri } from '../../bridges/words.js';
 import { childFolders, expandHome, parentPath, splitPath } from './folder-path.js';
 import { FOLDER_REQUEST, settleFolder, type FolderRequest } from './pick.js';
@@ -39,7 +39,7 @@ function PickerCard({ request }: { request: FolderRequest }): ReactElement {
   useEffect(() => {
     if (dir === '' || listings.has(dir)) return;
     setListings((held) => new Map(held).set(dir, { state: 'loading' }));
-    childFolders(dir)
+    childFolders(request.host, dir)
       .then((folders) => setListings((held) => new Map(held).set(dir, { state: 'ok', folders })))
       .catch(() => setListings((held) => new Map(held).set(dir, { state: 'missing' })));
   }, [dir, listings]);
@@ -72,7 +72,7 @@ function PickerCard({ request }: { request: FolderRequest }): ReactElement {
   const add = async (): Promise<void> => {
     const path = value.trim();
     if (path === '') return;
-    const kind = await kindOfResource(folderUri(path)).catch(() => null);
+    const kind = await hostBridge(request.host).kindOfResource(folderUri(path)).catch(() => null);
     if (kind === 'directory') settleFolder(path);
     else setProblem(kind === null ? t('folders/pick/missing') : t('folders/pick/notFolder'));
   };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityOf, countsOf, isArchived } from './status.js';
+import { activityOf, countsOf, isArchived, shows } from './status.js';
 
 describe('activityOf', () => {
   it('reads input needed before running, since it carries the running bit', () => {
@@ -24,5 +24,18 @@ describe('countsOf', () => {
   it('counts sessions idle and not read, and those working', () => {
     // idle, idle and read, running, needs input, archived and running, archived and idle.
     expect(countsOf([0, 32, 8, 24, 64 | 8, 64])).toEqual({ unread: 1, working: 2 });
+  });
+});
+
+describe('shows', () => {
+  it('splits sessions as the Sessions icon counts them', () => {
+    const unread = 0;
+    const read = 32;
+    const running = 8;
+    const asking = 24;
+    expect([unread, read, running, asking].map((status) => shows(status, 'all'))).toEqual([true, true, true, true]);
+    expect([unread, read, running, asking].map((status) => shows(status, 'unread'))).toEqual([true, false, false, false]);
+    expect([unread, read, running, asking].map((status) => shows(status, 'read'))).toEqual([false, true, false, false]);
+    expect([unread, read, running, asking].map((status) => shows(status, 'running'))).toEqual([false, false, true, true]);
   });
 });

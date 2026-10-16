@@ -2,7 +2,9 @@ import type { ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Badge, Button, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_AGENTS, AHP_SESSIONS } from '../../bridges/data.js';
+import { ahpPaths } from '../../bridges/data.js';
+import { embedMode } from '../../shell/embed/index.js';
+import { HostTag } from '../../shell/explorer/HostLines.js';
 import { CustomizationTrees } from './Customizations.js';
 import { capabilitiesOf, limitsOf, modelsLine, signInOf } from './words.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
@@ -11,11 +13,11 @@ import { PageAlert } from '../../shell/view/PageAlert.js';
 const POLICY = new Set(['disabled', 'unconfigured']);
 
 /** One agent: what it is, its models, what it is customized with and how to sign in to it. */
-export default function AgentPage({ provider }: { provider?: string }): ReactElement {
+export default function AgentPage({ host, provider }: { host: string; provider?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
-  const sessions = useStore<SessionSummary[]>(AHP_SESSIONS) ?? [];
+  const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
+  const sessions = useStore<SessionSummary[]>(ahpPaths(host).sessions) ?? [];
   const agent = agents.find((one) => one.provider === provider);
   if (agent === undefined) return <PageAlert tone="warning" message={t('agents/page/gone')} />;
 
@@ -23,6 +25,7 @@ export default function AgentPage({ provider }: { provider?: string }): ReactEle
   const signIn = signInOf(agent);
   const count = sessions.filter((one) => one.provider === agent.provider).length;
   const facts: DetailItem[] = [
+    ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} /> }] : []),
     { label: t('agents/page/facts/provider'), value: <code>{agent.provider}</code> },
     { label: t('agents/page/facts/models'), value: modelsLine(agent) },
     { label: t('agents/page/facts/sessions'), value: String(count) },
@@ -65,7 +68,7 @@ export default function AgentPage({ provider }: { provider?: string }): ReactEle
       {(agent.customizations ?? []).length === 0 ? null : (
         <>
           <Text variant="h3" text={t('agents/page/customizations')} />
-          <CustomizationTrees items={agent.customizations} />
+          <CustomizationTrees host={host} items={agent.customizations} />
         </>
       )}
 

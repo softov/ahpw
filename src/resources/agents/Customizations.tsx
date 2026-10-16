@@ -81,21 +81,21 @@ function rowNode(row: CustomizationRow): TreeNode<Detail> {
 const folderOf = (uri: string): string => uri.replace(/\/[^/]*$/, '');
 
 /** A Markdown file's body, read from the host; a short note when the host cannot read it. */
-function FileBody({ uri }: { uri: string }): ReactElement {
+function FileBody({ host, uri }: { host: string; uri: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const state = useFileText(uri);
+  const state = useFileText(host, uri);
   if (state === null) return <Spinner label={t('agents/customizations/readingFile')} />;
   if ('error' in state || state.text === null) return <p className="web-note">{t('agents/customizations/unreadable')}</p>;
   return (
-    <div className="web-md" onClick={linkClicks(scena, folderOf(uri))}>
+    <div className="web-md" onClick={linkClicks(scena, host, folderOf(uri))}>
       <Markdown text={withoutFrontmatter(state.text)} />
     </div>
   );
 }
 
 /** One customization over the agent page: buttons that copy a child's name and description, its flags and description, then its Markdown file, or a button that opens any other file. */
-function DetailModal({ detail, onClose }: { detail: Detail; onClose: () => void }): ReactElement {
+function DetailModal({ host, detail, onClose }: { host: string; detail: Detail; onClose: () => void }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const open = detail.open;
@@ -107,15 +107,15 @@ function DetailModal({ detail, onClose }: { detail: Detail; onClose: () => void 
         {detail.flags.length === 0 ? null : <p className="web-custom-detail__flags">{detail.flags.join(' · ')}</p>}
         {detail.description === '' ? null : <p>{detail.description}</p>}
         {open === undefined ? null : markdown
-          ? <FileBody uri={open.uri} />
-          : <Button label={t('agents/customizations/openFile')} onClick={() => { onClose(); void scena.commands.execute('ahp.openFile', { uri: open.uri, line: open.line }); }} />}
+          ? <FileBody host={host} uri={open.uri} />
+          : <Button label={t('agents/customizations/openFile')} onClick={() => { onClose(); void scena.commands.execute('ahp.openFile', { host, uri: open.uri, line: open.line }); }} />}
       </div>
     </Modal>
   );
 }
 
 /** An agent's customizations in one tree: plugins and folders with their children, then MCP servers. A row with children opens and closes on click; any other row shows its detail over the page. */
-export function CustomizationTrees({ items }: { items: readonly Customization[] | undefined }): ReactElement {
+export function CustomizationTrees({ host, items }: { host: string; items: readonly Customization[] | undefined }): ReactElement {
   // The rows' words are translated as they are built; reading the language here redraws them when it changes.
   useI18n();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -140,7 +140,7 @@ export function CustomizationTrees({ items }: { items: readonly Customization[] 
           }
         }}
       />
-      {detail === null ? null : <DetailModal detail={detail} onClose={() => setDetail(null)} />}
+      {detail === null ? null : <DetailModal host={host} detail={detail} onClose={() => setDetail(null)} />}
     </>
   );
 }

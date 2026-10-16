@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const request = vi.fn();
-vi.mock('../../bridges/data.js', () => ({ ROOT: 'ahp-root:/', request }));
+vi.mock('../../bridges/data.js', () => ({ ROOT: 'ahp-root:/', hostBridge: () => ({ request }) }));
 
 const { childFolders, expandHome, parentPath, splitPath } = await import('./folder-path.js');
 
@@ -40,7 +40,7 @@ describe('parentPath', () => {
 describe('childFolders', () => {
   it("lists the folder's folders by name", async () => {
     request.mockResolvedValue({ entries: [{ name: 'src', type: 'directory' }, { name: 'a.txt', type: 'file' }, { name: 'Apps', type: 'directory' }] });
-    expect(await childFolders('C:/work/')).toEqual(['Apps', 'src']);
+    expect(await childFolders('daemon', 'C:/work/')).toEqual(['Apps', 'src']);
     expect(request).toHaveBeenCalledWith('resourceList', { channel: 'ahp-root:/', uri: 'file:///C:/work/' });
   });
 });

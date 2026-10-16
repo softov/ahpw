@@ -1,25 +1,30 @@
-import type { BindingPath } from '@softov/scena/types';
-import { hostKey } from '../../lib/storage-keys.js';
+import type { BindingPath, ReactiveStore } from '@softov/scena/types';
+import { perHostKey } from '../../lib/storage-keys.js';
 
-/** The folders open in the explorer's tree, as URIs; null until this browser opened or closed one. */
-export const EXPANDED_FOLDERS = '$/folders/expanded' as BindingPath;
+/** The open folders of the host `host`'s tree, as URIs; null until this browser opened or closed one. */
+export const expandedPath = (host: string): BindingPath => `$/folders/expanded/${encodeURIComponent(host)}` as BindingPath;
 
-/** The localStorage key the open folders are kept under. */
-export const EXPANDED_KEY = hostKey('ahpd-web.folders-expanded');
+/** With every host, the key of the host's own branch, kept among its open folders. */
+export const HOST_NODE = '#host';
 
-/** The open folders, from this browser's storage; null when it holds none, is blocked, or holds something else. */
-export function readExpanded(): string[] | null {
+/** The localStorage key a host's open folders are kept under. */
+export const expandedKey = (host: string): string => perHostKey('ahpd-web.folders-expanded', host);
+
+/** `host`'s open folders, from this browser's storage; null when it holds none, is blocked, or holds something else. */
+export function readExpanded(host: string): string[] | null {
   try {
-    const held = JSON.parse(window.localStorage.getItem(EXPANDED_KEY) ?? 'null') as unknown;
+    const held = JSON.parse(window.localStorage.getItem(expandedKey(host)) ?? 'null') as unknown;
     return Array.isArray(held) ? held.filter((one): one is string => typeof one === 'string') : null;
   } catch {
     return null;
   }
 }
 
-export function writeExpanded(list: readonly string[]): void {
+/** Keep `host`'s open folders, in the store and in storage. */
+export function setExpanded(store: ReactiveStore, host: string, list: readonly string[]): void {
+  store.set(expandedPath(host), [...list]);
   try {
-    window.localStorage.setItem(EXPANDED_KEY, JSON.stringify(list));
+    window.localStorage.setItem(expandedKey(host), JSON.stringify(list));
   } catch {
     // Storage blocked: the open folders last as long as the page.
   }

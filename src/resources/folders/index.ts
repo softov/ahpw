@@ -4,8 +4,9 @@ import { english } from '../../i18n/locales.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { EMOJIcon } from '../emojis.js';
 import { registerEntryCommands } from './actions.js';
-import { ADDED_FOLDERS, readAdded } from './added.js';
-import { EXPANDED_FOLDERS, readExpanded } from './expanded.js';
+import { HOST_FILTER_ACTION, onEachHost } from '../../bridges/hosts.js';
+import { addedPath, readAdded } from './added.js';
+import { expandedPath, readExpanded } from './expanded.js';
 import { initAsk, resetAsk } from './ask.js';
 import { FolderPicker } from './FolderPicker.js';
 import { NameDialog } from './NameDialog.js';
@@ -17,11 +18,12 @@ export const FOLDERS_SECTION = 'ahp:folders';
 /** Bumped to have the tree read every open folder again; the header's Refresh does it. */
 export const RELOAD_FOLDERS = '$/ahp/folders/reload' as BindingPath;
 
-/** A folder the explorer is asked to show, until it does. */
+/** A folder the explorer is asked to show, as `RevealFolderArgs`, until it does. */
 export const REVEAL_FOLDER = '$/ahp/folders/reveal' as BindingPath;
 
-/** Arguments of `ahp.revealFolder`. */
+/** Arguments of `ahp.revealFolder`: the folder, on its host. */
 export interface RevealFolderArgs {
+  host: string;
   uri: string;
 }
 
@@ -29,9 +31,13 @@ export interface RevealFolderArgs {
 export function registerFolders(scena: Scena): Disposable {
   initAsk(scena.store);
   initPick(scena.store);
-  scena.store.set(ADDED_FOLDERS, readAdded());
-  scena.store.set(EXPANDED_FOLDERS, readExpanded());
   return combineDisposables(
+    // Each host's added and open folders, from storage, as the host joins.
+    onEachHost(scena, (host) => {
+      if (scena.store.get(addedPath(host)) === undefined) scena.store.set(addedPath(host), readAdded(host));
+      if (scena.store.get(expandedPath(host)) === undefined) scena.store.set(expandedPath(host), readExpanded(host));
+      return { dispose: () => undefined };
+    }),
     { dispose: resetAsk },
     { dispose: resetPick },
     scena.components.register({
@@ -41,7 +47,7 @@ export function registerFolders(scena: Scena): Disposable {
       // scena draws the section's header from these.
       props: {
         title: { t: 'folders/explorer/title' },
-        actions: [{ command: 'folders.reload', icon: EMOJIcon.reload, label: { t: 'folders/explorer/refresh' } }],
+        actions: [HOST_FILTER_ACTION, { command: 'folders.reload', icon: EMOJIcon.reload, label: { t: 'folders/explorer/refresh' } }],
       },
     }),
     scena.commands.register({
@@ -61,9 +67,9 @@ export function registerFolders(scena: Scena): Disposable {
       id: 'ahp.revealFolder',
       title: () => translate('folders/commands/reveal'),
       run: (ctx, args) => {
-        const uri = (args as RevealFolderArgs | undefined)?.uri;
-        if (uri === undefined) return;
-        ctx.store.set(REVEAL_FOLDER, uri);
+        const asked = args as RevealFolderArgs | undefined;
+        if (asked?.uri === undefined || asked.host === undefined) return;
+        ctx.store.set(REVEAL_FOLDER, { host: asked.host, uri: asked.uri } satisfies RevealFolderArgs);
         return ctx.commands.execute('sidebar.activate', { section: FOLDERS_SECTION });
       },
     }),

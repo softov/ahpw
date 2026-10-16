@@ -106,6 +106,7 @@
     "title": "Web"
   },
   "dependencies": {
+    "@cofold/bood": "^0.1.0",
     "@cofold/commands": "^0.3.0",
     "@cofold/config": "^0.3.1",
     "@cofold/remote": "^0.5.0",

@@ -1,12 +1,13 @@
 import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
 import { combineDisposables, translate, type ModusClass } from '@softov/scena';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
-import { AHP_AGENTS } from '../../bridges/data.js';
+import { ahpPaths, windowHost } from '../../bridges/data.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { ACTIVE_AGENT } from './state.js';
 import { EMOJIcon } from '../emojis.js';
 import { english } from '../../i18n/locales.js';
+import { HOST_FILTER_ACTION } from '../../bridges/hosts.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -21,7 +22,7 @@ export function registerAgents(scena: Scena): Disposable {
       component: 'AgentExplorer',
       category: 'page',
       renderer: { kind: 'react', load: () => import('./Explorer.js') },
-      props: { title: { t: 'agents/explorer/title' } },
+      props: { title: { t: 'agents/explorer/title' }, actions: [HOST_FILTER_ACTION] },
     }),
     scena.components.register({
       component: 'AgentPage',
@@ -41,14 +42,15 @@ export function registerAgents(scena: Scena): Disposable {
       id: 'ahp.openAgent',
       title: () => translate('agents/commands/open'),
       run: (ctx, args) => {
-        const provider = (args as { provider?: string } | undefined)?.provider;
-        if (provider === undefined) return;
-        ctx.store.set(ACTIVE_AGENT, provider);
-        const agent = ctx.store.get<AgentInfo[]>(AHP_AGENTS)?.find((one) => one.provider === provider);
+        const target = args as { provider?: string; host?: string } | undefined;
+        if (target?.provider === undefined) return;
+        const { provider, host = windowHost() } = target;
+        ctx.store.set(ACTIVE_AGENT, { host, provider });
+        const agent = ctx.store.get<AgentInfo[]>(ahpPaths(host).agents)?.find((one) => one.provider === provider);
         ctx.surfaces.open({
           surface: 'main',
-          key: `agent:${provider}`,
-          resource: { component: 'AgentPage', provider },
+          key: `agent:${host}:${provider}`,
+          resource: { component: 'AgentPage', host, provider },
           props: { title: agent?.displayName ?? provider },
         });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');

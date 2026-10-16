@@ -12,7 +12,9 @@ export type Dropping = 'attach' | 'mention' | null;
  * Shift is also written in as `@path`; this computer's files attach as content.
  * A paste of files, as a screenshot or a copied file, attaches them the same way.
  */
-export function useComposerDrop({ attach, insert, upload }: {
+export function useComposerDrop({ host: on, attach, insert, upload }: {
+  /** The host the composer sends to; a file from another host's tree is not dropped. */
+  host: string;
   attach: (attachment: MessageAttachment) => void;
   insert: (words: string) => void;
   upload: (files: FileList) => void;
@@ -41,6 +43,7 @@ export function useComposerDrop({ attach, insert, upload }: {
       const host = droppedHostFile(event.dataTransfer);
       if (host !== null) {
         event.preventDefault();
+        if (host.host !== on) return;
         const attachment = resourceAttachment(host.uri, host.directory);
         if (!event.shiftKey) {
           attach(attachment);

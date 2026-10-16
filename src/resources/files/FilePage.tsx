@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { useCloseGuard, useI18n } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
-import { etagOf, writeText } from '../../bridges/data.js';
+import { hostBridge } from '../../bridges/data.js';
 import CodeEditor from '../editor/CodeEditor.js';
 import { languageOf } from '../editor/languages.js';
 import { changedOnHost, refusesWrite, shownText } from './save.js';
@@ -15,9 +15,9 @@ interface SaveFailure {
 }
 
 /** A file the daemon can read, in an editor that saves with Mod-s, scrolled to the lines a link named. */
-export default function FilePage({ uri, line, end }: { uri?: string; line?: number | null; end?: number | null }): ReactElement {
+export default function FilePage({ host, uri, line, end }: { host: string; uri?: string; line?: number | null; end?: number | null }): ReactElement {
   const { t } = useI18n();
-  const state = useFileText(uri);
+  const state = useFileText(host, uri);
   const [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<SaveFailure | null>(null);
   /** The text as the host last held it, read or saved. */
@@ -40,9 +40,9 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
     version.current = undefined;
     if (uri === undefined || loaded === null) return;
     let alive = true;
-    etagOf(uri).then((etag) => { if (alive) version.current = etag; }).catch(() => undefined);
+    hostBridge(host).etagOf(uri).then((etag) => { if (alive) version.current = etag; }).catch(() => undefined);
     return () => { alive = false; };
-  }, [uri, loaded?.text]);
+  }, [host, uri, loaded?.text]);
 
   const change = useCallback((text: string) => {
     draft.current = text;
@@ -52,12 +52,12 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
   const save = useCallback((text: string) => {
     if (uri === undefined || saving.current) return;
     saving.current = true;
-    writeText(uri, text, version.current)
+    hostBridge(host).writeText(uri, text, version.current)
       .then(async () => {
         saved.current = text;
         setDirty(draft.current !== text);
         setFailure(null);
-        version.current = await etagOf(uri).catch(() => undefined);
+        version.current = await hostBridge(host).etagOf(uri).catch(() => undefined);
       })
       .catch((error: unknown) => {
         const message = changedOnHost(error)
@@ -66,7 +66,7 @@ export default function FilePage({ uri, line, end }: { uri?: string; line?: numb
         setFailure({ message, refused: refusesWrite(error) });
       })
       .finally(() => { saving.current = false; });
-  }, [uri, t]);
+  }, [host, uri, t]);
 
   if (uri === undefined) return <PageAlert tone="warning" message={t('files/noFile')} />;
   const head = <FileHead uri={uri} dirty={dirty} />;

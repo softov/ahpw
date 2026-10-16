@@ -1,18 +1,19 @@
 import { translate } from '@softov/scena';
 import type { Disposable, Scena } from '@softov/scena/types';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS } from '../../bridges/data.js';
+import { ahpPaths } from '../../bridges/data.js';
+import { onEachHost } from '../../bridges/hosts.js';
 import { tryNotify } from '../../shell/notify/index.js';
 import { DISMISS_SLOW_MS, type NotificationInput } from '../../shell/notify/types.js';
 import { EMOJIcon } from '../emojis.js';
-import { ACTIVE_SESSION } from './state.js';
+import { ACTIVE_SESSION, type ActiveSession } from './state.js';
 import { activityOf, type Activity } from './status.js';
 
 /** A change in a session worth telling somebody about. */
 export type SessionEvent = 'needs-you' | 'finished' | 'failed';
 
-/** The id a session's notification is kept under, so a later one replaces it. */
-export const alertId = (resource: string): string => `session-alert:${resource}`;
+/** The id the notification of a session on the host `host` is kept under, so a later one replaces it. */
+export const alertId = (host: string, resource: string): string => `session-alert:${host}:${resource}`;
 
 /** What happened to a session between two activities, or null for nothing worth saying. */
 export function eventOf(before: Activity | undefined, after: Activity): SessionEvent | null {
@@ -24,11 +25,11 @@ export function eventOf(before: Activity | undefined, after: Activity): SessionE
   return null;
 }
 
-/** The notification for an event in a session. */
-export function noticeOf(session: SessionSummary, event: SessionEvent): NotificationInput {
+/** The notification for an event in a session on the host `host`. */
+export function noticeOf(host: string, session: SessionSummary, event: SessionEvent): NotificationInput {
   const name = session.title === '' ? translate('sessions/untitled') : session.title;
-  const open = [{ label: translate('sessions/alerts/open'), command: 'ahp.openSession', args: { resource: session.resource } }];
-  const common = { id: alertId(session.resource), source: alertId(session.resource), actions: open };
+  const open = [{ label: translate('sessions/alerts/open'), command: 'ahp.openSession', args: { host, resource: session.resource } }];
+  const common = { id: alertId(host, session.resource), source: alertId(host, session.resource), actions: open };
   if (event === 'needs-you') {
     return { ...common, type: 'attention', tone: 'warning', icon: EMOJIcon.warning, title: translate('sessions/alerts/needsYou', { name }), dismissAuto: false, alert: { title: name, body: translate('sessions/status/input') } };
   }
@@ -39,8 +40,9 @@ export function noticeOf(session: SessionSummary, event: SessionEvent): Notifica
 }
 
 /** Whether somebody is looking at this session right now. */
-function watched(scena: Scena, resource: string): boolean {
-  return scena.store.get<string>(ACTIVE_SESSION) === resource
+function watched(scena: Scena, host: string, resource: string): boolean {
+  const active = scena.store.get<ActiveSession>(ACTIVE_SESSION);
+  return active?.host === host && active.resource === resource
     && document.visibilityState === 'visible'
     && document.hasFocus();
 }
@@ -51,9 +53,13 @@ function watched(scena: Scena, resource: string): boolean {
  * not news.
  */
 export function watchSessions(scena: Scena): Disposable {
+  return onEachHost(scena, (host) => watchHostSessions(scena, host));
+}
+
+function watchHostSessions(scena: Scena, host: string): Disposable {
   let known: Map<string, Activity> | null = null;
-  return scena.store.subscribe(AHP_SESSIONS, () => {
-    const sessions = scena.store.get<SessionSummary[]>(AHP_SESSIONS);
+  return scena.store.subscribe(ahpPaths(host).sessions, () => {
+    const sessions = scena.store.get<SessionSummary[]>(ahpPaths(host).sessions);
     if (sessions === undefined) return;
     const next = new Map(sessions.map((one) => [one.resource, activityOf(one.status)]));
     const before = known;
@@ -63,10 +69,10 @@ export function watchSessions(scena: Scena): Disposable {
       const after = next.get(session.resource)!;
       const was = before.get(session.resource);
       // Waiting no longer: the question was answered, here or elsewhere.
-      if (was === 'input' && after !== 'input') tryNotify((notifications) => notifications.dismiss(alertId(session.resource)));
+      if (was === 'input' && after !== 'input') tryNotify((notifications) => notifications.dismiss(alertId(host, session.resource)));
       const event = eventOf(was, after);
-      if (event === null || watched(scena, session.resource)) continue;
-      tryNotify((notifications) => notifications.publish(noticeOf(session, event)));
+      if (event === null || watched(scena, host, session.resource)) continue;
+      tryNotify((notifications) => notifications.publish(noticeOf(host, session, event)));
     }
   });
 }

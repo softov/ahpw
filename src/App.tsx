@@ -15,7 +15,8 @@ import { SIGNED_IN, TOKEN_PROVIDER_ID, restoreSession, tokenProvider } from './p
 // Registers the languages before the first paint.
 import './i18n/messages.js';
 
-const layoutStorage = createLocalStorageLayoutStorage({ key: hostKey('ahpd-web.layout.v1') });
+// v2: each tab names its host; a v1 layout's tabs do not, so it is not restored.
+const layoutStorage = createLocalStorageLayoutStorage({ key: hostKey('ahpd-web.layout.v2') });
 
 const backendFactories: ScopeBackendFactory[] = [
   { scope: 'modus', create: () => createModusBackend() },

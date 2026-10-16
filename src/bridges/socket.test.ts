@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hostSocketUrl, socketUrl } from './socket.js';
+import { hostSocketUrl, plainUrl, socketUrl } from './socket.js';
 
 describe('socketUrl', () => {
   it('is the root of the host that served the page', () => {
@@ -35,5 +35,12 @@ describe('hostSocketUrl', () => {
   it('carries no query without a token', () => {
     expect(hostSocketUrl('ws://h', null)).toBe('ws://h');
     expect(hostSocketUrl('ws://h', '')).toBe('ws://h');
+  });
+});
+
+describe('plainUrl', () => {
+  it('asks the socket address over HTTP, its query kept', () => {
+    expect(plainUrl('ws://h:9187/?tkn=t')).toBe('http://h:9187/?tkn=t');
+    expect(plainUrl('wss://h/ahp')).toBe('https://h/ahp');
   });
 });

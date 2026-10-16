@@ -36,15 +36,20 @@ export interface EmbedWindow {
 }
 
 export interface Embedder {
-  /** The host this page shows. */
+  /**
+   * Whether the window shows one host, `mono`, or every host the embedder
+   * knows, `multi`. An embedder that gives none is a mono one.
+   */
+  readonly mode?: 'mono' | 'multi';
+  /** The host this page shows; in multi, the host the window was opened on. */
   host(): Promise<EmbedHost>;
   /**
    * The address of the host this page shows, known before ahpw runs. Every host
    * shares the embedder's origin, so ahpw keeps a host's own pages under it.
    */
   readonly hostUrl: string;
-  /** The token of the host this page shows, or null for a host with none. */
-  token(): Promise<string | null>;
+  /** The token of the host `id`, else of the host this page shows, or null for a host with none. */
+  token(id?: string): Promise<string | null>;
   /** Every host the embedder knows. */
   hosts(): Promise<EmbedHost[]>;
   /** Calls `handler` with the whole list each time a host is added, changed or removed. */
@@ -55,11 +60,21 @@ export interface Embedder {
   onStatuses(handler: (statuses: Record<string, EmbedHostStatus>) => void): Unsubscribe;
   /** Moves this page to another host; the embedder reloads it. */
   switchHost(id: string): Promise<void>;
-  /** Shows the embedder's own place to add, edit and remove hosts; with `add`, on its form for a new one. */
-  manageHosts(options?: { add?: boolean }): Promise<void>;
+  /**
+   * Shows the embedder's own place to add, edit and remove hosts; with `add`,
+   * on its form for a new one, and with `edit`, on the form of that host.
+   */
+  manageHosts(options?: { add?: boolean; edit?: string }): Promise<void>;
+  /** In multi, calls `handler` with a host's id each time the embedder asks the window to show that host. */
+  onFocusHost?(handler: (id: string) => void): Unsubscribe;
   /** Present when ahpw draws the window's frame. */
   window?: EmbedWindow;
 }
 
 /** The embedder, or undefined in a browser. Read once: a page never moves between the two. */
 export const embedder: Embedder | undefined = (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder;
+
+/** Whether this window shows one host or every host; a browser shows one. */
+export function embedMode(): 'mono' | 'multi' {
+  return embedder?.mode ?? 'mono';
+}

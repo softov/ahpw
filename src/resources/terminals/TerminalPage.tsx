@@ -6,7 +6,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import '@xterm/xterm/css/xterm.css';
 import type { StateAction } from '@microsoft/agent-host-protocol';
-import { AHP_DETACHED, AHP_HOST, channelErrorPath, channelPath, dispatch, follow, type HostFacts } from '../../bridges/data.js';
+import { ahpPaths, channelErrorPath, channelPath, hostBridge, type HostFacts } from '../../bridges/data.js';
 import { clientClaim, deltaOf, foldTerminal, holderOf, joinParts, normalizeState } from './terminal.js';
 
 /** A CSS custom property's value on an element, or the fallback. */
@@ -21,24 +21,24 @@ function cssVar(element: HTMLElement, name: string, fallback: string): string {
  * the host as `terminal/input` and nothing is echoed, except on a terminal
  * without a pty (`isPty: false`), where nothing on the other end echoes.
  */
-export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
+export default function TerminalPage({ host, uri }: { host: string; uri?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const holder = useRef<HTMLDivElement>(null);
-  const raw = useStore<unknown>(channelPath(uri ?? ''));
-  const error = useStore<string | null>(channelErrorPath(uri ?? ''));
-  const host = useStore<HostFacts | null>(AHP_HOST);
-  const clientId = host?.clientId ?? null;
+  const raw = useStore<unknown>(channelPath(host, uri ?? ''));
+  const error = useStore<string | null>(channelErrorPath(host, uri ?? ''));
+  const facts = useStore<HostFacts | null>(ahpPaths(host).host);
+  const clientId = facts?.clientId ?? null;
   const state = raw === undefined ? null : normalizeState(raw);
   const owner = state === null ? null : holderOf(state.claim, clientId);
   const exited = state?.lifecycle.status === 'exited';
-  const detached = (useStore<string[]>(AHP_DETACHED) ?? []).includes(uri ?? '');
+  const detached = (useStore<string[]>(ahpPaths(host).detached) ?? []).includes(uri ?? '');
   /** Whether typing reaches the terminal: it is ours, still running, and followed. */
   const typing = owner?.kind === 'you' && !exited && !detached;
   const typingRef = useRef(typing);
   typingRef.current = typing;
 
-  useEffect(() => (uri === undefined || detached ? undefined : follow(uri, foldTerminal)), [uri, detached]);
+  useEffect(() => (uri === undefined || detached ? undefined : hostBridge(host).follow(uri, foldTerminal)), [host, uri, detached]);
 
   useEffect(() => {
     const container = holder.current;
@@ -73,10 +73,10 @@ export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
       if (delta.text !== '') term.write(delta.text);
       drawn = delta.reset ? delta.text : drawn + delta.text;
     };
-    draw(scena.store.get(channelPath(uri)));
-    const watch = scena.store.subscribe(channelPath(uri), () => draw(scena.store.get(channelPath(uri))));
+    draw(scena.store.get(channelPath(host, uri)));
+    const watch = scena.store.subscribe(channelPath(host, uri), () => draw(scena.store.get(channelPath(host, uri))));
 
-    const send = (action: { type: string } & Record<string, unknown>): void => dispatch(uri, action as unknown as StateAction);
+    const send = (action: { type: string } & Record<string, unknown>): void => hostBridge(host).dispatch(uri, action as unknown as StateAction);
     const input = term.onData((data) => {
       if (!typingRef.current) return;
       send({ type: 'terminal/input', data: discipline ? data.replaceAll('\r', '\n') : data });
@@ -106,11 +106,11 @@ export default function TerminalPage({ uri }: { uri?: string }): ReactElement {
       watch.dispose();
       term.dispose();
     };
-  }, [scena, uri]);
+  }, [scena, host, uri]);
 
   if (uri === undefined) return <Alert tone="warning" message={t('terminals/noTerminal')} />;
   const takeOver = (): void => {
-    if (clientId !== null) dispatch(uri, { type: 'terminal/claimed', claim: clientClaim(clientId) } as unknown as StateAction);
+    if (clientId !== null) hostBridge(host).dispatch(uri, { type: 'terminal/claimed', claim: clientClaim(clientId) } as unknown as StateAction);
   };
   return (
     <div className="web-terminal">

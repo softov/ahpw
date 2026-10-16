@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { useI18n } from '@softov/scena/react';
-import { readText } from '../../bridges/data.js';
+import { hostBridge } from '../../bridges/data.js';
 import { readFailure } from './save.js';
 import { folderLabel } from '../../bridges/words.js';
 import { CopyButton } from '../../shell/controls/CopyButton.js';
@@ -8,18 +8,18 @@ import { CopyButton } from '../../shell/controls/CopyButton.js';
 /** A file's text: null while it reads, `text: null` when the file is not text. */
 export type FileText = { text: string | null } | { error: string } | null;
 
-/** Reads a file through the host, again whenever `uri` changes. */
-export function useFileText(uri: string | undefined): FileText {
+/** Reads a file through the host `host`, again whenever `host` or `uri` changes. */
+export function useFileText(host: string, uri: string | undefined): FileText {
   const [state, setState] = useState<FileText>(null);
   useEffect(() => {
     if (uri === undefined) return;
     let alive = true;
     setState(null);
-    readText(uri)
+    hostBridge(host).readText(uri)
       .then((read) => { if (alive) setState({ text: read.text }); })
       .catch((error: unknown) => { if (alive) setState({ error: readFailure(error) }); });
     return () => { alive = false; };
-  }, [uri]);
+  }, [host, uri]);
   return state;
 }
 

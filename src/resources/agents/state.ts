@@ -1,4 +1,4 @@
 import type { BindingPath } from '@softov/scena/types';
 
-/** The provider of the agent whose page is open. */
+/** The agent whose page is open, as `{ host, provider }`. */
 export const ACTIVE_AGENT = '$/ahp/activeAgent' as BindingPath;

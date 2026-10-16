@@ -6,11 +6,16 @@ import { registerThemeController } from '@softov/scena/styles';
 // ahpd's admin, drawn from /api/cli-manifest; off while ahpw is AHP only.
 // import { registerCommands } from '../resources/commands/index.js';
 import { registerConnection } from '../bridges/index.js';
+import { registerHosts, sessionCountPaths } from '../bridges/hosts.js';
 import { SESSIONS_SECTION, registerSessions } from '../resources/sessions/index.js';
 import { AGENTS_SECTION, registerAgents } from '../resources/agents/index.js';
 import { AUTOMATIONS_SECTION, registerAutomations } from '../resources/automations/index.js';
+import { COMPUTERS_SECTION, registerComputers } from '../resources/computers/index.js';
+import { COMPUTERS_SERVED } from '../resources/computers/state.js';
+import { BOTS_SECTION, registerBots } from '../resources/bots/index.js';
+import { BOTS_SERVED } from '../resources/bots/state.js';
 import { FOLDERS_SECTION, registerFolders } from '../resources/folders/index.js';
-import { AHP_SESSIONS_UNREAD, AHP_SESSIONS_WORKING } from '../bridges/data.js';
+import { ahpPaths, windowHost } from '../bridges/data.js';
 import { EMOJIcon } from '../resources/emojis.js';
 import { registerHost } from '../resources/host/index.js';
 import { registerView } from './view/index.js';
@@ -179,10 +184,10 @@ export function registerShell(scena: Scena): Disposable {
         label: bound('shell/nav/sessions'),
         section: SESSIONS_SECTION,
         args: TOGGLE,
-        badge: { path: AHP_SESSIONS_UNREAD },
+        badge: { path: sessionCountPaths().unread },
         badgeTone: 'muted',
         badgeLabel: bound('shell/nav/unread'),
-        secondBadge: { path: AHP_SESSIONS_WORKING },
+        secondBadge: { path: sessionCountPaths().working },
         secondBadgeTone: 'info',
         secondBadgeLabel: bound('shell/nav/working'),
       },
@@ -207,6 +212,20 @@ export function registerShell(scena: Scena): Disposable {
       key: 'agents:nav',
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: bound('shell/nav/agents'), pos: 'bottom', section: AGENTS_SECTION, args: TOGGLE },
     }),
+    // Shown while a host serves ahpd's computer plugin.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'computers:nav',
+      when: `${COMPUTERS_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.computers, label: bound('shell/nav/computers'), pos: 'bottom', section: COMPUTERS_SECTION, args: TOGGLE },
+    }),
+    // Shown while a host serves ahpd's bot plugin.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'bots:nav',
+      when: `${BOTS_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.bots, label: bound('shell/nav/bots'), pos: 'bottom', section: BOTS_SECTION, args: TOGGLE },
+    }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'manage:nav',
@@ -215,10 +234,13 @@ export function registerShell(scena: Scena): Disposable {
     }),
 
     registerConnection(scena),
+    registerHosts(scena),
     registerSessions(scena),
     registerAgents(scena),
     registerChanges(scena),
     registerAutomations(scena),
+    registerComputers(scena),
+    registerBots(scena),
     registerFolders(scena),
     registerHost(scena),
     registerFiles(scena),

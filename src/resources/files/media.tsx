@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
-import { readBlob, sizeOf } from '../../bridges/data.js';
+import { hostBridge } from '../../bridges/data.js';
 import { readFailure } from './save.js';
 import { mediaTypeOf } from './icons.js';
 import { FileHead } from './text.js';
@@ -16,7 +16,7 @@ export type FileUrl = { url: string } | { error: string } | { size: number } | n
 const megabytes = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
 /** Reads a file through the host into a blob URL, revoked when `uri` changes or the page closes. */
-export function useFileUrl(uri: string | undefined): FileUrl {
+export function useFileUrl(host: string, uri: string | undefined): FileUrl {
   const [state, setState] = useState<FileUrl>(null);
   useEffect(() => {
     if (uri === undefined) return;
@@ -24,9 +24,9 @@ export function useFileUrl(uri: string | undefined): FileUrl {
     let url: string | undefined;
     setState(null);
     (async () => {
-      const size = await sizeOf(uri);
+      const size = await hostBridge(host).sizeOf(uri);
       if (size !== undefined && size > MAX_BYTES) return { size };
-      url = URL.createObjectURL(await readBlob(uri, mediaTypeOf(uri)));
+      url = URL.createObjectURL(await hostBridge(host).readBlob(uri, mediaTypeOf(uri)));
       return { url };
     })()
       .then((next) => { if (alive) setState(next); })
@@ -35,14 +35,14 @@ export function useFileUrl(uri: string | undefined): FileUrl {
       alive = false;
       if (url !== undefined) URL.revokeObjectURL(url);
     };
-  }, [uri]);
+  }, [host, uri]);
   return state;
 }
 
 /** A media file's page: its head, then what `children` draws once the file is read, or why it is not. */
-export function MediaFrame({ uri, children }: { uri: string | undefined; children: (url: string) => ReactNode }): ReactElement {
+export function MediaFrame({ host, uri, children }: { host: string; uri: string | undefined; children: (url: string) => ReactNode }): ReactElement {
   const { t } = useI18n();
-  const state = useFileUrl(uri);
+  const state = useFileUrl(host, uri);
   if (uri === undefined) return <PageAlert tone="warning" message={t('files/noFile')} />;
   const head = <FileHead uri={uri} />;
   if (state === null) return <div className="web-file">{head}<Spinner label={t('files/reading')} /></div>;

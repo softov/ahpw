@@ -6,7 +6,7 @@ const line = (over: Partial<LogEntry>): LogEntry => ({ id: 'l1', at: 0, level: '
 
 beforeEach(() => {
   clearLog();
-  forgetFrames();
+  forgetFrames('daemon');
 });
 
 describe('log', () => {
@@ -32,23 +32,30 @@ describe('log', () => {
   });
 
   it('writes each frame as traffic and a refused request as an error naming it', () => {
-    noteFrame('sent', JSON.stringify({ jsonrpc: '2.0', id: 7, method: 'createTerminal', params: { channel: 'ahp-terminal:/t' } }));
-    noteFrame('received', JSON.stringify({ jsonrpc: '2.0', id: 7, error: { code: -32000, message: 'no pty' } }));
+    noteFrame('daemon', 'sent', JSON.stringify({ jsonrpc: '2.0', id: 7, method: 'createTerminal', params: { channel: 'ahp-terminal:/t' } }));
+    noteFrame('daemon', 'received', JSON.stringify({ jsonrpc: '2.0', id: 7, error: { code: -32000, message: 'no pty' } }));
     const lines = logLines();
     expect(lines.filter((one) => one.scope === 'traffic').map((one) => one.text)).toEqual(['→ createTerminal #7 ahp-terminal:/t', '← error #7 no pty']);
     expect(lines.find((one) => one.level === 'error')).toMatchObject({ scope: 'terminal', text: 'createTerminal ahp-terminal:/t refused: no pty (-32000)' });
   });
 
+  it('keeps each host\'s requests apart, so an answer names only what its own host was asked', () => {
+    noteFrame('a', 'sent', JSON.stringify({ jsonrpc: '2.0', id: 7, method: 'createTerminal', params: { channel: 'ahp-terminal:/t' } }));
+    noteFrame('b', 'received', JSON.stringify({ jsonrpc: '2.0', id: 7, error: { code: -32000, message: 'no pty' } }));
+    expect(logLines().find((one) => one.level === 'error')).toMatchObject({ scope: 'connection', text: '#7 refused: no pty (-32000)' });
+    forgetFrames('a');
+  });
+
   it('masks the token an authenticate frame carries', () => {
-    noteFrame('sent', JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'authenticate', params: { resource: 'x', token: 'secret' } }));
+    noteFrame('daemon', 'sent', JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'authenticate', params: { resource: 'x', token: 'secret' } }));
     expect(String(logLines()[0]?.detail)).not.toContain('secret');
   });
 
   it('says which terminals came and went', () => {
     const changed = (terminals: { resource: string; title: string }[]): string =>
       JSON.stringify({ jsonrpc: '2.0', method: 'action', params: { channel: 'ahp-root://', action: { type: 'root/terminalsChanged', terminals } } });
-    noteFrame('received', changed([{ resource: 'ahp-terminal:/a', title: 'bash' }]));
-    noteFrame('received', changed([{ resource: 'ahp-terminal:/b', title: '' }]));
+    noteFrame('daemon', 'received', changed([{ resource: 'ahp-terminal:/a', title: 'bash' }]));
+    noteFrame('daemon', 'received', changed([{ resource: 'ahp-terminal:/b', title: '' }]));
     expect(logLines().filter((one) => one.scope === 'terminal').map((one) => one.text)).toEqual(['opened ahp-terminal:/b', 'closed bash ahp-terminal:/a']);
   });
 });

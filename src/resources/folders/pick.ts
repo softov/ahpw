@@ -5,6 +5,8 @@ export const FOLDER_REQUEST = '$/folders/pick' as BindingPath;
 
 export interface FolderRequest {
   id: number;
+  /** The host whose folders the picker walks. */
+  host: string;
   title: string;
   /** The path the box starts at, ending in a slash so its folders are listed. */
   start: string;
@@ -27,7 +29,7 @@ export function resetPick(): void {
 }
 
 /** Ask for a folder on the host by walking to it; answers the path as typed, or null when the picker is closed. */
-export function askFolder(options: { title: string; start: string; home: string | null }): Promise<string | null> {
+export function askFolder(options: { host: string; title: string; start: string; home: string | null }): Promise<string | null> {
   if (store === undefined) return Promise.resolve(null);
   settleFolder(null);
   sequence += 1;

@@ -3,7 +3,7 @@ import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, AutomationCapabilities } from '@microsoft/agent-host-protocol';
 // import { call } from '../../lib/api.js';
-import { AHP_AGENTS, AHP_AUTOMATION_CAPS, AHP_CONNECTION, AHP_DEFAULT_DIRECTORY, AHP_HOST, reconnect, type Connection, type HostFacts } from '../../bridges/data.js';
+import { ahpPaths, hostBridge, type Connection, type HostFacts } from '../../bridges/data.js';
 import { elapsed, folderLabel } from '../../bridges/words.js';
 import { when } from '../sessions/turn.js';
 import { AGENTS_SECTION } from '../agents/index.js';
@@ -57,14 +57,14 @@ function useNow(): number {
 }
 
 /** The host: the connection to it, the daemon process, and what it offers. */
-export default function HostInfoPage(): ReactElement {
+export default function HostInfoPage({ host }: { host: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const connection = useStore<Connection>(AHP_CONNECTION);
-  const host = useStore<HostFacts | null>(AHP_HOST);
-  const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
-  const home = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
-  const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
+  const connection = useStore<Connection>(ahpPaths(host).connection);
+  const facts = useStore<HostFacts | null>(ahpPaths(host).host);
+  const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
+  const home = useStore<string | null>(ahpPaths(host).defaultDirectory);
+  const caps = useStore<AutomationCapabilities | null>(ahpPaths(host).automationCaps);
   const { status, error } = useDaemonStatus(connection?.generation ?? 0);
   const now = useNow();
   const shown = CONNECTION[connection?.status ?? 'disconnected'] ?? CONNECTION['disconnected']!;
@@ -72,11 +72,11 @@ export default function HostInfoPage(): ReactElement {
   const started = status?.startedAt === undefined ? NaN : Date.parse(status.startedAt);
 
   const link: DetailItem[] = [{ label: t('host/info/status'), value: shownText }];
-  if (host !== null && host !== undefined) {
-    link.push({ label: t('host/info/host'), value: host.label });
-    if (host.protocolVersion !== null) link.push({ label: t('host/info/protocol'), value: host.protocolVersion });
-    if (host.connectedAt !== null) link.push({ label: t('host/info/connected'), value: t('host/info/connectedValue', { when: when(host.connectedAt), elapsed: elapsed(now - host.connectedAt) }) });
-    link.push({ label: t('host/info/client'), value: <code>{host.clientId}</code> }, { label: t('host/info/serverSeq'), value: String(host.serverSeq) }, { label: t('host/info/following'), value: plural('host/info/channels', host.subscriptions) });
+  if (facts !== null && facts !== undefined) {
+    link.push({ label: t('host/info/host'), value: facts.label });
+    if (facts.protocolVersion !== null) link.push({ label: t('host/info/protocol'), value: facts.protocolVersion });
+    if (facts.connectedAt !== null) link.push({ label: t('host/info/connected'), value: t('host/info/connectedValue', { when: when(facts.connectedAt), elapsed: elapsed(now - facts.connectedAt) }) });
+    link.push({ label: t('host/info/client'), value: <code>{facts.clientId}</code> }, { label: t('host/info/serverSeq'), value: String(facts.serverSeq) }, { label: t('host/info/following'), value: plural('host/info/channels', facts.subscriptions) });
   }
   if (connection?.error !== null && connection?.error !== undefined) link.push({ label: t('host/info/lastError'), value: connection.error });
 
@@ -100,7 +100,7 @@ export default function HostInfoPage(): ReactElement {
     },
     { label: t('host/info/defaultFolder'), value: home === null || home === undefined ? t('host/info/none') : <code>{folderLabel(home)}</code> },
   ];
-  if (host?.activeSessions !== null && host?.activeSessions !== undefined) offers.push({ label: t('host/info/activeSessions'), value: String(host.activeSessions) });
+  if (facts?.activeSessions !== null && facts?.activeSessions !== undefined) offers.push({ label: t('host/info/activeSessions'), value: String(facts.activeSessions) });
   offers.push({
     label: t('host/info/automations'),
     value: caps === null || caps === undefined ? t('host/info/automationsNotOffered') : [
@@ -110,7 +110,7 @@ export default function HostInfoPage(): ReactElement {
     ].filter((bit) => bit !== undefined).join(', '),
   });
 
-  const terminals = host?.terminals ?? [];
+  const terminals = facts?.terminals ?? [];
   return (
     <div className="web-page">
       <div className="web-page__head">
@@ -119,8 +119,8 @@ export default function HostInfoPage(): ReactElement {
           <Badge tone={shown.tone} text={shownText} />
         </div>
         <div className="web-page__actions">
-          {connection?.status === 'connected' ? null : <Button label={t('bridges/reconnectNow')} variant="primary" onClick={reconnect} />}
-          <Button label={t('host/info/settings')} onClick={() => void scena.commands.execute('ahp.openSettings')} />
+          {connection?.status === 'connected' ? null : <Button label={t('bridges/reconnectNow')} variant="primary" onClick={() => void hostBridge(host).reconnect()} />}
+          <Button label={t('host/info/settings')} onClick={() => void scena.commands.execute('ahp.openSettings', { host })} />
         </div>
       </div>
 

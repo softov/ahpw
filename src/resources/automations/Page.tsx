@@ -3,7 +3,9 @@ import { translate } from '@softov/scena';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Markdown, Spinner, Text, type DetailItem } from '@softov/scena/ui';
 import { automationReducer, type AutomationCapabilities, type AutomationEntry, type AutomationState as Catalogue } from '@microsoft/agent-host-protocol';
-import { AHP_AUTOMATION_CAPS, AUTOMATIONS, request } from '../../bridges/data.js';
+import { ahpPaths, AUTOMATIONS, hostBridge } from '../../bridges/data.js';
+import { embedMode } from '../../shell/embed/index.js';
+import { HostTag } from '../../shell/explorer/HostLines.js';
 import { useChannel } from '../../bridges/channel.js';
 import { elapsed, folderLabel } from '../../bridges/words.js';
 import { tokens } from '../sessions/turn.js';
@@ -34,7 +36,7 @@ const lines = (values: readonly ReactNode[]): ReactElement => (
 );
 
 /** The facts of a definition, as a list. */
-function factsOf(entry: AutomationEntry): DetailItem[] {
+function factsOf(host: string, entry: AutomationEntry): DetailItem[] {
   const { definition } = entry;
   const session = definition.session;
   const folders = session.workingDirectories ?? [];
@@ -42,6 +44,7 @@ function factsOf(entry: AutomationEntry): DetailItem[] {
   const events = definition.triggers.filter((trigger) => !('schedule' in trigger));
   const stops = (definition.disableConditions ?? []).map((one) => ('max' in one ? plural('automations/facts/afterRuns', one.max) : translate('automations/facts/afterDate', { date: timeOf(one.date) })));
   const items: DetailItem[] = [
+    ...(embedMode() === 'multi' ? [{ label: translate('common/host'), value: <HostTag host={host} /> }] : []),
     { label: translate('automations/facts/agent'), value: session.provider ?? translate('automations/defaults/host') },
     { label: translate('automations/facts/model'), value: session.model?.id ?? translate('automations/defaults/agent') },
   ];
@@ -68,11 +71,11 @@ function factsOf(entry: AutomationEntry): DetailItem[] {
 }
 
 /** One automation: what it sends, where, when, and how its runs went. */
-export default function AutomationPage({ resource }: { resource?: string }): ReactElement {
+export default function AutomationPage({ host, resource }: { host: string; resource?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const { state, error } = useChannel<Catalogue>(AUTOMATIONS, automationReducer);
-  const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
+  const { state, error } = useChannel<Catalogue>(host, AUTOMATIONS, automationReducer);
+  const caps = useStore<AutomationCapabilities | null>(ahpPaths(host).automationCaps);
   const [failure, setFailure] = useState<string | null>(null);
   if (error !== null) return <PageAlert tone="danger" title={t('automations/notices/none')} message={error} />;
   if (state === undefined) return <Spinner label={t('automations/notices/reading')} />;
@@ -92,15 +95,15 @@ export default function AutomationPage({ resource }: { resource?: string }): Rea
           <Badge tone={STATE[now]} text={t(`automations/state/${now}`)} />
         </div>
         <div className="web-page__actions">
-          {can('run') ? <Button label={t('automations/actions/runNow')} variant="primary" onClick={() => void runNow(entry).catch(say)} /> : null}
-          {can('update') ? <Button label={t(entry.definition.enabled ? 'automations/actions/turnOff' : 'automations/actions/turnOn')} onClick={() => setEnabled(entry, !entry.definition.enabled)} /> : null}
-          {can('update') ? <Button label={t('automations/actions/edit')} onClick={() => void scena.commands.execute('ahp.editAutomation', { resource: entry.resource })} /> : null}
-          {can('remove') ? <Button label={t('automations/actions/delete')} onClick={() => void remove(entry)} /> : null}
+          {can('run') ? <Button label={t('automations/actions/runNow')} variant="primary" onClick={() => void runNow(host, entry).catch(say)} /> : null}
+          {can('update') ? <Button label={t(entry.definition.enabled ? 'automations/actions/turnOff' : 'automations/actions/turnOn')} onClick={() => setEnabled(host, entry, !entry.definition.enabled)} /> : null}
+          {can('update') ? <Button label={t('automations/actions/edit')} onClick={() => void scena.commands.execute('ahp.editAutomation', { host, resource: entry.resource })} /> : null}
+          {can('remove') ? <Button label={t('automations/actions/delete')} onClick={() => void remove(host, entry)} /> : null}
         </div>
       </div>
       {failure === null ? null : <Alert tone="danger" message={failure} />}
 
-      <DetailList items={factsOf(entry)} columns={2} />
+      <DetailList items={factsOf(host, entry)} columns={2} />
 
       <Text variant="h3" text={t('automations/page/message')} />
       <div className="web-automation__message"><Markdown text={entry.definition.message.text} /></div>
@@ -133,9 +136,9 @@ export default function AutomationPage({ resource }: { resource?: string }): Rea
                   <td>{facts.input === undefined && facts.output === undefined ? '' : `\u{2191}${tokens(facts.input ?? 0)} \u{2193}${tokens(facts.output ?? 0)}`}</td>
                   <td className="web-runs__actions">
                     {run.primarySession === undefined ? null : (
-                      <Button label={t('automations/page/openSession')} size="sm" onClick={() => void scena.commands.execute('ahp.openSession', { resource: run.primarySession })} />
+                      <Button label={t('automations/page/openSession')} size="sm" onClick={() => void scena.commands.execute('ahp.openSession', { host, resource: run.primarySession })} />
                     )}
-                    {live && caps?.runCancellation !== undefined ? <Button label={t('automations/page/stop')} size="sm" onClick={() => cancelRun(run.resource)} /> : null}
+                    {live && caps?.runCancellation !== undefined ? <Button label={t('automations/page/stop')} size="sm" onClick={() => cancelRun(host, run.resource)} /> : null}
                   </td>
                 </tr>
               );
@@ -146,7 +149,7 @@ export default function AutomationPage({ resource }: { resource?: string }): Rea
       {entry.runsNextCursor === undefined ? null : (
         <Button
           label={t('automations/page/loadOlder')}
-          onClick={() => void request('fetchAutomationRuns', { channel: AUTOMATIONS, automation: entry.resource, cursor: entry.runsNextCursor } as never).catch(say)}
+          onClick={() => void hostBridge(host).request('fetchAutomationRuns', { channel: AUTOMATIONS, automation: entry.resource, cursor: entry.runsNextCursor } as never).catch(say)}
         />
       )}
     </div>

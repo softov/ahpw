@@ -33,12 +33,12 @@ describe('file viewers', () => {
 
   it('offers the viewers a tab is not showing, and opens the one picked', async () => {
     const scena = setup();
-    const items = openAsItems(scena, 'file:///w/a.md', 'MarkdownPage');
+    const items = openAsItems(scena, 'daemon', 'file:///w/a.md', 'MarkdownPage');
     expect(items.map((one) => 'title' in one && one.title)).toEqual(['Open as Text']);
     const open = vi.spyOn(scena.surfaces, 'open');
     const item = items[0]!;
     if ('onSelect' in item) await item.onSelect({ closeMenu: () => undefined } as unknown as HostCtx);
-    await vi.waitFor(() => expect(open).toHaveBeenCalledWith(expect.objectContaining({ key: 'file:FilePage:file:///w/a.md' })));
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith(expect.objectContaining({ key: 'file:daemon:FilePage:file:///w/a.md' })));
   });
 
   it('opens a .md link with lines as text, and without lines as markdown', async () => {
@@ -53,13 +53,13 @@ describe('file viewers', () => {
     const scena = setup();
     const mount = (component: Record<string, unknown>) => ({ key: 'k', surface: 'main', component, policy: {}, openedAt: 0 }) as unknown as ResolvedMount;
     const titles = (component: Record<string, unknown>) => scena.mountMenus.collect('tab:context', mount(component)).map((one) => 'title' in one && one.title);
-    expect(titles({ component: 'FilePage', uri: 'file:///w/a.md' })).toEqual(['Open as Markdown']);
-    expect(titles({ component: 'FilePage', uri: 'file:///w/a.ts' })).toEqual([]);
+    expect(titles({ component: 'FilePage', host: 'daemon', uri: 'file:///w/a.md' })).toEqual(['Open as Markdown']);
+    expect(titles({ component: 'FilePage', host: 'daemon', uri: 'file:///w/a.ts' })).toEqual([]);
     expect(titles({ component: 'DiffPage', file: 'file:///w/a.md' })).toEqual([]);
   });
 
-  it('reads the viewer and the file from a file tab key', () => {
-    expect(fileTabOf('file:MarkdownPage:file:///w/a.md')).toEqual({ component: 'MarkdownPage', uri: 'file:///w/a.md' });
+  it('reads the host, the viewer and the file from a file tab key', () => {
+    expect(fileTabOf('file:daemon:MarkdownPage:file:///w/a.md')).toEqual({ host: 'daemon', component: 'MarkdownPage', uri: 'file:///w/a.md' });
     expect(fileTabOf('terminal:x')).toBeUndefined();
     expect(fileTabOf(undefined)).toBeUndefined();
   });
@@ -69,19 +69,19 @@ describe('file viewers', () => {
     const buttons = (key: string, surface = 'main') => scena.commands.list({ slot: 'surface/title' })
       .filter((cmd) => cmd.when === undefined || scena.when.evaluate(cmd.when, { '$/surface/name': surface, '$/tab/key': key }))
       .map((cmd) => cmd.id);
-    expect(buttons('file:MarkdownPage:file:///w/a.md')).toEqual(['ahp.showFileText']);
-    expect(buttons('file:FilePage:file:///w/a.md')).toEqual(['ahp.showFileMarkdown']);
-    expect(buttons('file:FilePage:file:///w/a.ts')).toEqual([]);
-    expect(buttons('file:FilePage:file:///w/a.md', 'panel:bottom')).toEqual([]);
+    expect(buttons('file:daemon:MarkdownPage:file:///w/a.md')).toEqual(['ahp.showFileText']);
+    expect(buttons('file:daemon:FilePage:file:///w/a.md')).toEqual(['ahp.showFileMarkdown']);
+    expect(buttons('file:daemon:FilePage:file:///w/a.ts')).toEqual([]);
+    expect(buttons('file:daemon:FilePage:file:///w/a.md', 'panel:bottom')).toEqual([]);
   });
 
   it('replaces the tab with the other viewer of the same file', async () => {
     const scena = setup();
     const open = vi.spyOn(scena.surfaces, 'open');
     const close = vi.spyOn(scena.surfaces, 'close');
-    scena.store.set('$/tab/key', 'file:MarkdownPage:file:///w/a.md');
+    scena.store.set('$/tab/key', 'file:daemon:MarkdownPage:file:///w/a.md');
     await scena.commands.execute('ahp.showFileText');
-    expect(close).toHaveBeenCalledWith('file:MarkdownPage:file:///w/a.md');
-    await vi.waitFor(() => expect(open).toHaveBeenCalledWith(expect.objectContaining({ key: 'file:FilePage:file:///w/a.md' })));
+    expect(close).toHaveBeenCalledWith('file:daemon:MarkdownPage:file:///w/a.md');
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith(expect.objectContaining({ key: 'file:daemon:FilePage:file:///w/a.md' })));
   });
 });

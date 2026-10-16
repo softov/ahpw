@@ -3,6 +3,8 @@ export const HOST_FILE_TYPE = 'application/x-ahpw-host-file';
 
 /** What a dragged host file carries. */
 export interface DraggedHostFile {
+  /** The host the file is on. */
+  host: string;
   /** The `file://` URI on the host. */
   uri: string;
   directory: boolean;
@@ -22,7 +24,9 @@ export const carriesHostFile = (data: DataTransfer): boolean => Array.from(data.
 export function droppedHostFile(data: DataTransfer): DraggedHostFile | null {
   try {
     const held = JSON.parse(data.getData(HOST_FILE_TYPE)) as Partial<DraggedHostFile>;
-    return typeof held.uri === 'string' && typeof held.directory === 'boolean' ? { uri: held.uri, directory: held.directory } : null;
+    return typeof held.host === 'string' && typeof held.uri === 'string' && typeof held.directory === 'boolean'
+      ? { host: held.host, uri: held.uri, directory: held.directory }
+      : null;
   } catch {
     return null;
   }

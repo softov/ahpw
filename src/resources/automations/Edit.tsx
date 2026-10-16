@@ -1,4 +1,4 @@
-import { useState, type ReactElement, type ReactNode } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Button, Spinner, Text } from '@softov/scena/ui';
 import {
@@ -8,11 +8,15 @@ import {
   type AutomationState as Catalogue,
   type StateAction,
 } from '@microsoft/agent-host-protocol';
-import { AHP_AGENTS, AHP_AUTOMATION_CAPS, AHP_DEFAULT_DIRECTORY, AUTOMATIONS, dispatch } from '../../bridges/data.js';
+import { ahpPaths, AUTOMATIONS, hostBridge } from '../../bridges/data.js';
+import { HOST_LIST, type HostName } from '../../bridges/hosts.js';
+import { embedMode } from '../../shell/embed/index.js';
+import { writeLastHost } from '../sessions/last-host.js';
 import { useChannel } from '../../bridges/channel.js';
 import { folderLabel, newId } from '../../bridges/words.js';
 import { cronWords, definitionOf, draftOf, draftProblem, type Draft } from './words.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
+import { Field } from '../../shell/view/Field.js';
 import { plural } from '../../i18n/locales.js';
 
 /** Schedules most people want, so a cron expression is something to read rather than write. */
@@ -26,24 +30,18 @@ const PRESETS: { key: string; expression: string }[] = [
   { key: 'mondayAt5', expression: '0 5 * * 1' },
 ];
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }): ReactElement {
-  return (
-    <label className="web-form__field">
-      <span className="web-input__label">{label}</span>
-      {children}
-      {hint === undefined ? null : <span className="web-input__hint">{hint}</span>}
-    </label>
-  );
-}
-
 /** Creates an automation, or edits the one named by `resource`. */
-export default function AutomationEditPage({ resource }: { resource?: string }): ReactElement {
+export default function AutomationEditPage({ host: opened, resource }: { host: string; resource?: string }): ReactElement {
+  // A new automation with every host may move to another host; one that exists stays on its own.
+  const [picked, setPicked] = useState(opened);
+  const host = resource === undefined && embedMode() === 'multi' ? picked : opened;
+  const hostList = useStore<HostName[]>(HOST_LIST);
   const scena = useScena();
   const { t } = useI18n();
-  const { state, error } = useChannel<Catalogue>(AUTOMATIONS, automationReducer);
-  const agents = useStore<AgentInfo[]>(AHP_AGENTS) ?? [];
-  const caps = useStore<AutomationCapabilities | null>(AHP_AUTOMATION_CAPS);
-  const home = useStore<string | null>(AHP_DEFAULT_DIRECTORY);
+  const { state, error } = useChannel<Catalogue>(host, AUTOMATIONS, automationReducer);
+  const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
+  const caps = useStore<AutomationCapabilities | null>(ahpPaths(host).automationCaps);
+  const home = useStore<string | null>(ahpPaths(host).defaultDirectory);
   const entry = resource === undefined ? undefined : state?.entries.find((one) => one.resource === resource);
   const [draft, setDraft] = useState<Draft | null>(null);
 
@@ -64,19 +62,28 @@ export default function AutomationEditPage({ resource }: { resource?: string }):
     const definition = definitionOf(shown, entry?.definition);
     if (entry === undefined) {
       const created = `ahp-automation:/${newId()}`;
-      dispatch(AUTOMATIONS, { type: 'automation/createRequested', resource: created, definition } as StateAction);
+      hostBridge(host).dispatch(AUTOMATIONS, { type: 'automation/createRequested', resource: created, definition } as StateAction);
       scena.surfaces.close('automation:new');
-      void scena.commands.execute('ahp.openAutomation', { resource: created });
+      writeLastHost(host);
+      void scena.commands.execute('ahp.openAutomation', { host, resource: created });
     } else {
-      dispatch(AUTOMATIONS, { type: 'automation/updateRequested', resource: entry.resource, changes: definition } as StateAction);
-      scena.surfaces.close(`automation:edit:${entry.resource}`);
-      void scena.commands.execute('ahp.openAutomation', { resource: entry.resource });
+      hostBridge(host).dispatch(AUTOMATIONS, { type: 'automation/updateRequested', resource: entry.resource, changes: definition } as StateAction);
+      scena.surfaces.close(`automation:edit:${host}:${entry.resource}`);
+      void scena.commands.execute('ahp.openAutomation', { host, resource: entry.resource });
     }
   };
 
   return (
     <div className="web-page web-form">
       <Text variant="h2" text={entry === undefined ? t('automations/commands/new') : entry.definition.title === '' ? t('automations/commands/edit') : t('automations/editTitle', { title: entry.definition.title })} />
+
+      {resource === undefined && embedMode() === 'multi' ? (
+        <Field label={t('automations/edit/host')}>
+          <select className="web-field" value={host} onChange={(event) => { setPicked(event.target.value); writeLastHost(event.target.value); setDraft(null); }}>
+            {(hostList ?? []).map((one) => <option key={one.id} value={one.id}>{one.name}</option>)}
+          </select>
+        </Field>
+      ) : null}
 
       <Field label={t('automations/edit/title')}>
         <input className="web-field" value={shown.title} onChange={(event) => set({ title: event.target.value })} />
@@ -151,7 +158,7 @@ export default function AutomationEditPage({ resource }: { resource?: string }):
       {problem === undefined ? null : <p className="web-note">{problem}</p>}
       <div className="web-page__actions">
         <Button label={t(entry === undefined ? 'automations/edit/create' : 'automations/edit/save')} variant="primary" disabled={problem !== undefined} onClick={save} />
-        <Button label={t('automations/edit/cancel')} onClick={() => scena.surfaces.close(entry === undefined ? 'automation:new' : `automation:edit:${entry.resource}`)} />
+        <Button label={t('automations/edit/cancel')} onClick={() => scena.surfaces.close(entry === undefined ? 'automation:new' : `automation:edit:${host}:${entry.resource}`)} />
       </div>
     </div>
   );

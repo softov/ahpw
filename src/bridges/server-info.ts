@@ -37,15 +37,21 @@ function parsed(text: string): unknown {
   }
 }
 
-/** The same transport, telling `onInfo` the `serverInfo` of each answer that carries one. */
-export function readingServerInfo(inner: AhpTransport, onInfo: (info: ServerInfo) => void): AhpTransport {
+/** The `_meta` of the answer that carries a `serverInfo`, where ahpd names what its plugins offer. */
+export function answerMetaOf(message: unknown): unknown {
+  return record(record(typeof message === 'string' ? parsed(message) : message)?.result)?._meta;
+}
+
+/** The same transport, telling `onInfo` the `serverInfo` of each answer that carries one, and that answer's `_meta`. */
+export function readingServerInfo(inner: AhpTransport, onInfo: (info: ServerInfo, meta: unknown) => void): AhpTransport {
   return {
     send: (message) => inner.send(message),
     close: () => inner.close(),
     async recv() {
       const frame = await inner.recv();
-      const info = frame?.kind === 'text' ? serverInfoOf(frame.text) : frame?.kind === 'parsed' ? serverInfoOf(frame.message) : null;
-      if (info !== null) onInfo(info);
+      const message = frame?.kind === 'text' ? frame.text : frame?.kind === 'parsed' ? frame.message : null;
+      const info = message === null ? null : serverInfoOf(message);
+      if (info !== null) onInfo(info, answerMetaOf(message));
       return frame;
     },
   };

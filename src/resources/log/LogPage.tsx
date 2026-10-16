@@ -3,7 +3,8 @@ import { translate } from '@softov/scena';
 import { useI18n, useScena } from '@softov/scena/react';
 import type { Scena } from '@softov/scena/types';
 import type { SessionSummary } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS } from '../../bridges/data.js';
+import { ahpPaths, type HostFacts } from '../../bridges/data.js';
+import { everyHost } from '../../bridges/hosts.js';
 import { clock, filterLog, LOG_LEVELS, LOG_SCOPES, lineText, logText, piecesOf, useLog, type LogEntry, type LogLevel, type LogScope } from './log.js';
 import { EMOJIcon } from '../emojis.js';
 
@@ -12,12 +13,14 @@ const FOLLOW_KEY = MAC ? 'log/follow/mac' : 'log/follow/other';
 
 /** What a URI in a line opens, or null when the page knows nothing it names. */
 function followOf(scena: Scena, uri: string): { tip: string; run: () => void } | null {
+  const hosts = everyHost(scena.store);
   if (uri.startsWith('ahp-terminal:')) {
-    return { tip: translate('log/follow/terminal'), run: () => void scena.commands.execute('ahp.openTerminal', { uri }) };
+    const host = hosts.find((one) => scena.store.get<HostFacts | null>(ahpPaths(one).host)?.terminals.some((terminal) => terminal.resource === uri)) ?? hosts[0];
+    return { tip: translate('log/follow/terminal'), run: () => void scena.commands.execute('ahp.openTerminal', { host, uri }) };
   }
-  const sessions = scena.store.get<SessionSummary[]>(AHP_SESSIONS) ?? [];
-  if (sessions.some((one) => one.resource === uri)) {
-    return { tip: translate('log/follow/session'), run: () => void scena.commands.execute('ahp.openSession', { resource: uri }) };
+  const host = hosts.find((one) => (scena.store.get<SessionSummary[]>(ahpPaths(one).sessions) ?? []).some((session) => session.resource === uri));
+  if (host !== undefined) {
+    return { tip: translate('log/follow/session'), run: () => void scena.commands.execute('ahp.openSession', { host, resource: uri }) };
   }
   if (uri.startsWith('file:')) return { tip: translate('log/follow/file'), run: () => void scena.commands.execute('ahp.openFile', { uri }) };
   if (/^https?:/i.test(uri)) return { tip: translate('log/follow/page'), run: () => void window.open(uri, '_blank', 'noopener') };

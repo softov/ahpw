@@ -13,7 +13,7 @@ import {
   type StateAction,
   type Turn,
 } from '@microsoft/agent-host-protocol';
-import { AHP_SESSIONS, dispatch, request } from '../../bridges/data.js';
+import { ahpPaths, hostBridge } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { elapsed } from '../../bridges/words.js';
 import { Part, type Send } from './Parts.js';
@@ -21,8 +21,8 @@ import { InputRequest } from './Question.js';
 import { Activity } from './Activity.js';
 import { groupParts } from './activity-parts.js';
 import { Composer } from './Composer.js';
-import { WorkspaceContext } from './workspace.js';
-import { ACTIVE_SESSION } from './state.js';
+import { SessionHostContext, WorkspaceContext } from './workspace.js';
+import { ACTIVE_SESSION, type ActiveSession } from './state.js';
 import { ACTIVITY_TONE, activityLabel, activityOf, isRead } from './status.js';
 import { plural } from '../../i18n/locales.js';
 import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
@@ -122,14 +122,14 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
 });
 
 /** Asks the host for the page of turns before the oldest one shown. */
-function OlderTurns({ chatUri, cursor }: { chatUri: string; cursor: string }): ReactElement {
+function OlderTurns({ host, chatUri, cursor }: { host: string; chatUri: string; cursor: string }): ReactElement {
   const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const load = (): void => {
     setBusy(true);
     setError(null);
-    request('fetchTurns', { channel: chatUri, cursor })
+    hostBridge(host).request('fetchTurns', { channel: chatUri, cursor })
       .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : String(caught)))
       .finally(() => setBusy(false));
   };
@@ -160,19 +160,19 @@ function useOpenQuestions(needed: SessionState['inputNeeded'], chatUri: string |
 }
 
 /** One session: what it is, its chat, and a composer to talk to it. */
-export default function SessionPage({ resource }: { resource?: string }): ReactElement {
+export default function SessionPage({ host, resource }: { host: string; resource?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const sessions = useStore<SessionSummary[]>(AHP_SESSIONS);
+  const sessions = useStore<SessionSummary[]>(ahpPaths(host).sessions);
   const summary = sessions?.find((one) => one.resource === resource);
-  const session = useChannel<SessionState>(resource, sessionReducer);
+  const session = useChannel<SessionState>(host, resource, sessionReducer);
   const chatUri = session.state?.defaultChat ?? summary?.defaultChat;
-  const chat = useChannel<ChatState>(chatUri, chatReducer);
+  const chat = useChannel<ChatState>(host, chatUri, chatReducer);
   const end = useRef<HTMLDivElement>(null);
   // Following the newest turn, until a person scrolls up to read an older one.
   const following = useRef(true);
   const send = useCallback<Send>((action) => {
-    if (chatUri !== undefined) dispatch(chatUri, action);
+    if (chatUri !== undefined) hostBridge(host).dispatch(chatUri, action);
   }, [chatUri]);
 
   const turns = chat.state?.turns.length ?? 0;
@@ -185,13 +185,13 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
 
   // A tab the layout restored is the session the details show, until another opens.
   useEffect(() => {
-    if (resource !== undefined && scena.store.get(ACTIVE_SESSION) === undefined) scena.store.set(ACTIVE_SESSION, resource);
-  }, [scena, resource]);
+    if (resource !== undefined && scena.store.get(ACTIVE_SESSION) === undefined) scena.store.set(ACTIVE_SESSION, { host, resource } satisfies ActiveSession);
+  }, [scena, host, resource]);
 
   // Opening a session is reading it, as far as the unread dot is concerned.
   const unread = summary !== undefined && !isRead(summary.status);
   useEffect(() => {
-    if (unread && resource !== undefined) dispatch(resource, { type: 'session/isReadChanged', isRead: true } as StateAction);
+    if (unread && resource !== undefined) hostBridge(host).dispatch(resource, { type: 'session/isReadChanged', isRead: true } as StateAction);
   }, [unread, resource, turns]);
 
   if (summary === undefined) return <PageAlert tone="warning" message={t('sessions/chat/gone')} />;
@@ -221,17 +221,20 @@ export default function SessionPage({ resource }: { resource?: string }): ReactE
         {session.error === null ? null : <Alert tone="danger" title={t('sessions/chat/sessionUnreadable')} message={session.error} />}
         {chat.error === null ? null : <Alert tone="danger" title={t('sessions/chat/chatUnreadable')} message={chat.error} />}
         {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label={t('sessions/chat/reading')} /> : null}
-        {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
-        <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
-          {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
-          {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
-        </WorkspaceContext.Provider>
+        {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns host={host} chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
+        <SessionHostContext.Provider value={host}>
+          <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
+            {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
+            {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
+          </WorkspaceContext.Provider>
+        </SessionHostContext.Provider>
         {chat.state !== undefined && turns === 0 && chat.state.activeTurn === undefined ? <p className="web-note">{t('sessions/chat/empty')}</p> : null}
         <div ref={end} />
       </div>
 
       {chat.state === undefined || chatUri === undefined ? null : (
         <Composer
+          host={host}
           chatUri={chatUri}
           activeId={chat.state.activeTurn?.id}
           activeStart={chat.state.activeTurn?.startedAt}

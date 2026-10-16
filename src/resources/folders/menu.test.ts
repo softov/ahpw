@@ -3,16 +3,16 @@ import { base64Of, bytesOf, copyNameOf, entryActions, folderUriOf, leafOf, nameP
 import { withFolder, withoutFolder } from './added.js';
 
 test('a folder offers to add, then to read and change, Delete last', () => {
-  expect(entryActions({ uri: 'file:///src/a', directory: true, added: false, root: false })).toEqual(['newFile', 'newFolder', 'upload', 'copyPath', 'rename', 'copy', 'delete']);
+  expect(entryActions({ host: 'h', uri: 'file:///src/a', directory: true, added: false, root: false })).toEqual(['newFile', 'newFolder', 'upload', 'copyPath', 'rename', 'copy', 'delete']);
 });
 
 test('a file offers Download and nothing that adds', () => {
-  expect(entryActions({ uri: 'file:///src/a.ts', directory: false, added: false, root: false })).toEqual(['copyPath', 'download', 'rename', 'copy', 'delete']);
+  expect(entryActions({ host: 'h', uri: 'file:///src/a.ts', directory: false, added: false, root: false })).toEqual(['copyPath', 'download', 'rename', 'copy', 'delete']);
 });
 
 test('an added root offers Remove folder, and no root offers Rename, Copy or Delete', () => {
-  expect(entryActions({ uri: 'file:///opt/x', directory: true, added: true, root: true })).toEqual(['newFile', 'newFolder', 'upload', 'copyPath', 'removeFolder']);
-  expect(entryActions({ uri: 'file:///w', directory: true, added: false, root: true })).toEqual(['newFile', 'newFolder', 'upload', 'copyPath']);
+  expect(entryActions({ host: 'h', uri: 'file:///opt/x', directory: true, added: true, root: true })).toEqual(['newFile', 'newFolder', 'upload', 'copyPath', 'removeFolder']);
+  expect(entryActions({ host: 'h', uri: 'file:///w', directory: true, added: false, root: true })).toEqual(['newFile', 'newFolder', 'upload', 'copyPath']);
 });
 
 test('a row that is no file or folder offers nothing', () => {

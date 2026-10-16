@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createScena } from '@softov/scena/core';
 import type { HostCtx, ResolvedMount } from '@softov/scena/types';
-import { AHP_DETACHED, AHP_HOST } from '../../bridges/data.js';
+import { ahpPaths, windowHost } from '../../bridges/data.js';
 import { registerPanel } from '../../shell/panel/index.js';
 import { registerTerminals } from './index.js';
 import { terminalItems } from './rows.js';
@@ -28,7 +28,7 @@ const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve,
 describe('terminals', () => {
   it('lists the host terminals in the palette, filtered by the query', () => {
     const scena = createScena();
-    scena.store.set(AHP_HOST, host);
+    scena.store.set(ahpPaths(windowHost()).host, host);
     const rows = terminalItems(scena, '');
     expect(rows.map((one) => 'title' in one && one.title)).toEqual(['Terminal: bash', 'Terminal: npm test']);
     expect(rows.map((one) => 'description' in one && one.description)).toEqual(['Yours', 'Held by a session, exited with 1']);
@@ -40,65 +40,74 @@ describe('terminals', () => {
     const scena = createScena();
     registerPanel(scena);
     registerTerminals(scena);
-    scena.store.set(AHP_HOST, host);
+    scena.store.set(ahpPaths(windowHost()).host, host);
     const row = terminalItems(scena, 'bash')[0];
     if (row === undefined || !('onSelect' in row)) throw new Error('no row');
     await row.onSelect(menu);
-    await vi.waitFor(() => expect(scena.layout.get().surfaces['panel:bottom']?.activeContainerKey).toBe('terminal:ahp-terminal:/a'));
+    await vi.waitFor(() => expect(scena.layout.get().surfaces['panel:bottom']?.activeContainerKey).toBe('terminal:daemon:ahp-terminal:/a'));
     expect(scena.layout.get().surfaces['panel:bottom']?.visible).toBe(true);
+  });
+
+  it('opens a terminal of another host under a key and a page that name that host', async () => {
+    const scena = createScena();
+    registerPanel(scena);
+    registerTerminals(scena);
+    await scena.commands.execute('ahp.openTerminal', { host: 'b', uri: 'ahp-terminal:/a' });
+    const tab = scena.surfaces.listAt('panel:bottom').find((one) => one.key === 'terminal:b:ahp-terminal:/a');
+    expect(tab?.component).toMatchObject({ component: 'TerminalPage', host: 'b', uri: 'ahp-terminal:/a' });
   });
 
   it('opens a tab for every host terminal in the background, and closes the tab of one the host drops', async () => {
     const scena = createScena();
     registerPanel(scena);
     registerTerminals(scena);
-    scena.store.set(AHP_HOST, host);
+    scena.store.set(ahpPaths(windowHost()).host, host);
     await settle();
     const keys = (): string[] => scena.surfaces.listAt('panel:bottom').map((one) => one.key);
-    expect(keys()).toEqual(['panel:log', 'terminal:ahp-terminal:/a', 'terminal:ahp-terminal:/b']);
+    expect(keys()).toEqual(['panel:log', 'terminal:daemon:ahp-terminal:/a', 'terminal:daemon:ahp-terminal:/b']);
     expect(scena.layout.get().surfaces['panel:bottom']?.activeContainerKey).toBe('panel:log');
     expect(scena.layout.get().surfaces['panel:bottom']?.visible).not.toBe(true);
 
-    scena.store.set(AHP_HOST, { ...host, terminals: host.terminals.slice(0, 1) });
+    scena.store.set(ahpPaths(windowHost()).host, { ...host, terminals: host.terminals.slice(0, 1) });
     await settle();
-    expect(keys()).toEqual(['panel:log', 'terminal:ahp-terminal:/a']);
+    expect(keys()).toEqual(['panel:log', 'terminal:daemon:ahp-terminal:/a']);
   });
 
   it('keeps a closed tab closed while the terminal runs, until it is opened again', async () => {
     const scena = createScena();
     registerPanel(scena);
     registerTerminals(scena);
-    scena.store.set(AHP_HOST, host);
+    scena.store.set(ahpPaths(windowHost()).host, host);
     await settle();
-    scena.surfaces.close('terminal:ahp-terminal:/a');
+    scena.surfaces.close('terminal:daemon:ahp-terminal:/a');
     await settle();
-    scena.store.set(AHP_HOST, { ...host, serverSeq: 1 });
+    scena.store.set(ahpPaths(windowHost()).host, { ...host, serverSeq: 1 });
     await settle();
     const keys = (): string[] => scena.surfaces.listAt('panel:bottom').map((one) => one.key);
-    expect(keys()).toEqual(['panel:log', 'terminal:ahp-terminal:/b']);
+    expect(keys()).toEqual(['panel:log', 'terminal:daemon:ahp-terminal:/b']);
 
     await scena.commands.execute('ahp.openTerminal', { uri: 'ahp-terminal:/a' });
-    expect(keys()).toContain('terminal:ahp-terminal:/a');
+    expect(keys()).toContain('terminal:daemon:ahp-terminal:/a');
   });
 
   it('disconnects the active tab and connects it again, keeping the tab', async () => {
     const scena = createScena();
     registerPanel(scena);
     registerTerminals(scena);
-    scena.store.set(AHP_HOST, host);
+    scena.store.set(ahpPaths(windowHost()).host, host);
     await settle();
-    scena.store.set('$/tab/key', 'terminal:ahp-terminal:/b');
+    scena.store.set('$/tab/key', 'terminal:daemon:ahp-terminal:/b');
     await scena.commands.execute('ahp.disconnectTerminal');
-    expect(scena.store.get(AHP_DETACHED)).toEqual(['ahp-terminal:/b']);
-    expect(scena.surfaces.listAt('panel:bottom').map((one) => one.key)).toContain('terminal:ahp-terminal:/b');
+    expect(scena.store.get(ahpPaths(windowHost()).detached)).toEqual(['ahp-terminal:/b']);
+    expect(scena.surfaces.listAt('panel:bottom').map((one) => one.key)).toContain('terminal:daemon:ahp-terminal:/b');
     await scena.commands.execute('ahp.connectTerminal', { uri: 'ahp-terminal:/b' });
-    expect(scena.store.get(AHP_DETACHED)).toEqual([]);
+    expect(scena.store.get(ahpPaths(windowHost()).detached)).toEqual([]);
   });
 
   it('offers disconnect and kill on a terminal tab only', () => {
     const scena = createScena();
     registerTerminals(scena);
-    const items = scena.mountMenus.collect('tab:context', { component: { component: 'TerminalPage', uri: 'ahp-terminal:/a' } } as unknown as ResolvedMount);
+    const items = scena.mountMenus.collect('tab:context', { component: { component: 'TerminalPage', host: 'daemon', uri: 'ahp-terminal:/a' } } as unknown as ResolvedMount);
     expect(items.map((one) => 'title' in one && one.title)).toEqual(['New terminal', 'Disconnect terminal', 'Kill terminal']);
     const none = scena.mountMenus.collect('tab:context', { component: { component: 'FilePage', uri: 'file:///a' } } as unknown as ResolvedMount);
     expect(none).toEqual([]);
