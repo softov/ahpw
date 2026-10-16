@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { readText } from '../../bridges/data.js';
+import { readFailure } from './save.js';
 import { folderLabel } from '../../bridges/words.js';
 import { CopyButton } from '../../shell/controls/CopyButton.js';
 
@@ -16,7 +17,7 @@ export function useFileText(uri: string | undefined): FileText {
     setState(null);
     readText(uri)
       .then((read) => { if (alive) setState({ text: read.text }); })
-      .catch((error: unknown) => { if (alive) setState({ error: error instanceof Error ? error.message : String(error) }); });
+      .catch((error: unknown) => { if (alive) setState({ error: readFailure(error) }); });
     return () => { alive = false; };
   }, [uri]);
   return state;

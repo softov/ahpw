@@ -322,7 +322,9 @@
       "zoomOut": "Alejar",
       "fit": "Ajustar",
       "zoomIn": "Acercar"
-    }
+    },
+    "gone": "Este archivo ya no está.",
+    "readRefused": "El servidor no te deja leer este archivo."
   },
   "changes": {
     "title": "Cambios",

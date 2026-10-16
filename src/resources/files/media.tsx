@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement, type ReactNode } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { Alert, Spinner } from '@softov/scena/ui';
 import { readBlob, sizeOf } from '../../bridges/data.js';
+import { readFailure } from './save.js';
 import { mediaTypeOf } from './icons.js';
 import { FileHead } from './text.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
@@ -29,7 +30,7 @@ export function useFileUrl(uri: string | undefined): FileUrl {
       return { url };
     })()
       .then((next) => { if (alive) setState(next); })
-      .catch((error: unknown) => { if (alive) setState({ error: error instanceof Error ? error.message : String(error) }); });
+      .catch((error: unknown) => { if (alive) setState({ error: readFailure(error) }); });
     return () => {
       alive = false;
       if (url !== undefined) URL.revokeObjectURL(url);

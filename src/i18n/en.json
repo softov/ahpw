@@ -322,7 +322,9 @@
       "zoomOut": "Zoom out",
       "fit": "Fit",
       "zoomIn": "Zoom in"
-    }
+    },
+    "gone": "This file is no longer there.",
+    "readRefused": "The server does not let you read this file."
   },
   "changes": {
     "title": "Changes",

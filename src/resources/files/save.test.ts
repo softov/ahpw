@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { changedOnHost, MAX_CHARS, refusesWrite, shownText } from './save.js';
+import { AhpErrorCodes } from '@microsoft/agent-host-protocol';
+import { changedOnHost, MAX_CHARS, readFailure, refusesWrite, shownText } from './save.js';
 
 describe('file save', () => {
   it('shows a file whole up to the cap, and cuts it past', () => {
@@ -20,5 +21,13 @@ describe('file save', () => {
     expect(changedOnHost(Object.assign(new Error('changed'), { code: -32011 }))).toBe(true);
     expect(changedOnHost(Object.assign(new Error('denied'), { code: -32009 }))).toBe(false);
     expect(changedOnHost('nope')).toBe(false);
+  });
+});
+
+describe('readFailure', () => {
+  it('says a file gone or refused in words, and keeps any other message as the host gave it', () => {
+    expect(readFailure({ code: AhpErrorCodes.NotFound, message: 'RPC error -32008: No file at file:///x' })).toBe('This file is no longer there.');
+    expect(readFailure({ code: AhpErrorCodes.PermissionDenied })).toBe('The server does not let you read this file.');
+    expect(readFailure(new Error('Not connected to the server.'))).toBe('Not connected to the server.');
   });
 });

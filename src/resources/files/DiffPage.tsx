@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena } from '@softov/scena/react';
 import { Alert, Button, Spinner } from '@softov/scena/ui';
 import { readText } from '../../bridges/data.js';
+import { readFailure } from './save.js';
 import { folderLabel } from '../../bridges/words.js';
 import { countChanges, diffLines, hunkHeader } from './diff.js';
 import { iconOf, scoped, useChangeset } from '../changes/changeset.js';
@@ -30,7 +31,7 @@ export default function DiffPage({ file, before, after, changeset, change, revie
     setSides(null);
     Promise.all([side(before), side(after)])
       .then(([was, is]) => { if (alive) setSides({ before: was, after: is }); })
-      .catch((error: unknown) => { if (alive) setSides({ error: error instanceof Error ? error.message : String(error) }); });
+      .catch((error: unknown) => { if (alive) setSides({ error: readFailure(error) }); });
     return () => { alive = false; };
   }, [before, after]);
 

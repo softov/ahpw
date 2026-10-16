@@ -322,7 +322,9 @@
       "zoomOut": "Diminuir zoom",
       "fit": "Ajustar",
       "zoomIn": "Aumentar zoom"
-    }
+    },
+    "gone": "Este arquivo não existe mais.",
+    "readRefused": "O servidor não permite ler este arquivo."
   },
   "changes": {
     "title": "Alterações",
