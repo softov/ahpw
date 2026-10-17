@@ -1235,8 +1235,14 @@
   border-left: 2px solid var(--oo-color-border);
 }
 
-.web-form {
-  max-width: 48rem;
+/*
+ * A form page fills the surface, as every page does, and centres a narrower
+ * column than `.web-page` does. Capping the page's own width instead left the
+ * page's padding measured from the whole surface, so a wide surface (a sidebar
+ * hidden) ate the column and the pickers fell into one line each.
+ */
+.web-page.web-form {
+  padding-inline: max(var(--oo-spacing-lg), calc((100% - 48rem) / 2));
 }
 
 .web-form__field {
@@ -2299,6 +2305,8 @@
   font-size: var(--oo-font-size-sm);
   color: var(--oo-color-muted);
   white-space: pre-wrap;
+  /* A folder path has no spaces to break at. */
+  overflow-wrap: anywhere;
 }
 
 .web-confirm__buttons {
@@ -3561,4 +3569,170 @@
   .web-spend__what { grid-area: what; }
   .web-spend__measure { grid-area: measure; }
   .web-spend__record > :last-child { grid-area: open; }
+}
+
+/* Trusted folders on the host page: the forget button sits at the row's end. */
+.web-trust__forget {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* The session header: the title and badge, and on the right what the session counts. */
+.web-chat__head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-chat__tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-chat__tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.web-chat__tool:hover {
+  background: var(--oo-color-hover);
+  color: var(--oo-color-text);
+}
+
+.web-chat__tool[data-on='true'] {
+  border-color: var(--oo-color-accent);
+  background: var(--oo-color-selected);
+  color: var(--oo-color-text);
+}
+
+.web-chat__tool[data-live='true'] {
+  color: var(--oo-color-accent);
+}
+
+/* The Raw view: each turn, then one row per step, each opened in place. */
+.web-raw {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-lg);
+}
+
+.web-raw__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-raw__turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-raw__turn-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-raw__turn-title {
+  font-weight: 600;
+}
+
+.web-raw__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--oo-color-border);
+}
+
+.web-raw__step {
+  border-bottom: 1px solid var(--oo-color-border);
+}
+
+.web-raw__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--oo-spacing-sm);
+  width: 100%;
+  padding: 4px 0;
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-text);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.web-raw__row:hover {
+  background: var(--oo-color-hover);
+}
+
+.web-raw__n {
+  flex: none;
+  min-width: 2.5ch;
+  text-align: right;
+  color: var(--oo-color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.web-raw__icon {
+  flex: none;
+  width: 1.2em;
+  text-align: center;
+  color: var(--oo-color-muted);
+}
+
+.web-raw__row > .web-raw__line,
+.web-raw__row > .web-tool__line {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-raw__step[data-kind='message'] .web-raw__line {
+  font-weight: 600;
+}
+
+.web-raw__state,
+.web-raw__time {
+  flex: none;
+  color: var(--oo-color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.web-raw__step[data-outcome='failed'] .web-raw__state,
+.web-raw__step[data-outcome='cancelled'] .web-raw__state {
+  color: var(--oo-color-danger);
+}
+
+.web-raw__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  padding: var(--oo-spacing-xs) 0 var(--oo-spacing-sm) calc(2.5ch + 1.2em + 2 * var(--oo-spacing-sm));
+}
+
+.web-raw__turn-source > summary {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+  cursor: pointer;
 }

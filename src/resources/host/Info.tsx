@@ -8,6 +8,7 @@ import { elapsed, folderLabel } from '../../bridges/words.js';
 import { when } from '../sessions/turn.js';
 import { AGENTS_SECTION } from '../agents/index.js';
 import { plural } from '../../i18n/locales.js';
+import { TrustedFolders } from './Trusted.js';
 
 /** What `GET /api/status` says about the daemon process. */
 interface DaemonStatus {
@@ -133,6 +134,8 @@ export default function HostInfoPage({ host }: { host: string }): ReactElement {
 
       <Text variant="h3" text={t('host/info/offers')} />
       <DetailList items={offers} columns={2} />
+
+      <TrustedFolders host={host} />
 
       <Text variant="h3" text={t('host/info/terminals')} />
       {terminals.length === 0 ? <p className="web-note">{t('host/info/noTerminals')}</p> : (

@@ -6,7 +6,7 @@ import {
   type BoodMood, type BoodPose, type BoodScene, type BoodTransit,
 } from '@cofold/bood';
 import { mountBood, type BoodView } from '@cofold/bood/dom';
-import { boodBody, colorOf } from './look.js';
+import { boodBody, colorOf, gazeAt } from './look.js';
 
 /** A bot as bood draws it: ahpd's body and colour, with every bot's face, dot eyes and no brows or mouth. */
 export function botScene(body: string, color: string | undefined, mood: BoodMood, scheme: 'dark' | 'light', width: number): BoodScene {
@@ -30,7 +30,8 @@ const WANDER_FOR_MS = [2000, 6000] as const;
 /** How often a wander is a tilt of the head instead of a look, and how far it tilts, as a share of bood's most. */
 const TILT_SHARE = 0.4;
 const TILT_REACH = [0.4, 1] as const;
-const ACT_EVERY_MS = [300_000, 900_000] as const;
+/** How often, by default, an idle bot plays one of its moves: between 3 and 7 minutes. */
+export const ACT_EVERY_MS: readonly [number, number] = [180_000, 420_000];
 const TRANSIT_GAP_MS = 400;
 
 type Point = { x: number; y: number } | null;
@@ -54,22 +55,23 @@ function watchPointer(fn: (point: Point) => void): () => void {
 }
 
 const between = (min: number, max: number): number => min + Math.random() * (max - min);
-const clamp = (value: number): number => Math.max(-1, Math.min(1, value));
 
 /**
  * A bot, drawn `width` pixels wide, and follows its props without being drawn
  * again. Unless `still` it breathes and blinks, glances about, turns its head
  * to the pointer, now and then stares off somewhere, and when idle plays one
- * of its moves every few minutes. A new `arrive.at` shows it with `arrive.transit`,
+ * of its moves every `actEvery` (ms, least and most). A new `arrive.at` shows it with `arrive.transit`,
  * as a bot that just teleported to where it is drawn.
  */
-export function Bood({ body, color, mood = 'idle', width, still = false, arrive }: {
+export function Bood({ body, color, mood = 'idle', width, still = false, arrive, actEvery = ACT_EVERY_MS }: {
   body: string;
   color?: string | undefined;
   mood?: BoodMood;
   width: number;
   still?: boolean;
   arrive?: { transit: BoodTransit; at: number } | undefined;
+  /** How often an idle bot plays one of its moves, in ms, as the least and the most it waits. */
+  actEvery?: readonly [number, number];
 }): ReactElement {
   const box = useRef<HTMLDivElement>(null);
   const view = useRef<BoodView | null>(null);
@@ -78,6 +80,8 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive 
   // Read by a move when it starts, so a colour change does not restart the body's life.
   const paint = useRef(colorOf(color));
   paint.current = colorOf(color);
+  // The two numbers, not the array: a caller's literal is a new array each render.
+  const [actMin, actMax] = actEvery;
 
   useLayoutEffect(() => {
     view.current = mountBood(box.current!, drawn);
@@ -187,10 +191,7 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive 
         if (place.width === 0 || place.height === 0) return;
         if (!following && (gaze.x !== 0 || gaze.y !== 0)) look(0, 0);
         following = true;
-        face({
-          facing: clamp((latest.x - (place.left + place.width / 2)) / (place.width / 2)),
-          lift: clamp(-(latest.y - (place.top + place.height / 2)) / (place.height / 2)),
-        }, 200);
+        face(gazeAt(kind, place, latest.x, latest.y), 200);
       });
     };
     /** Back to the pointer if it is still followed, or to looking ahead. */
@@ -242,9 +243,9 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive 
       };
       later(between(...WANDER_EVERY_MS), wander);
 
-      // And every few minutes it plays one of its moves, or leaves and comes back.
+      // And every `actEvery` it plays one of its moves, or leaves and comes back.
       const actions = actionsOf(kind);
-      every(...ACT_EVERY_MS, () => {
+      every(actMin, actMax, () => {
         if (acting || wandering) return;
         acting = true;
         const pick = Math.floor(Math.random() * (actions.length + 1));
@@ -270,7 +271,7 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive 
       moves.forEach((_, at) => shown.stop(`ambient:${at}`));
       for (const key of ['blink', 'pose', 'glance', 'swing', 'act']) shown.stop(key);
     };
-  }, [body, mood, scheme, still]);
+  }, [body, mood, scheme, still, actMin, actMax]);
 
   return <div ref={box} className="web-bood" style={{ width }} aria-hidden="true" />;
 }

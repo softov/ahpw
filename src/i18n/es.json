@@ -1523,6 +1523,55 @@
       "unread": "No leídas",
       "read": "Leídas",
       "running": "En curso"
+    },
+    "raw": {
+      "button": "Raw",
+      "open": "Mostrar cada paso, como lo envió el host",
+      "back": "Volver al chat",
+      "filter": "Pasos mostrados",
+      "filters": {
+        "all": "Todos los pasos",
+        "tools": "Llamadas a herramientas",
+        "subagents": "Subagentes"
+      },
+      "none": "Ningún paso para mostrar.",
+      "turn": "Turno {n}",
+      "live": "en curso",
+      "tokens": "{input} entrada · {output} salida",
+      "turnSent": "El turno como lo envió el host",
+      "sent": "Como lo envió el host",
+      "kindLabel": "Tipo",
+      "place": "Lugar",
+      "placeValue": "turno {turn}, paso {step}",
+      "started": "Empezó",
+      "took": "Duró",
+      "kind": {
+        "message": "Mensaje",
+        "text": "Texto",
+        "reasoning": "Razonamiento",
+        "tool": "Llamada a herramienta",
+        "question": "Pregunta",
+        "error": "Error",
+        "note": "Nota",
+        "file": "Archivo"
+      }
+    },
+    "header": {
+      "files": {
+        "one": "{count} archivo cambiado",
+        "other": "{count} archivos cambiados"
+      },
+      "terminals": {
+        "one": "{count} terminal",
+        "other": "{count} terminales"
+      },
+      "subagents": {
+        "one": "{count} subagente",
+        "other": "{count} subagentes"
+      },
+      "subagentsRunning": "{running} de {total} subagentes en curso",
+      "chats": "Chats",
+      "chatN": "Chat {n}"
     }
   },
   "host": {
@@ -1617,7 +1666,8 @@
     "untitled": "Sin título",
     "terminal": "Terminal",
     "daemonSilent": "El daemon no respondió.",
-    "hostsUp": "{up} de {total} hosts"
+    "hostsUp": "{up} de {total} hosts",
+    "noAnswer": "El host no respondió."
   },
   "tree": {
     "collapse": "Contraer",
@@ -1753,6 +1803,26 @@
       "records": "Registros",
       "noRecords": "No hay registros en estos días.",
       "openSession": "Abrir sesión"
+    }
+  },
+  "trust": {
+    "ask": {
+      "title": "¿Confiar en {folder}?",
+      "body": "{path}\n\nUna carpeta de confianza deja que un agente cargue la configuración, los hooks y las herramientas propias del proyecto. Los agentes que no pueden preguntar antes, como Codex, solo arrancan en una carpeta de confianza. Se pregunta una vez por cada carpeta en este host.",
+      "yes": "Confiar",
+      "no": "No confiar",
+      "refused": "El host no aceptó la carpeta de confianza"
+    },
+    "host": {
+      "title": "Carpetas de confianza",
+      "hint": "Lo que este navegador respondió cuando una sesión empezó en una carpeta. Las de confianza se envían al host en cada conexión.",
+      "none": "Aún no se respondió por ninguna carpeta.",
+      "folder": "Carpeta",
+      "answer": "Respuesta",
+      "trusted": "De confianza",
+      "untrusted": "Sin confianza",
+      "forget": "Olvidar",
+      "notForgotten": "El host no aceptó el cambio"
     }
   }
 }

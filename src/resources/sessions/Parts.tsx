@@ -23,7 +23,7 @@ const PENDING_CONFIRMATION = 'pending-confirmation';
 const PENDING_RESULT_CONFIRMATION = 'pending-result-confirmation';
 
 /** The mark a call carries collapsed, and the key of the word behind it. */
-const MARK: Record<Outcome, { glyph: string; label: string }> = {
+export const MARK: Record<Outcome, { glyph: string; label: string }> = {
   preparing: { glyph: EMOJIcon.pending, label: 'sessions/tool/preparing' },
   approval: { glyph: EMOJIcon.waiting, label: 'sessions/tool/approval' },
   running: { glyph: EMOJIcon.running, label: 'sessions/tool/running' },
@@ -40,7 +40,7 @@ function useLinkClicks(): (event: MouseEvent<HTMLElement>) => void {
 }
 
 /** The icon of each kind of call. */
-const KIND_ICON: Record<ToolKind, string> = {
+export const KIND_ICON: Record<ToolKind, string> = {
   terminal: EMOJIcon.terminal,
   read: EMOJIcon.read,
   search: EMOJIcon.search,
@@ -51,7 +51,7 @@ const KIND_ICON: Record<ToolKind, string> = {
 };
 
 /** A call's line, each file it names a link that opens the file and leaves the row closed. */
-function ToolLine({ line, file }: { line: string; file: string | undefined }): ReactElement {
+export function ToolLine({ line, file }: { line: string; file: string | undefined }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const workspace = useContext(WorkspaceContext);
@@ -84,7 +84,7 @@ function ToolLine({ line, file }: { line: string; file: string | undefined }): R
 }
 
 /** Text a person may want elsewhere, with a button that copies it. */
-function Block({ title, text }: { title: string; text: string }): ReactElement {
+export function Block({ title, text }: { title: string; text: string }): ReactElement {
   return (
     <section className="web-tool__block">
       <div className="web-tool__block-head">
@@ -96,7 +96,7 @@ function Block({ title, text }: { title: string; text: string }): ReactElement {
   );
 }
 
-function OutputView({ out }: { out: Output }): ReactElement {
+export function OutputView({ out }: { out: Output }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   switch (out.kind) {

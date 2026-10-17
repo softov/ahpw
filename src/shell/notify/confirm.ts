@@ -32,16 +32,17 @@ export interface ConfirmOptions {
 
 let store: ReactiveStore | undefined;
 let sequence = 0;
-let pending: ((answer: boolean) => void) | null = null;
+/** The open question's answer: yes, no, or null when it was closed without one. */
+let pending: ((answer: boolean | null) => void) | null = null;
 
 export function initConfirm(reactive: ReactiveStore, style: ConfirmStyle): void {
   store = reactive;
   if (reactive.get(CONFIRM_STYLE) === undefined) reactive.set(CONFIRM_STYLE, style);
 }
 
-/** Forget the store, answering an open question with no. */
+/** Forget the store, closing an open question unanswered. */
 export function resetConfirm(): void {
-  settle(false);
+  settle(null);
   store = undefined;
 }
 
@@ -54,12 +55,21 @@ export function setConfirmStyle(style: ConfirmStyle): void {
 }
 
 /** Ask, and answer true only on yes. Before the shell is up, the browser asks. */
-export function confirm(options: ConfirmOptions): Promise<boolean> {
+export async function confirm(options: ConfirmOptions): Promise<boolean> {
+  return (await choose(options)) === true;
+}
+
+/**
+ * Ask, and tell the two buttons apart from closing the question: true for the
+ * confirm button, false for the cancel one, null for Escape or a click
+ * outside. The browser's own dialog has no third answer, so its cancel is false.
+ */
+export function choose(options: ConfirmOptions): Promise<boolean | null> {
   if (store === undefined || confirmStyle() === 'native') {
     return Promise.resolve(window.confirm(options.body === undefined ? options.title : `${options.title}\n\n${options.body}`));
   }
-  // One question at a time: a new one answers the open one with no.
-  settle(false);
+  // One question at a time: a new one closes the open one unanswered.
+  settle(null);
   sequence += 1;
   store.set(CONFIRM_REQUEST, {
     id: sequence,
@@ -69,13 +79,13 @@ export function confirm(options: ConfirmOptions): Promise<boolean> {
     cancelLabel: options.cancelLabel ?? translate('shell/notify/cancel'),
     tone: options.tone ?? 'default',
   } satisfies ConfirmRequest);
-  return new Promise<boolean>((resolve) => {
+  return new Promise<boolean | null>((resolve) => {
     pending = resolve;
   });
 }
 
-/** Answer the open question. A second answer does nothing. */
-export function settle(answer: boolean): void {
+/** Answer the open question; null closes it unanswered. A second answer does nothing. */
+export function settle(answer: boolean | null): void {
   const resolve = pending;
   pending = null;
   store?.set(CONFIRM_REQUEST, null);

@@ -25,6 +25,7 @@ What exists today: [00-hosts.md](hosts/00-hosts.md).
 | [01 - A host in every key](hosts/01-a-host-in-every-key/plan.md) | built | - |
 | [02 - A window with every host](hosts/02-a-window-with-every-host/plan.md) | built | - |
 | [03 - Hosts, filters and the folder pill](hosts/03-hosts-filters-and-the-folder-pill/plan.md) | built | - |
+| [04 - Trusted folders](hosts/04-trusted-folders/plan.md) | built | what waits is in its [deferred.md](hosts/04-trusted-folders/deferred.md) |
 
 ## organization
 
@@ -42,3 +43,11 @@ What exists today: [00-plugins.md](plugins/00-plugins.md).
 | --- | --- | --- |
 | [01 - Computers and bots](plugins/01-computers-and-bots/plan.md) | built | - |
 | [02 - Bot chat and bood life](plugins/02-bot-chat-and-bood-life/plan.md) | active | waits: Softov's approval to commit 01, 02 and 04, npm approval of bood 0.1.2 (03) |
+
+## sessions
+
+What exists today: [00-sessions.md](sessions/00-sessions.md).
+
+| Plan | Status | Next |
+| --- | --- | --- |
+| [01 - Raw view and header buttons](sessions/01-raw-view-and-header/plan.md) | built | - |

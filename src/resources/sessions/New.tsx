@@ -6,6 +6,7 @@ import type { ListSpec, PickerAction } from '@softov/scena/types';
 import type { AgentInfo, MessageAttachment, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
 import { ahpPaths, hostBridge, ROOT, windowHost, type Connection } from '../../bridges/data.js';
 import { hostState } from '../../bridges/host-state.js';
+import { askTrust } from '../../bridges/trust-ask.js';
 import { HOST_LIST, hostLabel, useHostNames, type HostName } from '../../bridges/hosts.js';
 import { embedder, embedMode } from '../../shell/embed/index.js';
 import { readLastHost, startHost, writeLastHost } from './last-host.js';
@@ -439,6 +440,8 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
     const said = text.trim();
     const { model: _model, ...config } = chosen;
     try {
+      // The host hears whether the folder is trusted before the session exists, so its first turn starts trusted.
+      if (where !== undefined && await askTrust(scena.store, host, where) === 'closed') return;
       await hostBridge(host).request('createSession', {
         channel: resource,
         provider,

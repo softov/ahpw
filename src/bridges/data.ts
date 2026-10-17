@@ -2,12 +2,14 @@ import { translate } from '@softov/scena';
 import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov/scena/types';
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
+import { RpcError } from '@microsoft/agent-host-protocol/client';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
 import { readToken, serverHoldsToken } from '../lib/api.js';
 import { embedder, embedMode, type EmbedHost } from '../shell/embed/index.js';
 import { offering } from './protocol-versions.js';
 import { readingServerInfo } from './server-info.js';
 import { offersOf } from './offers.js';
+import { keepTrust, readTrust, trustAction, trustedUris } from './trust.js';
 import { hostSocketUrl, plainUrl, socketUrl } from './socket.js';
 import { NOTHING_NEWER, heard, laid, listed, type Newer } from './summaries.js';
 import { countsOf } from '../resources/sessions/status.js';
@@ -271,6 +273,12 @@ export interface HostBridge {
   deleteResource(uri: string, recursive: boolean): Promise<void>;
   /** Send one action on a channel. */
   dispatch(channel: string, action: StateAction): void;
+  /**
+   * Send one action and wait for the host to say it back: null once it took
+   * it, or the host's reason when it refused. A dispatch is a notification, so
+   * its echo, matched by client sequence, is the only answer there is.
+   */
+  dispatchAndWait(channel: string, action: StateAction): Promise<string | null>;
   /** Ask the host one command. */
   request<M extends keyof CommandMap>(method: M, params: CommandMap[M]['params']): Promise<CommandMap[M]['result']>;
   /** Try the host again now, rather than when the backoff says. */
@@ -383,6 +391,11 @@ function makeBridge(id: string): HostBridge {
     dispatch(channel, action) {
       client?.dispatch(id, channel, action);
     },
+    dispatchAndWait(channel, action) {
+      if (client === undefined || client.host(id)?.state.status !== 'connected') return Promise.reject(new Error(translate('bridges/notConnected')));
+      const { clientSeq } = client.dispatch(id, channel, action);
+      return awaitEcho(id, channel, clientSeq);
+    },
     request,
     reconnect: () => reconnectHost(id),
   };
@@ -461,6 +474,7 @@ async function watchHost(store: ReactiveStore, multi: MultiHostClient): Promise<
       store.set(ahpPaths(id).connection, { status: 'connected', error: null, generation: data.generation } satisfies Connection);
       setIfChanged(store, ahpPaths(id).refused, undefined);
       publishHost(store, multi, id);
+      greet(store, multi, id);
       // A new connection starts with no subscriptions of this page's own.
       for (const uri of data.followed.keys()) void snapshot(id, uri);
       settleWaiting(id);
@@ -496,6 +510,52 @@ function schedule(store: ReactiveStore, multi: MultiHostClient): void {
     : window.requestAnimationFrame(() => flush(store, multi));
 }
 
+/** How long a dispatch waits for its echo before it is taken as unanswered. */
+const ECHO_WAIT_MS = 15_000;
+
+/** Dispatches waiting for their echo, by host, channel and client sequence. */
+const echoes = new Map<string, (reason: string | null) => void>();
+const echoKey = (id: string, channel: string, seq: number): string => `${id}\u{0000}${channel}\u{0000}${String(seq)}`;
+
+function awaitEcho(id: string, channel: string, seq: number): Promise<string | null> {
+  return new Promise((resolve, reject) => {
+    const key = echoKey(id, channel, seq);
+    const timer = window.setTimeout(() => {
+      echoes.delete(key);
+      reject(new Error(translate('bridges/noAnswer')));
+    }, ECHO_WAIT_MS);
+    echoes.set(key, (reason) => {
+      window.clearTimeout(timer);
+      echoes.delete(key);
+      resolve(reason);
+    });
+  });
+}
+
+/** The method ahpd, as VS Code's agent host, asks a client with before a session moves to or adds a folder it does not trust. */
+const TRUST_REQUEST = 'vscode/requestWorkspaceTrust';
+
+/**
+ * What a client says when a host connects: the folders this browser trusts,
+ * which the host keeps on this connection only, and an answer to the host's
+ * own trust question. A new connection is a new client, so both are done on
+ * every connect, before any session's first turn.
+ */
+function greet(store: ReactiveStore, multi: MultiHostClient, id: string): void {
+  const answers = readTrust(id);
+  keepTrust(store, id, answers);
+  const uris = trustedUris(answers);
+  if (uris.length > 0) multi.dispatch(id, ROOT, trustAction(uris));
+  multi.client(id)?.rawClient().setServerRequestHandler((async (method: string, params: unknown) => {
+    if (method !== TRUST_REQUEST) throw new RpcError(-32601, `ahpw does not answer ${method}`);
+    const workspace = (params as { workspace?: unknown } | undefined)?.workspace;
+    if (typeof workspace !== 'string' || workspace === '') throw new RpcError(-32602, `${TRUST_REQUEST} needs workspace, a folder URI`);
+    // Loaded when asked: the prompt reaches back into this module.
+    const { answerTrust } = await import('./trust-ask.js');
+    return { trusted: await answerTrust(store, id, workspace) };
+  }) as never);
+}
+
 async function watchChannels(store: ReactiveStore, multi: MultiHostClient): Promise<void> {
   for await (const tagged of multi.events()) {
     const id = tagged.hostId;
@@ -509,6 +569,14 @@ async function watchChannels(store: ReactiveStore, multi: MultiHostClient): Prom
     }
     if (event.type !== 'action') continue;
     const { channel, action } = event.params;
+    const seq = (event.params as { origin?: { clientSeq?: unknown } }).origin?.clientSeq;
+    if (typeof seq === 'number') {
+      const waiting = echoes.get(echoKey(id, channel, seq));
+      if (waiting !== undefined) {
+        const reason = (event.params as { rejectionReason?: unknown }).rejectionReason;
+        waiting(typeof reason === 'string' ? reason : null);
+      }
+    }
     // Agents, terminals and the active count are the host's facts.
     if (channel === ROOT) {
       hostsDue.add(id);

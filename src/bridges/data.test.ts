@@ -45,14 +45,16 @@ class FakeMultiHostClient {
     return [...status.keys()].map((id) => this.host(id));
   }
   client(id: string) {
-    return { rawClient: () => ({ request: async (method: string) => ({ host: id, method }) }) };
+    return { rawClient: () => ({ request: async (method: string) => ({ host: id, method }), setServerRequestHandler: () => undefined }) };
   }
   async subscribe(id: string, uri: string) {
     subscribed.push([id, uri]);
     return { snapshot: { state: { host: id, uri } } };
   }
   async unsubscribe(): Promise<void> {}
-  dispatch(): void {}
+  dispatch() {
+    return { clientSeq: 1 };
+  }
   hostEvents() {
     return hostEvents;
   }

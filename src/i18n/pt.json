@@ -1523,6 +1523,55 @@
       "unread": "Não lidas",
       "read": "Lidas",
       "running": "Em andamento"
+    },
+    "raw": {
+      "button": "Raw",
+      "open": "Mostrar cada etapa, como o host enviou",
+      "back": "Voltar ao chat",
+      "filter": "Etapas mostradas",
+      "filters": {
+        "all": "Todas as etapas",
+        "tools": "Chamadas de ferramenta",
+        "subagents": "Subagentes"
+      },
+      "none": "Nenhuma etapa para mostrar.",
+      "turn": "Turno {n}",
+      "live": "em andamento",
+      "tokens": "{input} entrada · {output} saída",
+      "turnSent": "O turno como o host enviou",
+      "sent": "Como o host enviou",
+      "kindLabel": "Tipo",
+      "place": "Lugar",
+      "placeValue": "turno {turn}, etapa {step}",
+      "started": "Começou",
+      "took": "Levou",
+      "kind": {
+        "message": "Mensagem",
+        "text": "Texto",
+        "reasoning": "Raciocínio",
+        "tool": "Chamada de ferramenta",
+        "question": "Pergunta",
+        "error": "Erro",
+        "note": "Nota",
+        "file": "Arquivo"
+      }
+    },
+    "header": {
+      "files": {
+        "one": "{count} arquivo alterado",
+        "other": "{count} arquivos alterados"
+      },
+      "terminals": {
+        "one": "{count} terminal",
+        "other": "{count} terminais"
+      },
+      "subagents": {
+        "one": "{count} subagente",
+        "other": "{count} subagentes"
+      },
+      "subagentsRunning": "{running} de {total} subagentes em andamento",
+      "chats": "Chats",
+      "chatN": "Chat {n}"
     }
   },
   "host": {
@@ -1617,7 +1666,8 @@
     "untitled": "Sem título",
     "terminal": "Terminal",
     "daemonSilent": "O daemon não respondeu.",
-    "hostsUp": "{up} de {total} hosts"
+    "hostsUp": "{up} de {total} hosts",
+    "noAnswer": "O host não respondeu."
   },
   "tree": {
     "collapse": "Recolher",
@@ -1753,6 +1803,26 @@
       "records": "Registros",
       "noRecords": "Nenhum registro nesses dias.",
       "openSession": "Abrir sessão"
+    }
+  },
+  "trust": {
+    "ask": {
+      "title": "Confiar em {folder}?",
+      "body": "{path}\n\nUma pasta confiável deixa um agente carregar as configurações, hooks e ferramentas do próprio projeto. Agentes que não conseguem perguntar antes, como o Codex, só iniciam em uma pasta confiável. A pergunta é feita uma vez para cada pasta neste host.",
+      "yes": "Confiar",
+      "no": "Não confiar",
+      "refused": "O host não aceitou a pasta confiável"
+    },
+    "host": {
+      "title": "Pastas confiáveis",
+      "hint": "O que este navegador respondeu quando uma sessão começou em uma pasta. As confiáveis são enviadas ao host a cada conexão.",
+      "none": "Nenhuma pasta respondida ainda.",
+      "folder": "Pasta",
+      "answer": "Resposta",
+      "trusted": "Confiável",
+      "untrusted": "Não confiável",
+      "forget": "Esquecer",
+      "notForgotten": "O host não aceitou a mudança"
     }
   }
 }

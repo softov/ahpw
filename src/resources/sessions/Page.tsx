@@ -17,6 +17,9 @@ import { ahpPaths, hostBridge } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { elapsed } from '../../bridges/words.js';
 import { Part, type Send } from './Parts.js';
+import { RawView } from './RawView.js';
+import { rawOf, type RawFilter } from './raw.js';
+import { SessionHeaderTools } from './SessionHeader.js';
 import { InputRequest } from './Question.js';
 import { Activity } from './Activity.js';
 import { groupParts } from './activity-parts.js';
@@ -168,7 +171,13 @@ export default function SessionPage({ host, resource }: { host: string; resource
   const sessions = useStore<SessionSummary[]>(ahpPaths(host).sessions);
   const summary = sessions?.find((one) => one.resource === resource);
   const session = useChannel<SessionState>(host, resource, sessionReducer);
-  const chatUri = session.state?.defaultChat ?? summary?.defaultChat;
+  // The chat the page shows: the one picked in the header while the session still has it, else the default.
+  const [picked, setPicked] = useState<string | undefined>(undefined);
+  const chosen = picked !== undefined && (session.state?.chats ?? []).some((one) => one.resource === picked) ? picked : undefined;
+  const chatUri = chosen ?? session.state?.defaultChat ?? summary?.defaultChat;
+  // The Raw view, and which steps it keeps; the page opens on the chat.
+  const [raw, setRaw] = useState(false);
+  const [rawFilter, setRawFilter] = useState<RawFilter>('all');
   const chat = useChannel<ChatState>(host, chatUri, chatReducer);
   const end = useRef<HTMLDivElement>(null);
   // Following the newest turn, until a person scrolls up to read an older one.
@@ -207,11 +216,23 @@ export default function SessionPage({ host, resource }: { host: string; resource
   return (
     <div className="web-chat">
       <header className="web-chat__head">
-        <div className="web-chat__title">
-          <Text variant="h2" text={summary.title === '' ? t('sessions/untitled') : summary.title} />
-          <Badge tone={ACTIVITY_TONE[activity]} text={activityLabel(activity)} />
-          {doing === undefined || doing === '' ? null : <span className="web-note">{doing}</span>}
+        <div className="web-chat__head-row">
+          <div className="web-chat__title">
+            <Text variant="h2" text={summary.title === '' ? t('sessions/untitled') : summary.title} />
+            <Badge tone={ACTIVITY_TONE[activity]} text={activityLabel(activity)} />
+          </div>
+          <SessionHeaderTools
+            host={host}
+            summary={summary}
+            session={session.state}
+            chat={chat.state}
+            chatUri={chatUri}
+            onChat={setPicked}
+            raw={raw}
+            onRaw={(on, filter) => { setRaw(on); if (filter !== undefined) setRawFilter(filter); }}
+          />
         </div>
+        {doing === undefined || doing === '' ? null : <span className="web-note web-chat__doing">{doing}</span>}
       </header>
 
       <div
@@ -229,8 +250,12 @@ export default function SessionPage({ host, resource }: { host: string; resource
         {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns host={host} chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
         <SessionHostContext.Provider value={host}>
           <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
-            {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
-            {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
+            {raw && chat.state !== undefined ? <RawView turns={rawOf(chat.state.turns, chat.state.activeTurn)} filter={rawFilter} onFilter={setRawFilter} /> : (
+              <>
+                {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
+                {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
+              </>
+            )}
           </WorkspaceContext.Provider>
         </SessionHostContext.Provider>
         {chat.state !== undefined && turns === 0 && chat.state.activeTurn === undefined ? <p className="web-note">{t('sessions/chat/empty')}</p> : null}

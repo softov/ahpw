@@ -3,7 +3,7 @@
  * colours are copied, not imported: `@ahpd/bot` reads `node:fs` on load.
  */
 
-import { BOOD_RELEASED, bodyOf, type BoodBody } from '@cofold/bood';
+import { BOOD_H, BOOD_RELEASED, BOOD_W, bodyOf, creatures, type BoodBody } from '@cofold/bood';
 
 /**
  * The bodies a bot is offered: bood's released ones. A host keeps any word as
@@ -47,6 +47,23 @@ export function boodBody(body: string): BoodBody {
 
 /** Whether bood draws this body as itself, rather than as a square. */
 export const knowsBody = (body: string): boolean => bodyOf(body.trim().toLowerCase()) !== undefined;
+
+/**
+ * Where a bot looks to see a point on the page: from between its eyes, in
+ * reaches of half its width on both axes, and held to one reach, so a far
+ * point keeps its direction. A point just below the eyes and far to the right
+ * looks right and a little down, not all the way down.
+ */
+export function gazeAt(body: BoodBody, box: { left: number; top: number; width: number; height: number }, x: number, y: number): { facing: number; lift: number } {
+  // The drawing fits its box whole, centred, as an SVG viewBox does.
+  const scale = Math.min(box.width / BOOD_W, box.height / BOOD_H);
+  const { centerX, centerY } = creatures[body].eyes;
+  const reach = box.width / 2;
+  const dx = (x - (box.left + (box.width - BOOD_W * scale) / 2 + centerX * scale)) / reach;
+  const dy = (y - (box.top + (box.height - BOOD_H * scale) / 2 + centerY * scale)) / reach;
+  const far = Math.max(1, Math.hypot(dx, dy));
+  return { facing: dx / far, lift: -dy / far };
+}
 
 /** Whether a host takes this as a bot's slug: lowercase letters, digits and dashes, 1 to 40, starting with a letter. */
 export const isSlug = (value: string): boolean => /^[a-z][a-z0-9-]{0,39}$/.test(value);

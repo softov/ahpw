@@ -1523,6 +1523,55 @@
       "unread": "Unread",
       "read": "Read",
       "running": "Running"
+    },
+    "raw": {
+      "button": "Raw",
+      "open": "Show every step, as the host sent it",
+      "back": "Back to the chat",
+      "filter": "Steps shown",
+      "filters": {
+        "all": "All steps",
+        "tools": "Tool calls",
+        "subagents": "Subagents"
+      },
+      "none": "No step to show.",
+      "turn": "Turn {n}",
+      "live": "running",
+      "tokens": "{input} in · {output} out",
+      "turnSent": "The turn as the host sent it",
+      "sent": "As the host sent it",
+      "kindLabel": "Kind",
+      "place": "Place",
+      "placeValue": "turn {turn}, step {step}",
+      "started": "Started",
+      "took": "Took",
+      "kind": {
+        "message": "Message",
+        "text": "Text",
+        "reasoning": "Thinking",
+        "tool": "Tool call",
+        "question": "Question",
+        "error": "Error",
+        "note": "Note",
+        "file": "File"
+      }
+    },
+    "header": {
+      "files": {
+        "one": "{count} file changed",
+        "other": "{count} files changed"
+      },
+      "terminals": {
+        "one": "{count} terminal",
+        "other": "{count} terminals"
+      },
+      "subagents": {
+        "one": "{count} subagent",
+        "other": "{count} subagents"
+      },
+      "subagentsRunning": "{running} of {total} subagents running",
+      "chats": "Chats",
+      "chatN": "Chat {n}"
     }
   },
   "host": {
@@ -1617,7 +1666,8 @@
     "untitled": "Untitled",
     "terminal": "Terminal",
     "daemonSilent": "The daemon did not answer.",
-    "hostsUp": "{up} of {total} hosts"
+    "hostsUp": "{up} of {total} hosts",
+    "noAnswer": "The host did not answer."
   },
   "tree": {
     "collapse": "Collapse",
@@ -1753,6 +1803,26 @@
       "records": "Records",
       "noRecords": "No records in these days.",
       "openSession": "Open session"
+    }
+  },
+  "trust": {
+    "ask": {
+      "title": "Trust {folder}?",
+      "body": "{path}\n\nA trusted folder lets an agent load the project's own settings, hooks and tools. Agents that cannot ask first, such as Codex, start only in a trusted folder. You are asked once for each folder on this host.",
+      "yes": "Trust",
+      "no": "Don't trust",
+      "refused": "The host did not take the trusted folder"
+    },
+    "host": {
+      "title": "Trusted folders",
+      "hint": "What this browser answered when a session started in a folder. The trusted ones are sent to the host on every connect.",
+      "none": "No folder answered yet.",
+      "folder": "Folder",
+      "answer": "Answer",
+      "trusted": "Trusted",
+      "untrusted": "Not trusted",
+      "forget": "Forget",
+      "notForgotten": "The host did not take the change"
     }
   }
 }

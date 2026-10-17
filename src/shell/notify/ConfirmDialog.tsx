@@ -6,7 +6,7 @@ import { CONFIRM_REQUEST, settle, type ConfirmRequest } from './confirm.js';
 /**
  * The open question, over the page. The dialog takes focus, not its confirm
  * button, so Enter cannot answer yes before the question is read. Escape and a
- * click outside answer no.
+ * click outside close it unanswered, which `confirm` reads as no.
  */
 export function ConfirmDialog(): ReactElement | null {
   const request = useStore<ConfirmRequest | null>(CONFIRM_REQUEST);
@@ -19,7 +19,7 @@ export function ConfirmDialog(): ReactElement | null {
     const onKey = (event: KeyboardEvent): void => {
       if (event.key !== 'Escape') return;
       event.stopPropagation();
-      settle(false);
+      settle(null);
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
@@ -27,7 +27,7 @@ export function ConfirmDialog(): ReactElement | null {
 
   if (request === undefined || request === null) return null;
   return (
-    <div className="web-confirm" onClick={() => settle(false)}>
+    <div className="web-confirm" onClick={() => settle(null)}>
       <div
         ref={card}
         tabIndex={-1}
