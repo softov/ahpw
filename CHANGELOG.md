@@ -5,6 +5,48 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-18
+
+### Added
+
+- **A window with every host.**
+  An embedder that says `mode: 'multi'` gets one window over all its hosts: a connection per host, a host switcher, a host filter on the lists, and each panel naming its host.
+  A host that is down says so in its rows and pages, and a new session asks which host it runs on.
+- **The embed contract grows for it.**
+  `mode`, `token(id)` for any host, `manageHosts({ edit })` to open a host's form, and `onFocusHost` to show a host the embedder asks for.
+  An embedder that gives none of them is a one-host window, as before.
+- **Users and roles, teams and projects**, listed, made, edited and deleted through ahpd's people channels and commands, read-only where the host takes no writes; a team's or project's page staffs it.
+- **Usage**, pooled by day, week, month or a range, or summed by user, team or project, with a check for each key, so it sums by several at once.
+  A pool's page shows its periods and records, each opening its session.
+- **Computers**: a list, a page and a create form from the host's manifest.
+- **Bots**, drawn with @cofold/bood 0.2.0: a list, a page and a form; bots float at the window's edges and can be dragged.
+  A bot has a chat page with the session's header, a popover to talk from the dock, and a menu on right click or a long press.
+  A bot's body is any of bood's bodies, a new bot takes its body's name, and a name bood does not know is drawn as a square.
+  A bot follows the pointer, glances, tilts and moves on its own, and keeps looking where the pointer left the window.
+- **A Raw view of a chat**, from the header's ⋯ menu: each step as one row, numbered and coloured by who it is, opened in place as formatted facts, raw JSON with copy, or a JSON tree.
+  A turn's heading opens the same way, and filters keep the tool calls or the subagents.
+- **Hide calls**, from the same menu: the chat leaves out its runs of tool calls and thinking, except one waiting on an approval.
+- **The session header**: changed files, terminals, the subagents a chat's calls hand work to, the session's own chats, and a way back from a subagent's chat.
+- **Trusted folders.**
+  ahpw asks once per folder and host, tells the host the trusted folders on every connect, and answers its trust request, so an ACP agent such as Codex starts from ahpw.
+  The host page lists them, with Forget.
+- Sessions group by two keys, day and week among them, sort with an urgency flag, can be pinned, and show by read or running.
+- Automations group, sort and filter by status.
+- The new session picks folder and host in one pill; Ctrl+N and Alt+N open it.
+
+### Changed
+
+- A host's plugin offers are read from its initialize answer.
+- A running session counts as changed.
+- On a narrow screen, showing one sidebar puts the other away.
+- The favicon is built from `src`, so its name follows its content and a tab picks up a new logo.
+
+### Fixed
+
+- A file gone or refused says so in words, not as the host's RPC error.
+- A question answered elsewhere, as in a bot's chat, leaves the page.
+- The form page keeps its padding when the left sidebar is hidden.
+
 ## [0.4.0] - 2026-10-15
 
 ### Added
@@ -174,7 +216,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/softov/ahpw/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/softov/ahpw/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/softov/ahpw/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/softov/ahpw/compare/v0.2.0...v0.3.0
