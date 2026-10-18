@@ -1574,7 +1574,10 @@
       "subagentsRunning": "{running} of {total} subagents running",
       "chats": "Chats",
       "chatN": "Chat {n}",
-      "subagentTag": "subagent"
+      "subagentTag": "subagent",
+      "subagentN": "Subagent {n}",
+      "subagentRunning": "running",
+      "backToChat": "Back to the chat"
     }
   },
   "host": {

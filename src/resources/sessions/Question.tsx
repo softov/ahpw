@@ -11,6 +11,11 @@ import { useSessionHost } from './workspace.js';
 /** What this page sent, by host and request id. Kept past the card: a finished turn draws it anew, and the host may never say. */
 const SENT = new Map<string, Sent>();
 
+/** Whether this window answered the question `requestId` of `host`. */
+export function answeredHere(host: string, requestId: string): boolean {
+  return SENT.has(`${host}\u0000${requestId}`);
+}
+
 interface Sent {
   response: 'accept' | 'decline';
   answers: Record<string, ChatInputAnswer>;

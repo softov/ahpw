@@ -18,10 +18,11 @@ import { useChannel } from '../../bridges/channel.js';
 import { elapsed } from '../../bridges/words.js';
 import { Part, type Send } from './Parts.js';
 import { RawView } from './RawView.js';
-import { spawnedBy } from './header.js';
+import { sessionOfChannel } from '../log/wire.js';
+import { subagentCalls } from './header.js';
 import { rawOf, type RawFilter } from './raw.js';
 import { SessionHeaderTools } from './SessionHeader.js';
-import { InputRequest } from './Question.js';
+import { answeredHere, InputRequest } from './Question.js';
 import { Activity } from './Activity.js';
 import { groupParts } from './activity-parts.js';
 import { Composer } from './Composer.js';
@@ -150,15 +151,22 @@ function OlderTurns({ host, chatUri, cursor }: { host: string; chatUri: string; 
 /**
  * The questions this chat waits on that its running turn does not hold as a
  * part. A page opened mid-question finds them only in the session's
- * `inputNeeded`. One stays listed after the host drops it, until the turn
- * ends, so an answer sent from here stays on screen.
+ * `inputNeeded`. One this window answered stays listed after the host drops
+ * it, until the turn ends, so the answer sent stays on screen; one answered
+ * elsewhere, as in a bot's chat, goes when the host drops it.
  */
-function useOpenQuestions(needed: SessionState['inputNeeded'], chatUri: string | undefined, active: ActiveTurn | undefined): readonly ChatInputRequest[] {
+function useOpenQuestions(host: string, needed: SessionState['inputNeeded'], chatUri: string | undefined, active: ActiveTurn | undefined): readonly ChatInputRequest[] {
   const kept = useRef<{ turn: string | undefined; requests: Map<string, ChatInputRequest> }>({ turn: undefined, requests: new Map() });
   if (kept.current.turn !== active?.id) kept.current = { turn: active?.id, requests: new Map() };
   if (active === undefined) return NONE;
+  const waiting = new Set<string>();
   for (const entry of needed ?? []) {
-    if (String(entry.kind) === 'chatInput' && entry.chat === chatUri && 'request' in entry) kept.current.requests.set(entry.id, entry.request);
+    if (String(entry.kind) !== 'chatInput' || entry.chat !== chatUri || !('request' in entry)) continue;
+    kept.current.requests.set(entry.id, entry.request);
+    waiting.add(entry.id);
+  }
+  for (const id of [...kept.current.requests.keys()]) {
+    if (!waiting.has(id) && !answeredHere(host, id)) kept.current.requests.delete(id);
   }
   const held = new Set(active.responseParts.flatMap((part) => ('request' in part ? [part.request.id] : [])));
   const out = [...kept.current.requests.values()].filter((request) => !held.has(request.id));
@@ -188,7 +196,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
   }, [chatUri]);
 
   const turns = chat.state?.turns.length ?? 0;
-  const open = useOpenQuestions(session.state?.inputNeeded, chatUri, chat.state?.activeTurn);
+  const open = useOpenQuestions(host, session.state?.inputNeeded, chatUri, chat.state?.activeTurn);
   // Grows with every delta, so the view follows text as it streams, not only new parts.
   const streamed = (chat.state?.activeTurn?.responseParts ?? []).reduce((total, part) => total + 1 + ('content' in part && typeof part.content === 'string' ? part.content.length : 0), 0);
   useEffect(() => {
@@ -207,34 +215,51 @@ export default function SessionPage({ host, resource }: { host: string; resource
   }, [unread, resource, turns]);
 
   if (summary === undefined) return <PageAlert tone="warning" message={t('sessions/chat/gone')} />;
+  // A subagent's chat opens here when it is this session's; another session's, as a bot's back session, opens that session.
+  const openSubagent = (uri: string): void => {
+    if ((session.state?.chats ?? []).some((one) => one.resource === uri)) {
+      setPicked(uri);
+      return;
+    }
+    const other = sessionOfChannel(uri);
+    if (other !== null) void scena.commands.execute('ahp.openSession', { host, resource: other });
+  };
   // The header's buttons and the Raw view, the same on a session and on a chat with a bot.
   const tools = (
     <SessionHeaderTools
       host={host}
       summary={summary}
       session={session.state}
+      chat={chat.state}
       chatUri={chatUri}
       onChat={setPicked}
+      onSubagent={openSubagent}
       raw={raw}
       onRaw={setRaw}
     />
   );
+  // Drawn inside the page's session host and folder, which both pages provide.
   const rawView = raw && chat.state !== undefined ? (
-    <SessionHostContext.Provider value={host}>
-      <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
-        <RawView
-          turns={rawOf(chat.state.turns, chat.state.activeTurn)}
-          filter={rawFilter}
-          onFilter={setRawFilter}
-          spawned={spawnedBy(session.state?.chats ?? [], chatUri)}
-          onOpenChat={setPicked}
-        />
-      </WorkspaceContext.Provider>
-    </SessionHostContext.Provider>
+    <RawView
+      turns={rawOf(chat.state.turns, chat.state.activeTurn)}
+      filter={rawFilter}
+      onFilter={setRawFilter}
+      spawned={subagentCalls(chat.state.turns, chat.state.activeTurn, session.state?.chats ?? [], chatUri)}
+      onOpenChat={openSubagent}
+    />
   ) : null;
   // A session with a bot's mark is a chat with that bot, whatever its provider: only what is said shows.
   const mark = botMarkOf(summary._meta) ?? botMarkOf(session.state?._meta);
-  if (mark !== undefined) return <BotChat host={host} mark={mark} summary={summary} session={session} chat={chat} chatUri={chatUri} send={send} tools={tools} rawView={rawView} />;
+  if (mark !== undefined) {
+    // A bot's bubble draws a question or an approval as a transcript part, which reads the session's host and folder.
+    return (
+      <SessionHostContext.Provider value={host}>
+        <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
+          <BotChat host={host} mark={mark} summary={summary} session={session} chat={chat} chatUri={chatUri} send={send} tools={tools} rawView={rawView} />
+        </WorkspaceContext.Provider>
+      </SessionHostContext.Provider>
+    );
+  }
   const activity = activityOf(summary.status);
   const lifecycle = String(session.state?.lifecycle ?? 'ready');
   const doing = chat.state?.activity ?? summary.activity;

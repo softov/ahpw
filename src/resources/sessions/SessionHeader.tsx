@@ -2,12 +2,12 @@ import { useEffect, useState, type MouseEvent, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
-import type { ChatSummary, SessionState, SessionSummary, TerminalState } from '@microsoft/agent-host-protocol';
+import type { ChatState, SessionState, SessionSummary, TerminalState } from '@microsoft/agent-host-protocol';
 import { ahpPaths, hostBridge, type HostFacts } from '../../bridges/data.js';
 import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
 import { inFolder } from '../terminals/terminal.js';
-import { chatRunning, claimedTerminals, subagentChats } from './header.js';
+import { claimedTerminals, subagentChats, subagentsOf } from './header.js';
 
 /**
  * The session's terminals: the ones it holds by claim, and the others whose
@@ -39,15 +39,19 @@ function useSessionTerminals(host: string, session: string, folder: string | und
 
 /**
  * The header's buttons, each shown only when it has something to count:
- * changed files, terminals, the subagents (chats a tool call spawned, each
- * opened from its menu) and the session's chats, and the Raw view's toggle.
+ * changed files, terminals, the subagents (one per chat its calls hand work
+ * to, each opened from its menu), the session's own chats, a way back from a
+ * subagent's chat, and the Raw view's toggle.
  */
-export function SessionHeaderTools({ host, summary, session, chatUri, onChat, raw, onRaw }: {
+export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw }: {
   host: string;
   summary: SessionSummary;
   session: SessionState | undefined;
+  chat: ChatState | undefined;
   chatUri: string | undefined;
   onChat: (uri: string) => void;
+  /** Opens a subagent's chat: here when it is this session's, else its own session. */
+  onSubagent: (chat: string) => void;
   raw: boolean;
   onRaw: (on: boolean) => void;
 }): ReactElement {
@@ -57,27 +61,31 @@ export function SessionHeaderTools({ host, summary, session, chatUri, onChat, ra
   const changes = summary.changes;
   const terminals = useSessionTerminals(host, summary.resource, summary.workingDirectories?.[0]);
   const chats = session?.chats ?? [];
-  const subagents = subagentChats(chats);
-  const running = subagents.filter(chatRunning).length;
-  const chatAt = chats.findIndex((one) => one.resource === chatUri);
+  const subagents = subagentsOf(chat?.turns ?? [], chat?.activeTurn, chats);
+  const running = subagents.filter((one) => one.running).length;
+  // The switcher counts the session's own chats; a subagent's chat is reached from its button.
+  const spawned = subagentChats(chats);
+  const own = chats.filter((one) => !spawned.includes(one));
+  const ownAt = own.findIndex((one) => one.resource === chatUri);
+  const inSubagent = spawned.some((one) => one.resource === chatUri);
   const run = (command: string, args?: unknown): void => { void scena.commands.execute(command, args); };
 
-  /** A menu under the button that opens one of `list`'s chats; a subagent says so. */
-  const pick = (event: MouseEvent<HTMLButtonElement>, list: readonly ChatSummary[]): void => {
+  /** A menu under the button that clicked it. */
+  const show = (event: MouseEvent<HTMLButtonElement>, items: PickerAction[]): void => {
     const box = event.currentTarget.getBoundingClientRect();
-    setMenu({
-      x: box.left,
-      y: box.bottom,
-      items: list.map((one) => {
-        const name = one.title === '' ? t('sessions/header/chatN', { n: chats.indexOf(one) + 1 }) : one.title;
-        return {
-          title: subagents.includes(one) ? `${name} \u{00B7} ${t('sessions/header/subagentTag')}` : name,
-          active: one.resource === chatUri,
-          onSelect: (picked) => { picked.closeMenu(); onChat(one.resource); },
-        };
-      }),
-    });
+    setMenu({ x: box.left, y: box.bottom, items });
   };
+  const ownMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, own.map((one, at) => ({
+    title: one.title === '' ? t('sessions/header/chatN', { n: at + 1 }) : one.title,
+    active: one.resource === chatUri,
+    onSelect: (picked) => { picked.closeMenu(); onChat(one.resource); },
+  })));
+  const subagentMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, subagents.map((one, at) => ({
+    title: one.title === '' ? t('sessions/header/subagentN', { n: at + 1 }) : one.title,
+    ...(one.running ? { description: t('sessions/header/subagentRunning') } : {}),
+    active: one.chat === chatUri,
+    onSelect: (picked) => { picked.closeMenu(); onSubagent(one.chat); },
+  })));
 
   return (
     <div className="web-chat__tools">
@@ -102,16 +110,22 @@ export function SessionHeaderTools({ host, summary, session, chatUri, onChat, ra
           type="button"
           className="web-chat__tool"
           data-live={running > 0 ? 'true' : undefined}
+          data-on={inSubagent ? 'true' : undefined}
           title={running > 0 ? t('sessions/header/subagentsRunning', { running, total: subagents.length }) : plural('sessions/header/subagents', subagents.length)}
           aria-haspopup="menu"
-          onClick={(event) => pick(event, subagents)}
+          onClick={subagentMenu}
         >
           {`${EMOJIcon.subagent} ${running > 0 ? `${String(running)}/${String(subagents.length)}` : String(subagents.length)}`}
         </button>
       )}
-      {chats.length < 2 ? null : (
-        <button type="button" className="web-chat__tool" title={t('sessions/header/chats')} aria-haspopup="menu" onClick={(event) => pick(event, chats)}>
-          {`${String(chatAt + 1)}/${String(chats.length)} \u{25BE}`}
+      {inSubagent && own[0] !== undefined ? (
+        <button type="button" className="web-chat__tool" title={t('sessions/header/backToChat')} onClick={() => onChat(session?.defaultChat ?? own[0]!.resource)}>
+          {'\u{21A9}'}
+        </button>
+      ) : null}
+      {own.length < 2 ? null : (
+        <button type="button" className="web-chat__tool" title={t('sessions/header/chats')} aria-haspopup="menu" onClick={ownMenu}>
+          {`${ownAt < 0 ? '\u{2013}' : String(ownAt + 1)}/${String(own.length)} \u{25BE}`}
         </button>
       )}
       <button type="button" className="web-chat__tool" aria-pressed={raw} data-on={raw ? 'true' : undefined} title={t(raw ? 'sessions/raw/back' : 'sessions/raw/open')} onClick={() => onRaw(!raw)}>
