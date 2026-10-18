@@ -24,7 +24,7 @@ import { rawOf, type RawFilter } from './raw.js';
 import { SessionHeaderTools } from './SessionHeader.js';
 import { answeredHere, InputRequest } from './Question.js';
 import { Activity } from './Activity.js';
-import { groupParts } from './activity-parts.js';
+import { groupParts, stepWaits } from './activity-parts.js';
 import { Composer } from './Composer.js';
 import { SessionHostContext, WorkspaceContext } from './workspace.js';
 import { ACTIVE_SESSION, type ActiveSession } from './state.js';
@@ -100,10 +100,12 @@ function SentAttachments({ attachments }: { attachments: readonly MessageAttachm
 }
 
 /** A finished turn renders once: the reducer keeps its object while later turns stream. */
-const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
+const TurnView = memo(function TurnView({ turn, live, send, open = NONE, hideCalls = false }: {
   turn: Turn | ActiveTurn;
   live: boolean;
   send: Send;
+  /** Leaves out the runs of calls and thinking, except one in a running turn that waits on the person. */
+  hideCalls?: boolean;
   /** Questions the session waits on that no part of this turn holds: what a page opened mid-question reads. */
   open?: readonly ChatInputRequest[];
 }): ReactElement {
@@ -118,7 +120,7 @@ const TurnView = memo(function TurnView({ turn, live, send, open = NONE }: {
       </div>
       <div className="web-turn__answer">
         {groupParts(parts, live, factsOf(turn).duration).map((shown) => shown.kind === 'activity'
-          ? <Activity key={shown.id} group={shown} send={send} turnId={turn.id} />
+          ? (hideCalls && (shown.ended || !shown.steps.some(stepWaits)) ? null : <Activity key={shown.id} group={shown} send={send} turnId={turn.id} />)
           : <Part key={shown.index} part={shown.part} send={send} live={live} turnId={turn.id} />)}
         {live ? open.map((request) => <InputRequest key={request.id} request={request} send={send} live response={undefined} />) : null}
         {live && parts.length === 0 ? <Spinner label={t('sessions/turn/working')} /> : null}
@@ -187,6 +189,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
   // The Raw view, and which steps it keeps; the page opens on the chat.
   const [raw, setRaw] = useState(false);
   const [rawFilter, setRawFilter] = useState<RawFilter>('all');
+  const [callsHidden, setCallsHidden] = useState(false);
   const chat = useChannel<ChatState>(host, chatUri, chatReducer);
   const end = useRef<HTMLDivElement>(null);
   // Following the newest turn, until a person scrolls up to read an older one.
@@ -224,7 +227,9 @@ export default function SessionPage({ host, resource }: { host: string; resource
     const other = sessionOfChannel(uri);
     if (other !== null) void scena.commands.execute('ahp.openSession', { host, resource: other });
   };
-  // The header's buttons and the Raw view, the same on a session and on a chat with a bot.
+  // A session with a bot's mark is a chat with that bot, whatever its provider: only what is said shows.
+  const mark = botMarkOf(summary._meta) ?? botMarkOf(session.state?._meta);
+  // The header's buttons and the Raw view, the same on a session and on a chat with a bot, whose bubbles draw no calls to hide.
   const tools = (
     <SessionHeaderTools
       host={host}
@@ -236,6 +241,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
       onSubagent={openSubagent}
       raw={raw}
       onRaw={setRaw}
+      {...(mark === undefined ? { calls: { hidden: callsHidden, onHidden: setCallsHidden } } : {})}
     />
   );
   // Drawn inside the page's session host and folder, which both pages provide.
@@ -248,8 +254,6 @@ export default function SessionPage({ host, resource }: { host: string; resource
       onOpenChat={openSubagent}
     />
   ) : null;
-  // A session with a bot's mark is a chat with that bot, whatever its provider: only what is said shows.
-  const mark = botMarkOf(summary._meta) ?? botMarkOf(session.state?._meta);
   if (mark !== undefined) {
     // A bot's bubble draws a question or an approval as a transcript part, which reads the session's host and folder.
     return (
@@ -294,8 +298,8 @@ export default function SessionPage({ host, resource }: { host: string; resource
           <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
             {rawView ?? (
               <>
-                {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
-                {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}
+                {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} hideCalls={callsHidden} />)}
+                {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} hideCalls={callsHidden} />}
               </>
             )}
           </WorkspaceContext.Provider>

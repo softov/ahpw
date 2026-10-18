@@ -1527,7 +1527,6 @@
     },
     "raw": {
       "button": "Raw",
-      "open": "Mostrar cada etapa, como o host enviou",
       "back": "Voltar ao chat",
       "filter": "Etapas mostradas",
       "filters": {
@@ -1539,8 +1538,6 @@
       "turn": "Turno {n}",
       "live": "em andamento",
       "tokens": "{input} entrada · {output} saída",
-      "turnSent": "O turno como o host enviou",
-      "sent": "Como o host enviou",
       "kindLabel": "Tipo",
       "place": "Lugar",
       "placeValue": "turno {turn}, etapa {step}",
@@ -1556,7 +1553,18 @@
         "note": "Nota",
         "file": "Arquivo"
       },
-      "openSubagent": "Abrir subagente"
+      "openSubagent": "Abrir subagente",
+      "view": "Como é lido",
+      "views": {
+        "formatted": "Formatado",
+        "raw": "Bruto",
+        "json": "JSON"
+      },
+      "model": "Modelo",
+      "tokenLabel": "Tokens",
+      "cacheRead": "Lidos do cache",
+      "stepCount": "Etapas",
+      "toolCount": "Chamadas de ferramenta"
     },
     "header": {
       "files": {
@@ -1577,7 +1585,10 @@
       "subagentTag": "subagente",
       "subagentN": "Subagente {n}",
       "subagentRunning": "em andamento",
-      "backToChat": "Voltar ao chat"
+      "backToChat": "Voltar ao chat",
+      "view": "Como o chat é lido",
+      "hideCalls": "Ocultar chamadas",
+      "showCalls": "Mostrar as chamadas"
     }
   },
   "host": {

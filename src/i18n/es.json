@@ -1527,7 +1527,6 @@
     },
     "raw": {
       "button": "Raw",
-      "open": "Mostrar cada paso, como lo envió el host",
       "back": "Volver al chat",
       "filter": "Pasos mostrados",
       "filters": {
@@ -1539,8 +1538,6 @@
       "turn": "Turno {n}",
       "live": "en curso",
       "tokens": "{input} entrada · {output} salida",
-      "turnSent": "El turno como lo envió el host",
-      "sent": "Como lo envió el host",
       "kindLabel": "Tipo",
       "place": "Lugar",
       "placeValue": "turno {turn}, paso {step}",
@@ -1556,7 +1553,18 @@
         "note": "Nota",
         "file": "Archivo"
       },
-      "openSubagent": "Abrir subagente"
+      "openSubagent": "Abrir subagente",
+      "view": "Cómo se lee",
+      "views": {
+        "formatted": "Con formato",
+        "raw": "Crudo",
+        "json": "JSON"
+      },
+      "model": "Modelo",
+      "tokenLabel": "Tokens",
+      "cacheRead": "Leídos de caché",
+      "stepCount": "Pasos",
+      "toolCount": "Llamadas a herramientas"
     },
     "header": {
       "files": {
@@ -1577,7 +1585,10 @@
       "subagentTag": "subagente",
       "subagentN": "Subagente {n}",
       "subagentRunning": "en curso",
-      "backToChat": "Volver al chat"
+      "backToChat": "Volver al chat",
+      "view": "Cómo se lee el chat",
+      "hideCalls": "Ocultar llamadas",
+      "showCalls": "Mostrar las llamadas"
     }
   },
   "host": {

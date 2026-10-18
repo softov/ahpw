@@ -3677,6 +3677,110 @@
   gap: var(--oo-spacing-xs);
 }
 
+/* How an opened step reads, as words: the one shown bright, the others dimmed, a slash between. */
+.web-raw__views {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  font-size: var(--oo-font-size-xs);
+}
+
+/* The copy icon closes the row, set apart from the views. */
+.web-raw__views > :last-child {
+  margin-left: var(--oo-spacing-sm);
+}
+
+.web-raw__view-gap {
+  margin: 0 var(--oo-spacing-xs);
+  color: var(--oo-color-muted);
+  opacity: 0.6;
+}
+
+.web-raw__view {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.web-raw__view:hover,
+.web-raw__view:focus-visible {
+  color: var(--oo-color-text);
+}
+
+.web-raw__view[data-on='true'] {
+  color: var(--oo-color-text);
+  font-weight: 600;
+}
+
+/* A step's object as a tree, in the code block's box, taller since it opens a branch at a time. */
+.web-raw__tree {
+  max-height: 28rem;
+  overflow: auto;
+  padding: var(--oo-spacing-sm);
+  background: var(--oo-color-canvas);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+}
+
+/* A value as a tree, as a browser's console draws an object: keys tinted, each kind of leaf its own colour. */
+.web-json,
+.web-json__children {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--oo-font-mono, monospace);
+  font-size: var(--oo-font-size-xs);
+  line-height: 1.6;
+}
+
+.web-json__children {
+  padding-left: 1.1rem;
+}
+
+.web-json__row {
+  overflow-wrap: anywhere;
+}
+
+.web-json__branch {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.web-json__branch:hover .web-json__preview,
+.web-json__branch:focus-visible .web-json__preview {
+  color: var(--oo-color-text);
+}
+
+.web-json__caret {
+  display: inline-block;
+  width: 1em;
+  color: var(--oo-color-muted);
+}
+
+.web-json__key {
+  color: var(--oo-color-accent);
+}
+
+.web-json__preview {
+  color: var(--oo-color-muted);
+}
+
+.web-json__leaf[data-kind='string'] { color: var(--oo-color-success); }
+.web-json__leaf[data-kind='number'] { color: var(--oo-color-info); }
+.web-json__leaf[data-kind='boolean'] { color: var(--oo-color-warning); }
+.web-json__leaf[data-kind='null'],
+.web-json__leaf[data-kind='undefined'] { color: var(--oo-color-muted); }
+
 .web-raw__turn {
   display: flex;
   flex-direction: column;
@@ -3688,6 +3792,18 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: var(--oo-spacing-sm);
+  width: 100%;
+  padding: 2px 0;
+  font: inherit;
+  color: var(--oo-color-text);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.web-raw__turn-head:hover {
+  background: var(--oo-color-hover);
 }
 
 .web-raw__turn-title {
@@ -3739,6 +3855,19 @@
   color: var(--oo-color-muted);
 }
 
+/* A step's number and icon say who it is: what was sent, a call, the agent's words. */
+.web-raw__step[data-kind='message'] :is(.web-raw__n, .web-raw__icon) {
+  color: var(--oo-color-blue);
+}
+
+.web-raw__step[data-kind='tool'] :is(.web-raw__n, .web-raw__icon) {
+  color: var(--oo-color-yellow);
+}
+
+.web-raw__step:is([data-kind='text'], [data-kind='reasoning']) :is(.web-raw__n, .web-raw__icon) {
+  color: var(--oo-color-purple);
+}
+
 .web-raw__row > .web-raw__line,
 .web-raw__row > .web-tool__line {
   flex: 1;
@@ -3769,10 +3898,4 @@
   flex-direction: column;
   gap: var(--oo-spacing-sm);
   padding: var(--oo-spacing-xs) 0 var(--oo-spacing-sm) calc(2.5ch + 1.2em + 2 * var(--oo-spacing-sm));
-}
-
-.web-raw__turn-source > summary {
-  color: var(--oo-color-muted);
-  font-size: var(--oo-font-size-xs);
-  cursor: pointer;
 }

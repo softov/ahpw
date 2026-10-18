@@ -41,9 +41,10 @@ function useSessionTerminals(host: string, session: string, folder: string | und
  * The header's buttons, each shown only when it has something to count:
  * changed files, terminals, the subagents (one per chat its calls hand work
  * to, each opened from its menu), the session's own chats, a way back from a
- * subagent's chat, and the Raw view's toggle.
+ * subagent's chat, and a menu of how the chat reads: the Raw view, and the
+ * calls hidden. Each of those, while on, shows its icon, which turns it off.
  */
-export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw }: {
+export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw, calls }: {
   host: string;
   summary: SessionSummary;
   session: SessionState | undefined;
@@ -54,6 +55,8 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
   onSubagent: (chat: string) => void;
   raw: boolean;
   onRaw: (on: boolean) => void;
+  /** Whether the chat hides its calls, on a page that draws them. */
+  calls?: { hidden: boolean; onHidden: (hidden: boolean) => void };
 }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -86,6 +89,10 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     active: one.chat === chatUri,
     onSelect: (picked) => { picked.closeMenu(); onSubagent(one.chat); },
   })));
+  const viewMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, [
+    { title: t('sessions/raw/button'), icon: EMOJIcon.data, active: raw, onSelect: () => onRaw(!raw) },
+    ...(calls === undefined ? [] : [{ title: t('sessions/header/hideCalls'), icon: EMOJIcon.callsHidden, active: calls.hidden, onSelect: () => calls.onHidden(!calls.hidden) }]),
+  ]);
 
   return (
     <div className="web-chat__tools">
@@ -128,8 +135,18 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
           {`${ownAt < 0 ? '\u{2013}' : String(ownAt + 1)}/${String(own.length)} \u{25BE}`}
         </button>
       )}
-      <button type="button" className="web-chat__tool" aria-pressed={raw} data-on={raw ? 'true' : undefined} title={t(raw ? 'sessions/raw/back' : 'sessions/raw/open')} onClick={() => onRaw(!raw)}>
-        {t('sessions/raw/button')}
+      {calls?.hidden === true ? (
+        <button type="button" className="web-chat__tool" data-on="true" title={t('sessions/header/showCalls')} onClick={() => calls.onHidden(false)}>
+          {EMOJIcon.callsHidden}
+        </button>
+      ) : null}
+      {raw ? (
+        <button type="button" className="web-chat__tool" data-on="true" title={t('sessions/raw/back')} onClick={() => onRaw(false)}>
+          {EMOJIcon.data}
+        </button>
+      ) : null}
+      <button type="button" className="web-chat__tool" title={t('sessions/header/view')} aria-haspopup="menu" onClick={viewMenu}>
+        {EMOJIcon.more}
       </button>
       {menu === null ? null : <ContextMenu spec={{ items: menu.items }} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
     </div>

@@ -1527,7 +1527,6 @@
     },
     "raw": {
       "button": "Raw",
-      "open": "Show every step, as the host sent it",
       "back": "Back to the chat",
       "filter": "Steps shown",
       "filters": {
@@ -1539,8 +1538,6 @@
       "turn": "Turn {n}",
       "live": "running",
       "tokens": "{input} in · {output} out",
-      "turnSent": "The turn as the host sent it",
-      "sent": "As the host sent it",
       "kindLabel": "Kind",
       "place": "Place",
       "placeValue": "turn {turn}, step {step}",
@@ -1556,7 +1553,18 @@
         "note": "Note",
         "file": "File"
       },
-      "openSubagent": "Open subagent"
+      "openSubagent": "Open subagent",
+      "view": "How it reads",
+      "views": {
+        "formatted": "Formatted",
+        "raw": "Raw",
+        "json": "JSON"
+      },
+      "model": "Model",
+      "tokenLabel": "Tokens",
+      "cacheRead": "Cache read",
+      "stepCount": "Steps",
+      "toolCount": "Tool calls"
     },
     "header": {
       "files": {
@@ -1577,7 +1585,10 @@
       "subagentTag": "subagent",
       "subagentN": "Subagent {n}",
       "subagentRunning": "running",
-      "backToChat": "Back to the chat"
+      "backToChat": "Back to the chat",
+      "view": "How the chat reads",
+      "hideCalls": "Hide calls",
+      "showCalls": "Show the calls"
     }
   },
   "host": {

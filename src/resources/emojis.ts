@@ -64,6 +64,7 @@ export const EMOJIcon = {
   copy: '⧉',
   copyText: '¶',
   more: '⋯',
+  callsHidden: '⊘',
   archived: '▤',
   group: '☷',
   sort: '⇅',
