@@ -3186,6 +3186,11 @@
   pointer-events: auto;
 }
 
+/* The popover and the overflow menu open inside the layer, so they take the pointer back from it. */
+.web-bots .oo-popup {
+  pointer-events: auto;
+}
+
 .web-bot-popover {
   display: flex;
   flex-direction: column;

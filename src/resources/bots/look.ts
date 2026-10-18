@@ -45,6 +45,12 @@ export function boodBody(body: string): BoodBody {
   return bodyOf(body.trim().toLowerCase()) ?? UNKNOWN_BODY;
 }
 
+/** The name bood offers a new bot of this body, or empty for a body bood does not draw. */
+export function bodyName(body: string): string {
+  const known = bodyOf(body.trim().toLowerCase());
+  return known === undefined ? '' : creatures[known].name;
+}
+
 /** Whether bood draws this body as itself, rather than as a square. */
 export const knowsBody = (body: string): boolean => bodyOf(body.trim().toLowerCase()) !== undefined;
 

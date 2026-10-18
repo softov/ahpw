@@ -37,20 +37,15 @@ const TRANSIT_GAP_MS = 400;
 type Point = { x: number; y: number } | null;
 
 // The pointer on the page, shared by every moving bot: one listener, however many bodies follow it.
-const watchers = new Set<(point: Point) => void>();
+// A pointer that leaves the window is not reported: a bot keeps looking where it went, as at a pointer that stopped.
+const watchers = new Set<(point: { x: number; y: number }) => void>();
 const moved = (event: PointerEvent): void => watchers.forEach((fn) => fn({ x: event.clientX, y: event.clientY }));
-const left = (): void => watchers.forEach((fn) => fn(null));
-function watchPointer(fn: (point: Point) => void): () => void {
-  if (watchers.size === 0) {
-    document.addEventListener('pointermove', moved, { passive: true });
-    document.documentElement.addEventListener('pointerleave', left);
-  }
+function watchPointer(fn: (point: { x: number; y: number }) => void): () => void {
+  if (watchers.size === 0) document.addEventListener('pointermove', moved, { passive: true });
   watchers.add(fn);
   return () => {
     watchers.delete(fn);
-    if (watchers.size > 0) return;
-    document.removeEventListener('pointermove', moved);
-    document.documentElement.removeEventListener('pointerleave', left);
+    if (watchers.size === 0) document.removeEventListener('pointermove', moved);
   };
 }
 
@@ -206,10 +201,6 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive,
       if (!wandering) resume();
     };
     const unwatch = watchPointer((point) => {
-      if (point === null) {
-        stopFollowing();
-        return;
-      }
       latest = point;
       window.clearTimeout(rest);
       rest = window.setTimeout(stopFollowing, between(...FOLLOW_MS));

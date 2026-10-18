@@ -1,7 +1,7 @@
 /** What the bot form holds, and what a write sends from it. */
 
 import type { BotBody, BotRecord } from './catalogue.js';
-import { BOT_BODIES, COLOR_HEX, colorName, colorOf } from './look.js';
+import { BOT_BODIES, COLOR_HEX, bodyName, colorName, colorOf } from './look.js';
 
 export interface BotDraft {
   name: string;
@@ -49,7 +49,17 @@ export function draftOf(bot: BotRecord | undefined, bots: readonly BotRecord[]):
       owner: bot.owner,
     };
   }
-  return { name: '', labels: '', description: '', instructions: '', owner: '', ...freshLook(bots) };
+  const look = freshLook(bots);
+  return { name: bodyName(look.body), labels: '', description: '', instructions: '', owner: '', ...look };
+}
+
+/**
+ * A bot's name after its body changes: an empty name, or the one the old body
+ * offered, follows the body; a name somebody typed stays.
+ */
+export function renamedFor(name: string, from: string, to: string): string {
+  const typed = name.trim();
+  return typed === '' || typed === bodyName(from) ? bodyName(to) : name;
 }
 
 /**
