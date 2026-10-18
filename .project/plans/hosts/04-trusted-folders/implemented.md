@@ -23,6 +23,7 @@ ahpw asks once per folder and host whether to trust it, keeps the answer in this
 
 - `src/bridges/trust.test.ts`: 4 tests; `pnpm test` 423 pass, `pnpm typecheck` passes.
 - On a scratch ahpd 0.12.0 host: a new session in `work3` asked first; Trust pushed `workspaceTrust` with the folder before the session was made; a reload pushed it again right after the new connection; Forget pushed an empty list and the row went; asked again, Don't trust made the session, pushed nothing, and the next session did not ask.
+- Softov, 2026-10-18, on his own host: a Codex session over ACP started from ahpw, with its folder trusted from ahpw's prompt.
 
 ## Departures from the plan
 
