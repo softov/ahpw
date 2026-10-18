@@ -42,7 +42,7 @@ What exists today: [00-plugins.md](plugins/00-plugins.md).
 | Plan | Status | Next |
 | --- | --- | --- |
 | [01 - Computers and bots](plugins/01-computers-and-bots/plan.md) | built | - |
-| [02 - Bot chat and bood life](plugins/02-bot-chat-and-bood-life/plan.md) | active | waits: Softov's approval to commit 01, 02 and 04, npm approval of bood 0.1.2 (03) |
+| [02 - Bot chat and bood life](plugins/02-bot-chat-and-bood-life/plan.md) | built | - |
 
 ## sessions
 

@@ -1,7 +1,7 @@
 ---
 title: Bot chat and bood life
 domain: plugins
-status: active
+status: built
 priority: medium
 created: 2026-10-16
 revalidated: 2026-10-16
@@ -15,7 +15,7 @@ refs:
   - file:///github/ahpd/.project/plans/plugin/52-p2-a-bot-chat-is-a-session-with-no-harness - the session `_meta` mark and the bot record's `chat`, which the chat page reads
   - file:///github/ahpd/packages/bot/src/record.ts - `BOT_BODIES` and `among`, which refuse a body not on the list
   - file:///github/ahpd/packages/bot/src/store.ts - `kept`, which drops a stored bot whose body is not on the list
-  - npm://@cofold/bood@^0.1.2 - the head's look, tilt and room, staged 2026-10-16
+  - npm://@cofold/bood@^0.2.0 - the head's look, tilt and room, the names and the flame; released 2026-10-18
 ---
 
 ## Goal
@@ -51,7 +51,7 @@ The files read and the patterns to reuse are the `refs` above, each with its not
 | --- | --- | --- |
 | [01 - the bot chat page](task-01-the-bot-chat-page.md) | done | - |
 | [02 - bood life](task-02-bood-life.md) | done | - |
-| [03 - bood 0.1.2](task-03-bood-0-1-2.md) | blocked | - |
+| [03 - bood 0.2.0](task-03-bood-0-1-2.md) | done | - |
 | [04 - every body](task-04-every-body.md) | done | - |
 
 ## Risks and tradeoffs
@@ -60,15 +60,15 @@ The files read and the patterns to reuse are the `refs` above, each with its not
 
 ## Resume state
 
-- **Done so far:** tasks 01, 02 and 04, 2026-10-16, not committed: they wait for Softov's approval.
-- **Next action:** [task-03-bood-0-1-2.md](task-03-bood-0-1-2.md), once Softov approves `@cofold/bood` 0.1.2 on npm.
+- **Done so far:** every task; see [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
-- **Watch out for:** ahpw's `node_modules/@cofold/bood` is a link to the local cofold until task 03; `pnpm install` undoes it, and vite needs its `.vite` cache cleared to see a change of bood.
+- **Watch out for:** a change of bood reaches ahpw through a new release; a running vite needs its `.vite` cache cleared to see it.
 
 ## Final verification checklist
 
 - [ ] Chat on a bot opens its chat page against a host with ahpd plugin/52 p2, at a phone width and a desktop width.
-- [ ] ahpw installs `@cofold/bood@^0.1.2` from npm, with no local link.
-- [ ] A bot made with a new body saves, lists and draws; one with an unknown body draws as the fallback.
-- [ ] `pnpm test`, `pnpm typecheck` and `pnpm build` pass.
-- [ ] `plans/index.md` updated.
+- [x] ahpw installs `@cofold/bood@^0.2.0` from npm, with no local link.
+- [x] A bot made with a new body saves, lists and draws; one with an unknown body draws as the fallback.
+- [x] `pnpm test`, `pnpm typecheck` and `pnpm build` pass.
+- [x] `plans/index.md` updated.
