@@ -5,7 +5,7 @@ import './ahpw-mark.css';
  * The ahpw mark: an A standing in a W.
  *
  * The W is its two outer strokes, in the bar's colour, with the A drawn over
- * them. The geometry is the 64x64 grid of public/ahpw.svg, which sets
+ * them. The geometry is the 64x64 grid of ./ahpw.svg, which sets
  * it on a dark tile for the favicon, and index.html draws it again for the boot
  * loader; the three copies change together.
  */

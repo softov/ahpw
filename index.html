@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="./ahpw.svg" />
+    <!--
+      From src/, not public/, so the build names it by its content: a browser
+      keeps a favicon by its URL and never fetches a new one at the same URL,
+      which left the old logo in every tab after the new one shipped.
+    -->
+    <link rel="icon" type="image/svg+xml" href="./src/shell/ahpw.svg" />
     <title>ahpw</title>
     <style>
       :root {
