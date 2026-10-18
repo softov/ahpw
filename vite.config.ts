@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import type { Alias } from 'vite';
+import type { Alias, Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
@@ -35,8 +35,24 @@ function scenaSource(checkout: string): Alias[] {
 }
 const scena = process.env['AHPW_SCENA'];
 
+/**
+ * The page asks the server that sent it whether it adds the token to the
+ * socket (`ahpw.json`, as `ahpw serve` and the daemon's route answer). This dev
+ * server does not: its proxy passes the socket on as the page opens it. It
+ * says so, rather than leave a 404 in every console.
+ */
+const serverFacts: Plugin = {
+  name: 'ahpw-server-facts',
+  configureServer(server) {
+    server.middlewares.use('/ahpw.json', (_request, response) => {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ tokenHeld: false }));
+    });
+  },
+};
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), serverFacts],
   resolve: {
     // One React, whether scena is installed or comes from a checkout with its own.
     dedupe: ['react', 'react-dom'],
