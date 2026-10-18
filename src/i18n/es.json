@@ -850,6 +850,7 @@
     },
     "chat": {
       "cannot": "No puedes chatear con este bot.",
+      "noHost": "Este host aún no tiene chat con bots.",
       "opening": "Abriendo el chat…",
       "failed": "No se pudo abrir el chat",
       "reading": "Leyendo el chat",

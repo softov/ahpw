@@ -57,7 +57,7 @@ export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: Bo
       {bot.description === undefined ? null : <p className="web-bot-popover__description">{bot.description}</p>}
       {failure !== null ? <p className="web-bot-popover__failure">{failure}</p>
         : chatSession === undefined ? <Spinner label={t('bots/chat/opening')} />
-          : chatSession === null ? <p className="web-note">{t('bots/chat/cannot')}</p> : (
+          : chatSession === null ? <p className="web-note">{t(chats ? 'bots/chat/cannot' : 'bots/chat/noHost')}</p> : (
         <form className="web-bot-popover__say" onSubmit={(event) => { event.preventDefault(); send(); }}>
           <input
             className="web-field"
