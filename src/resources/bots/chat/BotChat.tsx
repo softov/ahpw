@@ -6,7 +6,7 @@ import { hostBridge } from '../../../bridges/data.js';
 import { saveFile } from '../../../lib/save-file.js';
 import { EMOJIcon } from '../../emojis.js';
 import { Composer } from '../../sessions/Composer.js';
-import type { Send } from '../../sessions/Parts.js';
+import { Part, type Send } from '../../sessions/Parts.js';
 import { activityOf } from '../../sessions/status.js';
 import { Bood } from '../Bood.js';
 import { colorOf } from '../look.js';
@@ -35,7 +35,7 @@ function FileRow({ host, file }: { host: string; file: ChatFile }): ReactElement
 }
 
 /** One thing a turn shows: the person's bubble, the bot's bubble, or a grey line. */
-function Item({ host, mark, item }: { host: string; mark: BotMark; item: ChatItem }): ReactElement {
+function Item({ host, mark, item, send, live, turnId }: { host: string; mark: BotMark; item: ChatItem; send: Send; live: boolean; turnId: string }): ReactElement {
   const { t } = useI18n();
   switch (item.kind) {
     case 'said':
@@ -48,6 +48,7 @@ function Item({ host, mark, item }: { host: string; mark: BotMark; item: ChatIte
             <span className="web-botchat__name" style={{ color: colorOf(mark.color) }}>{mark.name}</span>
             {item.texts.map((text, at) => <div key={at} className="web-md"><Markdown text={text} /></div>)}
             {item.files.map((file) => <FileRow key={file.uri} host={host} file={file} />)}
+            {item.asks.map((part, at) => <Part key={at} part={part} send={send} live={live} turnId={turnId} />)}
           </div>
         </div>
       );
@@ -61,9 +62,10 @@ function Item({ host, mark, item }: { host: string; mark: BotMark; item: ChatIte
 /**
  * A chat with a bot: the person's messages on the right, the bot's replies on
  * the left with its name and figure, notices as grey lines, and one line over
- * the composer while the bot works. The bot's tools and thinking are its own
- * work, which the chat does not show; the header has the session's buttons,
- * and its Raw view shows every step in place of the bubbles.
+ * the composer while the bot works. A question or an approval the bot waits on
+ * is drawn in its bubble; its other tools and thinking are its own work, which
+ * the chat does not show. The header has the session's buttons, and its Raw
+ * view shows every step in place of the bubbles.
  */
 export function BotChat({ host, mark, summary, session, chat, chatUri, send, tools, rawView }: {
   host: string;
@@ -125,8 +127,8 @@ export function BotChat({ host, mark, summary, session, chat, chatUri, send, too
         {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label={t('bots/chat/reading')} /> : null}
         {rawView ?? (
           <>
-            {turns.map((turn) => chatItems(turn, false).map((item, at) => <Item key={`${turn.id}:${at}`} host={host} mark={mark} item={item} />))}
-            {active === undefined ? null : chatItems(active, true).map((item, at) => <Item key={`${active.id}:${at}`} host={host} mark={mark} item={item} />)}
+            {turns.map((turn) => chatItems(turn, false).map((item, at) => <Item key={`${turn.id}:${at}`} host={host} mark={mark} item={item} send={send} live={false} turnId={turn.id} />))}
+            {active === undefined ? null : chatItems(active, true).map((item, at) => <Item key={`${active.id}:${at}`} host={host} mark={mark} item={item} send={send} live turnId={active.id} />)}
           </>
         )}
         {chat.state !== undefined && turns.length === 0 && active === undefined ? <p className="web-botchat__notice" data-tone="quiet">{t('bots/chat/empty', { name: mark.name })}</p> : null}

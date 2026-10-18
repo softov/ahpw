@@ -25,9 +25,23 @@ describe('chatItems', () => {
       { kind: 'markdown', id: 'm2', content: 'and one more' },
     ]), false)).toEqual([
       { kind: 'said', text: 'the report, please' },
-      { kind: 'reply', texts: ['here are the files you asked for'], files: [{ uri: 'file:///out/sales-october.pdf', name: 'sales-october.pdf', contentType: 'application/pdf' }] },
+      { kind: 'reply', texts: ['here are the files you asked for'], files: [{ uri: 'file:///out/sales-october.pdf', name: 'sales-october.pdf', contentType: 'application/pdf' }], asks: [] },
       { kind: 'notice', text: 'Backer was paused', tone: 'quiet' },
-      { kind: 'reply', texts: ['and one more'], files: [] },
+      { kind: 'reply', texts: ['and one more'], files: [], asks: [] },
+    ]);
+  });
+
+  it('draws a question and a waiting approval in the bubble, and keeps the other calls out', () => {
+    const question = { kind: 'inputRequest', request: { id: 'q1', questions: [] } };
+    const approval = { kind: 'toolCall', id: 'c1', toolCall: { toolCallId: 'c1', status: 'pending-confirmation' } };
+    expect(chatItems(turn('ask me', [
+      { kind: 'toolCall', id: 'w1', toolCall: { toolCallId: 'w1', toolName: 'subagent', status: 'running' } },
+      { kind: 'markdown', id: 'm1', content: 'two things first' },
+      question,
+      approval,
+    ]), true)).toEqual([
+      { kind: 'said', text: 'ask me' },
+      { kind: 'reply', texts: ['two things first'], files: [], asks: [question, approval] },
     ]);
   });
 

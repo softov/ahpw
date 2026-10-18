@@ -122,8 +122,9 @@ export function registerBots(scena: Scena): Disposable {
           const bot = botOf(target);
           if (bot === undefined) return;
           const offers = ctx.store.get<Offers>(ahpPaths(target.host).offers) ?? NO_OFFERS;
-          const chat = await readBotChat(target.host, offers, bot, servesBotChats(ctx.store.get<AgentInfo[]>(ahpPaths(target.host).agents)));
-          if (chat === null) warn(translate('bots/chat/cannot'));
+          const chats = servesBotChats(ctx.store.get<AgentInfo[]>(ahpPaths(target.host).agents));
+          const chat = await readBotChat(target.host, offers, bot, chats);
+          if (chat === null) warn(translate(chats ? 'bots/chat/cannot' : 'bots/chat/noHost'));
           else await ctx.commands.execute('ahp.openSession', { host: target.host, resource: chat });
         } catch (error) {
           failed(translate('bots/chat/failed'), error);

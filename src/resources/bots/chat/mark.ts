@@ -2,7 +2,8 @@
  * A chat with a bot: a session whose `_meta` carries the bot's mark. A
  * session is a chat because of the mark, whatever its provider. The chat
  * shows only what is said: the person's messages, the bot's text and files,
- * and notices; the bot's tools and thinking stay in its own work.
+ * its questions and the approvals it waits on, and notices; the bot's other
+ * tools and thinking stay in its own work.
  */
 
 import type { ActiveTurn, ResponsePart, Turn } from '@microsoft/agent-host-protocol';
@@ -51,7 +52,7 @@ export interface ChatFile {
 /** One thing the chat shows for a turn, in order. */
 export type ChatItem =
   | { kind: 'said'; text: string }
-  | { kind: 'reply'; texts: string[]; files: ChatFile[] }
+  | { kind: 'reply'; texts: string[]; files: ChatFile[]; asks: ResponsePart[] }
   | { kind: 'notice'; text: string; tone: 'quiet' | 'danger' }
   | { kind: 'noReply' };
 
@@ -68,7 +69,7 @@ export function chatItems(turn: Turn | ActiveTurn, live: boolean): ChatItem[] {
   let reply: Extract<ChatItem, { kind: 'reply' }> | null = null;
   const replyNow = (): Extract<ChatItem, { kind: 'reply' }> => {
     if (reply === null) {
-      reply = { kind: 'reply', texts: [], files: [] };
+      reply = { kind: 'reply', texts: [], files: [], asks: [] };
       items.push(reply);
     }
     return reply;
@@ -85,6 +86,13 @@ export function chatItems(turn: Turn | ActiveTurn, live: boolean): ChatItem[] {
         if (uri !== '') replyNow().files.push({ uri, name: fileName(uri), ...('contentType' in part && typeof part.contentType === 'string' ? { contentType: part.contentType } : {}) });
         break;
       }
+      case 'inputRequest':
+        if ('request' in part) replyNow().asks.push(part);
+        break;
+      case 'toolCall':
+        // Only an approval the person is asked for; the bot's other calls are its own work.
+        if ('toolCall' in part && part.toolCall.status === 'pending-confirmation') replyNow().asks.push(part);
+        break;
       case 'systemNotification': {
         const content = 'content' in part ? part.content : '';
         const said = typeof content === 'string' ? content : bag(content)?.markdown;
@@ -99,7 +107,7 @@ export function chatItems(turn: Turn | ActiveTurn, live: boolean): ChatItem[] {
         break;
       }
       default:
-        // Tools, thinking and questions are the bot's own work, not the chat.
+        // Thinking and the rest are the bot's own work, not the chat.
         break;
     }
   }
