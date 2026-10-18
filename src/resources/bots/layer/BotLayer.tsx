@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactElement } from 'react';
-import { useI18n } from '@softov/scena/react';
+import { useI18n, useScena } from '@softov/scena/react';
 import { randomTransit, type BoodTransit } from '@cofold/bood';
 import { ContextMenu } from '@softov/scena/ui';
 import { useChannelOnEach } from '../../../bridges/channel.js';
@@ -16,6 +16,8 @@ const WIDTH = 48;
 const DRAG_PX = 6;
 /** How long a press is held before a drag takes the whole puck. */
 const HOLD_MS = 300;
+/** How long a press held still is, at least, to open the bot's menu when it lets go instead of the popover. */
+const MENU_HOLD_MS = 550;
 /** How long a dropped bot takes to show at its new place, as ahpapp. */
 const ARRIVE_MS = 1300;
 
@@ -62,12 +64,15 @@ function besideOf(box: DOMRect, edge: Edge): { x: number; y: number } {
  * though it teleported there. Where they rest is kept in this browser.
  */
 export default function BotLayer(): ReactElement | null {
+  const scena = useScena();
   const { t } = useI18n();
   const hosts = useServingHosts(useShownHosts(), BOTS_SCHEME);
   const { states } = useChannelOnEach<BotsState>(hosts, BOTS, botsReducer);
   const [pucks, setPucks] = useState<Puck[]>(readPucks);
   const [hovered, setHovered] = useState<string | null>(null);
   const [opened, setOpened] = useState<Opened | null>(null);
+  // A bot's menu, from a right click or a long press, open where it was asked for.
+  const [menu, setMenu] = useState<Opened | null>(null);
   const [overflow, setOverflow] = useState<{ x: number; y: number; bots: string[] } | null>(null);
   const [drag, setDrag] = useState<{ bots: string[]; x: number; y: number; target: string | null } | null>(null);
   // The bots just dropped, each with the transit it shows with; the `at` tells a drop from the last one.
@@ -119,6 +124,12 @@ export default function BotLayer(): ReactElement | null {
     press.current = null;
     if (held === null) return;
     if (held.bots === undefined) {
+      // Held still a while: the bot's menu, where the press let go.
+      if (Date.now() - held.at >= MENU_HOLD_MS) {
+        setOpened(null);
+        setMenu({ key: held.key, x: event.clientX, y: event.clientY });
+        return;
+      }
       // A click: open the bot, or close it when it is open.
       setOpened(opened?.key === held.key ? null : { key: held.key, ...besideOf(event.currentTarget.getBoundingClientRect(), held.puck.edge) });
       return;
@@ -138,6 +149,7 @@ export default function BotLayer(): ReactElement | null {
 
   if (bots.size === 0) return null;
   const openedBot = opened === null ? undefined : bots.get(opened.key);
+  const menuBot = menu === null ? undefined : bots.get(menu.key);
   const ghost = drag === null ? undefined : bots.get(drag.bots[0]!);
 
   return (
@@ -172,6 +184,14 @@ export default function BotLayer(): ReactElement | null {
                   onMouseEnter={() => setHovered(key)}
                   onMouseLeave={() => setHovered((held) => (held === key ? null : held))}
                   onPointerDown={(event) => down(event, key, puck)}
+                  onContextMenu={(event) => {
+                    // A right click, or a touch screen's own long press: the menu, and no click or drag after it.
+                    event.preventDefault();
+                    press.current = null;
+                    setDrag(null);
+                    setOpened(null);
+                    setMenu({ key, x: event.clientX, y: event.clientY });
+                  }}
                   onPointerMove={move}
                   onPointerUp={up}
                   onPointerCancel={cancel}
@@ -211,6 +231,30 @@ export default function BotLayer(): ReactElement | null {
           x={overflow.x}
           y={overflow.y}
           onClose={() => setOverflow(null)}
+        />
+      )}
+      {menu === null || menuBot === undefined ? null : (
+        <ContextMenu
+          spec={{
+            items: ([
+              ['ahp.chatWithBot', 'bots/actions/chat'],
+              ['ahp.openBot', 'bots/commands/open'],
+              ['ahp.editBot', 'bots/actions/edit'],
+              ['ahp.deleteBot', 'bots/actions/delete'],
+            ] as const).map(([command, word]) => ({
+              title: t(word),
+              // The group's label heads the menu, so it says which bot it is for.
+              group: menuBot.name,
+              onSelect: (picked) => {
+                picked.closeMenu();
+                const { host, id } = refOf(menu.key);
+                void scena.commands.execute(command, { host, slug: id, name: menuBot.name });
+              },
+            })),
+          }}
+          x={menu.x}
+          y={menu.y}
+          onClose={() => setMenu(null)}
         />
       )}
       {opened === null || openedBot === undefined ? null : (

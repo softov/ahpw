@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { Alert, Markdown, Spinner } from '@softov/scena/ui';
 import type { ChatState, SessionState, SessionSummary } from '@microsoft/agent-host-protocol';
@@ -62,9 +62,10 @@ function Item({ host, mark, item }: { host: string; mark: BotMark; item: ChatIte
  * A chat with a bot: the person's messages on the right, the bot's replies on
  * the left with its name and figure, notices as grey lines, and one line over
  * the composer while the bot works. The bot's tools and thinking are its own
- * work, which the chat does not show.
+ * work, which the chat does not show; the header has the session's buttons,
+ * and its Raw view shows every step in place of the bubbles.
  */
-export function BotChat({ host, mark, summary, session, chat, chatUri, send }: {
+export function BotChat({ host, mark, summary, session, chat, chatUri, send, tools, rawView }: {
   host: string;
   mark: BotMark;
   summary: SessionSummary;
@@ -72,6 +73,10 @@ export function BotChat({ host, mark, summary, session, chat, chatUri, send }: {
   chat: { state: ChatState | undefined; error: string | null };
   chatUri: string | undefined;
   send: Send;
+  /** The session header's buttons. */
+  tools: ReactNode;
+  /** The Raw view while it is on, drawn in place of the bubbles. */
+  rawView: ReactNode;
 }): ReactElement {
   const { t } = useI18n();
   const end = useRef<HTMLDivElement>(null);
@@ -104,6 +109,7 @@ export function BotChat({ host, mark, summary, session, chat, chatUri, send }: {
       <header className="web-botchat__head">
         <Bood body={mark.body} color={mark.color} width={36} />
         <h2 className="web-botchat__title">{mark.name}</h2>
+        {tools}
       </header>
 
       <div
@@ -117,8 +123,12 @@ export function BotChat({ host, mark, summary, session, chat, chatUri, send }: {
         {session.error === null ? null : <Alert tone="danger" message={session.error} />}
         {chat.error === null ? null : <Alert tone="danger" message={chat.error} />}
         {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label={t('bots/chat/reading')} /> : null}
-        {turns.map((turn) => chatItems(turn, false).map((item, at) => <Item key={`${turn.id}:${at}`} host={host} mark={mark} item={item} />))}
-        {active === undefined ? null : chatItems(active, true).map((item, at) => <Item key={`${active.id}:${at}`} host={host} mark={mark} item={item} />)}
+        {rawView ?? (
+          <>
+            {turns.map((turn) => chatItems(turn, false).map((item, at) => <Item key={`${turn.id}:${at}`} host={host} mark={mark} item={item} />))}
+            {active === undefined ? null : chatItems(active, true).map((item, at) => <Item key={`${active.id}:${at}`} host={host} mark={mark} item={item} />)}
+          </>
+        )}
         {chat.state !== undefined && turns.length === 0 && active === undefined ? <p className="web-botchat__notice" data-tone="quiet">{t('bots/chat/empty', { name: mark.name })}</p> : null}
         <div ref={end} />
       </div>

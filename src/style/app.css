@@ -3227,9 +3227,39 @@
   min-width: 0;
 }
 
-.web-bot-popover__actions {
-  display: flex;
-  gap: var(--oo-spacing-xs);
+/* The name opens the bot: it reads as the title, and shows it is a link only under the pointer. */
+.web-bot-popover__name {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.web-bot-popover__name:hover,
+.web-bot-popover__name:focus-visible {
+  color: var(--oo-color-accent);
+  text-decoration: underline;
+}
+
+/* The chat icon sits at the head's right end. */
+.web-bot-popover__chat {
+  align-self: center;
+  margin-left: auto;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--oo-color-muted);
+  cursor: pointer;
+}
+
+.web-bot-popover__chat:hover,
+.web-bot-popover__chat:focus-visible {
+  background: color-mix(in srgb, var(--oo-color-accent) 18%, transparent);
+  color: var(--oo-color-accent);
 }
 
 /* A drag: the bots it moves fade where they were, a ghost follows the pointer, and the puck it would join is ringed. */
@@ -3271,6 +3301,11 @@
 .web-botchat__title {
   margin: 0;
   font-size: var(--oo-font-size-lg, 1.1rem);
+}
+
+/* The session's buttons sit at the header's right end, as on a session. */
+.web-botchat__head .web-chat__tools {
+  margin-left: auto;
 }
 
 .web-botchat__turns {

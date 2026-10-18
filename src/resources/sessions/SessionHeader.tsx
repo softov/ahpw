@@ -2,13 +2,12 @@ import { useEffect, useState, type MouseEvent, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
-import type { ChatState, SessionState, SessionSummary, TerminalState } from '@microsoft/agent-host-protocol';
+import type { ChatSummary, SessionState, SessionSummary, TerminalState } from '@microsoft/agent-host-protocol';
 import { ahpPaths, hostBridge, type HostFacts } from '../../bridges/data.js';
 import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
 import { inFolder } from '../terminals/terminal.js';
-import { claimedTerminals, subagentsOf } from './header.js';
-import type { RawFilter } from './raw.js';
+import { chatRunning, claimedTerminals, subagentChats } from './header.js';
 
 /**
  * The session's terminals: the ones it holds by claim, and the others whose
@@ -40,39 +39,43 @@ function useSessionTerminals(host: string, session: string, folder: string | und
 
 /**
  * The header's buttons, each shown only when it has something to count:
- * changed files, terminals, subagents and the session's chats, and the Raw
- * view's toggle.
+ * changed files, terminals, the subagents (chats a tool call spawned, each
+ * opened from its menu) and the session's chats, and the Raw view's toggle.
  */
-export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, raw, onRaw }: {
+export function SessionHeaderTools({ host, summary, session, chatUri, onChat, raw, onRaw }: {
   host: string;
   summary: SessionSummary;
   session: SessionState | undefined;
-  chat: ChatState | undefined;
   chatUri: string | undefined;
   onChat: (uri: string) => void;
   raw: boolean;
-  onRaw: (on: boolean, filter?: RawFilter) => void;
+  onRaw: (on: boolean) => void;
 }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const [menu, setMenu] = useState<{ x: number; y: number; items: PickerAction[] } | null>(null);
   const changes = summary.changes;
   const terminals = useSessionTerminals(host, summary.resource, summary.workingDirectories?.[0]);
-  const subagents = subagentsOf(chat?.turns ?? [], chat?.activeTurn);
   const chats = session?.chats ?? [];
+  const subagents = subagentChats(chats);
+  const running = subagents.filter(chatRunning).length;
   const chatAt = chats.findIndex((one) => one.resource === chatUri);
   const run = (command: string, args?: unknown): void => { void scena.commands.execute(command, args); };
 
-  const pickChat = (event: MouseEvent<HTMLButtonElement>): void => {
+  /** A menu under the button that opens one of `list`'s chats; a subagent says so. */
+  const pick = (event: MouseEvent<HTMLButtonElement>, list: readonly ChatSummary[]): void => {
     const box = event.currentTarget.getBoundingClientRect();
     setMenu({
       x: box.left,
       y: box.bottom,
-      items: chats.map((one, at) => ({
-        title: one.title === '' ? t('sessions/header/chatN', { n: at + 1 }) : one.title,
-        active: one.resource === chatUri,
-        onSelect: (picked) => { picked.closeMenu(); onChat(one.resource); },
-      })),
+      items: list.map((one) => {
+        const name = one.title === '' ? t('sessions/header/chatN', { n: chats.indexOf(one) + 1 }) : one.title;
+        return {
+          title: subagents.includes(one) ? `${name} \u{00B7} ${t('sessions/header/subagentTag')}` : name,
+          active: one.resource === chatUri,
+          onSelect: (picked) => { picked.closeMenu(); onChat(one.resource); },
+        };
+      }),
     });
   };
 
@@ -94,19 +97,20 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
           {`${EMOJIcon.terminal} ${String(terminals.length)}`}
         </button>
       )}
-      {subagents.total === 0 ? null : (
+      {subagents.length === 0 ? null : (
         <button
           type="button"
           className="web-chat__tool"
-          data-live={subagents.running > 0 ? 'true' : undefined}
-          title={subagents.running > 0 ? t('sessions/header/subagentsRunning', { running: subagents.running, total: subagents.total }) : plural('sessions/header/subagents', subagents.total)}
-          onClick={() => onRaw(true, 'subagents')}
+          data-live={running > 0 ? 'true' : undefined}
+          title={running > 0 ? t('sessions/header/subagentsRunning', { running, total: subagents.length }) : plural('sessions/header/subagents', subagents.length)}
+          aria-haspopup="menu"
+          onClick={(event) => pick(event, subagents)}
         >
-          {`${EMOJIcon.subagent} ${subagents.running > 0 ? `${String(subagents.running)}/${String(subagents.total)}` : String(subagents.total)}`}
+          {`${EMOJIcon.subagent} ${running > 0 ? `${String(running)}/${String(subagents.length)}` : String(subagents.length)}`}
         </button>
       )}
       {chats.length < 2 ? null : (
-        <button type="button" className="web-chat__tool" title={t('sessions/header/chats')} aria-haspopup="menu" onClick={pickChat}>
+        <button type="button" className="web-chat__tool" title={t('sessions/header/chats')} aria-haspopup="menu" onClick={(event) => pick(event, chats)}>
           {`${String(chatAt + 1)}/${String(chats.length)} \u{25BE}`}
         </button>
       )}

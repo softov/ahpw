@@ -35,16 +35,30 @@ const rank = (kind: string | undefined): number => {
   return at < 0 ? ORDER.length : at;
 };
 
+/** No keys: the list shows the pools. One array, so a render with none does not read again. */
+const NO_KEYS: readonly UsageKey[] = [];
+
 /** The rows' order: what cost most first, then by name. */
 const byCost = (a: Item, b: Item): number => (b.total.usd ?? 0) - (a.total.usd ?? 0) || a.name.localeCompare(b.name);
 
-/** One host's items for the period: its pools with their totals, or its records summed by `group`. */
-async function itemsOf(host: string, offers: Offers, period: Period, range: DayRange, group: UsageKey | null): Promise<Item[]> {
-  if (group !== null) {
-    const rows = await usageGroups(host, offers, [group], periodRange(period, range, new Date()));
+/**
+ * One host's items for the period: its pools with their totals, or its records
+ * summed by the keys in `by` together, each named by every key's name. A sum by
+ * one key opens that key's pool; a sum by several has none to open.
+ */
+async function itemsOf(host: string, offers: Offers, period: Period, range: DayRange, by: readonly UsageKey[]): Promise<Item[]> {
+  if (by.length > 0) {
+    const rows = await usageGroups(host, offers, by, periodRange(period, range, new Date()));
     return rows.map((row) => {
-      const pool = row.keys[group];
-      return { host, key: pool ?? '', name: row.names[group] ?? pool ?? translate('usage/explorer/none'), kind: group, total: row.total, ...(pool === undefined ? {} : { pool }) };
+      const pool = by.length === 1 ? row.keys[by[0]!] : undefined;
+      return {
+        host,
+        key: by.map((one) => row.keys[one] ?? '').join('|'),
+        name: by.map((one) => row.names[one] ?? row.keys[one] ?? translate('usage/explorer/none')).join(' \u{00B7} '),
+        kind: by.join('+'),
+        total: row.total,
+        ...(pool === undefined ? {} : { pool }),
+      };
     });
   }
   const pools = await usagePools(host, offers);
@@ -71,7 +85,7 @@ export default function UsageExplorer(): ReactElement {
   const hostName = useHostNames();
   const multi = embedMode() === 'multi';
   const period = useStore<Period | null>(USAGE_PERIOD) ?? 'month';
-  const group = useStore<UsageKey | null>(USAGE_GROUP) ?? null;
+  const by = useStore<UsageKey[] | null>(USAGE_GROUP) ?? NO_KEYS;
   const range = useStore<Required<DayRange>>(USAGE_RANGE) ?? monthSoFar(new Date());
   const asked = useStore<number>(USAGE_ASKED) ?? 0;
   const active = useStore<{ host: string; pool: string }>(ACTIVE_POOL);
@@ -83,7 +97,7 @@ export default function UsageExplorer(): ReactElement {
     void Promise.all(hosts.map(async (host): Promise<Answer> => {
       const offers = scena.store.get<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
       try {
-        return { host, items: await itemsOf(host, offers, period, range, group) };
+        return { host, items: await itemsOf(host, offers, period, range, by) };
       } catch (caught) {
         return { host, error: caught instanceof Error ? caught.message : String(caught) };
       }
@@ -91,7 +105,7 @@ export default function UsageExplorer(): ReactElement {
     return () => { live = false; };
   // `range` is a new object each render while none is stored; its days are what matter.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hosts, period, group, range.from, range.until, asked, scena]);
+  }, [hosts, period, by, range.from, range.until, asked, scena]);
 
   const rows = useMemo<Row[]>(() => (answers ?? []).flatMap((answer): Row[] => {
     if ('error' in answer) {
@@ -110,7 +124,7 @@ export default function UsageExplorer(): ReactElement {
       dot: 'quiet',
       dotLabel: item.name,
       title: item.name,
-      group: { key: item.kind, label: kindWord(item.kind) },
+      group: { key: item.kind, label: item.kind.split('+').map(kindWord).join(' \u{00B7} ') },
       lines: [
         totalLine(item.total) || t('usage/explorer/nothing'),
         ...(multi ? [hostName(item.host)] : []),

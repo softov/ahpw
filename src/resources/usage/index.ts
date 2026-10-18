@@ -5,7 +5,7 @@ import { hideOverlaidSidebar } from '../sessions/index.js';
 import { HOST_FILTER_ACTION } from '../../bridges/hosts.js';
 import { servesUsage } from '../../bridges/usage.js';
 import { trackServed } from '../../bridges/served.js';
-import { registerChoice } from '../../shell/explorer/choice.js';
+import { registerChoice, registerTicks } from '../../shell/explorer/choice.js';
 import { EMOJIcon } from '../emojis.js';
 import { english } from '../../i18n/locales.js';
 import { ACTIVE_POOL, CHOICE_KEYS, poolTab, USAGE_ASKED, USAGE_GROUP, USAGE_GROUPS, USAGE_PERIOD, USAGE_PERIODS, USAGE_SERVED } from './state.js';
@@ -33,7 +33,7 @@ export function registerUsage(scena: Scena): Disposable {
   return combineDisposables(
     trackServed(scena, servesUsage, USAGE_SERVED),
     registerChoice(scena, { resource: 'usage', name: 'period', slot: PERIOD_SLOT, path: USAGE_PERIOD, values: USAGE_PERIODS, usual: 'month', key: CHOICE_KEYS.period }),
-    registerChoice(scena, { resource: 'usage', name: 'group', slot: GROUP_SLOT, path: USAGE_GROUP, values: USAGE_GROUPS, usual: 'none', key: CHOICE_KEYS.group }),
+    registerTicks(scena, { resource: 'usage', name: 'group', slot: GROUP_SLOT, path: USAGE_GROUP, values: USAGE_GROUPS, key: CHOICE_KEYS.group }),
     scena.components.register({
       component: 'UsageExplorer',
       category: 'page',

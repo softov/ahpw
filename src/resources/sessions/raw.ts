@@ -7,7 +7,7 @@
 
 import type { ActiveTurn, ResponsePart, ToolCallState, Turn } from '@microsoft/agent-host-protocol';
 import { textOf } from '../../bridges/words.js';
-import { kindOf, lineOf } from './tool.js';
+import { lineOf } from './tool.js';
 import { factsOf, type TurnFacts } from './turn.js';
 
 export type StepKind = 'message' | 'text' | 'reasoning' | 'tool' | 'question' | 'error' | 'note' | 'file';
@@ -85,8 +85,8 @@ export function rawOf(turns: readonly Turn[], active: ActiveTurn | undefined): R
   return active === undefined ? out : [...out, turnOf(active, turns.length + 1, true)];
 }
 
-/** The steps a filter keeps: all, the tool calls, or the subagents among them. */
-export function shownSteps(steps: readonly RawStep[], filter: RawFilter): RawStep[] {
+/** The steps a filter keeps: all, the tool calls, or the calls that spawned a subagent chat (`spawned`, by tool call id). */
+export function shownSteps(steps: readonly RawStep[], filter: RawFilter, spawned: ReadonlyMap<string, string>): RawStep[] {
   if (filter === 'all') return [...steps];
-  return steps.filter((step) => step.call !== undefined && (filter === 'tools' || kindOf(step.call) === 'subagent'));
+  return steps.filter((step) => step.call !== undefined && (filter === 'tools' || spawned.has(step.call.toolCallId)));
 }

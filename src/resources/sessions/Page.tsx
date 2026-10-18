@@ -18,6 +18,7 @@ import { useChannel } from '../../bridges/channel.js';
 import { elapsed } from '../../bridges/words.js';
 import { Part, type Send } from './Parts.js';
 import { RawView } from './RawView.js';
+import { spawnedBy } from './header.js';
 import { rawOf, type RawFilter } from './raw.js';
 import { SessionHeaderTools } from './SessionHeader.js';
 import { InputRequest } from './Question.js';
@@ -206,9 +207,34 @@ export default function SessionPage({ host, resource }: { host: string; resource
   }, [unread, resource, turns]);
 
   if (summary === undefined) return <PageAlert tone="warning" message={t('sessions/chat/gone')} />;
+  // The header's buttons and the Raw view, the same on a session and on a chat with a bot.
+  const tools = (
+    <SessionHeaderTools
+      host={host}
+      summary={summary}
+      session={session.state}
+      chatUri={chatUri}
+      onChat={setPicked}
+      raw={raw}
+      onRaw={setRaw}
+    />
+  );
+  const rawView = raw && chat.state !== undefined ? (
+    <SessionHostContext.Provider value={host}>
+      <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
+        <RawView
+          turns={rawOf(chat.state.turns, chat.state.activeTurn)}
+          filter={rawFilter}
+          onFilter={setRawFilter}
+          spawned={spawnedBy(session.state?.chats ?? [], chatUri)}
+          onOpenChat={setPicked}
+        />
+      </WorkspaceContext.Provider>
+    </SessionHostContext.Provider>
+  ) : null;
   // A session with a bot's mark is a chat with that bot, whatever its provider: only what is said shows.
   const mark = botMarkOf(summary._meta) ?? botMarkOf(session.state?._meta);
-  if (mark !== undefined) return <BotChat host={host} mark={mark} summary={summary} session={session} chat={chat} chatUri={chatUri} send={send} />;
+  if (mark !== undefined) return <BotChat host={host} mark={mark} summary={summary} session={session} chat={chat} chatUri={chatUri} send={send} tools={tools} rawView={rawView} />;
   const activity = activityOf(summary.status);
   const lifecycle = String(session.state?.lifecycle ?? 'ready');
   const doing = chat.state?.activity ?? summary.activity;
@@ -221,16 +247,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
             <Text variant="h2" text={summary.title === '' ? t('sessions/untitled') : summary.title} />
             <Badge tone={ACTIVITY_TONE[activity]} text={activityLabel(activity)} />
           </div>
-          <SessionHeaderTools
-            host={host}
-            summary={summary}
-            session={session.state}
-            chat={chat.state}
-            chatUri={chatUri}
-            onChat={setPicked}
-            raw={raw}
-            onRaw={(on, filter) => { setRaw(on); if (filter !== undefined) setRawFilter(filter); }}
-          />
+          {tools}
         </div>
         {doing === undefined || doing === '' ? null : <span className="web-note web-chat__doing">{doing}</span>}
       </header>
@@ -250,7 +267,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
         {chatUri === undefined || chat.state?.turnsNextCursor === undefined ? null : <OlderTurns host={host} chatUri={chatUri} cursor={chat.state.turnsNextCursor} />}
         <SessionHostContext.Provider value={host}>
           <WorkspaceContext.Provider value={summary.workingDirectories?.[0] ?? null}>
-            {raw && chat.state !== undefined ? <RawView turns={rawOf(chat.state.turns, chat.state.activeTurn)} filter={rawFilter} onFilter={setRawFilter} /> : (
+            {rawView ?? (
               <>
                 {chat.state?.turns.map((turn) => <TurnView key={turn.id} turn={turn} live={false} send={send} />)}
                 {chat.state?.activeTurn === undefined ? null : <TurnView turn={chat.state.activeTurn} live send={send} open={open} />}

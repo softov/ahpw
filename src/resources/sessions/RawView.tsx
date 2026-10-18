@@ -41,8 +41,8 @@ function turnLine(turn: RawTurn, t: (key: string, values?: Record<string, unknow
   ].filter((one) => one !== undefined).join(' \u{00B7} ');
 }
 
-/** One step: its line, opened in place to its facts, what went in and came out, and the object the host sent. */
-function StepRow({ step, turn }: { step: RawStep; turn: RawTurn }): ReactElement {
+/** One step: its line, opened in place to its facts, what went in and came out, and the object the host sent; a call that spawned a subagent opens its chat. */
+function StepRow({ step, turn, subagent, onOpenChat }: { step: RawStep; turn: RawTurn; subagent: string | undefined; onOpenChat: (chat: string) => void }): ReactElement {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const call = step.call;
@@ -81,6 +81,9 @@ function StepRow({ step, turn }: { step: RawStep; turn: RawTurn }): ReactElement
               {outputOf(call).map((one, index) => <OutputView key={index} out={one} />)}
             </>
           )}
+          {subagent === undefined ? null : (
+            <button type="button" className="web-link" onClick={() => onOpenChat(subagent)}>{t('sessions/raw/openSubagent')}</button>
+          )}
           <Block title={t('sessions/raw/sent')} text={json(step.source)} />
         </div>
       ) : null}
@@ -91,11 +94,17 @@ function StepRow({ step, turn }: { step: RawStep; turn: RawTurn }): ReactElement
 /**
  * The chat as its steps: each turn as a heading with its facts, then one row
  * per step, each opened in place. The filter keeps all steps, the tool calls,
- * or the subagents among them.
+ * or the calls that spawned a subagent chat (`spawned`, by tool call id).
  */
-export function RawView({ turns, filter, onFilter }: { turns: readonly RawTurn[]; filter: RawFilter; onFilter: (filter: RawFilter) => void }): ReactElement {
+export function RawView({ turns, filter, onFilter, spawned, onOpenChat }: {
+  turns: readonly RawTurn[];
+  filter: RawFilter;
+  onFilter: (filter: RawFilter) => void;
+  spawned: ReadonlyMap<string, string>;
+  onOpenChat: (chat: string) => void;
+}): ReactElement {
   const { t } = useI18n();
-  const shown = turns.map((turn) => ({ turn, steps: shownSteps(turn.steps, filter) })).filter((one) => one.steps.length > 0);
+  const shown = turns.map((turn) => ({ turn, steps: shownSteps(turn.steps, filter, spawned) })).filter((one) => one.steps.length > 0);
   return (
     <div className="web-raw">
       <div className="web-raw__filters" role="radiogroup" aria-label={t('sessions/raw/filter')}>
@@ -112,7 +121,7 @@ export function RawView({ turns, filter, onFilter }: { turns: readonly RawTurn[]
             <span className="web-note">{turnLine(turn, t)}</span>
           </header>
           <ol className="web-raw__steps">
-            {steps.map((step) => <StepRow key={step.id} step={step} turn={turn} />)}
+            {steps.map((step) => <StepRow key={step.id} step={step} turn={turn} subagent={step.call === undefined ? undefined : spawned.get(step.call.toolCallId)} onOpenChat={onOpenChat} />)}
           </ol>
           <details className="web-raw__turn-source">
             <summary>{t('sessions/raw/turnSent')}</summary>

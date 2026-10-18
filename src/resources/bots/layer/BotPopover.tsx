@@ -7,12 +7,13 @@ import { NO_OFFERS, type Offers } from '../../../bridges/offers.js';
 import { useChannel } from '../../../bridges/channel.js';
 import { newId } from '../../../bridges/words.js';
 import { messageOf } from '../../sessions/Composer.js';
+import { EMOJIcon } from '../../emojis.js';
 import { readBotChat, servesBotChats, type BotRecord } from '../catalogue.js';
 
 /**
- * A floating bot, opened: what it is for, a line to say something in its chat,
- * and the way to its chat or its form. A message waits in the queue while the
- * bot is still answering.
+ * A floating bot, opened: its name, which opens the bot, what it is for, a
+ * line to say something in its chat, and an icon to its chat. A message waits
+ * in the queue while the bot is still answering.
  */
 export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: BotRecord; x: number; y: number; onClose: () => void }): ReactElement {
   const scena = useScena();
@@ -51,8 +52,13 @@ export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: Bo
   return (
     <Popup x={x} y={y} onClose={onClose} className="web-bot-popover">
       <div className="web-bot-popover__head">
-        <strong>{bot.name}</strong>
+        <button type="button" className="web-bot-popover__name" title={t('bots/commands/open')} onClick={() => run('ahp.openBot')}>{bot.name}</button>
         {bot.labels.length === 0 ? null : <span className="web-bot-popover__labels">{bot.labels.join(', ')}</span>}
+        {chatSession === null || chatSession === undefined ? null : (
+          <button type="button" className="web-bot-popover__chat" title={t('bots/actions/chat')} aria-label={t('bots/actions/chat')} onClick={() => run('ahp.chatWithBot')}>
+            {EMOJIcon.sessions}
+          </button>
+        )}
       </div>
       {bot.description === undefined ? null : <p className="web-bot-popover__description">{bot.description}</p>}
       {failure !== null ? <p className="web-bot-popover__failure">{failure}</p>
@@ -70,10 +76,6 @@ export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: Bo
           <Button label={t('bots/layer/send')} variant="primary" disabled={text.trim() === '' || chatUri === undefined} onClick={send} />
         </form>
       )}
-      <div className="web-bot-popover__actions">
-        {chatSession === null || chatSession === undefined ? null : <Button label={t('bots/actions/chat')} size="sm" onClick={() => run('ahp.chatWithBot')} />}
-        <Button label={t('bots/actions/edit')} size="sm" onClick={() => run('ahp.editBot')} />
-      </div>
     </Popup>
   );
 }
