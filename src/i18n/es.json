@@ -1653,7 +1653,41 @@
       "save": "Guardar",
       "fixJson": "Corrige el JSON primero",
       "reset": "Restablecer",
-      "saved": "Guardado."
+      "saved": "Guardado.",
+      "openIn": "Abrir en",
+      "maximize": "Maximizar",
+      "restore": "Restaurar",
+      "close": "Cerrar",
+      "places": {
+        "overlay": "Ventana flotante",
+        "main": "Pestaña del editor",
+        "right": "Barra lateral derecha",
+        "bottom": "Panel inferior"
+      },
+      "groups": {
+        "host": "Host",
+        "daemon": "Daemon",
+        "plugins": "Plugins",
+        "vscode": "VS Code"
+      },
+      "sections": {
+        "general": "General",
+        "changeWords": "Textos de commit",
+        "trust": "Confianza del espacio de trabajo",
+        "limits": "Límites y diagnóstico",
+        "listener": "Escucha",
+        "sessions": "Sesiones",
+        "tools": "Herramientas",
+        "mcp": "Servidores MCP",
+        "network": "Red",
+        "telemetry": "Telemetría",
+        "approval": "Aprobación automática",
+        "agents": "Agentes",
+        "vscodeMcp": "MCP",
+        "vscodeSessions": "Sesiones",
+        "pullRequests": "Pull requests",
+        "features": "Funciones"
+      }
     }
   },
   "bridges": {
@@ -1696,7 +1730,22 @@
     "json": "json",
     "select": "Elegir…",
     "removeItem": "Quitar elemento",
-    "addItem": "+ agregar elemento"
+    "addItem": "+ agregar elemento",
+    "sections": "secciones",
+    "fieldActions": "Acciones del ajuste",
+    "resetField": "Restablecer ajuste",
+    "copyId": "Copiar ID del ajuste",
+    "copyJson": "Copiar ajuste como JSON",
+    "showJson": "Mostrar en JSON",
+    "other": "Otros",
+    "searchSettings": "Buscar ajustes",
+    "searchResults": "Resultados de la búsqueda",
+    "section": "Sección",
+    "edited": "Editado",
+    "noMatch": "Ningún ajuste coincide.",
+    "foundOne": "1 ajuste encontrado",
+    "foundMany": "ajustes encontrados",
+    "allResults": "Todos los resultados"
   },
   "spatial": {
     "zoomOut": "Alejar",

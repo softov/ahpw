@@ -10,6 +10,10 @@ describe('changedKeys', () => {
     expect(changedKeys({}, { a: false })).toEqual({ a: false });
   });
 
+  it('sends a key taken out as null', () => {
+    expect(changedKeys({ a: 1, b: 'x' }, { a: 1 })).toEqual({ b: null });
+  });
+
   it('is empty when nothing changed', () => {
     expect(changedKeys({ a: { b: 1 } }, { a: { b: 1 } })).toEqual({});
   });

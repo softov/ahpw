@@ -3899,3 +3899,138 @@
   gap: var(--oo-spacing-sm);
   padding: var(--oo-spacing-xs) 0 var(--oo-spacing-sm) calc(2.5ch + 1.2em + 2 * var(--oo-spacing-sm));
 }
+
+/* *Open in* on the settings window's title bar. */
+.web-settings__open-in {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 var(--oo-spacing-sm);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--oo-font-size-sm);
+  cursor: pointer;
+}
+
+.web-settings__open-in:hover,
+.web-settings__open-in[aria-expanded='true'] {
+  background: var(--oo-color-hover);
+}
+
+/* The settings as a floating window on the overlay surface: no backdrop, the page under it stays in use. */
+.web-settings-window {
+  position: fixed;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--oo-color-surface);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 28%);
+  outline: none;
+}
+
+.web-settings-window[data-max='true'] {
+  inset: 0;
+  border-radius: 0;
+}
+
+.web-settings-window__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  height: 34px;
+  padding: 0 var(--oo-spacing-xs) 0 var(--oo-spacing-md);
+  background: var(--oo-color-titlebar, var(--oo-color-panel));
+  border-bottom: 1px solid var(--oo-color-border);
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+
+.web-settings-window[data-max='true'] .web-settings-window__bar {
+  cursor: default;
+}
+
+.web-settings-window__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  color: var(--oo-color-muted);
+}
+
+.web-settings-window__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-settings-window__bar .web-settings__open-in {
+  border-color: transparent;
+}
+
+.web-settings-window__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--oo-radius-sm);
+  background: transparent;
+  color: var(--oo-color-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.web-settings-window__button:hover {
+  background: var(--oo-color-hover);
+  color: var(--oo-color-text);
+}
+
+.web-settings-window__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.web-settings-window__body > .web-page {
+  flex: 1;
+  min-height: 0;
+}
+
+.web-settings-window__corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: linear-gradient(135deg, transparent 50%, var(--oo-color-border) 50% 60%, transparent 60% 75%, var(--oo-color-border) 75% 85%, transparent 85%);
+}
+
+/* Save and Reset stay in reach at the foot of a long settings page. */
+.web-settings > .web-page__actions {
+  position: sticky;
+  bottom: calc(-1 * var(--oo-spacing-lg));
+  z-index: 1;
+  margin: 0 calc(-1 * var(--oo-spacing-sm));
+  padding: var(--oo-spacing-sm);
+  background: var(--oo-color-surface);
+  border-top: 1px solid var(--oo-color-border);
+}

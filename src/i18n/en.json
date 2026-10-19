@@ -1653,7 +1653,41 @@
       "save": "Save",
       "fixJson": "Fix the JSON first",
       "reset": "Reset",
-      "saved": "Saved."
+      "saved": "Saved.",
+      "openIn": "Open in",
+      "maximize": "Maximize",
+      "restore": "Restore",
+      "close": "Close",
+      "places": {
+        "overlay": "Floating window",
+        "main": "Editor tab",
+        "right": "Right sidebar",
+        "bottom": "Bottom panel"
+      },
+      "groups": {
+        "host": "Host",
+        "daemon": "Daemon",
+        "plugins": "Plugins",
+        "vscode": "VS Code"
+      },
+      "sections": {
+        "general": "General",
+        "changeWords": "Commit words",
+        "trust": "Workspace trust",
+        "limits": "Limits and diagnostics",
+        "listener": "Listener",
+        "sessions": "Sessions",
+        "tools": "Tools",
+        "mcp": "MCP servers",
+        "network": "Network",
+        "telemetry": "Telemetry",
+        "approval": "Auto approve",
+        "agents": "Agents",
+        "vscodeMcp": "MCP",
+        "vscodeSessions": "Sessions",
+        "pullRequests": "Pull requests",
+        "features": "Features"
+      }
     }
   },
   "bridges": {
@@ -1696,7 +1730,22 @@
     "json": "json",
     "select": "Select…",
     "removeItem": "Remove item",
-    "addItem": "+ add item"
+    "addItem": "+ add item",
+    "sections": "sections",
+    "fieldActions": "Setting actions",
+    "resetField": "Reset setting",
+    "copyId": "Copy setting ID",
+    "copyJson": "Copy setting as JSON",
+    "showJson": "Show in JSON",
+    "other": "Other",
+    "searchSettings": "Search settings",
+    "searchResults": "Search results",
+    "section": "Section",
+    "edited": "Edited",
+    "noMatch": "No setting matches.",
+    "foundOne": "1 setting found",
+    "foundMany": "settings found",
+    "allResults": "All results"
   },
   "spatial": {
     "zoomOut": "Zoom out",

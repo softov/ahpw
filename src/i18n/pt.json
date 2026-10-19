@@ -1653,7 +1653,41 @@
       "save": "Salvar",
       "fixJson": "Corrija o JSON primeiro",
       "reset": "Redefinir",
-      "saved": "Salvo."
+      "saved": "Salvo.",
+      "openIn": "Abrir em",
+      "maximize": "Maximizar",
+      "restore": "Restaurar",
+      "close": "Fechar",
+      "places": {
+        "overlay": "Janela flutuante",
+        "main": "Aba do editor",
+        "right": "Barra lateral direita",
+        "bottom": "Painel inferior"
+      },
+      "groups": {
+        "host": "Host",
+        "daemon": "Daemon",
+        "plugins": "Plugins",
+        "vscode": "VS Code"
+      },
+      "sections": {
+        "general": "Geral",
+        "changeWords": "Textos de commit",
+        "trust": "Confiança do espaço de trabalho",
+        "limits": "Limites e diagnóstico",
+        "listener": "Escuta",
+        "sessions": "Sessões",
+        "tools": "Ferramentas",
+        "mcp": "Servidores MCP",
+        "network": "Rede",
+        "telemetry": "Telemetria",
+        "approval": "Aprovação automática",
+        "agents": "Agentes",
+        "vscodeMcp": "MCP",
+        "vscodeSessions": "Sessões",
+        "pullRequests": "Pull requests",
+        "features": "Recursos"
+      }
     }
   },
   "bridges": {
@@ -1696,7 +1730,22 @@
     "json": "json",
     "select": "Escolher…",
     "removeItem": "Remover item",
-    "addItem": "+ adicionar item"
+    "addItem": "+ adicionar item",
+    "sections": "seções",
+    "fieldActions": "Ações da configuração",
+    "resetField": "Redefinir configuração",
+    "copyId": "Copiar ID da configuração",
+    "copyJson": "Copiar configuração como JSON",
+    "showJson": "Mostrar no JSON",
+    "other": "Outros",
+    "searchSettings": "Buscar configurações",
+    "searchResults": "Resultados da busca",
+    "section": "Seção",
+    "edited": "Editado",
+    "noMatch": "Nenhuma configuração corresponde.",
+    "foundOne": "1 configuração encontrada",
+    "foundMany": "configurações encontradas",
+    "allResults": "Todos os resultados"
   },
   "spatial": {
     "zoomOut": "Diminuir zoom",

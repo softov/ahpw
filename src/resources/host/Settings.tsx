@@ -1,46 +1,91 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { useI18n } from '@softov/scena/react';
-import { Button, SchemaForm, Spinner, Text, type JsonSchemaObject } from '@softov/scena/ui';
+import { Button, SchemaForm, Spinner, fieldsView, jsonView, sectionsView, type JsonSchemaObject } from '@softov/scena/ui';
 import { rootReducer, type RootState, type StateAction } from '@microsoft/agent-host-protocol';
 import { hostBridge, ROOT } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { changedKeys } from './config.js';
+import { settingsGroups } from './sections.js';
+import type { SettingsPlace } from './place.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 
-/** The host's settings, as the schema it publishes describes them. */
-export default function SettingsPage({ host }: { host: string }): ReactElement {
-  const { t } = useI18n();
+/**
+ * A host's unsaved edits and the view last chosen, kept while the settings
+ * move from one place to another, which mounts the page again.
+ */
+const drafts = new Map<string, Record<string, unknown>>();
+const chosenViews = new Map<string, string>();
+
+/**
+ * The host's settings, as the schema it publishes describes them. The place
+ * draws the title and *Open in*: the window on its title bar, a tab as its
+ * name and a strip button (`ahp.settings.openIn`).
+ */
+export default function SettingsPage({ host, place = 'main' }: { host: string; place?: SettingsPlace }): ReactElement {
+  const { t, locale } = useI18n();
   const { state, error } = useChannel<RootState>(host, ROOT, rootReducer);
   const config = state?.config;
-  const [values, setValues] = useState<Record<string, unknown>>({});
+  const held = useMemo(() => config?.values ?? {}, [config]);
+  // Null shows what the host holds.
+  const [edited, setEdited] = useState<Record<string, unknown> | null>(() => drafts.get(host) ?? null);
   const [saved, setSaved] = useState(false);
   // While the JSON text does not parse, the form holds the last value that did; Save waits for it.
   const [jsonValid, setJsonValid] = useState(true);
-  const held = useMemo(() => config?.values ?? {}, [config]);
+  const schema = config?.schema as unknown as JsonSchemaObject | undefined;
+  // The section titles are translated when the groups are built, so a language switch builds them again.
+  const views = useMemo(() => (schema === undefined ? [] : [fieldsView, jsonView, sectionsView(settingsGroups(schema))]), [schema, locale]);
 
-  // What the host holds, again whenever it changes.
+  // What the host holds, again whenever it changes; a draft carried in from another place survives the first read.
+  const first = useRef(true);
   useEffect(() => {
-    setValues(held);
-  }, [held]);
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    drafts.delete(host);
+    setEdited(null);
+  }, [held, host]);
+
+  const values = edited ?? held;
+  const change = (next: Record<string, unknown>): void => {
+    drafts.set(host, next);
+    setEdited(next);
+    setSaved(false);
+  };
+  const reset = (): void => {
+    drafts.delete(host);
+    setEdited(null);
+  };
 
   if (error !== null) return <PageAlert tone="danger" title={t('host/settings/unreadable')} message={error} />;
   if (state === undefined) return <Spinner label={t('host/settings/reading')} />;
-  if (config === undefined) return <PageAlert tone="info" message={t('host/settings/none')} />;
+  if (config === undefined || schema === undefined) return <PageAlert tone="info" message={t('host/settings/none')} />;
 
   const changed = changedKeys(held, values);
   const dirty = Object.keys(changed).length > 0;
   const save = (): void => {
     hostBridge(host).dispatch(ROOT, { type: 'root/configChanged', config: changed } as StateAction);
+    drafts.delete(host);
     setSaved(true);
   };
   return (
-    <div className="web-page">
-      <Text variant="h2" text={t('host/settings/title')} />
-      <SchemaForm schema={config.schema as unknown as JsonSchemaObject} value={values} onChange={(next) => { setValues(next); setSaved(false); }} baseline={held} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} />
+    <div className="web-page web-settings" data-place={place}>
+      <SchemaForm
+        schema={schema}
+        value={values}
+        onChange={change}
+        baseline={held}
+        jsonEditor={JsonCodeEditor}
+        onJsonValidChange={setJsonValid}
+        views={views}
+        defaultView={chosenViews.get(host) ?? 'fields'}
+        onViewChange={(id) => chosenViews.set(host, id)}
+        fieldActions
+      />
       <div className="web-page__actions">
         <Button label={t('host/settings/save')} variant="primary" disabled={!dirty || !jsonValid} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={save} />
-        <Button label={t('host/settings/reset')} disabled={!dirty} onClick={() => setValues(held)} />
+        <Button label={t('host/settings/reset')} disabled={!dirty} onClick={reset} />
         {saved && !dirty ? <span className="web-note">{t('host/settings/saved')}</span> : null}
       </div>
     </div>
