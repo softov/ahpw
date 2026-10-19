@@ -13,6 +13,7 @@ import { Field } from '../../shell/view/Field.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { isRecordId } from '../users/form.js';
 import { teamTab } from './state.js';
+import { EMOJIcon } from '../emojis.js';
 
 type Kind = 'teams' | 'projects';
 const reducers = { teams: peopleReducer('teams'), projects: peopleReducer('projects') };
@@ -93,7 +94,10 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
 
   return (
     <div className="web-page web-form">
-      <Text variant="h2" text={fresh ? t(domain === 'teams' ? 'teams/commands/newTeam' : 'teams/commands/newProject') : (record?.title || id)} />
+      <Text variant="h2" text={
+        `${EMOJIcon.teams} ${
+        fresh ? t(domain === 'teams' ? 'teams/commands/newTeam' : 'teams/commands/newProject') : (record?.title || id)
+        }`} />
       {writes ? null : <p className="web-note">{t('teams/notices/readOnly')}</p>}
 
       {fresh ? (
@@ -121,7 +125,8 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
 
       {fresh || !servesPeople(offers, 'users') ? null : (
         <section className="web-people__members" aria-label={t('teams/named/members')}>
-          <Text variant="h3" text={t('teams/named/members')} />
+          <Text variant="h3" text={
+            `${EMOJIcon.members} ${t('teams/named/members')}`} />
           <p className="web-note">{t(`teams/${word}/membersHint`)}</p>
           {users.state === undefined ? <Spinner label={t('users/notices/reading')} /> : members.length === 0 ? <p className="web-note">{t('teams/named/noMembers')}</p> : (
             <ul className="web-people__member-list">
