@@ -39,6 +39,7 @@ export const EMOJIcon = {
   users: mono('👤'),
   teams: mono('👥'),
   usage: mono('📊'),
+  policies: mono('⚖'),
   settings: mono('⚙'),
   file: mono('📄'),
   markdown: mono('📝'),

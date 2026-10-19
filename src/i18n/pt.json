@@ -52,7 +52,8 @@
       "bots": "Bots",
       "users": "Usuários",
       "teams": "Equipes",
-      "usage": "Uso"
+      "usage": "Uso",
+      "policies": "Políticas"
     },
     "palette": {
       "placeholder": "Digite um comando ou um terminal"
@@ -1803,6 +1804,36 @@
       },
       "hours": "{count} h"
     },
+    "limits": {
+      "title": "Limites",
+      "of": "{used} de {amount}",
+      "notCounted": "Ainda não contado",
+      "total": "No total",
+      "resets": "Reinicia em {date}",
+      "ends": "Termina em {date}",
+      "measure": {
+        "tokens": {
+          "one": "token",
+          "other": "tokens"
+        },
+        "calls": {
+          "one": "chamada",
+          "other": "chamadas"
+        },
+        "turns": {
+          "one": "turno",
+          "other": "turnos"
+        },
+        "hours": {
+          "one": "h",
+          "other": "h"
+        },
+        "sessions": {
+          "one": "sessão",
+          "other": "sessões"
+        }
+      }
+    },
     "notices": {
       "none": "Sem uso",
       "reading": "Lendo o uso"
@@ -1819,6 +1850,107 @@
       "records": "Registros",
       "noRecords": "Nenhum registro nesses dias.",
       "openSession": "Abrir sessão"
+    }
+  },
+  "policies": {
+    "explorer": {
+      "title": "Políticas",
+      "policies": "Políticas",
+      "filter": "Filtrar políticas",
+      "empty": "Não há políticas aqui.",
+      "notServed": "Nenhum host aqui lista políticas."
+    },
+    "notices": {
+      "none": "Sem políticas",
+      "reading": "Lendo as políticas",
+      "gone": "Esta política não existe mais.",
+      "readOnly": "Este host não aceita mudanças nas políticas."
+    },
+    "commands": {
+      "newPolicy": "Nova política",
+      "show": "Mostrar políticas",
+      "openPolicy": "Abrir política"
+    },
+    "actions": {
+      "open": "Abrir",
+      "delete": "Excluir",
+      "failed": "O host não aceitou a mudança",
+      "cancel": "Cancelar",
+      "discard": "Descartar"
+    },
+    "kind": {
+      "model": "Modelo",
+      "agent": "Agente",
+      "computer": "Computador"
+    },
+    "effect": {
+      "allow": "Permitir",
+      "deny": "Negar"
+    },
+    "match": {
+      "model": "Modelos",
+      "proxy": "Proxies",
+      "agent": "Agentes",
+      "computer": "Computadores"
+    },
+    "measure": {
+      "usd": "USD",
+      "tokens": "Tokens",
+      "calls": "Chamadas",
+      "turns": "Turnos",
+      "hours": "Horas",
+      "sessions": "Sessões"
+    },
+    "period": {
+      "day": "Dia",
+      "week": "Semana",
+      "month": "Mês",
+      "total": "Total"
+    },
+    "limitPool": {
+      "shared": "Compartilhado",
+      "each": "Cada um"
+    },
+    "policy": {
+      "deleteTitle": "Excluir {id}?",
+      "deleteBody": "A política é removida para todos a quem se aplica.",
+      "id": "Id",
+      "idHint": "O id nomeia a linha em sua URI.",
+      "idEmpty": "Um id é necessário.",
+      "scope": "Escopo",
+      "scopeHint": "A quem se aplica: todos, uma equipe, um projeto ou uma pessoa.",
+      "scopeEmpty": "Um escopo é necessário.",
+      "kind": "Tipo",
+      "effect": "Efeito",
+      "match": "Correspondência",
+      "noMatch": "Nenhuma",
+      "matchHint": "Um valor por linha. Uma caixa vazia corresponde a tudo.",
+      "emptyLine": "A linha {line} está vazia.",
+      "limits": "Limites",
+      "noLimits": "Sem limites.",
+      "addLimit": "Adicionar limite",
+      "removeLimit": "Remover limite",
+      "amount": "Quantidade",
+      "amountNumber": "Uma quantidade é um número.",
+      "amountNegative": "Uma quantidade não pode ser negativa.",
+      "measure": "Medida",
+      "period": "Período",
+      "limitPool": "Fundo",
+      "pool": "Fundo",
+      "poolHint": "Um fundo com nome que os limites compartilham com outras linhas.",
+      "cap": "Teto",
+      "capHint": "O limite fecha a linha em vez de recusar o trabalho.",
+      "from": "Desde",
+      "until": "Até",
+      "dateHint": "Um dia ou um instante, em ISO.",
+      "create": "Criar",
+      "save": "Salvar",
+      "yes": "Sim",
+      "no": "Não"
+    },
+    "page": {
+      "limits": "Limites",
+      "noCreate": "Este host não aceita uma política nova."
     }
   },
   "trust": {

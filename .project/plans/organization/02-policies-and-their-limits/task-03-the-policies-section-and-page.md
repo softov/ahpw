@@ -1,6 +1,6 @@
 ---
 title: The policies section and page
-status: todo
+status: implemented
 depends:
   - task-01-the-policies-bridge.md
 layer: "src/resources/policies"
@@ -62,3 +62,13 @@ The form offers only the values the host's manifest allows for the policy's kind
 - `pnpm test` and `pnpm typecheck` pass.
 
 ## Resume
+
+- Built the section, its commands, the sidebar mount, the list, the page and the form in `src/resources/policies/`.
+- The manifest draws the pickers and narrows the measures and match types by kind.
+- A save calls `putPolicy` and a delete calls `removePolicy` after a confirm.
+- Without a write, the page shows its fields as a list and offers no actions.
+- `form.test.ts` covers the narrowing and the checks before a save. `policies.test.ts` covers the channel and write gates.
+- `pnpm test`, `pnpm typecheck` and `pnpm build` pass.
+- Not run here: the checks that need a live host or a second client. Those are a policy seen in two clients, a refused write, the read-only page, and mono and multi at two sizes.
+- Deviation: ahpd's manifest gives a `computer` row only the `computer` match type, so `form.test.ts` checks that and a hypothetical wider manifest. The Validation line names `agent` and `computer`.
+- The icon is `mono('⚖')`, because `emojis.test.ts` refuses the colour form the task names.

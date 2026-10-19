@@ -52,7 +52,8 @@
       "bots": "Bots",
       "users": "Users",
       "teams": "Teams",
-      "usage": "Usage"
+      "usage": "Usage",
+      "policies": "Policies"
     },
     "palette": {
       "placeholder": "Type a command or a terminal"
@@ -1803,6 +1804,36 @@
       },
       "hours": "{count} h"
     },
+    "limits": {
+      "title": "Limits",
+      "of": "{used} of {amount}",
+      "notCounted": "Not counted yet",
+      "total": "In total",
+      "resets": "Resets {date}",
+      "ends": "Ends {date}",
+      "measure": {
+        "tokens": {
+          "one": "token",
+          "other": "tokens"
+        },
+        "calls": {
+          "one": "call",
+          "other": "calls"
+        },
+        "turns": {
+          "one": "turn",
+          "other": "turns"
+        },
+        "hours": {
+          "one": "h",
+          "other": "h"
+        },
+        "sessions": {
+          "one": "session",
+          "other": "sessions"
+        }
+      }
+    },
     "notices": {
       "none": "No usage",
       "reading": "Reading the usage"
@@ -1819,6 +1850,107 @@
       "records": "Records",
       "noRecords": "No records in these days.",
       "openSession": "Open session"
+    }
+  },
+  "policies": {
+    "explorer": {
+      "title": "Policies",
+      "policies": "Policies",
+      "filter": "Filter policies",
+      "empty": "No policies here.",
+      "notServed": "No host here lists policies."
+    },
+    "notices": {
+      "none": "No policies",
+      "reading": "Reading the policies",
+      "gone": "This policy is gone.",
+      "readOnly": "This host does not take policy edits."
+    },
+    "commands": {
+      "newPolicy": "New policy",
+      "show": "Show policies",
+      "openPolicy": "Open policy"
+    },
+    "actions": {
+      "open": "Open",
+      "delete": "Delete",
+      "failed": "The host did not take the change",
+      "cancel": "Cancel",
+      "discard": "Discard"
+    },
+    "kind": {
+      "model": "Model",
+      "agent": "Agent",
+      "computer": "Computer"
+    },
+    "effect": {
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "match": {
+      "model": "Models",
+      "proxy": "Proxies",
+      "agent": "Agents",
+      "computer": "Computers"
+    },
+    "measure": {
+      "usd": "USD",
+      "tokens": "Tokens",
+      "calls": "Calls",
+      "turns": "Turns",
+      "hours": "Hours",
+      "sessions": "Sessions"
+    },
+    "period": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "total": "Total"
+    },
+    "limitPool": {
+      "shared": "Shared",
+      "each": "Each"
+    },
+    "policy": {
+      "deleteTitle": "Delete {id}?",
+      "deleteBody": "The policy is removed for everyone it applies to.",
+      "id": "Id",
+      "idHint": "The id names the row in its URI.",
+      "idEmpty": "An id is needed.",
+      "scope": "Scope",
+      "scopeHint": "Who the policy is about: all, a team, a project or a person.",
+      "scopeEmpty": "A scope is needed.",
+      "kind": "Kind",
+      "effect": "Effect",
+      "match": "Match",
+      "noMatch": "None",
+      "matchHint": "One value a line. An empty box matches all.",
+      "emptyLine": "Line {line} is empty.",
+      "limits": "Limits",
+      "noLimits": "No limits.",
+      "addLimit": "Add limit",
+      "removeLimit": "Remove limit",
+      "amount": "Amount",
+      "amountNumber": "An amount is a number.",
+      "amountNegative": "An amount cannot be negative.",
+      "measure": "Measure",
+      "period": "Period",
+      "limitPool": "Pool",
+      "pool": "Pool",
+      "poolHint": "A named pool the limits share with other rows.",
+      "cap": "Cap",
+      "capHint": "The limit closes the row rather than refusing the work.",
+      "from": "From",
+      "until": "Until",
+      "dateHint": "A day, or an instant, as ISO.",
+      "create": "Create",
+      "save": "Save",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "page": {
+      "limits": "Limits",
+      "noCreate": "This host does not take a new policy."
     }
   },
   "trust": {

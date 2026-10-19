@@ -1,6 +1,6 @@
 ---
 title: A person's limits in usage
-status: todo
+status: implemented
 depends:
   - task-01-the-policies-bridge.md
 layer: "src/resources/usage"
@@ -42,3 +42,10 @@ A row names the policy and shows what was used against the amount, a meter, and 
 - `pnpm test` and `pnpm typecheck` pass.
 
 ## Resume
+
+- Built `src/resources/usage/Limits.tsx` with the group, one row per limit, the meter and a member line the policy page reuses.
+- `src/resources/usage/Explorer.tsx` reads `ownLimits` for each shown host when the list shows and when `USAGE_ASKED` changes.
+- The group draws above the pools and a host's read error stays in its own row.
+- `src/resources/usage/words.ts` and the three catalogs carry the words.
+- `pnpm test`, `pnpm typecheck` and `pnpm build` pass.
+- Not run here: the checks that need a live host. Those are the figures against `usage://limits`, a host with `policies.ownLimits` off, reload reading again, and mono and multi at two window sizes.

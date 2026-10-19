@@ -5,6 +5,7 @@ import { Spinner } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { useHostNames, useShownHosts } from '../../bridges/hosts.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
+import { ownLimits } from '../../bridges/policies.js';
 import { useServingHosts } from '../../bridges/served.js';
 import {
   periodRange, servesUsage, usageGroups, usagePeriods, usagePools, usageRange,
@@ -13,6 +14,7 @@ import {
 import { embedMode } from '../../shell/embed/index.js';
 import { ExplorerList, type Row } from '../../shell/explorer/ExplorerList.js';
 import { ACTIVE_POOL, monthSoFar, USAGE_ASKED, USAGE_GROUP, USAGE_PERIOD, USAGE_RANGE } from './state.js';
+import { limitsRows, type LimitAnswer } from './Limits.js';
 import { kindWord, totalLine } from './words.js';
 
 /** One listed line: a pool, or a group of records summed by a key. `pool` is what opens, when there is one. */
@@ -28,8 +30,8 @@ interface Item {
 /** What one host answered: its items, or why it did not. */
 type Answer = { host: string; items: Item[] } | { host: string; error: string };
 
-/** The groups' order: a host's refusal, then users, teams and projects, then any other kind. */
-const ORDER = ['problem', 'user', 'team', 'project'];
+/** The groups' order: the person's limits, a host's refusal, then users, teams and projects, then any other kind. */
+const ORDER = ['limits', 'problem', 'user', 'team', 'project'];
 const rank = (kind: string | undefined): number => {
   const at = ORDER.indexOf(kind ?? '');
   return at < 0 ? ORDER.length : at;
@@ -90,6 +92,7 @@ export default function UsageExplorer(): ReactElement {
   const asked = useStore<number>(USAGE_ASKED) ?? 0;
   const active = useStore<{ host: string; pool: string }>(ACTIVE_POOL);
   const [answers, setAnswers] = useState<Answer[] | null>(null);
+  const [limits, setLimits] = useState<LimitAnswer[] | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -107,32 +110,53 @@ export default function UsageExplorer(): ReactElement {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hosts, period, by, range.from, range.until, asked, scena]);
 
-  const rows = useMemo<Row[]>(() => (answers ?? []).flatMap((answer): Row[] => {
-    if ('error' in answer) {
-      return [{
-        key: `problem|${answer.host}`,
-        dot: 'failed',
-        dotLabel: t('usage/explorer/refused'),
-        title: hostName(answer.host),
-        group: { key: 'problem', label: t('usage/explorer/refused') },
-        lines: [answer.error],
-        menu: [],
-      }];
-    }
-    return [...answer.items].sort(byCost).map((item) => ({
-      key: `${item.host}|${item.key}`,
-      dot: 'quiet',
-      dotLabel: item.name,
-      title: item.name,
-      group: { key: item.kind, label: item.kind.split('+').map(kindWord).join(' \u{00B7} ') },
-      lines: [
-        totalLine(item.total) || t('usage/explorer/nothing'),
-        ...(multi ? [hostName(item.host)] : []),
-      ],
-      menu: item.pool === undefined ? [] : [{ title: t('usage/actions/open'), onSelect: (menu) => { menu.closeMenu(); void scena.commands.execute('ahp.openUsagePool', { host: item.host, pool: item.pool, name: item.name }); } }],
-    }));
-  // Rows group by kind, so a kind's rows must come together; a host's refusal first.
-  }).sort((a, b) => rank(a.group?.key) - rank(b.group?.key) || (a.group?.key ?? '').localeCompare(b.group?.key ?? '')), [answers, multi, hostName, scena, t]);
+  // A limit has no channel, so it is read when the list shows and on reload.
+  useEffect(() => {
+    let live = true;
+    setLimits(null);
+    void Promise.all(hosts.map(async (host): Promise<LimitAnswer | undefined> => {
+      const offers = scena.store.get<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
+      try {
+        const held = await ownLimits(host, offers);
+        return held === undefined ? undefined : { host, limits: held };
+      } catch (caught) {
+        return { host, error: caught instanceof Error ? caught.message : String(caught) };
+      }
+    })).then((held) => {
+      if (live) setLimits(held.filter((one): one is LimitAnswer => one !== undefined));
+    });
+    return () => { live = false; };
+  }, [hosts, asked, scena]);
+
+  const rows = useMemo<Row[]>(() => [
+    ...limitsRows(limits ?? [], { multi, hostName, t }),
+    ...(answers ?? []).flatMap((answer): Row[] => {
+      if ('error' in answer) {
+        return [{
+          key: `problem|${answer.host}`,
+          dot: 'failed',
+          dotLabel: t('usage/explorer/refused'),
+          title: hostName(answer.host),
+          group: { key: 'problem', label: t('usage/explorer/refused') },
+          lines: [answer.error],
+          menu: [],
+        }];
+      }
+      return [...answer.items].sort(byCost).map((item) => ({
+        key: `${item.host}|${item.key}`,
+        dot: 'quiet',
+        dotLabel: item.name,
+        title: item.name,
+        group: { key: item.kind, label: item.kind.split('+').map(kindWord).join(' \u{00B7} ') },
+        lines: [
+          totalLine(item.total) || t('usage/explorer/nothing'),
+          ...(multi ? [hostName(item.host)] : []),
+        ],
+        menu: item.pool === undefined ? [] : [{ title: t('usage/actions/open'), onSelect: (menu) => { menu.closeMenu(); void scena.commands.execute('ahp.openUsagePool', { host: item.host, pool: item.pool, name: item.name }); } }],
+      }));
+    }),
+  // Rows group by kind, so a kind's rows must come together; the limits first.
+  ].sort((a, b) => rank(a.group?.key) - rank(b.group?.key) || (a.group?.key ?? '').localeCompare(b.group?.key ?? '')), [answers, limits, multi, hostName, scena, t]);
 
   const openable = (key: string): { host: string; pool: string; name: string } | undefined => {
     for (const answer of answers ?? []) {

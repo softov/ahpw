@@ -1,6 +1,6 @@
 ---
 title: The policies bridge
-status: todo
+status: implemented
 depends: []
 layer: "src/bridges"
 refs:
@@ -43,3 +43,9 @@ It follows the policies channel, reads a person's limits and one policy's limits
 - `pnpm test` and `pnpm typecheck` pass.
 
 ## Resume
+
+- Built `src/bridges/policies.ts` with the channel, the two limits reads, the put and remove writes, and `limitWords`.
+- The limit types are declared from ahpd's `charge.ts` and `policy.ts`, with a comment naming the source.
+- `src/bridges/policies.test.ts` covers the reducer, the gates, `limitWords` and the `-32008` answer.
+- Every Validation line runs here: `pnpm test`, `pnpm typecheck` and `pnpm build` pass.
+- No check in this task needs a live host.

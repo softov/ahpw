@@ -34,7 +34,7 @@ What exists today: [00-organization.md](organization/00-organization.md).
 | Plan | Status | Next |
 | --- | --- | --- |
 | [01 - Users, teams and usage](organization/01-users-teams-and-usage/plan.md) | built | what waits is in its [deferred.md](organization/01-users-teams-and-usage/deferred.md) |
-| [02 - Policies and their limits](organization/02-policies-and-their-limits/plan.md) | planned | a person's limits in 📊, and a ⚖️ section that edits policies |
+| [02 - Policies and their limits](organization/02-policies-and-their-limits/plan.md) | active | what waits is in its [deferred.md](organization/02-policies-and-their-limits/deferred.md) |
 
 ## plugins
 

@@ -1,7 +1,7 @@
 ---
 title: Policies and their limits
 domain: organization
-status: planned
+status: active
 priority: medium
 created: 2026-10-18
 revalidated: 2026-10-18
@@ -67,6 +67,8 @@ form -> x-ahpd/policies/put {id, record, createOnly?} | resourceWrite policy://<
 | The limit types are declared in ahpw from ahpd's `charge.ts` until an `@ahpd/sdk` release has them | (defaulted: a release is Softov's call, and the wire shape is in POLICY.md) | 01 |
 | The limits are read when 📊 or the page shows, and again on reload and after a save | (defaulted: usage has no channel, so `USAGE_ASKED` is the refresh, as for the pools) | 02, 03 |
 | A host that answers `usage://limits` with `-32008` shows no Limits rows, and no error | file:///github/ahpd/docs/sdk/POLICY.md - "off, it is `-32008`" | 02 |
+| A kind change drops the limit rows whose measure the new kind does not take | Softov, 2026-10-18, chose "Drop them" for "when a policy's kind changes, what happens to limits whose measure the new kind does not take?" | 03 |
+| A trailing newline in a match box is not an empty line; only a blank line between two values is | Softov, 2026-10-18, review of organization/02 | 03 |
 
 ## Proposed architecture
 
@@ -80,10 +82,10 @@ form -> x-ahpd/policies/put {id, record, createOnly?} | resourceWrite policy://<
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the policies bridge](task-01-the-policies-bridge.md) | todo | - |
-| [02 - a person's limits in usage](task-02-a-persons-limits-in-usage.md) | todo | 01 |
-| [03 - the policies section and page](task-03-the-policies-section-and-page.md) | todo | 01 |
-| [04 - the domain says what exists](task-04-the-domain-says-what-exists.md) | todo | 02, 03 |
+| [01 - the policies bridge](task-01-the-policies-bridge.md) | implemented | - |
+| [02 - a person's limits in usage](task-02-a-persons-limits-in-usage.md) | implemented | 01 |
+| [03 - the policies section and page](task-03-the-policies-section-and-page.md) | implemented | 01 |
+| [04 - the domain says what exists](task-04-the-domain-says-what-exists.md) | implemented | 02, 03 |
 
 ## Risks and tradeoffs
 
@@ -93,9 +95,12 @@ form -> x-ahpd/policies/put {id, record, createOnly?} | resourceWrite policy://<
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** task 01.
-- **Open questions:** none.
+- **Done so far:** tasks 01 to 04 are implemented: the bridge, the Limits rows in 📊, the ⚖ section and page, and this domain page.
+- **Next action:** run the checks that need a live host or a second client, listed in [deferred.md](deferred.md). Set the tasks to done and the plan to built once they pass.
+- **Open questions:**
+  - Task 03's Validation says a `computer` kind offers the `agent` and `computer` match types. The manifest gives it only `computer`, so the form and the test follow the manifest.
+  - A policy's `pool` cannot be cleared from the form, because ahpd documents no write that takes one away.
+  - The header's New command shows in multi mode when any shown host takes writes, not only the host the new row lands on.
 - **Watch out for:** `used` can pass `amount`, because a turn is charged when it ends. The meter stops at full and the words say the real figure.
 
 ## Final verification checklist

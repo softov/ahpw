@@ -20,6 +20,8 @@ import { registerTeams, TEAMS_SECTION } from '../resources/teams/index.js';
 import { TEAMS_SERVED } from '../resources/teams/state.js';
 import { registerUsage, USAGE_SECTION } from '../resources/usage/index.js';
 import { USAGE_SERVED } from '../resources/usage/state.js';
+import { registerPolicies, POLICIES_SECTION } from '../resources/policies/index.js';
+import { POLICIES_SERVED } from '../resources/policies/state.js';
 import { FOLDERS_SECTION, registerFolders } from '../resources/folders/index.js';
 import { ahpPaths, windowHost } from '../bridges/data.js';
 import { EMOJIcon } from '../resources/emojis.js';
@@ -278,6 +280,13 @@ export function registerShell(scena: Scena): Disposable {
       when: `${USAGE_SERVED} == true`,
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.usage, label: bound('shell/nav/usage'), pos: 'bottom', section: USAGE_SECTION, args: TOGGLE },
     }),
+    // Shown while a host lists its policies.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'policies:nav',
+      when: `${POLICIES_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.policies, label: bound('shell/nav/policies'), pos: 'bottom', section: POLICIES_SECTION, args: TOGGLE },
+    }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'manage:nav',
@@ -296,6 +305,7 @@ export function registerShell(scena: Scena): Disposable {
     registerUsers(scena),
     registerTeams(scena),
     registerUsage(scena),
+    registerPolicies(scena),
     registerFolders(scena),
     registerHost(scena),
     registerFiles(scena),

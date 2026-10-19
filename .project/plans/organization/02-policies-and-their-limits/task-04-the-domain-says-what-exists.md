@@ -1,6 +1,6 @@
 ---
 title: The domain says what exists
-status: todo
+status: implemented
 depends:
   - task-02-a-persons-limits-in-usage.md
   - task-03-the-policies-section-and-page.md
@@ -30,3 +30,8 @@ The organization domain says what ahpw shows of policies and limits.
 - `node .agents/skills/do-spec/scripts/lint-prose.mjs .project/plans/organization` prints nothing.
 
 ## Resume
+
+- `00-organization.md` now says what a policy is, what ahpd enforces when `policies.check` is on, and how a client reads the rows and limits.
+- The same page lists the ⚖ section and the Limits rows under "Today in ahpw".
+- Wrote `implemented.md` and `deferred.md`, and set this plan's row in the index.
+- `lint-prose.mjs` on the organization folder prints nothing.
