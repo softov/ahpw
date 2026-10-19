@@ -931,7 +931,41 @@
       "save": "Salvar",
       "builtIn": "embutido",
       "builtInNote": "Embutido no ahpd. Salvar grava no host um papel com este nome, que passa a substituir o embutido.",
-      "replacesNote": "Este papel substitui o embutido do ahpd com o mesmo nome. Excluí-lo traz o embutido de volta."
+      "replacesNote": "Este papel substitui o embutido do ahpd com o mesmo nome. Excluí-lo traz o embutido de volta.",
+      "views": {
+        "controls": "controles",
+        "text": "texto"
+      },
+      "fixText": "Corrija primeiro as linhas que não são permissões.",
+      "groups": {
+        "read": "Leitura",
+        "write": "Escrita",
+        "other": "Outras"
+      },
+      "reached": "{n} de {of}",
+      "legend": {
+        "on": "concedida",
+        "implied": "coberta por um grupo",
+        "off": "não concedida"
+      },
+      "chip": {
+        "granted": "Concedida: {grant}. Clique para retirar.",
+        "grant": "Não concedida. Clique para conceder {grant}.",
+        "split": "Coberta por {grant}. Clique para dividi-la no restante das suas operações.",
+        "wildcard": "Coberta por {grant}, que alcança todos os sujeitos e não pode ser reduzida para um.",
+        "coveredBy": "Coberta por {grant}."
+      },
+      "switch": {
+        "read": "Toda leitura: {grant}",
+        "write": "Toda escrita: {grant}",
+        "all": "Tudo: {grant}"
+      },
+      "everySubject": "Todos os sujeitos",
+      "everySubjectHint": "Uma permissão aqui alcança todos os sujeitos do host, agora e depois.",
+      "dropSubject": "Tirar {subject} do papel",
+      "addSubject": "Adicionar sujeito",
+      "noGrants": "Este papel ainda não concede nada.",
+      "unknownSubject": "Este host não o serve agora"
     }
   },
   "teams": {

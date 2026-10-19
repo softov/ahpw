@@ -4077,3 +4077,124 @@
 .web-policy__figure > span + span {
   color: var(--oo-color-muted);
 }
+
+/* A role: its name with its address, and its grants as one card per subject. */
+.web-role__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-role__uri {
+  font-family: var(--oo-mono);
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
+}
+
+.web-role__grants-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-role__views,
+.web-grant__groups {
+  display: inline-flex;
+  flex: none;
+  gap: var(--oo-spacing-xs);
+}
+
+.web-grants {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-grants__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-sm);
+}
+
+/* The legend's chips are labels, not buttons. */
+.web-grants__legend .oo-chip {
+  cursor: default;
+}
+
+.web-grant {
+  padding: var(--oo-spacing-sm) var(--oo-spacing-md);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md);
+}
+
+.web-grant__head {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-grant__fold {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--oo-spacing-sm);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.web-grant__fold > [aria-hidden] {
+  width: 12px;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+}
+
+.web-grant__subject {
+  font-family: var(--oo-mono);
+  font-weight: 600;
+}
+
+.web-grant__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-grant__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs);
+  padding: var(--oo-spacing-xs) 0 0 calc(12px + var(--oo-spacing-sm));
+}
+
+.web-grant__body > .web-note {
+  margin: 0;
+}
+
+.web-grant__row {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-grant__label {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-grant__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-xs) var(--oo-spacing-sm);
+}

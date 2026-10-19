@@ -1,18 +1,25 @@
-import { useState, type ReactElement } from 'react';
+import { useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Alert, Button, Spinner, Text } from '@softov/scena/ui';
-import { ahpPaths } from '../../bridges/data.js';
+import { Alert, Button, Chip, Spinner, Text } from '@softov/scena/ui';
+import { rootReducer, type RootState } from '@microsoft/agent-host-protocol';
+import { ahpPaths, ROOT } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
-import { BUILT_IN_ROLES, PEOPLE, peopleReducer, putPerson, writesPeople, type PeopleState, type Role } from '../../bridges/people.js';
+import { grantCatalog } from '../../bridges/grants.js';
+import { BUILT_IN_ROLES, PEOPLE, peopleReducer, personUri, putPerson, writesPeople, type PeopleState, type Role } from '../../bridges/people.js';
 import { Field } from '../../shell/view/Field.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { isRecordId, parseGrants } from './form.js';
 import { personTab } from './state.js';
+import { RoleGrants } from './RoleGrants.js';
+import { EMOJIcon } from '../emojis.js';
 
 const rolesReducer = peopleReducer('roles');
 
-/** A role: what it lets the people who hold it do, one grant a line. A new role when there is no `id`. */
+/** How the grants are edited: as cards of chips, or as their text, one grant a line. */
+type GrantsView = 'controls' | 'text';
+
+/** A role: what it lets the people who hold it do. A new role when there is no `id`. */
 export default function RolePage({ host, person: id }: { host: string; person?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -22,6 +29,11 @@ export default function RolePage({ host, person: id }: { host: string; person?: 
   const [draft, setDraft] = useState<{ id: string; grants: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const [view, setView] = useState<GrantsView>('controls');
+  // Subjects added from *Add subject* that no grant names yet; a card for each until it has one.
+  const [added, setAdded] = useState<string[]>([]);
+  const root = useChannel<RootState>(host, ROOT, rootReducer);
+  const catalog = useMemo(() => grantCatalog(root.state?._meta), [root.state?._meta]);
 
   if (roles.error !== null) return <PageAlert tone="danger" title={t('users/notices/none')} message={roles.error} />;
   if (roles.state === undefined) return <Spinner label={t('users/notices/reading')} />;
@@ -60,7 +72,10 @@ export default function RolePage({ host, person: id }: { host: string; person?: 
 
   return (
     <div className="web-page web-form">
-      <Text variant="h2" text={fresh ? t('users/commands/newRole') : id} />
+      <div className="web-role__title">
+        <Text variant="h2" text={`${EMOJIcon.roles} ${fresh ? t('users/commands/newRole') : id}`} />
+        {fresh ? null : <span className="web-role__uri">{personUri(offers, 'roles', id)}</span>}
+      </div>
       {writes ? null : <p className="web-note">{t('users/notices/readOnly')}</p>}
       {builtIn === undefined ? null : <p className="web-note">{t('users/role/builtInNote')}</p>}
       {replaces ? <p className="web-note">{t('users/role/replacesNote')}</p> : null}
@@ -71,19 +86,51 @@ export default function RolePage({ host, person: id }: { host: string; person?: 
         </Field>
       ) : null}
 
-      <Field label={t('users/role/grants')} hint={t('users/role/grantsHint')}>
-        <textarea
-          className="web-field web-people__grants"
-          rows={Math.max(6, shown.grants.split('\n').length + 1)}
-          spellCheck={false}
-          value={shown.grants}
+      <div className="web-role__grants-head">
+        <Text variant="h3" text={t('users/role/grants')} />
+        <span className="web-role__views">
+          {(['controls', 'text'] as const).map((one) => (
+            <Chip
+              key={one}
+              label={t(`users/role/views/${one}`)}
+              state={view === one ? 'on' : 'off'}
+              // The controls edit parsed grants: a line that is not one keeps the text until it is fixed.
+              disabled={one === 'controls' && parsed.problems.length > 0}
+              {...(one === 'controls' && parsed.problems.length > 0 ? { title: t('users/role/fixText') } : {})}
+              onClick={() => setView(one)}
+            />
+          ))}
+        </span>
+      </div>
+      {view === 'controls' && parsed.problems.length === 0 ? (
+        <RoleGrants
+          grants={parsed.grants}
+          catalog={catalog}
+          shown={added}
+          onChange={(grants) => set({ grants: grants.join('\n') })}
+          onShow={setAdded}
           readOnly={!writes}
-          onChange={(event) => set({ grants: event.target.value })}
         />
-      </Field>
-      {parsed.problems.map((problem) => (
-        <p key={problem.line} className="web-people__problem">{t('users/role/badGrant', { line: problem.line, text: problem.text })}</p>
-      ))}
+      ) : (
+        <>
+          {/* The heading above names the box; the hint says how a line is written. */}
+          <div className="web-form__field">
+            <textarea
+              aria-label={t('users/role/grants')}
+              className="web-field web-people__grants"
+              rows={Math.max(6, shown.grants.split('\n').length + 1)}
+              spellCheck={false}
+              value={shown.grants}
+              readOnly={!writes}
+              onChange={(event) => set({ grants: event.target.value })}
+            />
+            <span className="web-input__hint">{t('users/role/grantsHint')}</span>
+          </div>
+          {parsed.problems.map((problem) => (
+            <p key={problem.line} className="web-people__problem">{t('users/role/badGrant', { line: problem.line, text: problem.text })}</p>
+          ))}
+        </>
+      )}
 
       {failure === null ? null : <Alert tone="danger" message={failure} />}
       {writes ? (

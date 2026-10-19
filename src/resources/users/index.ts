@@ -82,7 +82,7 @@ export function registerUsers(scena: Scena): Disposable {
       },
     }),
     scena.components.register({ component: 'UserPage', category: 'page', props: { icon: EMOJIcon.users }, renderer: { kind: 'react', load: () => import('./UserPage.js') } }),
-    scena.components.register({ component: 'RolePage', category: 'page', props: { icon: EMOJIcon.users }, renderer: { kind: 'react', load: () => import('./RolePage.js') } }),
+    scena.components.register({ component: 'RolePage', category: 'page', props: { icon: EMOJIcon.roles }, renderer: { kind: 'react', load: () => import('./RolePage.js') } }),
     scena.commands.register({
       id: 'users.new',
       title: () => translate('users/commands/new'),

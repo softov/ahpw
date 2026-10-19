@@ -931,7 +931,41 @@
       "save": "Guardar",
       "builtIn": "incorporado",
       "builtInNote": "Incorporado en ahpd. Al guardar se escribe en el host un rol con este nombre, que reemplaza al incorporado.",
-      "replacesNote": "Este rol reemplaza al incorporado de ahpd con el mismo nombre. Al eliminarlo vuelve el incorporado."
+      "replacesNote": "Este rol reemplaza al incorporado de ahpd con el mismo nombre. Al eliminarlo vuelve el incorporado.",
+      "views": {
+        "controls": "controles",
+        "text": "texto"
+      },
+      "fixText": "Primero corrija las líneas que no son permisos.",
+      "groups": {
+        "read": "Lectura",
+        "write": "Escritura",
+        "other": "Otras"
+      },
+      "reached": "{n} de {of}",
+      "legend": {
+        "on": "concedido",
+        "implied": "cubierto por un grupo",
+        "off": "no concedido"
+      },
+      "chip": {
+        "granted": "Concedido: {grant}. Clic para quitarlo.",
+        "grant": "No concedido. Clic para conceder {grant}.",
+        "split": "Cubierto por {grant}. Clic para dividirlo en el resto de sus operaciones.",
+        "wildcard": "Cubierto por {grant}, que alcanza a todos los sujetos y no se puede reducir para uno.",
+        "coveredBy": "Cubierto por {grant}."
+      },
+      "switch": {
+        "read": "Toda lectura: {grant}",
+        "write": "Toda escritura: {grant}",
+        "all": "Todo: {grant}"
+      },
+      "everySubject": "Todos los sujetos",
+      "everySubjectHint": "Un permiso aquí alcanza a todos los sujetos del host, ahora y después.",
+      "dropSubject": "Quitar {subject} del rol",
+      "addSubject": "Agregar sujeto",
+      "noGrants": "Este rol todavía no concede nada.",
+      "unknownSubject": "Este host no lo sirve ahora"
     }
   },
   "teams": {
