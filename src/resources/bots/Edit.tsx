@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, Spinner, Text } from '@softov/scena/ui';
+import { Alert, Button, Spinner, Text } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { useHostNames, useShownHosts } from '../../bridges/hosts.js';
@@ -152,7 +152,7 @@ export default function BotEditPage({ host: opened, slug }: { host: string; slug
         <textarea className="web-field web-form__message" rows={5} value={shown.instructions} onChange={(event) => set({ instructions: event.target.value })} />
       </Field>
 
-      {failure === null ? null : <PageAlert tone="danger" message={failure} />}
+      {failure === null ? null : <Alert tone="danger" message={failure} />}
       <div className="web-page__actions">
         <Button label={t(fresh ? 'bots/edit/create' : 'bots/edit/save')} variant="primary" disabled={!ready} onClick={save} />
         <Button label={t('bots/edit/cancel')} onClick={() => scena.surfaces.close(tabKey)} />

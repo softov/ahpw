@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, Spinner, Text } from '@softov/scena/ui';
+import { Alert, Button, Spinner, Text } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
@@ -106,7 +106,7 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
         <input className="web-field" value={shown.title} readOnly={!writes} onChange={(event) => set({ title: event.target.value })} />
       </Field>
 
-      {failure === null ? null : <PageAlert tone="danger" message={failure} />}
+      {failure === null ? null : <Alert tone="danger" message={failure} />}
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? `teams/${word}/create` : 'teams/named/save')} variant="primary" disabled={!ready} onClick={() => void save()} />

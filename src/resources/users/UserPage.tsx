@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, Spinner, Text } from '@softov/scena/ui';
+import { Alert, Button, Spinner, Text } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
@@ -143,7 +143,7 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
 
       <p className="web-note">{t('users/user/token', { id: shown.id.trim() === '' ? '<id>' : shown.id.trim() })}</p>
 
-      {failure === null ? null : <PageAlert tone="danger" message={failure} />}
+      {failure === null ? null : <Alert tone="danger" message={failure} />}
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? 'users/user/create' : 'users/user/save')} variant="primary" disabled={!ready} onClick={() => void save()} />

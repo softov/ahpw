@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, SchemaForm, Text, type JsonSchemaObject } from '@softov/scena/ui';
+import { Alert, Button, SchemaForm, Text, type JsonSchemaObject } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { useHostNames, useShownHosts } from '../../bridges/hosts.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
@@ -75,7 +75,7 @@ export default function NewComputerPage({ host: opened }: { host: string }): Rea
         errors={problem === undefined || problem === 'nameEmpty' ? {} : { name: t(`computers/new/${problem}`) }}
         jsonTextRoot={false}
       />
-      {failure === null ? null : <PageAlert tone="danger" message={failure} />}
+      {failure === null ? null : <Alert tone="danger" message={failure} />}
       <div className="web-page__actions">
         <Button label={t('computers/new/create')} variant="primary" disabled={problem !== undefined || busy} onClick={create} />
         <Button label={t('computers/new/cancel')} onClick={() => scena.surfaces.close('computer:new')} />

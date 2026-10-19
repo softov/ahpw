@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, Spinner, Text } from '@softov/scena/ui';
+import { Alert, Button, Spinner, Text } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
@@ -85,7 +85,7 @@ export default function RolePage({ host, person: id }: { host: string; person?: 
         <p key={problem.line} className="web-people__problem">{t('users/role/badGrant', { line: problem.line, text: problem.text })}</p>
       ))}
 
-      {failure === null ? null : <PageAlert tone="danger" message={failure} />}
+      {failure === null ? null : <Alert tone="danger" message={failure} />}
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? 'users/role/create' : 'users/role/save')} variant="primary" disabled={!ready} onClick={() => void save()} />
