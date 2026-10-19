@@ -20,7 +20,7 @@ import { registerTeams, TEAMS_SECTION } from '../resources/teams/index.js';
 import { TEAMS_SERVED } from '../resources/teams/state.js';
 import { registerUsage, USAGE_SECTION } from '../resources/usage/index.js';
 import { USAGE_SERVED } from '../resources/usage/state.js';
-import { registerPolicies, POLICIES_SECTION } from '../resources/policies/index.js';
+import { POLICIES_SECTION, registerPolicies } from '../resources/policies/index.js';
 import { POLICIES_SERVED } from '../resources/policies/state.js';
 import { FOLDERS_SECTION, registerFolders } from '../resources/folders/index.js';
 import { ahpPaths, windowHost } from '../bridges/data.js';

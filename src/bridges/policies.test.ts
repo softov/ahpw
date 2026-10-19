@@ -1,143 +1,45 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AhpErrorCodes } from '@microsoft/agent-host-protocol';
-import type { Policy } from '@ahpd/sdk';
-import type { Offers } from './offers.js';
+import { expect, test } from 'vitest';
 import { NO_OFFERS } from './offers.js';
-import { limitWords, ownLimits, policiesReducer, servesPolicies, writesPolicies, type LimitFigure } from './policies.js';
+import { comparePolicies, policiesReducer, policyActive, policyGroup, policyManifest, policyUri, servesPolicies, writesPolicies, type Policy } from './policies.js';
 
-const readText = vi.hoisted(() => vi.fn());
+const row = (id: string, kind: Policy['kind'], scope: Policy['scope'], more: Partial<Policy> = {}): Policy => ({ id, kind, scope, effect: 'allow', match: {}, ...more });
 
-vi.mock('./data.js', () => ({ hostBridge: () => ({ readText }) }));
-
-const OFFERS = { providers: { usage: { root: 'usage://' }, policy: { root: 'policy://' } } } as unknown as Offers;
-
-const ROW: Policy = { id: 'A1', scope: 'all', kind: 'agent', effect: 'allow', match: { agent: ['claude'] } };
-
-/** A host whose policy provider allows the operations named. */
-const withOperations = (operations: string[]): Offers => ({
-  ...NO_OFFERS,
-  providers: { policy: { title: 'Policies', root: 'policy://', operations } },
+test('the policies channel folds added, changed and removed', () => {
+  let state = policiesReducer({ records: [] }, { type: 'x-ahpd-policies/added', id: 'M1', record: row('M1', 'model', 'all') });
+  state = policiesReducer(state, { type: 'x-ahpd-policies/changed', id: 'M1', record: row('M1', 'model', 'all', { effect: 'deny' }) });
+  expect(state.records).toEqual([{ id: 'M1', record: row('M1', 'model', 'all', { effect: 'deny' }) }]);
+  state = policiesReducer(state, { type: 'x-ahpd-policies/removed', id: 'M1' });
+  expect(state.records).toEqual([]);
+  // Another channel's action is not this one's.
+  expect(policiesReducer(state, { type: 'x-ahpd-users/added', id: 'x', record: row('x', 'model', 'all') })).toBe(state);
 });
 
-/** An `usd` limit over a week, with half of it used. */
-const WEEK: LimitFigure = {
-  amount: 20,
-  measure: 'usd',
-  period: 'week',
-  pool: 'shared',
-  counted: true,
-  used: 12.5,
-  from: '2026-10-19T04:00:00.000Z',
-  resets: '2026-10-26T12:00:00.000Z',
-};
-
-beforeEach(() => {
-  readText.mockReset();
+test('a host serves policies on its channel, takes writes where its provider allows them, and names their form', () => {
+  const manifest = { type: 'object', properties: {} };
+  const offers = { ...NO_OFFERS, channels: ['x-ahpd-policies'], providers: { policy: { title: 'Policies', root: 'policy://', operations: ['list', 'read', 'write', 'delete'], manifest } } };
+  expect(servesPolicies(offers)).toBe(true);
+  expect(servesPolicies(NO_OFFERS)).toBe(false);
+  expect(writesPolicies(offers)).toBe(true);
+  expect(writesPolicies({ ...offers, providers: { policy: { ...offers.providers.policy, operations: ['list', 'read'] } } })).toBe(false);
+  expect(policyManifest(offers)).toBe(manifest);
+  expect(policyManifest(NO_OFFERS)).toBeUndefined();
+  expect(policyUri(offers, 'A 1')).toBe('policy://A%201');
+  expect(policyUri(NO_OFFERS, 'A2', 'limits')).toBe('policy://A2/limits');
 });
 
-describe('policiesReducer', () => {
-  it('adds and changes a row by its id', () => {
-    const added = policiesReducer({ records: [] }, { type: 'x-ahpd-policies/added', id: 'A1', record: ROW });
-    expect(added.records).toEqual([{ id: 'A1', record: ROW }]);
-
-    const changed = policiesReducer(added, { type: 'x-ahpd-policies/changed', id: 'A1', record: { ...ROW, effect: 'deny' } });
-    expect(changed.records).toHaveLength(1);
-    expect(changed.records[0]?.record.effect).toBe('deny');
-  });
-
-  it('removes a row by its id and leaves another', () => {
-    const two = { records: [{ id: 'A1', record: ROW }, { id: 'A2', record: { ...ROW, id: 'A2' } }] };
-    expect(policiesReducer(two, { type: 'x-ahpd-policies/removed', id: 'A1' }).records.map((one) => one.id)).toEqual(['A2']);
-  });
-
-  it('leaves the state for an action it does not know', () => {
-    const state = { records: [{ id: 'A1', record: ROW }] };
-    expect(policiesReducer(state, { type: 'x-ahpd-policies/other', id: 'A1' })).toBe(state);
-  });
+test('rows group by kind in the host\'s order, by scope with all first, or not at all', () => {
+  const rows = [row('C1', 'computer', 'team:ops'), row('A2', 'agent', 'all'), row('M1', 'model', 'user:ana'), row('A1', 'agent', 'team:ops')];
+  expect([...rows].sort(comparePolicies('kind')).map((one) => one.id)).toEqual(['M1', 'A1', 'A2', 'C1']);
+  expect([...rows].sort(comparePolicies('scope')).map((one) => one.id)).toEqual(['A2', 'A1', 'C1', 'M1']);
+  expect([...rows].sort(comparePolicies('none')).map((one) => one.id)).toEqual(['A1', 'A2', 'C1', 'M1']);
+  expect(policyGroup(rows[0]!, 'scope')).toBe('team:ops');
+  expect(policyGroup(rows[0]!, 'none')).toBeUndefined();
 });
 
-describe('the gates', () => {
-  it('serves policies when the host offers the channel', () => {
-    expect(servesPolicies(NO_OFFERS)).toBe(false);
-    expect(servesPolicies({ ...NO_OFFERS, channels: ['x-ahpd-policies'] })).toBe(true);
-  });
-
-  it('writes policies when the provider allows a write, under either spelling', () => {
-    expect(writesPolicies(NO_OFFERS)).toBe(false);
-    expect(writesPolicies(withOperations(['read']))).toBe(false);
-    expect(writesPolicies(withOperations(['write']))).toBe(true);
-    expect(writesPolicies(withOperations(['put']))).toBe(true);
-  });
-});
-
-describe('limitWords', () => {
-  it('reads a usd week with what it used', () => {
-    const words = limitWords(WEEK, 'en-US');
-    expect(words.used).toBe('$12.50');
-    expect(words.amount).toBe('$20.00');
-    expect(words.period).toBe('week');
-    expect(words.resets).toBe(new Date('2026-10-26T12:00:00.000Z').toLocaleDateString('en-US'));
-    expect(words.fraction).toBe(0.625);
-    expect(words.full).toBe(false);
-  });
-
-  it('reads a total without a reset', () => {
-    const total: LimitFigure = {
-      amount: 400,
-      measure: 'tokens',
-      period: 'total',
-      pool: 'shared',
-      counted: true,
-      used: 120_000,
-      from: '2026-01-01T00:00:00.000Z',
-    };
-    const words = limitWords(total, 'en-US');
-    expect(words.used).toBe('120K');
-    expect(words.amount).toBe('400');
-    expect(words.resets).toBeUndefined();
-  });
-
-  it('gives no figure for a measure that is not counted', () => {
-    const hours: LimitFigure = {
-      amount: 8,
-      measure: 'hours',
-      period: 'day',
-      pool: 'each',
-      counted: false,
-      from: '2026-10-18T00:00:00.000Z',
-      resets: '2026-10-19T00:00:00.000Z',
-    };
-    const words = limitWords(hours, 'en-US');
-    expect(words.used).toBeUndefined();
-    expect(words.amount).toBe('8');
-    expect(words.fraction).toBe(0);
-    expect(words.full).toBe(false);
-  });
-
-  it('caps the meter when the used figure is past the amount', () => {
-    const words = limitWords({ ...WEEK, used: 27.5 }, 'en-US');
-    expect(words.used).toBe('$27.50');
-    expect(words.fraction).toBe(1);
-    expect(words.full).toBe(true);
-  });
-});
-
-describe('ownLimits', () => {
-  it('reads the list under the usage root', async () => {
-    const answer = [{ id: 'A1', kind: 'agent', scope: 'all', limits: [WEEK] }];
-    readText.mockResolvedValue({ text: JSON.stringify(answer) });
-    await expect(ownLimits('alpha', OFFERS)).resolves.toEqual(answer);
-    expect(readText).toHaveBeenCalledWith('usage://limits');
-  });
-
-  it('answers undefined when the host has own limits off', async () => {
-    readText.mockRejectedValue({ code: AhpErrorCodes.NotFound });
-    await expect(ownLimits('alpha', OFFERS)).resolves.toBeUndefined();
-  });
-
-  it('throws another refusal', async () => {
-    const refusal = { code: -32009, message: 'refused' };
-    readText.mockRejectedValue(refusal);
-    await expect(ownLimits('alpha', OFFERS)).rejects.toBe(refusal);
-  });
+test('a row is active from its from and until its until', () => {
+  const now = new Date('2026-10-19T12:00:00Z');
+  expect(policyActive(row('a', 'model', 'all'), now)).toBe(true);
+  expect(policyActive(row('a', 'model', 'all', { from: '2026-10-20T00:00:00Z' }), now)).toBe(false);
+  expect(policyActive(row('a', 'model', 'all', { until: '2026-10-19T12:00:00Z' }), now)).toBe(false);
+  expect(policyActive(row('a', 'model', 'all', { from: '2026-10-01T00:00:00Z', until: '2026-11-01T00:00:00Z' }), now)).toBe(true);
 });

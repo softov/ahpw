@@ -1,131 +1,141 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Alert, Button, DetailList, Spinner, Text, type DetailItem } from '@softov/scena/ui';
-import { useChannel } from '../../bridges/channel.js';
+import { Button, DetailList, SchemaForm, Spinner, Text, type JsonSchemaObject } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
+import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import {
-  POLICIES, policiesReducer, policyLimits, putPolicy, servesPolicies, writesPolicies,
-  type PoliciesState, type Policy, type PolicyLimits,
+  POLICIES, policiesReducer, policyManifest, putPolicy, readLimits, writesPolicies,
+  type PoliciesState, type PolicyLimits,
 } from '../../bridges/policies.js';
-import { Field } from '../../shell/view/Field.js';
+import { embedMode } from '../../shell/embed/index.js';
+import { HostTag } from '../../shell/explorer/HostLines.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
-import { LimitLine, MemberLine } from '../usage/Limits.js';
-import {
-  choicesOf, draftOf, fitLimits, matchTypesFor, measuresFor, policyBody, problemsOf, withValue,
-  type LimitDraft, type PolicyDraft,
-} from './form.js';
-import { policyTab, POLICIES_ASKED } from './state.js';
+import { timeOf } from '../automations/words.js';
+import { changedKeys } from '../host/config.js';
+import { isRecordId } from '../users/form.js';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
+import { policyTab } from './state.js';
+import { limitWord, usedWord } from './words.js';
 
-/** A value's word in a catalog group, or the value itself when the catalog has none. */
-type Word = (what: string, value: string) => string;
+/** What a new row starts as: everybody, allowed every model; the person names it and narrows it. */
+const FRESH: Record<string, unknown> = { id: '', scope: 'all', kind: 'model', effect: 'allow', match: {} };
 
-/** A policy's fields as a read-only list, for a host that does not take writes. */
-function factsOf(record: Policy, word: Word, t: (key: string) => string): DetailItem[] {
-  const match = Object.entries(record.match).filter(([, values]) => (values?.length ?? 0) > 0);
-  return [
-    { label: t('policies/policy/kind'), value: word('kind', record.kind) },
-    { label: t('policies/policy/effect'), value: word('effect', record.effect) },
-    { label: t('policies/policy/scope'), value: record.scope },
-    {
-      label: t('policies/policy/match'),
-      value: match.length === 0
-        ? t('policies/policy/noMatch')
-        : match.map(([type, values]) => `${word('match', type)}: ${(values ?? []).join(', ')}`).join('; '),
-    },
-    ...(record.pool === undefined ? [] : [{ label: t('policies/policy/pool'), value: record.pool }]),
-    { label: t('policies/policy/cap'), value: record.cap === true ? t('policies/policy/yes') : t('policies/policy/no') },
-    ...(record.from === undefined ? [] : [{ label: t('policies/policy/from'), value: record.from }]),
-    ...(record.until === undefined ? [] : [{ label: t('policies/policy/until'), value: record.until }]),
-  ];
+/**
+ * A new row's form: the manifest with the id as its first field, since the
+ * manifest describes a row at an address and a new one has none yet.
+ */
+function withId(manifest: JsonSchemaObject, title: string, description: string): JsonSchemaObject {
+  return {
+    ...manifest,
+    properties: { id: { type: 'string', title, description }, ...manifest.properties },
+    required: ['id', ...(manifest.required ?? [])],
+  };
 }
 
-/** One policy: its fields, its limits with what each used, and the form that edits it. */
+/** The row as the form edits it: the id is the address, not a field. */
+function editable(record: Record<string, unknown>): Record<string, unknown> {
+  const { id: _id, ...rest } = record;
+  return rest;
+}
+
+/** What a limits read answered: the figures, or why there are none to show. */
+type Limits = { figures: PolicyLimits } | { error: string } | null;
+
+/**
+ * What a row's limits used, as its `limits` leaf answers: per limit, what the
+ * period used of the amount, from when and until it resets, and each member's
+ * share of an `each` limit.
+ */
+function LimitsList({ limits }: { limits: Limits }): ReactElement {
+  const { t } = useI18n();
+  if (limits === null) return <Spinner label={t('policies/notices/readingLimits')} />;
+  if ('error' in limits) return <p className="web-note">{t('policies/limit/unread', { why: limits.error })}</p>;
+  return (
+    <DetailList
+      columns={1}
+      items={limits.figures.limits.map((figure) => ({
+        label: limitWord(figure),
+        value: (
+          <span className="web-policy__figure">
+            <span>
+              {[
+                // An `each` limit read by a reader who may see everybody answers its members, not one total.
+                figure.members === undefined ? usedWord(figure, figure.used) : undefined,
+                figure.counted && figure.resets !== undefined ? t('policies/limit/resets', { at: timeOf(figure.resets) }) : undefined,
+                figure.ends === undefined ? undefined : t('policies/limit/ends', { at: timeOf(figure.ends) }),
+              ].filter((bit) => bit !== undefined).join(' \u{00B7} ')}
+            </span>
+            {figure.members === undefined ? null : figure.members.length === 0 ? <span>{t('policies/limit/noMembers')}</span> : figure.members.map((member) => (
+              <span key={member.user}>{t('policies/limit/member', { user: member.user, used: usedWord(figure, member.used) })}</span>
+            ))}
+          </span>
+        ),
+      }))}
+    />
+  );
+}
+
+/**
+ * One policy: the row as a form drawn from the manifest the host describes the
+ * scheme with, what its limits used, and Save and Delete where the host takes
+ * writes. A new row when there is no `policy`.
+ */
 export default function PolicyPage({ host, policy: id }: { host: string; policy?: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const fresh = id === undefined;
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
-  const channel = useChannel<PoliciesState>(host, servesPolicies(offers) ? POLICIES.channel : undefined, policiesReducer);
-  const asked = useStore<number>(POLICIES_ASKED) ?? 0;
-  const [draft, setDraft] = useState<PolicyDraft | null>(null);
+  const policies = useChannel<PoliciesState>(host, POLICIES.channel, policiesReducer);
+  const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
+  const [jsonValid, setJsonValid] = useState(true);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
-  const [limits, setLimits] = useState<PolicyLimits | null>(null);
-  const [limitsError, setLimitsError] = useState<string | null>(null);
-  const [saves, setSaves] = useState(0);
-  const manifest = offers.providers[POLICIES.scheme]?.manifest;
-  const writes = writesPolicies(offers);
+  const [limits, setLimits] = useState<Limits>(null);
 
-  // A limit has no channel, so the page reads it when it shows, on reload, and after a save.
+  const record = fresh ? undefined : policies.state?.records.find((one) => one.id === id)?.record;
+  const held = useMemo(() => (record === undefined ? FRESH : editable(record as unknown as Record<string, unknown>)), [record]);
+  const limited = (record?.limits ?? []).length > 0;
+  const manifest = policyManifest(offers) as JsonSchemaObject | undefined;
+  const schema = useMemo(() => (manifest === undefined || !fresh ? manifest : withId(manifest, t('policies/policy/id'), t('policies/policy/idHint'))), [manifest, fresh, t]);
+
+  // Again whenever the row changes, since its limits may have.
   useEffect(() => {
-    if (id === undefined) {
-      setLimits(null);
-      setLimitsError(null);
-      return;
-    }
+    if (fresh || !limited) return undefined;
     let live = true;
     setLimits(null);
-    setLimitsError(null);
-    void policyLimits(host, offers, id).then(
-      (held) => { if (live) setLimits(held); },
-      (caught: unknown) => { if (live) setLimitsError(caught instanceof Error ? caught.message : String(caught)); },
+    readLimits(host, offers, id).then(
+      (figures) => { if (live) setLimits({ figures }); },
+      (caught: unknown) => { if (live) setLimits({ error: caught instanceof Error ? caught.message : String(caught) }); },
     );
     return () => { live = false; };
-  }, [host, offers, id, asked, saves]);
+  }, [host, offers, id, fresh, limited, record]);
 
-  const word: Word = (what, value) => {
-    const key = `policies/${what}/${value}`;
-    const words = t(key);
-    return words === `{${key}}` ? value : words;
-  };
+  // A row changed by someone else shows what they wrote, as the settings do.
+  useEffect(() => { setDraft(null); }, [held]);
 
-  if (channel.error !== null) return <PageAlert tone="danger" title={t('policies/notices/none')} message={channel.error} />;
-  if (fresh && !servesPolicies(offers)) return <PageAlert tone="warning" message={t('policies/page/noCreate')} />;
-  if (writes && manifest === undefined) return <Spinner label={t('policies/notices/reading')} />;
-  if (channel.state === undefined) return <Spinner label={t('policies/notices/reading')} />;
-  const record = fresh ? undefined : channel.state.records.find((one) => one.id === id)?.record;
-  if (!fresh && record === undefined) return <PageAlert tone="warning" message={t('policies/notices/gone')} />;
-  if (fresh && !writes) return <PageAlert tone="warning" message={t('policies/page/noCreate')} />;
+  if (policies.error !== null) return <PageAlert tone="danger" title={t('policies/notices/none')} message={policies.error} />;
+  if (policies.state === undefined) return <Spinner label={t('policies/notices/reading')} />;
+  if (!fresh && record === undefined) return <PageAlert tone="warning" message={t('policies/policy/gone')} />;
+  if (schema === undefined) return <PageAlert tone="info" message={t('policies/policy/noManifest')} />;
 
-  const choices = choicesOf(manifest);
-  const start = draftOf(record, manifest);
-  const shown = draft ?? start;
-  const measures = measuresFor(manifest, shown.kind);
-  const types = matchTypesFor(manifest, shown.kind);
-  const problems = problemsOf(shown, fresh);
-  const dirty = draft !== null && JSON.stringify(draft) !== JSON.stringify(start);
-  const ready = writes && !busy && !problems.any && (fresh || dirty);
-
-  const set = (change: Partial<PolicyDraft>): void => setDraft((held) => ({ ...(held ?? start), ...change }));
-  const setMatch = (type: string, text: string): void => set({ match: { ...shown.match, [type]: text } });
-  const setLimit = (at: number, change: Partial<LimitDraft>): void => set({
-    limits: shown.limits.map((one, index) => (index === at ? { ...one, ...change } : one)),
-  });
-  const addLimit = (): void => set({
-    limits: [...shown.limits, { amount: '', measure: measures[0] ?? '', period: choices.periods[0] ?? '', pool: choices.pools[0] ?? '' }],
-  });
-  const dropLimit = (at: number): void => set({ limits: shown.limits.filter((_, index) => index !== at) });
-  const changeKind = (kind: string): void => {
-    const allowed = matchTypesFor(manifest, kind);
-    set({
-      kind,
-      match: Object.fromEntries(allowed.map((type) => [type, shown.match[type] ?? ''])),
-      limits: fitLimits(shown.limits, measuresFor(manifest, kind)),
-    });
-  };
+  const writes = writesPolicies(offers);
+  const value = draft ?? held;
+  const target = fresh ? String(value.id ?? '').trim() : id;
+  const changed = fresh ? editable(value) : changedKeys(held, value);
+  const dirty = Object.keys(changed).length > 0;
+  const ready = writes && !busy && jsonValid && (fresh ? isRecordId(target) : dirty);
+  const tab = policyTab(host, id);
 
   const save = async (): Promise<void> => {
-    if (!ready) return;
     setBusy(true);
     setFailure(null);
-    const target = shown.id.trim();
     try {
-      await putPolicy(host, offers, target, policyBody(shown), fresh);
+      // A row is written whole on the host: what the body leaves out keeps its value, so an edit sends what changed.
+      await putPolicy(host, offers, target, changed, fresh);
       setDraft(null);
-      setSaves((held) => held + 1);
       if (fresh) {
-        scena.surfaces.close(policyTab(host, undefined));
+        scena.surfaces.close(tab);
         void scena.commands.execute('ahp.openPolicy', { host, id: target });
       }
     } catch (caught) {
@@ -136,124 +146,36 @@ export default function PolicyPage({ host, policy: id }: { host: string; policy?
   };
 
   return (
-    <div className={writes ? 'web-page web-form' : 'web-page'}>
-      <Text variant="h2" text={fresh ? t('policies/commands/newPolicy') : (id ?? '')} />
+    <div className="web-page web-form web-policy">
+      <Text variant="h2" text={fresh ? t('policies/commands/new') : id} />
       {writes ? null : <p className="web-note">{t('policies/notices/readOnly')}</p>}
+      {embedMode() === 'multi' ? <DetailList items={[{ label: t('common/host'), value: <HostTag host={host} />, span: true }]} /> : null}
 
-      {writes ? (
+      {/* A disabled fieldset is how a host that takes no writes shows the row read-only: every control in it is. */}
+      <fieldset className="web-policy__form" disabled={!writes}>
+        <SchemaForm
+          schema={schema}
+          value={value}
+          onChange={setDraft}
+          baseline={held}
+          jsonEditor={JsonCodeEditor}
+          onJsonValidChange={setJsonValid}
+          fieldActions
+        />
+      </fieldset>
+
+      {limited ? (
         <>
-          {fresh ? (
-            <Field label={t('policies/policy/id')} hint={t('policies/policy/idHint')}>
-              <input className="web-field" value={shown.id} autoFocus onChange={(event) => set({ id: event.target.value })} />
-              {problems.id ? <span className="web-input__hint">{t('policies/policy/idEmpty')}</span> : null}
-            </Field>
-          ) : null}
-
-          <Field label={t('policies/policy/scope')} hint={t('policies/policy/scopeHint')}>
-            <input className="web-field" value={shown.scope} onChange={(event) => set({ scope: event.target.value })} />
-            {problems.scope ? <span className="web-input__hint">{t('policies/policy/scopeEmpty')}</span> : null}
-          </Field>
-
-          <Field label={t('policies/policy/kind')}>
-            <select className="web-field" value={shown.kind} onChange={(event) => changeKind(event.target.value)}>
-              {withValue(choices.kinds, shown.kind).map((value) => <option key={value} value={value}>{word('kind', value)}</option>)}
-            </select>
-          </Field>
-
-          <Field label={t('policies/policy/effect')}>
-            <select className="web-field" value={shown.effect} onChange={(event) => set({ effect: event.target.value })}>
-              {withValue(choices.effects, shown.effect).map((value) => <option key={value} value={value}>{word('effect', value)}</option>)}
-            </select>
-          </Field>
-
-          {types.map((type) => {
-            const bad = problems.match[type] ?? [];
-            return (
-              <Field key={type} label={word('match', type)} hint={t('policies/policy/matchHint')}>
-                <textarea className="web-field" rows={2} value={shown.match[type] ?? ''} onChange={(event) => setMatch(type, event.target.value)} />
-                {bad.length === 0 ? null : <span className="web-input__hint">{bad.map((line) => t('policies/policy/emptyLine', { line })).join(' ')}</span>}
-              </Field>
-            );
-          })}
-
-          <div className="web-form__field" role="group" aria-label={t('policies/policy/limits')}>
-            <span className="web-input__label">{t('policies/policy/limits')}</span>
-            {shown.limits.length === 0 ? <span className="web-input__hint">{t('policies/policy/noLimits')}</span> : shown.limits.map((one, at) => (
-              <div key={at} className="web-input__row">
-                <input
-                  className="web-field"
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={one.amount}
-                  aria-label={t('policies/policy/amount')}
-                  onChange={(event) => setLimit(at, { amount: event.target.value })}
-                />
-                <select className="web-field" value={one.measure} aria-label={t('policies/policy/measure')} onChange={(event) => setLimit(at, { measure: event.target.value })}>
-                  {withValue(measures, one.measure).map((value) => <option key={value} value={value}>{word('measure', value)}</option>)}
-                </select>
-                <select className="web-field" value={one.period} aria-label={t('policies/policy/period')} onChange={(event) => setLimit(at, { period: event.target.value })}>
-                  {withValue(choices.periods, one.period).map((value) => <option key={value} value={value}>{word('period', value)}</option>)}
-                </select>
-                <select className="web-field" value={one.pool} aria-label={t('policies/policy/limitPool')} onChange={(event) => setLimit(at, { pool: event.target.value })}>
-                  {withValue(choices.pools, one.pool).map((value) => <option key={value} value={value}>{word('limitPool', value)}</option>)}
-                </select>
-                <button type="button" className="web-people__chip-drop" aria-label={t('policies/policy/removeLimit')} title={t('policies/policy/removeLimit')} onClick={() => dropLimit(at)}>{'\u{00D7}'}</button>
-                {problems.amounts[at] === undefined ? null : (
-                  <span className="web-input__hint">{t(problems.amounts[at] === 'negative' ? 'policies/policy/amountNegative' : 'policies/policy/amountNumber')}</span>
-                )}
-              </div>
-            ))}
-            <Button label={t('policies/policy/addLimit')} onClick={addLimit} />
-          </div>
-
-          <Field label={t('policies/policy/pool')} hint={t('policies/policy/poolHint')}>
-            <input className="web-field" value={shown.pool} onChange={(event) => set({ pool: event.target.value })} />
-          </Field>
-
-          <Field label={t('policies/policy/cap')} hint={t('policies/policy/capHint')}>
-            <input type="checkbox" checked={shown.cap} onChange={(event) => set({ cap: event.target.checked })} />
-          </Field>
-
-          <Field label={t('policies/policy/from')} hint={t('policies/policy/dateHint')}>
-            <input className="web-field" value={shown.from} onChange={(event) => set({ from: event.target.value })} />
-          </Field>
-
-          <Field label={t('policies/policy/until')} hint={t('policies/policy/dateHint')}>
-            <input className="web-field" value={shown.until} onChange={(event) => set({ until: event.target.value })} />
-          </Field>
+          <Text variant="h3" text={t('policies/policy/limits')} />
+          <LimitsList limits={limits} />
         </>
-      ) : (
-        <DetailList columns={2} items={record === undefined ? [] : factsOf(record, word, t)} />
-      )}
-
-      {fresh ? null : (
-        <>
-          <Text variant="h3" text={t('policies/page/limits')} />
-          {limitsError !== null ? <Alert tone="warning" message={limitsError} /> : limits === null ? <Spinner label={t('policies/notices/reading')} /> : limits.limits.length === 0 ? <p className="web-note">{t('policies/policy/noLimits')}</p> : (
-            <ul className="web-limits">
-              {limits.limits.map((figure, at) => (
-                <li key={at}>
-                  <LimitLine figure={figure} />
-                  {figure.members === undefined ? null : (
-                    <ul>
-                      {figure.members.map((member) => (
-                        <li key={member.user}><span>{member.user}</span> <MemberLine figure={figure} used={member.used} /></li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      )}
+      ) : null}
 
       {failure === null ? null : <PageAlert tone="danger" message={failure} />}
       {writes ? (
         <div className="web-page__actions">
-          <Button label={t(fresh ? 'policies/policy/create' : 'policies/policy/save')} variant="primary" disabled={!ready} onClick={() => void save()} />
-          {fresh ? <Button label={t('policies/actions/cancel')} onClick={() => scena.surfaces.close(policyTab(host, undefined))} /> : (
+          <Button label={t(fresh ? 'policies/policy/create' : 'policies/policy/save')} variant="primary" disabled={!ready} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={() => void save()} />
+          {fresh ? <Button label={t('policies/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : (
             <>
               {dirty ? <Button label={t('policies/actions/discard')} onClick={() => setDraft(null)} /> : null}
               <Button label={t('policies/actions/delete')} variant="danger" onClick={() => void scena.commands.execute('ahp.deletePolicy', { host, id })} />

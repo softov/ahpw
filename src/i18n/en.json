@@ -1904,102 +1904,90 @@
   "policies": {
     "explorer": {
       "title": "Policies",
-      "policies": "Policies",
       "filter": "Filter policies",
-      "empty": "No policies here.",
-      "notServed": "No host here lists policies."
+      "group": "Group",
+      "empty": "No policy is written yet.",
+      "notServed": "No host here lists its policies."
+    },
+    "group": {
+      "kind": "By kind",
+      "scope": "By scope",
+      "none": "None"
+    },
+    "kind": {
+      "model": "Models",
+      "agent": "Agents",
+      "computer": "Computers"
+    },
+    "effect": {
+      "allow": "Allows",
+      "deny": "Denies"
+    },
+    "scope": {
+      "all": "Everybody"
+    },
+    "match": {
+      "any": "Anything"
+    },
+    "period": {
+      "day": "{amount} a day",
+      "week": "{amount} a week",
+      "month": "{amount} a month",
+      "total": "{amount} in total"
+    },
+    "measure": {
+      "calls": {
+        "one": "{n} call",
+        "other": "{n} calls"
+      },
+      "turns": {
+        "one": "{n} turn",
+        "other": "{n} turns"
+      },
+      "sessions": {
+        "one": "{n} session",
+        "other": "{n} sessions"
+      }
+    },
+    "limit": {
+      "each": "each",
+      "unlimited": "Unlimited",
+      "notCounted": "Not counted yet",
+      "used": "{used} of {amount}",
+      "resets": "resets {at}",
+      "ends": "ends {at}",
+      "member": "{user}: {used}",
+      "noMembers": "Nobody used it yet",
+      "unread": "What the limits used could not be read: {why}"
     },
     "notices": {
       "none": "No policies",
       "reading": "Reading the policies",
-      "gone": "This policy is gone.",
-      "readOnly": "This host does not take policy edits."
+      "readingLimits": "Reading the limits",
+      "readOnly": "This host does not take changes to its policies here."
     },
     "commands": {
-      "newPolicy": "New policy",
       "show": "Show policies",
-      "openPolicy": "Open policy"
+      "new": "New policy",
+      "open": "Open policy"
     },
     "actions": {
       "open": "Open",
       "delete": "Delete",
-      "failed": "The host did not take the change",
       "cancel": "Cancel",
-      "discard": "Discard"
-    },
-    "kind": {
-      "model": "Model",
-      "agent": "Agent",
-      "computer": "Computer"
-    },
-    "effect": {
-      "allow": "Allow",
-      "deny": "Deny"
-    },
-    "match": {
-      "model": "Models",
-      "proxy": "Proxies",
-      "agent": "Agents",
-      "computer": "Computers"
-    },
-    "measure": {
-      "usd": "USD",
-      "tokens": "Tokens",
-      "calls": "Calls",
-      "turns": "Turns",
-      "hours": "Hours",
-      "sessions": "Sessions"
-    },
-    "period": {
-      "day": "Day",
-      "week": "Week",
-      "month": "Month",
-      "total": "Total"
-    },
-    "limitPool": {
-      "shared": "Shared",
-      "each": "Each"
+      "discard": "Discard changes",
+      "failed": "The policy was not deleted"
     },
     "policy": {
-      "deleteTitle": "Delete {id}?",
-      "deleteBody": "The policy is removed for everyone it applies to.",
-      "id": "Id",
-      "idHint": "The id names the row in its URI.",
-      "idEmpty": "An id is needed.",
-      "scope": "Scope",
-      "scopeHint": "Who the policy is about: all, a team, a project or a person.",
-      "scopeEmpty": "A scope is needed.",
-      "kind": "Kind",
-      "effect": "Effect",
-      "match": "Match",
-      "noMatch": "None",
-      "matchHint": "One value a line. An empty box matches all.",
-      "emptyLine": "Line {line} is empty.",
-      "limits": "Limits",
-      "noLimits": "No limits.",
-      "addLimit": "Add limit",
-      "removeLimit": "Remove limit",
-      "amount": "Amount",
-      "amountNumber": "An amount is a number.",
-      "amountNegative": "An amount cannot be negative.",
-      "measure": "Measure",
-      "period": "Period",
-      "limitPool": "Pool",
-      "pool": "Pool",
-      "poolHint": "A named pool the limits share with other rows.",
-      "cap": "Cap",
-      "capHint": "The limit closes the row rather than refusing the work.",
-      "from": "From",
-      "until": "Until",
-      "dateHint": "A day, or an instant, as ISO.",
-      "create": "Create",
+      "id": "ID",
+      "idHint": "A name for the row, unique on this host: policy://<id>. No spaces, no slash.",
+      "limits": "What the limits used",
+      "create": "Create policy",
       "save": "Save",
-      "yes": "Yes",
-      "no": "No"
-    },
-    "page": {
-      "limits": "Limits",
-      "noCreate": "This host does not take a new policy."
+      "gone": "This policy is not on the host any more.",
+      "noManifest": "This host does not describe how a policy is written.",
+      "deleteTitle": "Delete the policy {id}?",
+      "deleteBody": "Nobody is checked against it any more, and what its limits counted stays in the usage records."
     }
   },
   "trust": {

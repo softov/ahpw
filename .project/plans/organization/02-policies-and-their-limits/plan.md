@@ -1,7 +1,7 @@
 ---
 title: Policies and their limits
 domain: organization
-status: active
+status: dropped
 priority: medium
 created: 2026-10-18
 revalidated: 2026-10-18
@@ -23,6 +23,8 @@ refs:
   - file:///github/ahpd/packages/sdk/src/charge.ts - `LimitFigure` and `LimitMember`, which `@ahpd/sdk` 0.12.0 does not have
   - npm://@ahpd/sdk@^0.12.0 - `Policy`, `PolicyLimit`, `Measure`, `Period` and `LimitPool`
 ---
+
+Dropped 2026-10-19: ahpw keeps organization/02-budget-policies, with this plan's Usage limits; see [the decision](../../../decisions/ahpw-keeps-the-manifest-policies-build-with-the-usage-limits.md).
 
 ## Goal
 

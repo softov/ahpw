@@ -1904,102 +1904,90 @@
   "policies": {
     "explorer": {
       "title": "Políticas",
-      "policies": "Políticas",
       "filter": "Filtrar políticas",
-      "empty": "No hay políticas aquí.",
-      "notServed": "Ningún host aquí lista políticas."
+      "group": "Agrupar",
+      "empty": "Todavía no hay ninguna política.",
+      "notServed": "Ningún host aquí lista sus políticas."
+    },
+    "group": {
+      "kind": "Por tipo",
+      "scope": "Por alcance",
+      "none": "Ninguno"
+    },
+    "kind": {
+      "model": "Modelos",
+      "agent": "Agentes",
+      "computer": "Computadoras"
+    },
+    "effect": {
+      "allow": "Permite",
+      "deny": "Deniega"
+    },
+    "scope": {
+      "all": "Todos"
+    },
+    "match": {
+      "any": "Cualquier cosa"
+    },
+    "period": {
+      "day": "{amount} al día",
+      "week": "{amount} a la semana",
+      "month": "{amount} al mes",
+      "total": "{amount} en total"
+    },
+    "measure": {
+      "calls": {
+        "one": "{n} llamada",
+        "other": "{n} llamadas"
+      },
+      "turns": {
+        "one": "{n} turno",
+        "other": "{n} turnos"
+      },
+      "sessions": {
+        "one": "{n} sesión",
+        "other": "{n} sesiones"
+      }
+    },
+    "limit": {
+      "each": "cada uno",
+      "unlimited": "Sin límite",
+      "notCounted": "Todavía no se cuenta",
+      "used": "{used} de {amount}",
+      "resets": "se reinicia {at}",
+      "ends": "termina {at}",
+      "member": "{user}: {used}",
+      "noMembers": "Nadie lo usó todavía",
+      "unread": "No se pudo leer lo que usaron los límites: {why}"
     },
     "notices": {
       "none": "Sin políticas",
       "reading": "Leyendo las políticas",
-      "gone": "Esta política ya no está.",
-      "readOnly": "Este host no acepta cambios en las políticas."
+      "readingLimits": "Leyendo los límites",
+      "readOnly": "Este host no acepta cambios en sus políticas desde aquí."
     },
     "commands": {
-      "newPolicy": "Nueva política",
       "show": "Mostrar políticas",
-      "openPolicy": "Abrir política"
+      "new": "Nueva política",
+      "open": "Abrir política"
     },
     "actions": {
       "open": "Abrir",
       "delete": "Eliminar",
-      "failed": "El host no aceptó el cambio",
       "cancel": "Cancelar",
-      "discard": "Descartar"
-    },
-    "kind": {
-      "model": "Modelo",
-      "agent": "Agente",
-      "computer": "Computadora"
-    },
-    "effect": {
-      "allow": "Permitir",
-      "deny": "Denegar"
-    },
-    "match": {
-      "model": "Modelos",
-      "proxy": "Proxies",
-      "agent": "Agentes",
-      "computer": "Computadoras"
-    },
-    "measure": {
-      "usd": "USD",
-      "tokens": "Tokens",
-      "calls": "Llamadas",
-      "turns": "Turnos",
-      "hours": "Horas",
-      "sessions": "Sesiones"
-    },
-    "period": {
-      "day": "Día",
-      "week": "Semana",
-      "month": "Mes",
-      "total": "Total"
-    },
-    "limitPool": {
-      "shared": "Compartido",
-      "each": "Cada uno"
+      "discard": "Descartar cambios",
+      "failed": "La política no se eliminó"
     },
     "policy": {
-      "deleteTitle": "¿Eliminar {id}?",
-      "deleteBody": "La política se elimina para todos a quienes se aplica.",
-      "id": "Id",
-      "idHint": "El id nombra la fila en su URI.",
-      "idEmpty": "Se necesita un id.",
-      "scope": "Alcance",
-      "scopeHint": "A quién se aplica: todos, un equipo, un proyecto o una persona.",
-      "scopeEmpty": "Se necesita un alcance.",
-      "kind": "Tipo",
-      "effect": "Efecto",
-      "match": "Coincidencia",
-      "noMatch": "Ninguna",
-      "matchHint": "Un valor por línea. Un cuadro vacío coincide con todo.",
-      "emptyLine": "La línea {line} está vacía.",
-      "limits": "Límites",
-      "noLimits": "Sin límites.",
-      "addLimit": "Agregar límite",
-      "removeLimit": "Quitar límite",
-      "amount": "Cantidad",
-      "amountNumber": "Una cantidad es un número.",
-      "amountNegative": "Una cantidad no puede ser negativa.",
-      "measure": "Medida",
-      "period": "Período",
-      "limitPool": "Fondo",
-      "pool": "Fondo",
-      "poolHint": "Un fondo con nombre que los límites comparten con otras filas.",
-      "cap": "Tope",
-      "capHint": "El límite cierra la fila en vez de rechazar el trabajo.",
-      "from": "Desde",
-      "until": "Hasta",
-      "dateHint": "Un día o un instante, en ISO.",
-      "create": "Crear",
+      "id": "ID",
+      "idHint": "Un nombre para la fila, único en este host: policy://<id>. Sin espacios ni barras.",
+      "limits": "Lo que usaron los límites",
+      "create": "Crear política",
       "save": "Guardar",
-      "yes": "Sí",
-      "no": "No"
-    },
-    "page": {
-      "limits": "Límites",
-      "noCreate": "Este host no acepta una política nueva."
+      "gone": "Esta política ya no está en el host.",
+      "noManifest": "Este host no describe cómo se escribe una política.",
+      "deleteTitle": "¿Eliminar la política {id}?",
+      "deleteBody": "Ya no se comprueba a nadie con ella, y lo que contaron sus límites queda en los registros de uso."
     }
   },
   "trust": {

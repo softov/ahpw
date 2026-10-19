@@ -4034,3 +4034,20 @@
   background: var(--oo-color-surface);
   border-top: 1px solid var(--oo-color-border);
 }
+
+/* Policies: the row's form, read-only in a disabled fieldset where the host takes no writes, and what its limits used. */
+.web-policy__form {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.web-policy__figure > span {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+.web-policy__figure > span + span {
+  color: var(--oo-color-muted);
+}

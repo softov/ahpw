@@ -46,7 +46,11 @@ type PeopleAction<R> =
 
 /** Folds a domain's channel actions, `x-ahpd-<domain>/added`, `/changed` and `/removed`, into its snapshot, `{ records }`. */
 export function peopleReducer<D extends PeopleDomain>(domain: D): (state: PeopleState<PeopleRecords[D]>, action: PeopleAction<PeopleRecords[D]>) => PeopleState<PeopleRecords[D]> {
-  const scheme = channelScheme(domain);
+  return recordsReducer<PeopleRecords[D]>(channelScheme(domain));
+}
+
+/** Folds a records channel's actions, `<scheme>/added`, `/changed` and `/removed`, into its snapshot, `{ records }`; ahpd's policies channel is one too. */
+export function recordsReducer<R>(scheme: string): (state: PeopleState<R>, action: PeopleAction<R>) => PeopleState<R> {
   return (state, action) => {
     switch (action.type) {
       case `${scheme}/added`:

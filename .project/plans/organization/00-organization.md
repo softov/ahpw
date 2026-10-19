@@ -25,6 +25,6 @@ It reads a limit's figure through `policy://<id>/limits` and `usage://limits`.
 - 👤 lists users and roles, and 👥 teams and projects, each made, edited and deleted from its page where the host takes writes; [`code://src/bridges/people.ts`](../../../src/bridges/people.ts) holds the channels and writes.
 - 📊 lists usage pools by period, or summed by user, team or project, and a pool's page shows its records; [`code://src/bridges/usage.ts`](../../../src/bridges/usage.ts) holds the reads.
 - 📊 starts the list with a person's limits, each with its amount, what the period used and when it resets. [`code://src/bridges/policies.ts`](../../../src/bridges/policies.ts) holds the read.
-- ⚖ lists the host's policies. A policy's page shows its fields and limits, and edits the row where the host takes writes. [`code://src/bridges/policies.ts`](../../../src/bridges/policies.ts) holds the channel and the writes.
+- ⚖ lists policies by kind, by scope or in one list, and a row's page edits it from the host's manifest and shows what its limits used; [`code://src/bridges/policies.ts`](../../../src/bridges/policies.ts) holds the channel, writes and the limits read.
 - [`code://src/bridges/offers.ts`](../../../src/bridges/offers.ts) reads what a host offers, including `allows(provider, 'write')` and the signed-in `principal`.
 - ahpw never sends `authenticate`, so a person's own token reaches only what ahpd gives nobody; see [the deferred list](01-users-teams-and-usage/deferred.md).
