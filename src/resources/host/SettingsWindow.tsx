@@ -94,7 +94,7 @@ export default function SettingsWindow({ host }: { host: string }): ReactElement
     window.addEventListener('pointerup', onUp);
   };
 
-  const title = embedMode() === 'multi' ? t('hosts/settingsTab', { host: hostNameOf(scena.store, host) }) : t('host/settings/title');
+  const title = embedMode() === 'multi' ? t('hosts/settingsTab', { host: hostNameOf(scena.store, host) }) : t('host/settings/tab');
   const style = max ? undefined : { left: box.x, top: box.y, width: box.w, height: box.h };
   return (
     <div

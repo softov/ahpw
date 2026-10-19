@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { keepSettingsPlace, settingsPlace } from './place.js';
+import { keepSettingsPlace, keepSettingsTab, settingsPlace, settingsTab } from './place.js';
 
 describe('settingsPlace', () => {
   let held: Map<string, string>;
@@ -21,5 +21,16 @@ describe('settingsPlace', () => {
   it('falls back to the window for a value it does not know', () => {
     held.set('ahpw.settingsPlace', 'somewhere');
     expect(settingsPlace()).toBe('overlay');
+  });
+});
+
+describe('settingsTab', () => {
+  it('opens on the host tab, then on the tab chosen last, and ignores a tab it does not have', () => {
+    expect(settingsTab()).toBe('host');
+    keepSettingsTab('ui');
+    expect(settingsTab()).toBe('ui');
+    keepSettingsTab('elsewhere');
+    expect(settingsTab()).toBe('ui');
+    keepSettingsTab('host');
   });
 });

@@ -7,7 +7,7 @@ import { EMOJIcon } from '../emojis.js';
 import { windowHost } from '../../bridges/data.js';
 import { hostNameOf, shownHosts } from '../../bridges/hosts.js';
 import { embedMode } from '../../shell/embed/index.js';
-import { openSettingsAt, PLACES, placeItems, settingsHostOf, settingsPlace, type SettingsPlace } from './place.js';
+import { keepSettingsTab, openSettingsAt, PLACES, placeItems, settingsHostOf, settingsPlace, type SettingsPlace } from './place.js';
 import { openPalette } from '../../shell/CommandPalette.js';
 import { STRIP_SLOT } from '../../shell/panel/index.js';
 
@@ -91,6 +91,21 @@ export function registerHost(scena: Scena): Disposable {
       run: (ctx, args) => {
         const host = (args as HostArgs | undefined)?.host ?? pageHost(ctx.store);
         if (host === undefined) return;
+        openSettingsAt(ctx.scena, host, settingsPlace());
+        hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+      },
+    }),
+    // The settings on their Interface tab; the settings open again wherever they are, so the tab shows.
+    scena.commands.register({
+      id: 'ahp.openInterfaceSettings',
+      title: () => translate('host/commands/interface'),
+      keywords: [english('host/commands/interface'), 'ui', 'theme', 'language'],
+      category: 'Interface',
+      slots: [PALETTE_SLOT],
+      run: (ctx, args) => {
+        const host = (args as HostArgs | undefined)?.host ?? pageHost(ctx.store);
+        if (host === undefined) return;
+        keepSettingsTab('ui');
         openSettingsAt(ctx.scena, host, settingsPlace());
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
       },

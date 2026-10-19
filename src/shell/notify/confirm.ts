@@ -12,6 +12,18 @@ export type ConfirmStyle = 'native' | 'modal';
 
 export const DEFAULT_CONFIRM_STYLE: ConfirmStyle = 'modal';
 
+/** The localStorage key the chosen style is kept under; one per browser. */
+const STYLE_KEY = 'ahpw.confirmStyle';
+
+function keptStyle(): ConfirmStyle | null {
+  try {
+    const held = localStorage.getItem(STYLE_KEY);
+    return held === 'native' || held === 'modal' ? held : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface ConfirmRequest {
   id: number;
   title: string;
@@ -37,7 +49,7 @@ let pending: ((answer: boolean | null) => void) | null = null;
 
 export function initConfirm(reactive: ReactiveStore, style: ConfirmStyle): void {
   store = reactive;
-  if (reactive.get(CONFIRM_STYLE) === undefined) reactive.set(CONFIRM_STYLE, style);
+  if (reactive.get(CONFIRM_STYLE) === undefined) reactive.set(CONFIRM_STYLE, keptStyle() ?? style);
 }
 
 /** Forget the store, closing an open question unanswered. */
@@ -52,6 +64,11 @@ export function confirmStyle(): ConfirmStyle {
 
 export function setConfirmStyle(style: ConfirmStyle): void {
   store?.set(CONFIRM_STYLE, style);
+  try {
+    localStorage.setItem(STYLE_KEY, style);
+  } catch {
+    // Storage blocked: the choice lasts as long as the page.
+  }
 }
 
 /** Ask, and answer true only on yes. Before the shell is up, the browser asks. */

@@ -1596,7 +1596,8 @@
     "title": "Host",
     "commands": {
       "info": "Host information",
-      "settings": "Host settings"
+      "settings": "Host settings",
+      "interface": "Interface settings"
     },
     "info": {
       "status": "Status",
@@ -1646,7 +1647,6 @@
     },
     "settings": {
       "tab": "Settings",
-      "title": "Host settings",
       "unreadable": "Settings not readable",
       "reading": "Reading the settings",
       "none": "This host publishes no settings.",
@@ -1668,7 +1668,8 @@
         "host": "Host",
         "daemon": "Daemon",
         "plugins": "Plugins",
-        "vscode": "VS Code"
+        "vscode": "VS Code",
+        "ui": "Interface"
       },
       "sections": {
         "general": "General",
@@ -1687,6 +1688,50 @@
         "vscodeSessions": "Sessions",
         "pullRequests": "Pull requests",
         "features": "Features"
+      },
+      "ui": {
+        "sections": {
+          "appearance": "Appearance",
+          "language": "Language",
+          "layout": "Layout",
+          "dialogs": "Dialogs"
+        },
+        "theme": {
+          "title": "Theme",
+          "description": "The colours of the page."
+        },
+        "themeMode": {
+          "title": "Light or dark",
+          "description": "System follows the operating system.",
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": {
+          "title": "Language",
+          "description": "The language of the page; the host keeps its own."
+        },
+        "layout": {
+          "title": "Main area",
+          "description": "How the main area shows its tabs."
+        },
+        "settingsPlace": {
+          "title": "Settings open in",
+          "description": "Where the settings open; Open in moves them and changes this too."
+        },
+        "confirmStyle": {
+          "title": "Questions",
+          "description": "How the page asks before it does something that cannot be undone.",
+          "modal": "In the page's own dialog",
+          "native": "In the browser's dialog"
+        },
+        "profileUnread": "The saved interface settings could not be read",
+        "profileUnsaved": "The interface settings could not be saved",
+        "atOnce": "Interface settings apply as you change them."
+      },
+      "tabs": {
+        "host": "Host",
+        "ui": "Interface"
       }
     }
   },

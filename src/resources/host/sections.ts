@@ -31,10 +31,19 @@ const VSCODE: readonly Named[] = [
   ['features', ['markdownPlanRichLinksEnabled', 'artifactTools', 'canvasesEnabled', 'automationsEnabled', 'automationRunTimeoutMinutes']],
 ];
 
+/** The browser's own settings, as `shell/ui-settings` lists them, on the Interface tab. */
+const UI: readonly Named[] = [
+  ['appearance', ['ui.theme', 'ui.themeMode']],
+  ['language', ['ui.language']],
+  ['layout', ['ui.layout', 'ui.settingsPlace']],
+  ['dialogs', ['ui.confirmStyle']],
+];
+
 /** A plugin's key: one per plugin, `plugins.<name>`. */
 const PLUGIN = 'plugins.';
 
 const section = ([id, keys]: Named): SchemaFormSection => ({ id, title: translate(`host/settings/sections/${id}`), keys: [...keys] });
+const uiSection = ([id, keys]: Named): SchemaFormSection => ({ id: `ui/${id}`, title: translate(`host/settings/ui/sections/${id}`), keys: [...keys] });
 
 /**
  * The sections the settings' sections view draws, for the schema the host
@@ -52,4 +61,9 @@ export function settingsGroups(schema: JsonSchemaObject): SchemaFormGroup[] {
     { id: 'plugins', title: translate('host/settings/groups/plugins'), sections: plugins },
     { id: 'vscode', title: translate('host/settings/groups/vscode'), sections: VSCODE.map(section) },
   ];
+}
+
+/** The Interface tab's sections: one group, the browser's own settings. */
+export function interfaceGroups(): SchemaFormGroup[] {
+  return [{ id: 'ui', title: translate('host/settings/groups/ui'), sections: UI.map(uiSection) }];
 }

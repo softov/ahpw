@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { settingsGroups } from './sections.js';
+import { interfaceGroups, settingsGroups } from './sections.js';
 
 const schema = (keys: string[]) => ({ type: 'object' as const, properties: Object.fromEntries(keys.map((key) => [key, { type: 'string' as const }])) });
 
@@ -15,6 +15,11 @@ describe('settingsGroups', () => {
   it('names a key only once across every section', () => {
     const named = settingsGroups(schema([])).flatMap((group) => group.sections.flatMap((section) => section.keys));
     expect(new Set(named).size).toBe(named.length);
+  });
+
+  it('keeps the UI settings out of the host groups, for the Interface tab', () => {
+    expect(settingsGroups(schema([])).flatMap((group) => group.sections.flatMap((section) => section.keys)).some((key) => key.startsWith('ui.'))).toBe(false);
+    expect(interfaceGroups().flatMap((group) => group.sections.flatMap((section) => section.keys))).toEqual(['ui.theme', 'ui.themeMode', 'ui.language', 'ui.layout', 'ui.settingsPlace', 'ui.confirmStyle']);
   });
 
   it('leaves a key it does not know to the view, which lists it under Other', () => {

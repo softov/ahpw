@@ -1596,7 +1596,8 @@
     "title": "Host",
     "commands": {
       "info": "Información del host",
-      "settings": "Configuración del host"
+      "settings": "Configuración del host",
+      "interface": "Configuración de la interfaz"
     },
     "info": {
       "status": "Estado",
@@ -1646,7 +1647,6 @@
     },
     "settings": {
       "tab": "Configuración",
-      "title": "Configuración del host",
       "unreadable": "No se puede leer la configuración",
       "reading": "Leyendo la configuración",
       "none": "Este host no publica ninguna configuración.",
@@ -1668,7 +1668,8 @@
         "host": "Host",
         "daemon": "Daemon",
         "plugins": "Plugins",
-        "vscode": "VS Code"
+        "vscode": "VS Code",
+        "ui": "Interfaz"
       },
       "sections": {
         "general": "General",
@@ -1687,6 +1688,50 @@
         "vscodeSessions": "Sesiones",
         "pullRequests": "Pull requests",
         "features": "Funciones"
+      },
+      "ui": {
+        "sections": {
+          "appearance": "Apariencia",
+          "language": "Idioma",
+          "layout": "Disposición",
+          "dialogs": "Diálogos"
+        },
+        "theme": {
+          "title": "Tema",
+          "description": "Los colores de la página."
+        },
+        "themeMode": {
+          "title": "Claro u oscuro",
+          "description": "Sistema sigue al sistema operativo.",
+          "system": "Sistema",
+          "light": "Claro",
+          "dark": "Oscuro"
+        },
+        "language": {
+          "title": "Idioma",
+          "description": "El idioma de la página; el host tiene el suyo."
+        },
+        "layout": {
+          "title": "Área principal",
+          "description": "Cómo el área principal muestra sus pestañas."
+        },
+        "settingsPlace": {
+          "title": "La configuración se abre en",
+          "description": "Dónde se abre la configuración; Abrir en la mueve y también cambia esto."
+        },
+        "confirmStyle": {
+          "title": "Preguntas",
+          "description": "Cómo pregunta la página antes de hacer algo que no se puede deshacer.",
+          "modal": "En el diálogo de la página",
+          "native": "En el diálogo del navegador"
+        },
+        "profileUnread": "No se pudo leer la configuración de la interfaz guardada",
+        "profileUnsaved": "No se pudo guardar la configuración de la interfaz",
+        "atOnce": "La configuración de la interfaz se aplica al cambiarla."
+      },
+      "tabs": {
+        "host": "Host",
+        "ui": "Interfaz"
       }
     }
   },

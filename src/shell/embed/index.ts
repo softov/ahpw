@@ -35,6 +35,19 @@ export interface EmbedWindow {
   onResized(handler: () => void): Unsubscribe;
 }
 
+/**
+ * Where the embedder keeps the person's UI settings, as a profile: one object
+ * keyed by setting, `{ "ui.theme": "default", "ui.language": "pt-BR" }`.
+ * ahpw reads it once at start and writes it whole on every change; keys it
+ * does not know are the embedder's to keep or drop.
+ */
+export interface EmbedProfile {
+  /** What was saved, or null when nothing was. */
+  read(): Promise<Record<string, unknown> | null>;
+  /** Saves every setting, whole. */
+  write(values: Record<string, unknown>): Promise<void>;
+}
+
 export interface Embedder {
   /**
    * Whether the window shows one host, `mono`, or every host the embedder
@@ -69,6 +82,8 @@ export interface Embedder {
   onFocusHost?(handler: (id: string) => void): Unsubscribe;
   /** Present when ahpw draws the window's frame. */
   window?: EmbedWindow;
+  /** Present when the embedder keeps the UI settings; without it, the browser alone keeps them. */
+  profile?: EmbedProfile;
 }
 
 /** The embedder, or undefined in a browser. Read once: a page never moves between the two. */

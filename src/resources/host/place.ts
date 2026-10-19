@@ -1,4 +1,4 @@
-import type { PickerAction, Scena } from '@softov/scena/types';
+import type { BindingPath, PickerAction, ReactiveStore, Scena } from '@softov/scena/types';
 import { translate } from '@softov/scena';
 import { openInPanel, PANEL } from '../../shell/panel/index.js';
 import { RIGHT_SIDEBAR } from '../../shell/right-sidebar.js';
@@ -26,12 +26,26 @@ export function settingsPlace(): SettingsPlace {
   }
 }
 
-export function keepSettingsPlace(place: SettingsPlace): void {
+/** The chosen place, mirrored into the store so a page showing it sees a change made from *Open in*. */
+export const SETTINGS_PLACE = '$/ahp/settings/place' as BindingPath;
+
+export function keepSettingsPlace(place: SettingsPlace, store?: ReactiveStore): void {
+  store?.set(SETTINGS_PLACE, place);
   try {
     localStorage.setItem(PLACE_KEY, place);
   } catch {
     // A browser that keeps nothing opens the window next time.
   }
+}
+
+/** The settings' tabs: the host's, and the browser's own. */
+export type SettingsTab = 'host' | 'ui';
+
+/** The tab the settings open on: the one chosen last, kept while the page lives. */
+let chosenTab: SettingsTab = 'host';
+export const settingsTab = (): SettingsTab => chosenTab;
+export function keepSettingsTab(tab: string): void {
+  if (tab === 'host' || tab === 'ui') chosenTab = tab;
 }
 
 /** The mount key of a host's settings, wherever they are. */
@@ -49,6 +63,9 @@ const PLACE_NAME: Record<SettingsPlace, string> = {
   'panel:bottom': 'host/settings/places/bottom',
 };
 
+/** What a place is called, as *Open in* and the UI settings name it. */
+export const placeName = (place: string): string => translate(PLACE_NAME[place as SettingsPlace] ?? place);
+
 /**
  * *Open in*'s rows: each place, the current one marked; choosing one keeps it
  * and moves the settings there. In a tab's menu the rows sit under an *Open in*
@@ -56,11 +73,11 @@ const PLACE_NAME: Record<SettingsPlace, string> = {
  */
 export function placeItems(scena: Scena, host: string, current: SettingsPlace, inTabMenu = false): PickerAction[] {
   return PLACES.filter((place) => !inTabMenu || place !== current).map((place) => ({
-    title: translate(PLACE_NAME[place]),
+    title: placeName(place),
     ...(inTabMenu ? { group: translate('host/settings/openIn') } : { active: place === current }),
     onSelect: (picker) => {
       picker.closeMenu();
-      keepSettingsPlace(place);
+      keepSettingsPlace(place, scena.store);
       if (place !== current) openSettingsAt(scena, host, place);
     },
   }));

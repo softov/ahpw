@@ -4025,12 +4025,38 @@
 }
 
 /* Save and Reset stay in reach at the foot of a long settings page. */
-.web-settings > .web-page__actions {
+/*
+ * Each tab of the settings fills the page, and its form scrolls itself, so in
+ * the sections view the tree and the content each scroll on their own while
+ * the search and the bar under the form stay in place. Where the page is
+ * shorter than the form can be, as a low bottom panel, the tab scrolls as a
+ * whole and the bar sticks.
+ */
+.web-settings__tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-md);
+  height: 100%;
+  padding-top: var(--oo-spacing-md);
+  box-sizing: border-box;
+}
+
+.web-settings__tab > .oo-schema-form {
+  flex: 1 0 auto;
+  height: 0;
+  min-height: 18rem;
+  overflow-y: auto;
+}
+
+.web-settings__tab > .web-page__actions {
   position: sticky;
-  bottom: calc(-1 * var(--oo-spacing-lg));
+  bottom: 0;
   z-index: 1;
-  margin: 0 calc(-1 * var(--oo-spacing-sm));
-  padding: var(--oo-spacing-sm);
+  flex: none;
+  align-items: center;
+  min-height: 2rem;
+  /* No side margin: the tab panel scrolls, so a bar wider than it shows a horizontal scrollbar. */
+  padding: var(--oo-spacing-sm) 0;
   background: var(--oo-color-surface);
   border-top: 1px solid var(--oo-color-border);
 }

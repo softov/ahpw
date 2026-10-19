@@ -27,6 +27,7 @@ import { ahpPaths, windowHost } from '../bridges/data.js';
 import { EMOJIcon } from '../resources/emojis.js';
 import { registerHost } from '../resources/host/index.js';
 import { registerView } from './view/index.js';
+import { registerProfile } from './ui-settings/profile.js';
 import { registerFiles } from '../resources/files/index.js';
 import { registerChanges } from '../resources/changes/index.js';
 import { registerNotifications } from './notify/index.js';
@@ -138,6 +139,8 @@ export function registerShell(scena: Scena): Disposable {
       resource: { component: 'AppTitle', slot: 'left', text: 'ahpw' },
     }),
     registerView(scena),
+    // After every owner of a UI setting: the theme, notifications, the view.
+    registerProfile(scena, embedder?.profile),
     // The title bar's far end, in this order: light or dark, the layout menu, then left sidebar, panel, right sidebar.
     scena.surfaces.mount({
       surface: 'titlebar',
