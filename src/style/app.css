@@ -3454,6 +3454,17 @@
   color: var(--oo-color-danger);
 }
 
+/* On a primary's accent fill, the muted and danger colours do not show. */
+.web-chip[data-on='true'] .web-people__chip-drop {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.web-chip[data-on='true'] .web-people__chip-drop:hover,
+.web-chip[data-on='true'] .web-people__chip-drop:focus-visible {
+  opacity: 1;
+}
+
 .web-people__grants {
   font-family: var(--oo-font-mono);
   font-size: var(--oo-font-size-sm);
@@ -3505,18 +3516,6 @@
 .web-people__member-name:focus-visible {
   color: var(--oo-color-accent);
   text-decoration: underline;
-}
-
-.web-people__add {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--oo-spacing-sm);
-  align-items: center;
-}
-
-.web-people__add .web-field {
-  flex: 1 1 10rem;
-  min-width: 0;
 }
 
 /* Usage: a range of days, and a pool's records. */
@@ -4197,4 +4196,60 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--oo-spacing-xs) var(--oo-spacing-sm);
+}
+
+/* A user's page: each part a section, its icon heading over its fields, a line above it. */
+.web-user__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  padding-top: var(--oo-spacing-md);
+  border-top: 1px solid var(--oo-color-border);
+}
+
+/* Under a section's heading, its fields' labels are the normal weight, so the heading reads as the level above them. */
+.web-user__section .web-input__label {
+  font-weight: 400;
+}
+
+/* A person's teams and projects: one row a membership, its team then which projects, its primary mark and its ×. */
+.web-memberships {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-memberships__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.web-memberships__row {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  min-height: 2rem;
+  border-bottom: 1px solid var(--oo-color-border);
+}
+
+.web-memberships__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-memberships__scope {
+  color: var(--oo-color-muted);
+}
+
+/* Two buttons that pick in turn: a person then a project, a team then a project. */
+.web-pick-two {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oo-spacing-sm);
 }

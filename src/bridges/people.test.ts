@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { NO_OFFERS } from './offers.js';
-import { everyRole, membersOf, membershipOf, membershipOptions, peopleReducer, personUri, servesPeople, userBody, userFields, writesPeople } from './people.js';
+import { everyRole, membersOf, peopleReducer, personUri, servesPeople, userBody, userFields, writesPeople } from './people.js';
 
 test('a domain channel folds added, changed and removed', () => {
   const fold = peopleReducer('teams');
@@ -38,11 +38,6 @@ test('a user write sends only what a person edits, with an empty text as null', 
   expect(userFields(undefined).roles).toEqual(['guest']);
 });
 
-test('the memberships a host offers: each team, every project through it, and each project through it', () => {
-  expect(membershipOptions(['ops', 'web'], ['site'])).toEqual(['ops', 'ops:*', 'ops:site', 'web', 'web:*', 'web:site']);
-  expect(membershipOptions([], ['site'])).toEqual([]);
-});
-
 test('a host\'s roles: the written ones, then each built-in none of them replaces', () => {
   const roles = everyRole([{ id: 'member', record: { id: 'member', grants: ['session:read'] } }, { id: 'ops', record: { id: 'ops', grants: ['*:read'] } }]);
   expect(roles.map((one) => [one.id, one.builtIn])).toEqual([['member', false], ['ops', false], ['admin', true], ['guest', true]]);
@@ -61,6 +56,4 @@ test('the members of a team, and of a project through any team, with their prima
     { user: 'bea', through: ['ops:*'], primary: false },
   ]);
   expect(membersOf('projects', 'site', users).map((one) => [one.user, one.through])).toEqual([['bea', ['web:site', 'ops:*']]]);
-  expect(membershipOf('web', 'site')).toBe('web:site');
-  expect(membershipOf('web')).toBe('web');
 });

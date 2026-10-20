@@ -5,20 +5,23 @@ import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import {
-  membersOf, membershipOf, PEOPLE, peopleReducer, putPerson, servesPeople, userBody, userFields, writesPeople,
+  membersOf, PEOPLE, peopleReducer, putPerson, servesPeople, userBody, userFields, writesPeople,
   type ListedUser, type Named, type PeopleState,
 } from '../../bridges/people.js';
 import { failed } from '../../shell/notify/index.js';
 import { Field } from '../../shell/view/Field.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { isRecordId } from '../users/form.js';
+import { membershipOf, membershipParts, projectChoices, teamChoices, titled } from '../users/memberships.js';
+import { scopeTitle } from '../users/MembershipList.js';
+import { PickTwo } from '../users/PickTwo.js';
 import { teamTab } from './state.js';
 import { EMOJIcon } from '../emojis.js';
 
 type Kind = 'teams' | 'projects';
 const reducers = { teams: peopleReducer('teams'), projects: peopleReducer('projects') };
 const usersReducer = peopleReducer('users');
-const teamsReducer = peopleReducer('teams');
+const listed = (state: PeopleState<Named> | undefined): Named[] => state?.records.map((one) => one.record) ?? [];
 
 /**
  * A team or a project: its title, and who belongs to it, worked out from the
@@ -33,10 +36,10 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const named = useChannel<PeopleState<Named>>(host, PEOPLE[domain].channel, reducers[domain]);
   const users = useChannel<PeopleState<ListedUser>>(host, !fresh && servesPeople(offers, 'users') ? PEOPLE.users.channel : undefined, usersReducer);
-  // A project's member works on it through a team, so adding one picks the team.
-  const teams = useChannel<PeopleState<Named>>(host, !fresh && domain === 'projects' ? PEOPLE.teams.channel : undefined, teamsReducer);
+  // A team's members are named with its projects, and a project's with the teams they reach it through.
+  const other: Kind = domain === 'teams' ? 'projects' : 'teams';
+  const others = useChannel<PeopleState<Named>>(host, fresh ? undefined : PEOPLE[other].channel, reducers[other]);
   const [draft, setDraft] = useState<{ id: string; title: string } | null>(null);
-  const [adding, setAdding] = useState<{ user: string; team: string }>({ user: '', team: '' });
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
 
@@ -55,8 +58,9 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
   const tab = teamTab(domain, host, id);
   const everyone = users.state?.records.map((one) => one.record) ?? [];
   const members = fresh ? [] : membersOf(domain, id, everyone);
-  const outside = everyone.filter((user) => !members.some((member) => member.user === user.id));
-  const teamIds = teams.state?.records.map((one) => one.id) ?? [];
+  const teams = listed(domain === 'teams' ? named.state : others.state);
+  const projects = listed(domain === 'projects' ? named.state : others.state);
+  const scopeWord = (project: string | null): string => scopeTitle(t, projects, project);
 
   const save = async (): Promise<void> => {
     setBusy(true);
@@ -83,14 +87,20 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
     void putPerson(host, offers, 'users', user.id, userBody({ ...fields, memberships, primary }), false)
       .catch((error: unknown) => failed(t('teams/actions/failed'), error));
   };
-  const addMember = (): void => {
-    const user = everyone.find((one) => one.id === adding.user);
-    if (user === undefined || id === undefined) return;
-    const membership = domain === 'teams' ? membershipOf(id) : membershipOf(adding.team, id);
-    writeMemberships(user, [...(user.memberships ?? []), membership]);
-    setAdding({ user: '', team: '' });
+  /** What adding someone offers: on a team, which of its projects; on a project, which team. */
+  const choicesFor = (user: ListedUser): { value: string; title: string }[] => {
+    const held = user.memberships ?? [];
+    return domain === 'teams'
+      ? projectChoices(id!, projects.map((one) => one.id), held).map((project) => ({ value: membershipOf({ team: id!, project }), title: scopeWord(project) }))
+      : teamChoices(id!, teams.map((one) => one.id), held).map((team) => ({ value: membershipOf({ team, project: id! }), title: titled(teams, team) }));
   };
-  const canAdd = adding.user !== '' && (domain === 'teams' || adding.team !== '');
+  const addable = everyone.filter((user) => choicesFor(user).length > 0);
+  /** How a membership reads among this team's or project's members. */
+  const memberWord = (membership: string): string => {
+    const { team, project } = membershipParts(membership);
+    if (domain === 'teams') return scopeWord(project);
+    return project === '*' ? `${titled(teams, team)} \u{00B7} ${scopeWord(project)}` : titled(teams, team);
+  };
 
   return (
     <div className="web-page web-form">
@@ -137,10 +147,10 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
                     <button type="button" className="web-people__member-name" onClick={() => void scena.commands.execute('ahp.openUser', { host, id: member.user })}>{member.user}</button>
                     <span className="web-people__chips">
                       {member.through.map((membership) => (
-                        <span key={membership} className="web-chip" data-on={user.primary === membership ? 'true' : undefined} title={user.primary === membership ? t('teams/named/primary') : undefined}>
-                          {membership}
+                        <span key={membership} className="web-chip" data-on={user.primary === membership ? 'true' : undefined} title={user.primary === membership ? `${membership} \u{00B7} ${t('teams/named/primary')}` : membership}>
+                          {memberWord(membership)}
                           {writesUsers ? (
-                            <button type="button" className="web-people__chip-drop" aria-label={t('users/user/dropMembership', { membership })} title={t('users/user/dropMembership', { membership })} onClick={() => writeMemberships(user, (user.memberships ?? []).filter((one) => one !== membership))}>{'\u{00D7}'}</button>
+                            <button type="button" className="web-people__chip-drop" aria-label={t('users/user/dropMembership', { name: memberWord(membership) })} title={t('users/user/dropMembership', { name: memberWord(membership) })} onClick={() => writeMemberships(user, (user.memberships ?? []).filter((one) => one !== membership))}>{'\u{00D7}'}</button>
                           ) : null}
                         </span>
                       ))}
@@ -150,20 +160,19 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
               })}
             </ul>
           )}
-          {writesUsers && outside.length > 0 ? (
-            <div className="web-people__add">
-              <select className="web-field" value={adding.user} aria-label={t('teams/named/addWho')} onChange={(event) => setAdding({ ...adding, user: event.target.value })}>
-                <option value="">{t('teams/named/addWho')}</option>
-                {outside.map((user) => <option key={user.id} value={user.id}>{user.id}</option>)}
-              </select>
-              {domain === 'projects' ? (
-                <select className="web-field" value={adding.team} aria-label={t('teams/named/through')} onChange={(event) => setAdding({ ...adding, team: event.target.value })}>
-                  <option value="">{t('teams/named/through')}</option>
-                  {teamIds.map((team) => <option key={team} value={team}>{team}</option>)}
-                </select>
-              ) : null}
-              <Button label={t('teams/named/add')} disabled={!canAdd} onClick={addMember} />
-            </div>
+          {writesUsers && addable.length > 0 ? (
+            <PickTwo<string>
+              firstLabel={t('teams/named/addWho')}
+              firstHeader={t('users/explorer/users')}
+              firsts={addable.map((user) => ({ value: user.id, title: user.id }))}
+              secondLabel={t(domain === 'teams' ? 'users/user/whichProjects' : 'teams/named/through')}
+              secondHeader={t(domain === 'teams' ? 'teams/explorer/projects' : 'teams/explorer/teams')}
+              seconds={(who) => choicesFor(everyone.find((user) => user.id === who)!)}
+              onPick={(who, membership) => {
+                const user = everyone.find((one) => one.id === who)!;
+                writeMemberships(user, [...(user.memberships ?? []), membership]);
+              }}
+            />
           ) : null}
         </section>
       )}

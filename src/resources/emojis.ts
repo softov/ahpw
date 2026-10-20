@@ -40,6 +40,7 @@ export const EMOJIcon = {
   roles: mono('🛡'),
   teams: mono('👥'),
   members: mono('👥'),
+  signIn: mono('🔑'),
   usage: mono('📊'),
   policies: mono('⚖'),
   settings: mono('⚙'),

@@ -5,7 +5,7 @@ import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import {
-  BUILT_IN_ROLES, membershipOptions, PEOPLE, peopleReducer, putPerson, servesPeople, userBody, userFields, writesPeople,
+  BUILT_IN_ROLES, PEOPLE, peopleReducer, personUri, putPerson, servesPeople, userBody, userFields, writesPeople,
   type ListedUser, type Named, type PeopleState, type Role, type UserFields,
 } from '../../bridges/people.js';
 import { confirm } from '../../shell/notify/index.js';
@@ -13,6 +13,8 @@ import { Field } from '../../shell/view/Field.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { isRecordId } from './form.js';
 import { personTab } from './state.js';
+import { MembershipList } from './MembershipList.js';
+import { EMOJIcon } from '../emojis.js';
 
 const usersReducer = peopleReducer('users');
 const rolesReducer = peopleReducer('roles');
@@ -47,18 +49,12 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
   const writes = writesPeople(offers, 'users');
   const dirty = draft !== null && JSON.stringify(draft) !== JSON.stringify(start);
   const roleIds = [...new Set([...(roles.state?.records.map((one) => one.id) ?? []), ...Object.keys(BUILT_IN_ROLES), ...shown.roles])].sort();
-  const options = membershipOptions(teams.state?.records.map((one) => one.id) ?? [], projects.state?.records.map((one) => one.id) ?? [])
-    .filter((one) => !shown.memberships.includes(one));
   const ready = writes && !busy && (fresh ? isRecordId(shown.id) : dirty);
   const tab = personTab('users', host, id);
   // The signed-in person, as `user:<id>`, whose own admin role is not taken away by a slip.
   const self = offers.principal === `user:${id ?? ''}`;
 
   const toggleRole = (role: string, on: boolean): void => set({ roles: on ? [...shown.roles, role] : shown.roles.filter((one) => one !== role) });
-  const dropMembership = (membership: string): void => set({
-    memberships: shown.memberships.filter((one) => one !== membership),
-    ...(shown.primary === membership ? { primary: '' } : {}),
-  });
 
   const save = async (): Promise<void> => {
     if (self && start.roles.includes(ADMIN) && !shown.roles.includes(ADMIN) && !(await confirm({
@@ -84,9 +80,19 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
     }
   };
 
+  /** A section: its icon and title over its fields, a line above it. */
+  const section = (icon: string | undefined, title: string, body: ReactElement): ReactElement => (
+    <section className="web-user__section" aria-label={title}>
+      <Text variant="h3" text={icon === undefined ? title : `${icon} ${title}`} />
+      {body}
+    </section>
+  );
   return (
     <div className="web-page web-form">
-      <Text variant="h2" text={fresh ? t('users/commands/newUser') : id} />
+      <div className="web-role__title">
+        <Text variant="h2" text={`${EMOJIcon.users} ${fresh ? t('users/commands/newUser') : id}`} />
+        {fresh ? null : <span className="web-role__uri">{personUri(offers, 'users', id)}</span>}
+      </div>
       {writes ? null : <p className="web-note">{t('users/notices/readOnly')}</p>}
 
       {fresh ? (
@@ -95,53 +101,39 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
         </Field>
       ) : null}
 
-      <div className="web-form__field" role="group" aria-label={t('users/user/roles')}>
-        <span className="web-input__label">{t('users/user/roles')}</span>
-        {roleIds.length === 0 ? <span className="web-input__hint">{t('users/user/noRoles')}</span> : roleIds.map((role) => (
-          <label key={role} className="web-input__row">
-            <input type="checkbox" checked={shown.roles.includes(role)} disabled={!writes} onChange={(event) => toggleRole(role, event.target.checked)} />
-            <span>{role}</span>
-          </label>
-        ))}
-      </div>
-
-      <div className="web-form__field" role="group" aria-label={t('users/user/memberships')}>
-        <span className="web-input__label">{t('users/user/memberships')}</span>
-        <div className="web-people__chips">
-          {shown.memberships.length === 0 ? <span className="web-input__hint">{t('users/user/noMemberships')}</span> : shown.memberships.map((membership) => (
-            <span key={membership} className="web-chip">
-              {membership}
-              {writes ? (
-                <button type="button" className="web-people__chip-drop" aria-label={t('users/user/dropMembership', { membership })} title={t('users/user/dropMembership', { membership })} onClick={() => dropMembership(membership)}>{'\u{00D7}'}</button>
-              ) : null}
-            </span>
+      {section(EMOJIcon.roles, t('users/user/roles'), (
+        <div className="web-form__field" role="group" aria-label={t('users/user/roles')}>
+          {roleIds.length === 0 ? <span className="web-input__hint">{t('users/user/noRoles')}</span> : roleIds.map((role) => (
+            <label key={role} className="web-input__row">
+              <input type="checkbox" checked={shown.roles.includes(role)} disabled={!writes} onChange={(event) => toggleRole(role, event.target.checked)} />
+              <span>{role}</span>
+            </label>
           ))}
         </div>
-        {writes && options.length > 0 ? (
-          <select className="web-field" value="" aria-label={t('users/user/addMembership')} onChange={(event) => { if (event.target.value !== '') set({ memberships: [...shown.memberships, event.target.value] }); }}>
-            <option value="">{t('users/user/addMembership')}</option>
-            {options.map((one) => <option key={one} value={one}>{one}</option>)}
-          </select>
-        ) : null}
-        <span className="web-input__hint">{t('users/user/membershipsHint')}</span>
-      </div>
+      ))}
 
-      <Field label={t('users/user/primary')} hint={t('users/user/primaryHint')}>
-        <select className="web-field" value={shown.primary} disabled={!writes} onChange={(event) => set({ primary: event.target.value })}>
-          <option value="">{t('users/user/noPrimary')}</option>
-          {shown.memberships.map((one) => <option key={one} value={one}>{one}</option>)}
-        </select>
-      </Field>
+      {section(EMOJIcon.teams, t('users/user/memberships'), (
+        <MembershipList
+          memberships={shown.memberships}
+          primary={shown.primary}
+          teams={teams.state?.records.map((one) => one.record) ?? []}
+          projects={projects.state?.records.map((one) => one.record) ?? []}
+          writes={writes}
+          onChange={set}
+        />
+      ))}
 
-      <Field label={t('users/user/issuer')} hint={t('users/user/issuerHint')}>
-        <input className="web-field" value={shown.issuer} readOnly={!writes} onChange={(event) => set({ issuer: event.target.value })} />
-      </Field>
-
-      <Field label={t('users/user/rolesFrom')} hint={t('users/user/rolesFromHint')}>
-        <input className="web-field" value={shown.rolesFrom} readOnly={!writes} onChange={(event) => set({ rolesFrom: event.target.value })} />
-      </Field>
-
-      <p className="web-note">{t('users/user/token', { id: shown.id.trim() === '' ? '<id>' : shown.id.trim() })}</p>
+      {section(EMOJIcon.signIn, t('users/user/signIn'), (
+        <>
+          <Field label={t('users/user/issuer')} hint={t('users/user/issuerHint')}>
+            <input className="web-field" value={shown.issuer} readOnly={!writes} onChange={(event) => set({ issuer: event.target.value })} />
+          </Field>
+          <Field label={t('users/user/rolesFrom')} hint={t('users/user/rolesFromHint')}>
+            <input className="web-field" value={shown.rolesFrom} readOnly={!writes} onChange={(event) => set({ rolesFrom: event.target.value })} />
+          </Field>
+          <p className="web-note">{t('users/user/token', { id: shown.id.trim() === '' ? '<id>' : shown.id.trim() })}</p>
+        </>
+      ))}
 
       {failure === null ? null : <Alert tone="danger" message={failure} />}
       {writes ? (

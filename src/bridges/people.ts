@@ -145,15 +145,6 @@ export function userFields(record: ListedUser | undefined): UserFields {
 }
 
 /**
- * The memberships a user may hold on a host, each naming what their work may
- * be charged to: a team, every project through a team (`team:*`), or one
- * project through a team (`team:project`).
- */
-export function membershipOptions(teams: readonly string[], projects: readonly string[]): string[] {
-  return teams.flatMap((team) => [team, `${team}:*`, ...projects.map((project) => `${team}:${project}`)]);
-}
-
-/**
  * The roles every ahpd has without writing one down, as `@ahpd/sdk`'s
  * `BUILT_IN` (copied, since its code reads `node:fs`). The roles channel lists
  * only the roles a users file writes; one written under a built-in's name
@@ -172,11 +163,6 @@ export function everyRole(written: readonly { id: string; record: Role }[]): { i
     ...written.map((one) => ({ ...one, builtIn: false })),
     ...Object.entries(BUILT_IN_ROLES).filter(([id]) => !ids.has(id)).map(([id, grants]) => ({ id, record: { id, grants: [...grants] }, builtIn: true })),
   ];
-}
-
-/** A membership's words: the team, and the project through it, `*` for every one. */
-export function membershipOf(team: string, project?: string): string {
-  return project === undefined ? team : `${team}:${project}`;
 }
 
 /** A member of a team or project: who, the memberships that make them one, and whether one is their primary. */
