@@ -81,7 +81,6 @@ root state _meta["ahpd.grants"] -> grantCatalog -> RolePage
 - **Done so far:** every task; see [implemented.md](implemented.md).
 - **Next action:** none.
 - **Open questions:** none.
-- **Watch out for:** ahpw's typecheck needs the next scena release.
 
 ## Final verification checklist
 

@@ -1,7 +1,7 @@
 ---
 title: Settings in a window, with a sections view beside the fields and the JSON
 domain: hosts
-status: active
+status: built
 priority: medium
 created: 2026-10-19
 revalidated: 2026-10-19
@@ -101,22 +101,20 @@ Manage gear -> ahp.manage.settings -> ahp.openSettings -> scena.surfaces.open(ma
 
 ## Risks and tradeoffs
 
-- ahpw's `tsc -b` reads the installed scena (0.5.7), so tasks 04 and 05 typecheck against scena's source through a scratch `tsconfig` with `paths` until a scena release carries tasks 01-03; vite runs them with `AHPW_SCENA`. The release and the dependency bump are Softov's.
+- Tasks 04 and 05 need scena's tasks 01-03 released; scena 0.5.9 carries them and ahpw depends on it.
 - Moving the JSON text out of `SchemaForm` can break what its tests hold (a value from outside replaces a draft, the person's own value keeps the typed text); `jsonView` mirrors `TupleJson`, which already does both, and the tests run unchanged.
 - A floating window can be dragged off the page; its position is clamped to the window on drop and on resize.
 
 ## Resume state
 
-- **Done so far:** tasks 01-06, 2026-10-19; scena's checks, ahpw's tests, and the four places checked in Chromium against an isolated ahpd.
-- **Next action:** release scena with tasks 01-03 and move ahpw's `@softov/scena` to it (Softov's); until then ahpw's `pnpm typecheck` and `pnpm build` fail on the new exports, and `pnpm dev` needs `AHPW_SCENA=../scena`.
-- **Open questions:**
-  1. A plugin's section repeats its name in the object's own header (`AGENT-CLAUDE` under *agent-claude*) - proposed: leave until the form can draw an object section without its header.
-- **Watch out for:** ahpd's daemon keys carry no `default` in the schema, so a reset enum shows *Select...*; that is ahpd's to add. The restart banner (`_meta["ahpd.restartNeeded"]`) is not part of this plan.
+- **Done so far:** every task; see [implemented.md](implemented.md).
+- **Next action:** none; what waits is in [deferred.md](deferred.md).
+- **Open questions:** none.
 
 ## Final verification checklist
 
 - [x] scena: `pnpm typecheck`, `pnpm lint`, `pnpm test` pass.
 - [x] ahpw: `pnpm test` passes; `tsc` passes against scena's source.
 - [x] ahpw with `AHPW_SCENA`: the window opens from the Manage gear, the three views edit one value, Save sends only changed keys, *Open in* moves it to each of the four places.
-- [ ] ahpw's `pnpm typecheck` and `pnpm build` pass on a released scena.
-- [ ] `plans/index.md` updated.
+- [x] ahpw's `pnpm typecheck` and `pnpm build` pass on a released scena.
+- [x] `plans/index.md` updated.

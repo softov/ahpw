@@ -26,7 +26,7 @@ What exists today: [00-hosts.md](hosts/00-hosts.md).
 | [02 - A window with every host](hosts/02-a-window-with-every-host/plan.md) | built | - |
 | [03 - Hosts, filters and the folder pill](hosts/03-hosts-filters-and-the-folder-pill/plan.md) | built | - |
 | [04 - Trusted folders](hosts/04-trusted-folders/plan.md) | built | what waits is in its [deferred.md](hosts/04-trusted-folders/deferred.md) |
-| [05 - Settings in a window, with a sections view](hosts/05-settings-in-a-window-with-a-sections-view/plan.md) | active | release scena, then move ahpw to it |
+| [05 - Settings in a window, with a sections view](hosts/05-settings-in-a-window-with-a-sections-view/plan.md) | built | what waits is in its [deferred.md](hosts/05-settings-in-a-window-with-a-sections-view/deferred.md) |
 | [06 - UI settings](hosts/06-ui-settings/plan.md) | built | what waits is in its [deferred.md](hosts/06-ui-settings/deferred.md) |
 
 ## organization

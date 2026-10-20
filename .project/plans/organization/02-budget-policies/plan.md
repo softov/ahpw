@@ -93,7 +93,6 @@ root state offers -> trackServed(x-ahpd-policies) -> activity item
 - **Done so far:** every task; see [implemented.md](implemented.md).
 - **Next action:** none; what waits is in [deferred.md](deferred.md).
 - **Open questions:** none.
-- **Watch out for:** ahpw's typecheck needs the scena release from plan hosts/05 first.
 
 ## Final verification checklist
 

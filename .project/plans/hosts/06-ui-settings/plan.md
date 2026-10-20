@@ -91,7 +91,6 @@ UI_SETTINGS: ui.<name> -> { field, read, write, watch }
 - **Done so far:** every task; see [implemented.md](implemented.md).
 - **Next action:** none; what waits is in [deferred.md](deferred.md).
 - **Open questions:** none.
-- **Watch out for:** ahpw's typecheck needs the scena release from plan 05.
 
 ## Final verification checklist
 
