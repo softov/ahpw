@@ -39,6 +39,16 @@ function editable(record: Record<string, unknown>): Record<string, unknown> {
   return rest;
 }
 
+/**
+ * The row without the text a person emptied. An empty `pool` would be a pool
+ * named nothing that every such row shares, and an empty `from` or `until` no
+ * date at all, so an emptied field is the key taken out, which a put sends as
+ * `null` and the host clears.
+ */
+function withoutEmptied(record: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(record).filter(([, value]) => value !== ''));
+}
+
 /** What a limits read answered: the figures, or why there are none to show. */
 type Limits = { figures: PolicyLimits } | { error: string } | null;
 
@@ -122,7 +132,7 @@ export default function PolicyPage({ host, policy: id }: { host: string; policy?
   const writes = writesPolicies(offers);
   const value = draft ?? held;
   const target = fresh ? String(value.id ?? '').trim() : id;
-  const changed = fresh ? editable(value) : changedKeys(held, value);
+  const changed = fresh ? editable(withoutEmptied(value)) : changedKeys(held, withoutEmptied(value));
   const dirty = Object.keys(changed).length > 0;
   const ready = writes && !busy && jsonValid && (fresh ? isRecordId(target) : dirty);
   const tab = policyTab(host, id);

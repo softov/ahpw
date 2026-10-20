@@ -1715,6 +1715,7 @@
         "trust": "Confiança do espaço de trabalho",
         "limits": "Limites e diagnóstico",
         "listener": "Escuta",
+        "modelProxy": "Proxy de modelos",
         "sessions": "Sessões",
         "tools": "Ferramentas",
         "mcp": "Servidores MCP",

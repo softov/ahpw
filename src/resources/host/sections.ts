@@ -12,8 +12,10 @@ const HOST: readonly Named[] = [
   ['limits', ['clientQueueBytes', 'replayBytes', 'wire']],
 ];
 
+// ahpd 0.13 renamed `http` to `httpApi` and `proxy` to `modelProxy`; an older host still sends the old names.
 const DAEMON: readonly Named[] = [
-  ['listener', ['port', 'host', 'http', 'routes']],
+  ['listener', ['port', 'host', 'httpApi', 'http', 'routes']],
+  ['modelProxy', ['modelProxy', 'proxy']],
   ['sessions', ['closedChats', 'archiveDirtyWorktree', 'pullRequestLookup']],
   ['tools', ['advancedTools', 'sessionTools', 'sessionToolsProviders']],
   ['mcp', ['mcpServers']],
@@ -23,7 +25,7 @@ const DAEMON: readonly Named[] = [
 const VSCODE: readonly Named[] = [
   ['network', ['http.proxy', 'http.proxyKerberosServicePrincipal', 'http.noProxy', 'systemProxyEnabled']],
   ['telemetry', ['telemetryLevel', 'editTelemetryEnabled', 'disableRepoInfoTelemetry']],
-  ['approval', ['terminalAutoApproveEnabled', 'globalAutoApproveEnabled', 'autoApprovePolicyRestricted', 'autoReplyEnabled', 'editAutoApprovePatterns', 'terminalAutoApproveRules']],
+  ['approval', ['terminalAutoApproveEnabled', 'globalAutoApproveEnabled', 'eligibleForAutoApproval', 'autoApprovePolicyRestricted', 'autoReplyEnabled', 'editAutoApprovePatterns', 'terminalAutoApproveRules']],
   ['agents', ['codexAgentEnabled', 'agentOrchestrationLimits', 'copilotMultiRootEnabled', 'claudeMultiRootEnabled', 'codexMultiRootEnabled', 'migrateLegacyCopilotCliEnabled', 'overlapProviderPreparation']],
   ['vscodeMcp', ['githubMcpServerEnabled', 'mcpToolRoutingEnabled', 'mcpConnectorsEnabled']],
   ['vscodeSessions', ['sessionSyncEnabled', 'sessionCatalogEnabled', 'showExternalSessions', 'workspaceSnapshotEnabled', 'autoArchiveMergedSessionsAfterDays', 'autoDeleteArchivedMergedSessionsAfterDays']],

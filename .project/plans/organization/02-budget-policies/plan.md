@@ -14,7 +14,7 @@ refs:
   - file:///github/ahpd/docs/sdk/POLICY.md - the row, the scheme, the channel, the commands, the limits read
   - file:///github/ahpd/packages/sdk/src/policy.ts - `policyChannels`, the manifest, `policy://<id>/limits`
   - file:///github/ahpd/packages/sdk/src/charge.ts - `LimitFigure`, one limit with what it used and when it resets
-  - npm://@ahpd/sdk@^0.12.0 - `Policy`, `PolicyKind`, `PolicyLimit`, `PolicyScope`; it does not export `LimitFigure` or `PolicyLimits` yet
+  - npm://@ahpd/sdk@^0.13.0 - `Policy`, `PolicyKind`, `PolicyLimit`, `PolicyScope`, `LimitFigure`, `PolicyLimits`
   - "[code://src/bridges/people.ts](../../../../src/bridges/people.ts) - the reducer, `serves`, `writes`, put and remove over a records domain, the pattern the bridge copies"
   - "[code://src/resources/usage/index.ts](../../../../src/resources/usage/index.ts) - activity item, explorer with a Group menu, page in main"
   - "[code://src/resources/users/index.ts](../../../../src/resources/users/index.ts) - New, open and delete commands with a confirm"
@@ -62,7 +62,8 @@ root state offers -> trackServed(x-ahpd-policies) -> activity item
 | What | Source | Task |
 | --- | --- | --- |
 | The form is `SchemaForm` over `offers.providers.policy.manifest`, with the fields and JSON views. | (defaulted: the manifest is what the host offers a client for a row) | 03 |
-| The limits read is typed at the boundary in `bridges/policies.ts` until `@ahpd/sdk` exports `PolicyLimits`, then swapped for it. | (defaulted: the installed SDK does not export it) | 01 |
+| The limits read is typed with `@ahpd/sdk`'s `LimitFigure` and `PolicyLimits`. | `@ahpd/sdk` 0.13.0 exports them | 01 |
+| A text field a person empties is the key taken out, sent as `null`, so an emptied `pool`, `from` or `until` clears. | (defaulted: an empty `pool` names a pool every such row shares) | 03 |
 | The activity item shows while a host serves `x-ahpd-policies`, as users does with its channel. | `trackServed` in the users resource | 02 |
 | A new row's id is the form's first field, fixed after; the body never carries it, since the URI names the row. | the users pages, and `put` in `policy.ts`, where the URI's id wins | 03 |
 | An edit sends what changed, and `null` for a field taken out, since the host merges a body over the row it holds. | `put` in ahpd's `policy.ts`; the same rule as the settings | 03 |

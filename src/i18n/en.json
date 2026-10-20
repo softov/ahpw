@@ -1715,6 +1715,7 @@
         "trust": "Workspace trust",
         "limits": "Limits and diagnostics",
         "listener": "Listener",
+        "modelProxy": "Model proxy",
         "sessions": "Sessions",
         "tools": "Tools",
         "mcp": "MCP servers",

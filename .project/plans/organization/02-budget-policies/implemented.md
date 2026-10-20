@@ -24,6 +24,7 @@ A person who may read a host's policies finds them under ⚖ in the activity bar
 - `vitest run`: 85 files, 452 tests; new `src/bridges/policies.test.ts` (4) and `src/resources/policies/words.test.ts` (4).
 - `tsc` against scena's source: no error in `src/`.
 - In Chromium against an isolated ahpd 0.12.0: the item, each grouping, an edit, a create, a held id refused, a delete, the limits read refused with -32008, light and dark, the JSON view.
+- In Chromium against ahpd 0.13.0: the form narrows to the kind (scena 0.5.10), and a `pool` and `cap` set, then emptied, leave the row with no `pool`.
 - In Chromium against ahpd main `0e76f540`: the limits with what they used, when they reset, an `each` limit's members, and `Not counted yet`.
 
 ## Departures from the plan

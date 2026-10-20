@@ -9,12 +9,12 @@
  */
 
 import { AhpErrorCodes } from '@microsoft/agent-host-protocol';
-import type { LimitPool, Measure, Period as LimitPeriod, Policy, PolicyKind, PolicyLimit } from '@ahpd/sdk';
+import type { LimitFigure, LimitMember, LimitPool, Measure, Period as LimitPeriod, Policy, PolicyKind, PolicyLimit, PolicyLimits } from '@ahpd/sdk';
 import { hostBridge } from './data.js';
 import { allows, type Offers } from './offers.js';
 import { recordsReducer, type PeopleState } from './people.js';
 
-export type { LimitPool, LimitPeriod, Measure, Policy, PolicyKind, PolicyLimit };
+export type { LimitFigure, LimitMember, LimitPool, LimitPeriod, Measure, Policy, PolicyKind, PolicyLimit, PolicyLimits };
 
 export const POLICIES = { scheme: 'policy', channel: 'x-ahpd-policies://', put: 'x-ahpd/policies/put', remove: 'x-ahpd/policies/remove' } as const;
 
@@ -68,38 +68,6 @@ export async function removePolicy(host: string, offers: Offers, id: string): Pr
     return;
   }
   await bridge.deleteResource(policyUri(offers, id), false);
-}
-
-/**
- * One limit with what it used and when it resets, as `policy://<id>/limits`
- * answers it. @ahpd/sdk's `LimitFigure`, which 0.12.0 does not export yet;
- * swap for it when it does.
- */
-export interface LimitFigure {
-  amount: number;
-  measure: Measure;
-  period: LimitPeriod;
-  pool: LimitPool;
-  /** Whether the host counts the measure yet; one it does not never closes its row. */
-  counted: boolean;
-  /** What the period used, when the measure is counted. */
-  used?: number;
-  /** Every member with a figure of their own, for an `each` limit. */
-  members?: { user: string; used: number }[];
-  /** The first instant of the period. */
-  from: string;
-  /** When the period resets; absent for `total`. */
-  resets?: string;
-  /** The row's `until`, when it names one. */
-  ends?: string;
-}
-
-/** One row's limits, as its `limits` leaf answers them; @ahpd/sdk's `PolicyLimits`, not exported by 0.12.0. */
-export interface PolicyLimits {
-  id: string;
-  kind: PolicyKind;
-  scope: string;
-  limits: LimitFigure[];
 }
 
 /** A row's limits with what each used; a host with no usage store, or older than the leaf, refuses the read. */
