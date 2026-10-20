@@ -5,6 +5,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-20
+
+### Added
+
+- **Policies**, a ⚖ item while a host lists them: rows grouped by kind, by scope or in one list, each opening a page.
+  The page draws its form from the host's `policy:` manifest, shows only the measures and match types the row's kind takes, and shows what each limit used and when it resets.
+- **A person's limits at the top of Usage**, each with what its period used, a meter, and when it resets.
+- **Settings in a window.**
+  The host's settings open in a floating window, or in the main area, the right sidebar or the bottom panel, as the person chooses with *Open in*.
+  A Sections view beside Fields and JSON shows the settings as a tree of groups and sections with a search.
+  Hovering a setting shows its key, and a gear resets it, copies its key or its JSON, or shows it in the JSON.
+- **An Interface tab** in the same window: the theme, light or dark, the language, the main area's layout, where the settings open, and how a question is asked.
+  Each applies as it changes, and the command palette opens it with *Open interface settings*.
+- **The embed contract's `profile`.**
+  An embedder that gives one keeps the Interface settings, and the browser keeps a copy.
+- **A role's permissions as controls**: a card per subject, its operations as chips that read granted, covered by a group, or not granted, with a read, write or all switch, and a text view beside it.
+  The role's name shows its address, `role://<id>`.
+- **A user's page in sections**: Roles, Teams and projects, and Sign-in, with the name's address, `user://<id>`.
+  Teams and projects lists each membership by its team and which projects, marks the primary one, and adds one with *Add to a team*, then *Which projects*.
+- **Members added from a team or a project**: a team adds a person to the team, every project of it or one project, and a project adds a person through a team.
+
+### Changed
+
+- **ahpd 0.13.** The settings place `httpApi` under Listener and `modelProxy` in a section of its own, keeping `http` and `proxy` for older hosts, and `eligibleForAutoApproval` under Auto approve.
+  The policy types come from `@ahpd/sdk` 0.13.
+- **scena 0.5.10.**
+- A save error on a record page is an alert in the page, not a page-sized notice.
+- A member chip on a team or project page reads as words, such as *every project* or the team's name.
+
+### Fixed
+
+- Emptying a policy's `pool`, `from` or `until` takes it out of the row, so an empty pool is never shared by every row that has one.
+- The settings window no longer scrolls sideways.
+- Choosing a section low in the settings tree scrolls the tree and the fields on their own, not the whole window.
+
 ## [0.5.0] - 2026-10-18
 
 ### Added
@@ -216,7 +251,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/softov/ahpw/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/softov/ahpw/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/softov/ahpw/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/softov/ahpw/compare/v0.3.0...v0.3.1
