@@ -14,6 +14,7 @@ import { PageAlert } from '../../shell/view/PageAlert.js';
 import { isRecordId } from './form.js';
 import { personTab } from './state.js';
 import { MembershipList } from './MembershipList.js';
+import { RolePills } from './RolePills.js';
 import { EMOJIcon } from '../emojis.js';
 
 const usersReducer = peopleReducer('users');
@@ -53,8 +54,6 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
   const tab = personTab('users', host, id);
   // The signed-in person, as `user:<id>`, whose own admin role is not taken away by a slip.
   const self = offers.principal === `user:${id ?? ''}`;
-
-  const toggleRole = (role: string, on: boolean): void => set({ roles: on ? [...shown.roles, role] : shown.roles.filter((one) => one !== role) });
 
   const save = async (): Promise<void> => {
     if (self && start.roles.includes(ADMIN) && !shown.roles.includes(ADMIN) && !(await confirm({
@@ -101,15 +100,8 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
         </Field>
       ) : null}
 
-      {section(EMOJIcon.roles, t('users/user/roles'), (
-        <div className="web-form__field" role="group" aria-label={t('users/user/roles')}>
-          {roleIds.length === 0 ? <span className="web-input__hint">{t('users/user/noRoles')}</span> : roleIds.map((role) => (
-            <label key={role} className="web-input__row">
-              <input type="checkbox" checked={shown.roles.includes(role)} disabled={!writes} onChange={(event) => toggleRole(role, event.target.checked)} />
-              <span>{role}</span>
-            </label>
-          ))}
-        </div>
+      {section(EMOJIcon.roles, t('users/user/roles'), roleIds.length === 0 ? <span className="web-input__hint">{t('users/user/noRoles')}</span> : (
+        <RolePills held={shown.roles} offered={roleIds.filter((one) => !shown.roles.includes(one))} writes={writes} onChange={(roles) => set({ roles })} />
       ))}
 
       {section(EMOJIcon.teams, t('users/user/memberships'), (

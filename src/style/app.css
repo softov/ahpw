@@ -3438,7 +3438,7 @@
   gap: var(--oo-spacing-xs);
 }
 
-.web-people__chip-drop {
+.web-chip__remove {
   margin: 0 -2px 0 2px;
   padding: 0 2px;
   border: none;
@@ -3449,19 +3449,19 @@
   cursor: pointer;
 }
 
-.web-people__chip-drop:hover,
-.web-people__chip-drop:focus-visible {
+.web-chip__remove:hover,
+.web-chip__remove:focus-visible {
   color: var(--oo-color-danger);
 }
 
 /* On a primary's accent fill, the muted and danger colours do not show. */
-.web-chip[data-on='true'] .web-people__chip-drop {
+.web-chip[data-on='true'] .web-chip__remove {
   color: inherit;
   opacity: 0.75;
 }
 
-.web-chip[data-on='true'] .web-people__chip-drop:hover,
-.web-chip[data-on='true'] .web-people__chip-drop:focus-visible {
+.web-chip[data-on='true'] .web-chip__remove:hover,
+.web-chip[data-on='true'] .web-chip__remove:focus-visible {
   opacity: 1;
 }
 
@@ -4265,6 +4265,14 @@
 }
 
 /* Two buttons that pick in turn: a person then a project, a team then a project. */
+/* A person's roles: the pills, then + Add a role, on one wrapping line. */
+.web-role-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+}
+
 .web-pick-two {
   display: flex;
   flex-wrap: wrap;

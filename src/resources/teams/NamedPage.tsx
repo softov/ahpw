@@ -11,6 +11,7 @@ import {
 import { failed } from '../../shell/notify/index.js';
 import { Field } from '../../shell/view/Field.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
+import { RemovableChip } from '../../shell/view/RemovableChip.js';
 import { isRecordId } from '../users/form.js';
 import { membershipOf, membershipParts, projectChoices, teamChoices, titled } from '../users/memberships.js';
 import { scopeTitle } from '../users/MembershipList.js';
@@ -147,12 +148,14 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
                     <button type="button" className="web-people__member-name" onClick={() => void scena.commands.execute('ahp.openUser', { host, id: member.user })}>{member.user}</button>
                     <span className="web-people__chips">
                       {member.through.map((membership) => (
-                        <span key={membership} className="web-chip" data-on={user.primary === membership ? 'true' : undefined} title={user.primary === membership ? `${membership} \u{00B7} ${t('teams/named/primary')}` : membership}>
-                          {memberWord(membership)}
-                          {writesUsers ? (
-                            <button type="button" className="web-people__chip-drop" aria-label={t('users/user/dropMembership', { name: memberWord(membership) })} title={t('users/user/dropMembership', { name: memberWord(membership) })} onClick={() => writeMemberships(user, (user.memberships ?? []).filter((one) => one !== membership))}>{'\u{00D7}'}</button>
-                          ) : null}
-                        </span>
+                        <RemovableChip
+                          key={membership}
+                          label={memberWord(membership)}
+                          on={user.primary === membership}
+                          title={user.primary === membership ? `${membership} \u{00B7} ${t('teams/named/primary')}` : membership}
+                          removeLabel={t('users/user/dropMembership', { name: memberWord(membership) })}
+                          {...(writesUsers ? { onRemove: () => writeMemberships(user, (user.memberships ?? []).filter((one) => one !== membership)) } : {})}
+                        />
                       ))}
                     </span>
                   </li>
