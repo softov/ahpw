@@ -661,6 +661,17 @@
   color: var(--oo-color-text);
 }
 
+/* A pill that only shows a value: no hover, no hand, since nothing happens on it. */
+.web-chip[data-still='true'] {
+  cursor: default;
+}
+
+.web-chip[data-still='true']:not([data-on='true']):hover {
+  border-color: var(--oo-color-border);
+  background: none;
+  color: var(--oo-color-muted);
+}
+
 .web-chip[data-on='true'],
 .web-chip[data-on='true']:not(:disabled):hover {
   border-color: var(--oo-color-accent);
@@ -4238,9 +4249,107 @@
   gap: var(--oo-spacing-md);
 }
 
-/* The Keys tab starts as far under the tabs as Info's first section does. */
+/* New key above the list; the tab starts as far under the tabs as Info's first section does. */
 .web-profile__keys {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-md);
   padding-top: var(--oo-spacing-md);
+}
+
+.web-mint {
+  padding: var(--oo-spacing-md);
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md);
+}
+
+.web-mint__expiry {
+  display: flex;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-mint__grants {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--oo-spacing-md);
+}
+
+.web-mint__secret {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  padding: var(--oo-spacing-md);
+  border: 1px solid var(--oo-color-accent);
+  border-radius: var(--oo-radius-md);
+}
+
+.web-mint__secret-line {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-mint__secret-text {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  overflow-wrap: anywhere;
+  font-family: var(--oo-font-mono);
+  background: var(--oo-color-active);
+  border-radius: var(--oo-radius-sm);
+}
+
+/* A person's keys: one row each, what it is on the left and Revoke on the right. */
+.web-keys__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.web-keys__row {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-md);
+  padding: var(--oo-spacing-sm) 0;
+  border-bottom: 1px solid var(--oo-color-border);
+}
+
+.web-keys__row[data-expired='true'] .web-keys__main {
+  opacity: 0.6;
+}
+
+.web-keys__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.web-keys__name {
+  display: flex;
+  align-items: baseline;
+  gap: var(--oo-spacing-sm);
+  font-weight: 600;
+}
+
+.web-keys__id {
+  font-family: var(--oo-font-mono);
+  font-size: var(--oo-font-size-xs);
+  font-weight: 400;
+  color: var(--oo-color-muted);
+}
+
+.web-keys__grants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.web-keys__when {
+  font-size: var(--oo-font-size-sm);
+  color: var(--oo-color-muted);
 }
 
 /* The section's line above the next heading closes the list; with no add button under it, a row line would be a second one. */

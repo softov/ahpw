@@ -19,7 +19,7 @@ interface RemovableChipProps {
  */
 export function RemovableChip({ label, title, on = false, removeLabel, onRemove }: RemovableChipProps): ReactElement {
   return (
-    <span className="web-chip" data-on={on ? 'true' : undefined} title={title ?? label}>
+    <span className="web-chip" data-on={on ? 'true' : undefined} data-still={onRemove === undefined ? 'true' : undefined} title={title ?? label}>
       {label}
       {onRemove === undefined ? null : (
         <button type="button" className="web-chip__remove" aria-label={removeLabel} title={removeLabel} onClick={onRemove}>{'\u{00D7}'}</button>

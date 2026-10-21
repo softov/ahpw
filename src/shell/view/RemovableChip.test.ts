@@ -6,8 +6,11 @@ import { RemovableChip } from './RemovableChip.js';
 const markup = (props: Parameters<typeof RemovableChip>[0]): string => renderToStaticMarkup(createElement(RemovableChip, props));
 
 describe('RemovableChip', () => {
-  it('has no ✕ without onRemove', () => {
-    expect(markup({ label: 'admin', removeLabel: 'Take admin away' })).not.toContain('<button');
+  it('has no ✕ without onRemove, and stays still', () => {
+    const html = markup({ label: 'admin', removeLabel: 'Take admin away' });
+    expect(html).not.toContain('<button');
+    expect(html).toContain('data-still="true"');
+    expect(markup({ label: 'admin', removeLabel: 'x', onRemove: () => undefined })).not.toContain('data-still');
   });
 
   it('names its ✕ with removeLabel', () => {

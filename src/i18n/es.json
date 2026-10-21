@@ -2123,7 +2123,42 @@
       "limitsFailed": "No se pudieron leer tus límites: {error}"
     },
     "keys": {
-      "soon": "Tus claves se muestran aquí."
+      "reading": "Leyendo tus claves…",
+      "none": "Aún sin claves.",
+      "notServed": "Este host no guarda claves.",
+      "unnamed": "Clave sin nombre",
+      "everyGrant": "Todos los permisos que tienes",
+      "made": "Creada el {day}",
+      "expires": "Vence el {day}",
+      "expired": "Venció el {day}",
+      "neverExpires": "No vence",
+      "revoke": "Revocar",
+      "revokeTitle": "¿Revocar {name}?",
+      "revokeBody": "Lo que use esta clave ya no podrá iniciar sesión con ella.",
+      "mint": {
+        "new": "Nueva clave",
+        "label": "Etiqueta",
+        "labelHint": "Para qué es, así la lista la distingue, como laptop o ci.",
+        "expiry": "Vence",
+        "day": "Día en que vence",
+        "expiries": {
+          "7": "En 7 días",
+          "30": "En 30 días",
+          "90": "En 90 días",
+          "365": "En un año",
+          "never": "Nunca",
+          "date": "Un día"
+        },
+        "grants": "Permisos",
+        "grantsHint": "Un permiso que un rol te da al iniciar sesión no aparece aquí; una clave con todos los permisos sigue tus roles cuando cambian.",
+        "noGrants": "Tu registro no lista permisos para elegir.",
+        "mint": "Crear clave",
+        "cancel": "Cancelar",
+        "madeTitle": "{name} está creada",
+        "once": "Copia el secreto ahora. El host lo muestra solo esta vez y guarda solo su hash.",
+        "copy": "Copiar el secreto",
+        "done": "Listo"
+      }
     },
     "notices": {
       "reading": "Leyendo tu perfil…",

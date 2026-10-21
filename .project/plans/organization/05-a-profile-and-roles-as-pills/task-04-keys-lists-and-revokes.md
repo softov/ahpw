@@ -1,6 +1,6 @@
 ---
 title: A token bridge, and the Keys tab lists and revokes the person's tokens
-status: todo
+status: done
 depends: [task-02-the-profile-page-and-its-info-tab.md]
 layer: "ahpw profile"
 refs:
@@ -20,6 +20,8 @@ The Keys tab lists the person's tokens with their label, grants, creation and ex
 - `CREATE: src/bridges/tokens.test.ts` - the params each call sends and the answers it reads.
 - `CREATE: src/resources/profile/TokenList.tsx` - `TokenList({ host, user })`, the list and revoke, for the person or for `user`.
 - `UPDATE: src/resources/profile/Keys.tsx` - the list and revoke, through `TokenList`.
+- `CREATE: src/bridges/said.ts` - `hostSaid(caught)`, an `RpcError` in the host's own words, without the client's `RPC error <code>:`.
+- `CREATE: src/bridges/said.test.ts` - an `RpcError`, another error, and a string.
 - `UPDATE: src/style/app.css` - `.web-keys` and its rows.
 - `UPDATE: src/i18n/en.json` - `profile/keys/*` for the list, the columns, revoke and the notices.
 - `UPDATE: src/i18n/es.json` - the same keys.
@@ -51,3 +53,9 @@ The Keys tab lists the person's tokens with their label, grants, creation and ex
 
 ## Resume
 
+Done on 2026-10-21.
+An expiry shows with its time, because `--expires 2026-12-31` is midnight UTC, the day before in UTC-4.
+The protocol client writes `RPC error -32009:` before ahpd's sentence, so `hostSaid` takes it off for the note.
+Other pages still show that prefix, such as the users list's "Sign in to use this host".
+Checked in Chromium on ahpd 0.13 at port 9199, light and dark.
+Two CLI-minted keys listed, one revoked and gone on the host, and a minted-key sign-in shown as a note.

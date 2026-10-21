@@ -1,6 +1,6 @@
 ---
 title: The Keys tab mints a token with a label, an expiry and a subset of the person's grants
-status: todo
+status: done
 depends: [task-04-keys-lists-and-revokes.md]
 layer: "ahpw profile"
 refs:
@@ -52,3 +52,10 @@ The mint shows the secret once, with *Copy*, and the list reads again.
 
 ## Resume
 
+Done on 2026-10-21.
+*New key* is a button that opens the form above the list, and the form starts on 90 days.
+The secret box uses the shared `CopyButton`, which also copies over plain http.
+A read-only pill no longer lights on hover: `RemovableChip` marks one with no ✕ `data-still`.
+Checked in Chromium on ahpd 0.13 at port 9199, light and dark, as bob.
+A key with `usage:read` alone lists only bob in the users list, where bob's own secret lists all three.
+The eleventh key shows ahpd's refusal at the limit in an alert.

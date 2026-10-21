@@ -2123,7 +2123,42 @@
       "limitsFailed": "Your limits could not be read: {error}"
     },
     "keys": {
-      "soon": "Your keys show here."
+      "reading": "Reading your keys…",
+      "none": "No keys yet.",
+      "notServed": "This host keeps no keys.",
+      "unnamed": "Unnamed key",
+      "everyGrant": "Every grant you hold",
+      "made": "Made {day}",
+      "expires": "Expires {day}",
+      "expired": "Expired {day}",
+      "neverExpires": "Never expires",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke {name}?",
+      "revokeBody": "Whatever uses this key can no longer sign in with it.",
+      "mint": {
+        "new": "New key",
+        "label": "Label",
+        "labelHint": "What it is for, so the list can tell it apart, such as laptop or ci.",
+        "expiry": "Expires",
+        "day": "Day it expires",
+        "expiries": {
+          "7": "In 7 days",
+          "30": "In 30 days",
+          "90": "In 90 days",
+          "365": "In a year",
+          "never": "Never",
+          "date": "On a day"
+        },
+        "grants": "Grants",
+        "grantsHint": "A grant a role gives you at sign-in is not listed here; a key with every grant follows your roles as they change.",
+        "noGrants": "Your record lists no grants to pick from.",
+        "mint": "Make key",
+        "cancel": "Cancel",
+        "madeTitle": "{name} is made",
+        "once": "Copy the secret now. The host shows it this once and keeps only its hash.",
+        "copy": "Copy the secret",
+        "done": "Done"
+      }
     },
     "notices": {
       "reading": "Reading your profile…",
