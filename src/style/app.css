@@ -4300,6 +4300,11 @@
   border-radius: var(--oo-radius-sm);
 }
 
+/* In a page's section, the heading already sits above it. */
+.web-user__section > .web-profile__keys {
+  padding-top: 0;
+}
+
 /* A person's keys: one row each, what it is on the left and Revoke on the right. */
 .web-keys__list {
   margin: 0;

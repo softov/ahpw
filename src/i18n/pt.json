@@ -922,7 +922,9 @@
       "primaryMark": "principal",
       "makePrimary": "Tornar este o principal",
       "unmakePrimary": "Tirar o principal",
-      "primaryNote": "O principal é para onde vai o trabalho que não nomeia equipe nem projeto."
+      "primaryNote": "O principal é para onde vai o trabalho que não nomeia equipe nem projeto.",
+      "keys": "Chaves",
+      "keysHint": "Chaves extras de {id}, cada uma limitada e revogável à parte. O segredo principal é criado no host: ahpd user token {id}"
     },
     "role": {
       "deleteTitle": "Excluir o papel {id}?",
@@ -2128,6 +2130,7 @@
       "notServed": "Este host não guarda chaves.",
       "unnamed": "Chave sem nome",
       "everyGrant": "Todas as permissões que você tem",
+      "everyGrantOf": "Todas as permissões que {id} tem",
       "made": "Criada em {day}",
       "expires": "Expira em {day}",
       "expired": "Expirou em {day}",

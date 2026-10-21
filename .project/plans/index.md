@@ -40,7 +40,7 @@ What exists today: [00-organization.md](organization/00-organization.md).
 | [02 - Policies and their limits](organization/02-policies-and-their-limits/plan.md) | dropped | its Usage limits moved to [02 - Budget policies](organization/02-budget-policies/plan.md) |
 | [03 - Role permissions as controls](organization/03-role-permissions/plan.md) | built | - |
 | [04 - The user page in sections](organization/04-user-page-sections/plan.md) | built | - |
-| [05 - The signed-in person's profile, and a user's roles as pills](organization/05-a-profile-and-roles-as-pills/plan.md) | active | [task 06](organization/05-a-profile-and-roles-as-pills/task-06-a-users-page-manages-their-keys.md) |
+| [05 - The signed-in person's profile, and a user's roles as pills](organization/05-a-profile-and-roles-as-pills/plan.md) | active | task 07, waiting for ahpd's `x-ahpd/me` |
 
 ## plugins
 

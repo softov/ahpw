@@ -15,6 +15,9 @@ import { isRecordId } from './form.js';
 import { personTab } from './state.js';
 import { MembershipList } from './MembershipList.js';
 import { RolePills } from './RolePills.js';
+import { MintForm } from '../profile/MintForm.js';
+import { TokenList } from '../profile/TokenList.js';
+import { servesTokens } from '../../bridges/tokens.js';
 import { EMOJIcon } from '../emojis.js';
 
 const usersReducer = peopleReducer('users');
@@ -38,6 +41,10 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
   const [draft, setDraft] = useState<(UserFields & { id: string }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  // Changed by a mint in the Keys section, so its list reads again.
+  const [keyReads, setKeyReads] = useState(0);
+  // The host refuses a reader without user:write the list and the mint alike; then only its note shows.
+  const [keysRefused, setKeysRefused] = useState(false);
 
   if (users.error !== null) return <PageAlert tone="danger" title={t('users/notices/none')} message={users.error} />;
   if (users.state === undefined) return <Spinner label={t('users/notices/reading')} />;
@@ -139,6 +146,15 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
           )}
         </div>
       ) : null}
+
+      {/* After the actions: a key is made or revoked at once, not on Save. Their own keys are the person's to manage, as on their profile. */}
+      {fresh || !writes || !servesTokens(offers) ? null : section(EMOJIcon.keys, t('users/user/keys'), (
+        <div className="web-profile__keys">
+          <span className="web-input__hint">{t('users/user/keysHint', { id })}</span>
+          {keysRefused ? null : <MintForm host={host} {...(self ? {} : { user: id })} grants={record?.grants ?? []} onMinted={() => setKeyReads((one) => one + 1)} />}
+          <TokenList host={host} {...(self ? {} : { user: id })} reads={keyReads} onRefused={setKeysRefused} />
+        </div>
+      ))}
     </div>
   );
 }

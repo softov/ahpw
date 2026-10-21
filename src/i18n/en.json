@@ -922,7 +922,9 @@
       "primaryMark": "primary",
       "makePrimary": "Make this the primary",
       "unmakePrimary": "Take the primary away",
-      "primaryNote": "Primary is what work naming no team or project is charged to."
+      "primaryNote": "Primary is what work naming no team or project is charged to.",
+      "keys": "Keys",
+      "keysHint": "Extra keys of {id}, each limited and revoked on its own. Their main secret is made on the host: ahpd user token {id}"
     },
     "role": {
       "deleteTitle": "Delete the role {id}?",
@@ -2128,6 +2130,7 @@
       "notServed": "This host keeps no keys.",
       "unnamed": "Unnamed key",
       "everyGrant": "Every grant you hold",
+      "everyGrantOf": "Every grant {id} holds",
       "made": "Made {day}",
       "expires": "Expires {day}",
       "expired": "Expired {day}",

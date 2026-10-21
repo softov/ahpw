@@ -106,7 +106,7 @@ export function MintForm({ host, user, grants, onMinted }: MintFormProps): React
         <span className="web-input__label">{t('profile/keys/mint/grants')}</span>
         <label className="web-input__row">
           <input type="checkbox" checked={every} onChange={(event) => setEvery(event.target.checked)} />
-          <span>{t('profile/keys/everyGrant')}</span>
+          <span>{user === undefined ? t('profile/keys/everyGrant') : t('profile/keys/everyGrantOf', { id: user })}</span>
         </label>
         {every ? null : (
           <span className="web-mint__grants">

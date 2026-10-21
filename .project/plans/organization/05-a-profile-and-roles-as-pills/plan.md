@@ -96,6 +96,8 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 | A refusal shows the host's sentence without the client's `RPC error <code>:`. | (defaulted: the code means nothing to a person) | 04 |
 | *New key* is a button that opens the form, and a new key starts on 90 days. | (defaulted: the list leads; a key that never expires is a choice, not the default) | 05 |
 | A pill with no ✕ does not react to hover. | (defaulted: nothing happens on it) | 05 |
+| A user's Keys section sits after the page's Save and Delete. | (defaulted: a key is made at once, as the team page's members are) | 06 |
+| The user page's edit controls follow the reader's grants once `me` answers them. | (defaulted: a reader without `user:write` sees controls the host refuses) | 07 |
 | The host itself, `root:<host>`, has a profile too, read from `x-ahpd/me`, which ahpd will add. | Softov, 2026-10-21: "root need a profile like user. ahpd me will return its info" | 07 |
 | Until `x-ahpd/me` exists, a person's profile reads `user://<id>`; Info moves onto `me` when it ships. | Softov, 2026-10-21: "Keep user:// now, switch later" | 07 |
 | Root's Keys picks a person, then lists, mints and revokes that person's tokens. | Softov, 2026-10-21: "Mint for a person it picks" | 07 |
@@ -122,7 +124,7 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 | [03 - The profile in the Manage menu](task-03-the-profile-in-the-manage-menu.md) | done | 02 |
 | [04 - A token bridge, and Keys lists and revokes](task-04-keys-lists-and-revokes.md) | done | 02 |
 | [05 - Keys mints a token](task-05-keys-mints-a-token.md) | done | 04 |
-| [06 - A user's page manages their keys](task-06-a-users-page-manages-their-keys.md) | todo | 05 |
+| [06 - A user's page manages their keys](task-06-a-users-page-manages-their-keys.md) | done | 05 |
 | [07 - The host's own profile, on x-ahpd/me](task-07-the-hosts-own-profile-on-me.md) | blocked | 05 |
 
 ## Risks and tradeoffs
@@ -133,8 +135,8 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 
 ## Resume state
 
-- **Done so far:** task 01, on 2026-10-20; tasks 02 to 05, on 2026-10-21.
-- **Next action:** [task-06-a-users-page-manages-their-keys.md](task-06-a-users-page-manages-their-keys.md).
+- **Done so far:** task 01, on 2026-10-20; tasks 02 to 06, on 2026-10-21.
+- **Next action:** task 07, once ahpd ships `x-ahpd/me`.
 - **Open questions:** none.
 - **Blocked:** task 07 waits for ahpd's `x-ahpd/me`; the shape ahpw asked for is in the task.
 - **Watch out for:** fetch ahpd and fast-forward `main` before a check; this plan was read at `3a51ae2f`.

@@ -1,6 +1,6 @@
 ---
 title: A writer manages a person's tokens from a Keys section on that person's page
-status: todo
+status: done
 depends: [task-05-keys-mints-a-token.md]
 layer: "ahpw users"
 refs:
@@ -18,7 +18,12 @@ The Sign-in note still names `ahpd user token` for the person's full secret.
 
 ## Files
 
-- `UPDATE: src/resources/users/UserPage.tsx:118-128` - add the Keys section after Sign-in, for a writer only.
+- `UPDATE: src/resources/users/UserPage.tsx:118-128` - add the Keys section after the page's actions, for a writer only.
+- `UPDATE: src/resources/emojis.ts` - `keys`, 🔐, since Sign-in already has 🔑.
+- `UPDATE: src/resources/profile/TokenList.tsx` - `onRefused`, and *every grant* worded for somebody else.
+- `UPDATE: src/resources/profile/MintForm.tsx` - *every grant* worded for somebody else.
+- `UPDATE: src/resources/profile/Keys.tsx` - *New key* stands aside when the host refuses the list.
+- `UPDATE: src/style/app.css` - no top padding for the keys in a page's section.
 - `UPDATE: src/i18n/en.json` - `users/user/keys`, `users/user/keysHint`.
 - `UPDATE: src/i18n/es.json` - the same keys.
 - `UPDATE: src/i18n/pt.json` - the same keys.
@@ -40,3 +45,10 @@ The Sign-in note still names `ahpd user token` for the person's full secret.
 
 ## Resume
 
+Done on 2026-10-21.
+The section sits after Save and Delete, because a key is made or revoked at once, as the team page's members are.
+`writesPeople` says what the host's provider allows, not what the reader may do, so bob without `user:write` sees the section.
+The host then refuses the list in its own words, and *New key* stands aside; the profile's Keys does the same.
+The same gap shows the rest of the user page's controls to a reader who cannot write: *+ Add a role*, Save, Delete.
+Closing it needs the reader's grants, which `x-ahpd/me` answers; task 07 is where it can be done.
+Checked in Chromium on ahpd 0.13 at port 9199, light and dark: ana made and revoked a key for carl; bob saw the note only.

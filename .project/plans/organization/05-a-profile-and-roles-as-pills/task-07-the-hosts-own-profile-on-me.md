@@ -38,6 +38,7 @@ Read the shape ahpd ships, and correct the steps before starting.
 - `UPDATE: src/resources/profile/ProfilePage.tsx` - a header for root, with its icon and `root:` address.
 - `UPDATE: src/resources/profile/Info.tsx` - read `me`; mark the roles a sign-in added; root shows its grants and its pool.
 - `UPDATE: src/resources/profile/Keys.tsx` - for root, a person picker over `TokenList` and `MintForm` with `user`.
+- `UPDATE: src/resources/users/UserPage.tsx` - `writes` also asks the reader's grants, so a reader without `user:write` sees no edit controls.
 - `UPDATE: src/i18n/en.json` - the root words.
 - `UPDATE: src/i18n/es.json` - the same keys.
 - `UPDATE: src/i18n/pt.json` - the same keys.
@@ -51,6 +52,7 @@ Read the shape ahpd ships, and correct the steps before starting.
 5. For root, show usage from the pools `me` names.
 6. For root's Keys, list the people, then show `TokenList` and `MintForm` for the one picked.
 7. Remove `readOwnUser` once nothing calls it.
+8. Gate the user page's writes on the reader's grants from `me`, not on the host's provider alone.
 
 ## Validation
 

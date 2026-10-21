@@ -13,6 +13,8 @@ interface TokenListProps {
   user?: string;
   /** Changed by a mint, so the list reads again. */
   reads?: number;
+  /** Told whether the host refused the list, so a form beside it can stand aside. */
+  onRefused?: (refused: boolean) => void;
 }
 
 /** A day as the person's locale writes it. */
@@ -31,7 +33,7 @@ const momentOf = (at: number): string => new Date(at).toLocaleString(getLocale()
  * refuses the list - a minted-token sign-in, a host with no tokens - says why
  * in its own words, as a note rather than an error.
  */
-export function TokenList({ host, user, reads = 0 }: TokenListProps): ReactElement {
+export function TokenList({ host, user, reads = 0, onRefused }: TokenListProps): ReactElement {
   const { t } = useI18n();
   const [tokens, setTokens] = useState<ListedToken[] | null>(null);
   const [refused, setRefused] = useState<string | null>(null);
@@ -43,10 +45,11 @@ export function TokenList({ host, user, reads = 0 }: TokenListProps): ReactEleme
     setTokens(null);
     setRefused(null);
     listTokens(host, user).then(
-      (held) => { if (live) setTokens([...held].sort((a, b) => b.created - a.created)); },
-      (caught: unknown) => { if (live) setRefused(hostSaid(caught)); },
+      (held) => { if (live) { setTokens([...held].sort((a, b) => b.created - a.created)); onRefused?.(false); } },
+      (caught: unknown) => { if (live) { setRefused(hostSaid(caught)); onRefused?.(true); } },
     );
     return () => { live = false; };
+    // `onRefused` is the caller's setter; a new one is no reason to read again.
   }, [host, user, reads, again]);
 
   const revoke = async (token: ListedToken): Promise<void> => {
@@ -86,7 +89,7 @@ export function TokenList({ host, user, reads = 0 }: TokenListProps): ReactEleme
                   </span>
                   <span className="web-keys__grants">
                     {token.grants === undefined
-                      ? <span className="web-note">{t('profile/keys/everyGrant')}</span>
+                      ? <span className="web-note">{user === undefined ? t('profile/keys/everyGrant') : t('profile/keys/everyGrantOf', { id: user })}</span>
                       : token.grants.map((grant) => <RemovableChip key={grant} label={grant} removeLabel={grant} />)}
                   </span>
                   <span className="web-keys__when">

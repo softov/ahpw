@@ -12,6 +12,8 @@ export function Keys({ host }: { host: string }): ReactElement {
   const { t } = useI18n();
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const [reads, setReads] = useState(0);
+  // A host that refuses the list - a minted-key sign-in - refuses a mint too, so New key stands aside.
+  const [refused, setRefused] = useState(false);
   // The grants a key may be limited to; until they read, a key can still hold every grant.
   const [grants, setGrants] = useState<readonly Grant[]>([]);
   useEffect(() => {
@@ -23,8 +25,8 @@ export function Keys({ host }: { host: string }): ReactElement {
   if (!servesTokens(offers)) return <div className="web-profile__keys"><p className="web-note">{t('profile/keys/notServed')}</p></div>;
   return (
     <div className="web-profile__keys">
-      <MintForm host={host} grants={grants} onMinted={() => setReads((one) => one + 1)} />
-      <TokenList host={host} reads={reads} />
+      {refused ? null : <MintForm host={host} grants={grants} onMinted={() => setReads((one) => one + 1)} />}
+      <TokenList host={host} reads={reads} onRefused={setRefused} />
     </div>
   );
 }
