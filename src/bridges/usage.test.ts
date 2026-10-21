@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { NO_OFFERS } from './offers.js';
-import { periodRange, poolKind, servesUsage, totalWords, usageUri } from './usage.js';
+import { periodRange, poolKind, poolOwner, servesUsage, totalWords, usageUri } from './usage.js';
 
 test('a host keeps usage when it offers the commands or the scheme', () => {
   expect(servesUsage(NO_OFFERS)).toBe(false);
@@ -33,4 +33,13 @@ test('a total reads in the locale, with no cost when calls had no price', () => 
   expect(totalWords({ tokens: 300, calls: 2 }, 'en-US')).toEqual({ tokens: '300', calls: '2' });
   // Nothing used costs nothing.
   expect(totalWords({}, 'en-US')).toEqual({ cost: '$0.00' });
+});
+
+test('a pool names the user, team or project its page opens, and nothing else', () => {
+  expect(poolOwner('user:soft')).toEqual({ domain: 'users', id: 'soft' });
+  expect(poolOwner('team:backend')).toEqual({ domain: 'teams', id: 'backend' });
+  expect(poolOwner('project:backend:ahpapp')).toEqual({ domain: 'projects', id: 'ahpapp' });
+  expect(poolOwner('root')).toBeUndefined();
+  expect(poolOwner('plugin:webhook')).toBeUndefined();
+  expect(poolOwner('user:')).toBeUndefined();
 });

@@ -68,6 +68,24 @@ export function poolKind(pool: string): string {
   return cut < 0 ? pool : pool.slice(0, cut);
 }
 
+/** The user, team or project a pool is kept for, by the domain whose page opens it. */
+export interface PoolOwner {
+  domain: 'users' | 'teams' | 'projects';
+  id: string;
+}
+
+/**
+ * Who a pool's key names: `user:<id>`, `team:<id>`, or `project:<team>:<id>`,
+ * whose page is the project's. Undefined for any other pool, such as `root`.
+ */
+export function poolOwner(pool: string): PoolOwner | undefined {
+  const [kind, ...rest] = pool.split(':');
+  if (kind === 'user' && rest.length === 1 && rest[0] !== '') return { domain: 'users', id: rest[0]! };
+  if (kind === 'team' && rest.length === 1 && rest[0] !== '') return { domain: 'teams', id: rest[0]! };
+  if (kind === 'project' && rest.length === 2 && rest[1] !== '') return { domain: 'projects', id: rest[1]! };
+  return undefined;
+}
+
 /** The pools something was charged to that this person may read. */
 export async function usagePools(host: string, offers: Offers): Promise<UsagePool[]> {
   const bridge = hostBridge(host);

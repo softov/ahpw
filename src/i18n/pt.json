@@ -1982,6 +1982,7 @@
       "range": "Em um intervalo",
       "records": "Registros",
       "noRecords": "Nenhum registro nesses dias.",
+      "openOwner": "Abrir {name}",
       "openSession": "Abrir sessão"
     }
   },

@@ -4,11 +4,13 @@ import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Button, DetailList, Spinner, Text } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
-import { totalWords, usagePeriods, usageRange, usageRecords, type DayRange, type UsageEntry, type UsagePeriods, type UsageTotal } from '../../bridges/usage.js';
+import { personUri } from '../../bridges/people.js';
+import { poolOwner, totalWords, usagePeriods, usageRange, usageRecords, type DayRange, type PoolOwner, type UsageEntry, type UsagePeriods, type UsageTotal } from '../../bridges/usage.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { timeOf } from '../automations/words.js';
+import { EMOJIcon } from '../emojis.js';
 import { monthSoFar, USAGE_ASKED } from './state.js';
 import { hoursWord, tokensWord, totalLine } from './words.js';
 
@@ -29,6 +31,13 @@ function measureOf(record: UsageEntry): string {
 function costOf(record: UsageEntry): string | undefined {
   return record.cost?.currency.toLowerCase() === 'usd' ? totalWords({ usd: record.cost.amount }, getLocale()).cost : undefined;
 }
+
+/** The command that opens an owner's page, and the icon its list shows it with. */
+const OWNERS: Record<PoolOwner['domain'], { open: string; icon: string }> = {
+  users: { open: 'ahp.openUser', icon: EMOJIcon.users },
+  teams: { open: 'ahp.openTeam', icon: EMOJIcon.teams },
+  projects: { open: 'ahp.openProject', icon: EMOJIcon.teams },
+};
 
 /**
  * One pool: what it was charged today, this week and this month, over a range
@@ -65,11 +74,21 @@ export default function UsagePoolPage({ host, pool }: { host: string; pool: stri
   if (error !== null) return <PageAlert tone="danger" title={t('usage/notices/none')} message={error} />;
   if (periods === null) return <Spinner label={t('usage/notices/reading')} />;
   const nothing = t('usage/explorer/nothing');
+  const owner = poolOwner(pool);
+  const name = periods.name || pool;
 
   return (
     <div className="web-page">
-      <Text variant="h2" text={periods.name || pool} />
-      <p className="web-note">{pool}</p>
+      {/* A person's, team's or project's pool names it as its own page does, and opens that page. */}
+      {owner === undefined ? <Text variant="h2" text={`${EMOJIcon.usage} ${name}`} /> : (
+        <div className="web-role__title">
+          <button type="button" className="web-pool__owner" title={t('usage/pool/openOwner', { name })} onClick={() => void scena.commands.execute(OWNERS[owner.domain].open, { host, id: owner.id })}>
+            <Text variant="h2" text={`${OWNERS[owner.domain].icon} ${name}`} />
+          </button>
+          <span className="web-role__uri" title={pool}>{personUri(offers, owner.domain, owner.id)}</span>
+        </div>
+      )}
+      {owner === undefined ? <p className="web-note">{pool}</p> : null}
       <DetailList
         items={[
           ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} />, span: true }] : []),
@@ -77,7 +96,7 @@ export default function UsagePoolPage({ host, pool }: { host: string; pool: stri
         ]}
       />
 
-      <Text variant="h3" text={t('usage/pool/range')} />
+      <Text variant="h3" text={`${EMOJIcon.filter} ${t('usage/pool/range')}`} />
       <div className="web-spend__range">
         <input className="web-field" type="date" value={range.from} max={range.until} aria-label={t('usage/range/from')} onChange={(event) => { if (event.target.value !== '') setRange({ ...range, from: event.target.value }); }} />
         <span aria-hidden="true">{'\u{2013}'}</span>
@@ -86,7 +105,7 @@ export default function UsagePoolPage({ host, pool }: { host: string; pool: stri
       {ranged === null ? <Spinner label={t('usage/notices/reading')} /> : (
         <>
           <p>{totalLine(ranged.total) || nothing}</p>
-          <Text variant="h3" text={t('usage/pool/records')} />
+          <Text variant="h3" text={`${EMOJIcon.records} ${t('usage/pool/records')}`} />
           {ranged.records.length === 0 ? <p className="web-note">{t('usage/pool/noRecords')}</p> : (
             <ul className="web-spend__records">
               {ranged.records.map((record, at) => {

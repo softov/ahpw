@@ -74,6 +74,7 @@ export const EMOJIcon = {
   sort: '⇅',
   period: '◷',
   filter: '▽',
+  records: mono('🧾'),
   pin: mono('📌'),
   folder: mono('📁'),
   tree: '⊢',

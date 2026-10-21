@@ -3518,6 +3518,23 @@
   text-decoration: underline;
 }
 
+/* Usage: a pool's owner, named as a heading that opens their page. */
+.web-pool__owner {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.web-pool__owner:hover .oo-text,
+.web-pool__owner:focus-visible .oo-text {
+  color: var(--oo-color-accent);
+  text-decoration: underline;
+}
+
 /* Usage: a range of days, and a pool's records. */
 .web-spend__range {
   display: flex;

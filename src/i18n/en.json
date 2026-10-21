@@ -1982,6 +1982,7 @@
       "range": "Over a range",
       "records": "Records",
       "noRecords": "No records in these days.",
+      "openOwner": "Open {name}",
       "openSession": "Open session"
     }
   },
