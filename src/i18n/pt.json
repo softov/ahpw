@@ -2097,5 +2097,38 @@
       "forget": "Esquecer",
       "notForgotten": "O host não aceitou a mudança"
     }
+  },
+  "profile": {
+    "title": "Perfil",
+    "commands": {
+      "open": "Abrir seu perfil"
+    },
+    "tabs": {
+      "info": "Informações",
+      "keys": "Chaves"
+    },
+    "info": {
+      "roles": "Papéis",
+      "noRoles": "Nenhum papel.",
+      "memberships": "Equipes e projetos",
+      "noMemberships": "Nenhuma associação.",
+      "signIn": "Entrada",
+      "issuer": "Emissor",
+      "issuerDefault": "O deste host",
+      "rolesFrom": "Papéis de",
+      "usage": "Uso",
+      "usageFailed": "Não foi possível ler seu uso: {error}",
+      "limits": "Limites",
+      "noLimits": "Nenhum limite se aplica a você.",
+      "limitsFailed": "Não foi possível ler seus limites: {error}"
+    },
+    "keys": {
+      "soon": "Suas chaves aparecem aqui."
+    },
+    "notices": {
+      "reading": "Lendo seu perfil…",
+      "none": "Não foi possível ler seu perfil",
+      "notPerson": "Esta conexão não entrou como uma pessoa, então não tem perfil."
+    }
   }
 }

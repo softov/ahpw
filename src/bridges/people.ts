@@ -86,6 +86,28 @@ export function personUri(offers: Offers, domain: PeopleDomain, id: string): str
   return `${root.endsWith('/') ? root : `${root}/`}${encodeURIComponent(id)}`;
 }
 
+/** The signed-in person's id on a host, when the connection is a person's, `user:<id>`; undefined for `root:<host>` or nobody. */
+export function selfId(offers: Offers): string | undefined {
+  const principal = offers.principal ?? '';
+  return principal.startsWith('user:') && principal.length > 'user:'.length ? principal.slice('user:'.length) : undefined;
+}
+
+/**
+ * The signed-in person's own record, read from `user://<id>`. ahpd lets a
+ * person read their own without `user:get`, and it carries the grants their
+ * roles resolve to - not the roles a sign-in adds through `rolesFrom`.
+ */
+export async function readOwnUser(host: string, offers: Offers): Promise<ListedUser> {
+  const id = selfId(offers);
+  if (id === undefined) throw new Error('This connection is not signed in as a person');
+  const uri = personUri(offers, 'users', id);
+  const { text } = await hostBridge(host).readText(uri);
+  if (text === null) throw new Error(`${uri} did not read as text`);
+  const record = JSON.parse(text) as unknown;
+  if (typeof record !== 'object' || record === null || Array.isArray(record)) throw new Error(`${uri} answered no record`);
+  return record as ListedUser;
+}
+
 /** Makes or edits one record; `createOnly` refuses an id the host already holds. */
 export async function putPerson(host: string, offers: Offers, domain: PeopleDomain, id: string, record: Record<string, unknown>, createOnly: boolean): Promise<void> {
   const bridge = hostBridge(host);

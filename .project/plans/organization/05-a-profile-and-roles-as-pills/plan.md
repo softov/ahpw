@@ -66,6 +66,8 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 - ahpw has no token bridge.
 - The Manage menu has no per-host entry.
 - `src/shell/manage.ts:70` has Sign out's `icon` line indented one level short.
+- A `root:<host>` connection has no record, so it has no profile until ahpd answers `x-ahpd/me`.
+- `Not found: x-ahpd/me - searched origin/main d96c3473 of ahpd for the method name.`
 
 ## Answers
 
@@ -90,13 +92,18 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 | The tab key is `profile:<host>`. | (defaulted: one profile per host, as `personTab` keys one page per record) | 02 |
 | A minted secret shows in a box with *Copy* until the person closes it; nothing keeps it. | (defaulted: the host answers the secret once) | 05 |
 | Revoke asks first, in the danger tone. | (defaulted: a revoke cannot be undone) | 04 |
+| The host itself, `root:<host>`, has a profile too, read from `x-ahpd/me`, which ahpd will add. | Softov, 2026-10-21: "root need a profile like user. ahpd me will return its info" | 07 |
+| Until `x-ahpd/me` exists, a person's profile reads `user://<id>`; Info moves onto `me` when it ships. | Softov, 2026-10-21: "Keep user:// now, switch later" | 07 |
+| Root's Keys picks a person, then lists, mints and revokes that person's tokens. | Softov, 2026-10-21: "Mint for a person it picks" | 07 |
+| A user's page has a Keys section for a writer, managing that person's tokens with `user`. | Softov, 2026-10-21: "Yes, a Keys section" | 06 |
+| The token bridge and `TokenList` take an optional `user`, so one list serves all three places. | (defaulted: the same commands take `user`) | 04 |
 | Sign out's misindented `icon` line is fixed with the Manage change. | (defaulted: a lint fix in a file the task touches) | 03 |
 
 ## Proposed architecture
 
 - **Data flow** - The profile reads the person's own record with `readOwnUser`, their pool with `usagePeriods`, their limits with `ownLimits`, and their tokens through `src/bridges/tokens.ts`.
 - **Event flow** - Keys reads the list again after a mint or a revoke; the host has no token channel.
-- **State flow** - The chosen profile tab is kept in `localStorage`, as `settingsTab` keeps the settings tab.
+- **State flow** - The chosen profile tab is kept in memory, as `settingsTab` keeps the settings tab.
 - **Layer responsibilities** - `src/bridges/` holds the reads and the token calls.
   `src/resources/profile/` holds the page, its tabs and its command.
   `src/shell/manage.ts` holds the per-host entries, and `src/shell/view/RemovableChip.tsx` the chip with a ✕.
@@ -107,10 +114,12 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 | Task | Status | Depends on |
 | --- | --- | --- |
 | [01 - Roles as removable pills](task-01-roles-as-removable-pills.md) | done | - |
-| [02 - The profile page and its Info tab](task-02-the-profile-page-and-its-info-tab.md) | todo | - |
-| [03 - The profile in the Manage menu](task-03-the-profile-in-the-manage-menu.md) | todo | 02 |
+| [02 - The profile page and its Info tab](task-02-the-profile-page-and-its-info-tab.md) | done | - |
+| [03 - The profile in the Manage menu](task-03-the-profile-in-the-manage-menu.md) | done | 02 |
 | [04 - A token bridge, and Keys lists and revokes](task-04-keys-lists-and-revokes.md) | todo | 02 |
 | [05 - Keys mints a token](task-05-keys-mints-a-token.md) | todo | 04 |
+| [06 - A user's page manages their keys](task-06-a-users-page-manages-their-keys.md) | todo | 05 |
+| [07 - The host's own profile, on x-ahpd/me](task-07-the-hosts-own-profile-on-me.md) | blocked | 05 |
 
 ## Risks and tradeoffs
 
@@ -120,9 +129,10 @@ UserPage Roles: RemovableChip per role (✕ -> draft) + "+ Add a role" -> Contex
 
 ## Resume state
 
-- **Done so far:** task 01, on 2026-10-20.
-- **Next action:** [task-02-the-profile-page-and-its-info-tab.md](task-02-the-profile-page-and-its-info-tab.md).
+- **Done so far:** task 01, on 2026-10-20; task 02 and task 03, on 2026-10-21.
+- **Next action:** [task-04-keys-lists-and-revokes.md](task-04-keys-lists-and-revokes.md).
 - **Open questions:** none.
+- **Blocked:** task 07 waits for ahpd's `x-ahpd/me`; the shape ahpw asked for is in the task.
 - **Watch out for:** fetch ahpd and fast-forward `main` before a check; this plan was read at `3a51ae2f`.
 
 ## Final verification checklist

@@ -15,6 +15,7 @@ import { COMPUTERS_SERVED } from '../resources/computers/state.js';
 import { BOTS_SECTION, registerBots } from '../resources/bots/index.js';
 import { BOTS_SERVED } from '../resources/bots/state.js';
 import { registerUsers, USERS_SECTION } from '../resources/users/index.js';
+import { registerProfilePage } from '../resources/profile/index.js';
 import { USERS_SERVED } from '../resources/users/state.js';
 import { registerTeams, TEAMS_SECTION } from '../resources/teams/index.js';
 import { TEAMS_SERVED } from '../resources/teams/state.js';
@@ -306,6 +307,7 @@ export function registerShell(scena: Scena): Disposable {
     registerComputers(scena),
     registerBots(scena),
     registerUsers(scena),
+    registerProfilePage(scena),
     registerTeams(scena),
     registerUsage(scena),
     registerPolicies(scena),

@@ -1,5 +1,9 @@
 import { combineDisposables, translate } from '@softov/scena';
 import type { Disposable, Scena } from '@softov/scena/types';
+import { ahpPaths } from '../bridges/data.js';
+import { everyHost, HOST_LIST, hostNameOf } from '../bridges/hosts.js';
+import { NO_OFFERS, type Offers } from '../bridges/offers.js';
+import { selfId } from '../bridges/people.js';
 import { english } from '../i18n/locales.js';
 import { EMOJIcon } from '../resources/emojis.js';
 import { openPalette } from './CommandPalette.js';
@@ -11,8 +15,7 @@ export const MANAGE_SLOT = 'ahp:manage';
 
 /**
  * The Manage menu, as VS Code's gear: language, layout and theme open their
- * lists in the palette, then settings, and sign out parted below. Sign out is
- * left out in an embedder, which holds the token.
+ * lists in the palette, then settings, and the account group parted below.
  */
 export function registerManage(scena: Scena, embedded: boolean): Disposable {
   return combineDisposables(
@@ -60,22 +63,61 @@ export function registerManage(scena: Scena, embedded: boolean): Disposable {
         void ctx.scena.commands.execute('ahp.openSettings');
       },
     }),
-    ...(embedded
-      ? []
-      : [
-          scena.commands.register({
-            id: 'ahp.manage.signOut',
-            title: () => translate('shell/manage/signOut'),
-            keywords: [english('shell/manage/signOut')],
-      icon: EMOJIcon.signOut,
-            // Its own category: the menu parts it from the rest with a line.
-            category: 'account',
-            slots: [MANAGE_SLOT],
-            run: (ctx) => {
-              ctx.host?.closeMenu();
-              void ctx.scena.commands.execute('sigillum.signout');
-            },
-          }),
-        ]),
+    accountGroup(scena, embedded),
   );
+}
+
+/** How a host's profile entry reads: the person's id, and the host's name beside it when there are several. */
+export function profileEntryTitle(id: string, hostName: string, hosts: number): string {
+  return hosts > 1 ? `${id} \u{00B7} ${hostName}` : id;
+}
+
+/**
+ * The account group, parted from the rest with a line: the person on each
+ * host they are signed in to as a person, then Sign out. The menu lists in
+ * registration order, so the group is registered again whenever the hosts
+ * change, and a host added later still lands above Sign out.
+ */
+function accountGroup(scena: Scena, embedded: boolean): Disposable {
+  const offersOf = (host: string): Offers => scena.store.get<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
+  const register = (): Disposable => combineDisposables(
+    ...everyHost(scena.store).map((host) => scena.commands.register({
+      id: `ahp.manage.profile.${host}`,
+      title: () => profileEntryTitle(selfId(offersOf(host)) ?? '', hostNameOf(scena.store, host), everyHost(scena.store).length),
+      keywords: [english('profile/title')],
+      icon: EMOJIcon.users,
+      category: 'account',
+      slots: [MANAGE_SLOT],
+      // Read when the menu lists, so it follows the host's handshake.
+      when: () => selfId(offersOf(host)) !== undefined,
+      run: (ctx) => {
+        ctx.host?.closeMenu();
+        void ctx.scena.commands.execute('ahp.openProfile', { host });
+      },
+    })),
+    // Left out in an embedder, which holds the token.
+    ...(embedded ? [] : [scena.commands.register({
+      id: 'ahp.manage.signOut',
+      title: () => translate('shell/manage/signOut'),
+      keywords: [english('shell/manage/signOut')],
+      icon: EMOJIcon.signOut,
+      category: 'account',
+      slots: [MANAGE_SLOT],
+      run: (ctx) => {
+        ctx.host?.closeMenu();
+        void ctx.scena.commands.execute('sigillum.signout');
+      },
+    })]),
+  );
+  let held = register();
+  const watching = scena.store.subscribe(HOST_LIST, () => {
+    held.dispose();
+    held = register();
+  });
+  return {
+    dispose: () => {
+      watching.dispose();
+      held.dispose();
+    },
+  };
 }

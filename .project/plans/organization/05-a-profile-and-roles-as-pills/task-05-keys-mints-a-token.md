@@ -16,7 +16,7 @@ The mint shows the secret once, with *Copy*, and the list reads again.
 
 ## Files
 
-- `CREATE: src/resources/profile/MintForm.tsx` - `MintForm({ host, grants, onMinted })`.
+- `CREATE: src/resources/profile/MintForm.tsx` - `MintForm({ host, user, grants, onMinted })`, for the person, or for `user` in tasks 06 and 07.
 - `CREATE: src/resources/profile/expiry.ts` - `EXPIRY_CHOICES` and `expiresAt(choice, date, now)`.
 - `CREATE: src/resources/profile/expiry.test.ts` - each choice to epoch milliseconds, and an empty date.
 - `UPDATE: src/resources/profile/Keys.tsx` - the form, the secret box, and the note on sign-in roles.

@@ -2097,5 +2097,38 @@
       "forget": "Forget",
       "notForgotten": "The host did not take the change"
     }
+  },
+  "profile": {
+    "title": "Profile",
+    "commands": {
+      "open": "Open your profile"
+    },
+    "tabs": {
+      "info": "Info",
+      "keys": "Keys"
+    },
+    "info": {
+      "roles": "Roles",
+      "noRoles": "No roles.",
+      "memberships": "Teams and projects",
+      "noMemberships": "No memberships.",
+      "signIn": "Sign-in",
+      "issuer": "Issuer",
+      "issuerDefault": "This host's own",
+      "rolesFrom": "Roles from",
+      "usage": "Usage",
+      "usageFailed": "Your usage could not be read: {error}",
+      "limits": "Limits",
+      "noLimits": "No limits hold you.",
+      "limitsFailed": "Your limits could not be read: {error}"
+    },
+    "keys": {
+      "soon": "Your keys show here."
+    },
+    "notices": {
+      "reading": "Reading your profile…",
+      "none": "Your profile could not be read",
+      "notPerson": "This connection is not signed in as a person, so it has no profile."
+    }
   }
 }

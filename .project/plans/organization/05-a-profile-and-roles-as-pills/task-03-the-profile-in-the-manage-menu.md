@@ -1,6 +1,6 @@
 ---
 title: The Manage menu lists the person's profile on each host, just before Sign out
-status: todo
+status: done
 depends: [task-02-the-profile-page-and-its-info-tab.md]
 layer: "ahpw shell"
 refs:
@@ -41,3 +41,11 @@ The entry opens that host's profile.
 
 ## Resume
 
+Done on 2026-10-21.
+scena lists a slot in registration order and has no `order` field, so step 8 needed more than a check.
+The profile entries and Sign out are one group, `accountGroup`, registered again when `HOST_LIST` changes.
+A host added later then still lands above Sign out.
+An embedder keeps the profile entry and has no Sign out.
+`src/shell/manage.test.ts` runs on a real scena registry: the order, a root principal, nobody, and an embedder.
+Checked in Chromium on ahpd 0.13 at port 9199, light and dark, on one host.
+Two hosts need an embedder, so they were not checked by hand.
