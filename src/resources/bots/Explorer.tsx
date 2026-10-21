@@ -35,7 +35,7 @@ export default function BotExplorer(): ReactElement {
         key,
         dot: 'quiet',
         dotLabel: bot.name,
-        icon: <Bood body={bot.body} color={bot.color} width={28} still />,
+        icon: <Bood body={bot.body} color={bot.color} width={44} still />,
         title: bot.name,
         lines: [
           [multi ? hostName(host) : undefined, bot.labels.length === 0 ? undefined : bot.labels.join(', ')].filter((bit) => bit !== undefined).join(' \u{00B7} '),

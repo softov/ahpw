@@ -915,7 +915,8 @@
 
 .web-explorer__filter {
   flex: none;
-  margin: 0 var(--oo-spacing-sm) var(--oo-spacing-xs);
+  /* Room above it, so it does not sit on the header's line. */
+  margin: var(--oo-spacing-sm) var(--oo-spacing-sm) var(--oo-spacing-xs);
   padding: 4px 8px;
   font: inherit;
   font-size: var(--oo-font-size-sm);
@@ -1095,12 +1096,13 @@
 .web-row__dot[data-dot='ok'] { background: var(--oo-color-success); opacity: 1; }
 .web-row__dot[data-dot='off'] { background: none; border: 1px solid var(--oo-color-muted); box-sizing: border-box; }
 
-/* A figure in place of the dot, as a bot's; as wide as two lines are tall. */
+/* A figure in place of the dot, as a bot's: as tall as the row's three lines, centred on them. */
 .web-row__icon {
   flex: none;
   display: flex;
   justify-content: center;
-  width: 32px;
+  align-self: center;
+  width: 44px;
 }
 
 /*
