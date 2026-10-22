@@ -134,5 +134,7 @@ export const EMOJIcon = {
 
   // what an agent is customized with
   plugin: mono('🧩'),
+  /** The host's own plugins, which 🧩 is not: that is an agent's. */
+  hostPlugins: mono('🔣'),
   mcpServer: mono('🔌'),
 };

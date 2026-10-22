@@ -4430,3 +4430,51 @@
   flex-wrap: wrap;
   gap: var(--oo-spacing-sm);
 }
+
+/* A host plugin's page: the overview's tags and what it provides. */
+.web-plugin__overview,
+.web-plugin__tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-md);
+  padding-top: var(--oo-spacing-md);
+}
+
+.web-plugin__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-plugin__link {
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-plugin__provides {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--oo-spacing-sm) var(--oo-spacing-md);
+  margin: 0;
+}
+
+.web-plugin__provides-row {
+  display: contents;
+}
+
+.web-plugin__provides dt {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-plugin__provides dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--oo-spacing-sm);
+  margin: 0;
+}
+
+.web-plugin__entry {
+  font-family: var(--oo-font-mono);
+  font-size: var(--oo-font-size-sm);
+}

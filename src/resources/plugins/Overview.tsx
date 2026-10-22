@@ -1,0 +1,76 @@
+import type { ReactElement } from 'react';
+import { useI18n, useScena } from '@softov/scena/react';
+import { Alert, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
+import type { PluginRow } from '../../bridges/plugins.js';
+import { embedMode } from '../../shell/embed/index.js';
+import { HostTag } from '../../shell/explorer/HostLines.js';
+import { RemovableChip } from '../../shell/view/RemovableChip.js';
+import { categoryWord } from './Explorer.js';
+import { PROVIDE_ORDER, providedGroups } from './provides.js';
+
+/** A state that is a problem, and how loud it is. */
+const PROBLEM_TONE: Partial<Record<PluginRow['state'], 'danger' | 'warning'>> = { error: 'danger', missing: 'danger', incompatible: 'warning', unconfigured: 'warning' };
+
+/**
+ * What a plugin is: its description and problem, the facts of where it comes
+ * from, its categories and links, what its contracts say it provides - each
+ * opening where ahpw shows it - and its configured spec.
+ */
+export function Overview({ host, id, row }: { host: string; id: string; row: PluginRow }): ReactElement {
+  const scena = useScena();
+  const { t } = useI18n();
+  const manifest = row.manifest;
+  const groups = providedGroups(manifest?.contracts, host);
+  const tone = PROBLEM_TONE[row.state];
+  const facts: DetailItem[] = [
+    ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} />, span: true }] : []),
+    { label: t('plugins/facts/id'), value: id },
+    { label: t('plugins/facts/state'), value: t(`plugins/states/${row.state}`) },
+    ...(row.module === undefined ? [] : [{ label: t('plugins/facts/module'), value: row.module }]),
+    ...(row.path === undefined ? [] : [{ label: t('plugins/facts/path'), value: row.path, span: true }]),
+    ...(row.url === undefined ? [] : [{ label: t('plugins/facts/url'), value: row.url, span: true }]),
+  ];
+
+  return (
+    <div className="web-plugin__overview">
+      {manifest?.description === undefined ? null : <Markdown text={manifest.description} />}
+      {row.problem === undefined ? null : <Alert tone={tone ?? 'warning'} message={row.problem} />}
+      <DetailList items={facts} columns={2} />
+      {/* ahpd reads the state from the configuration and the package, not from what loaded. */}
+      <p className="web-note">{t('plugins/page/stateNote')}</p>
+
+      {(manifest?.categories ?? []).length === 0 && (manifest?.links ?? []).length === 0 ? null : (
+        <div className="web-plugin__tags">
+          {(manifest?.categories ?? []).map((category) => <RemovableChip key={category} label={categoryWord(t, category)} removeLabel={category} />)}
+          {(manifest?.links ?? []).map((link) => <a key={link.url} className="web-plugin__link" href={link.url} target="_blank" rel="noreferrer">{link.title}</a>)}
+        </div>
+      )}
+
+      <Text variant="h3" text={t('plugins/page/provides')} />
+      {row.undeclared === true ? <p className="web-note">{t('plugins/page/undeclared')}</p>
+        : groups.length === 0 ? <p className="web-note">{t(manifest === undefined ? 'plugins/page/notLoaded' : 'plugins/page/providesNothing')}</p> : (
+          <dl className="web-plugin__provides">
+            {groups.map((group) => (
+              <div key={group.kind} className="web-plugin__provides-row">
+                <dt>{(PROVIDE_ORDER as readonly string[]).includes(group.kind) ? t(`plugins/provides/${group.kind}`) : group.kind}</dt>
+                <dd>
+                  {group.entries.map((entry) => (entry.link === undefined
+                    ? <code key={entry.name} className="web-plugin__entry">{entry.name}</code>
+                    : (
+                      <button key={entry.name} type="button" className="web-link web-plugin__entry" onClick={() => void scena.commands.execute(entry.link!.command, entry.link!.args)}>
+                        {entry.name}
+                      </button>
+                    )))}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+      <details className="web-record">
+        <summary>{t('plugins/page/spec')}</summary>
+        <pre>{JSON.stringify(row.spec, null, 2)}</pre>
+      </details>
+    </div>
+  );
+}

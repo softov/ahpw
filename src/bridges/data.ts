@@ -3,6 +3,7 @@ import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import { RpcError } from '@microsoft/agent-host-protocol/client';
+import { hostSaid } from './said.js';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
 import { readToken, serverHoldsToken } from '../lib/api.js';
 import { embedder, embedMode, type EmbedHost } from '../shell/embed/index.js';
@@ -204,7 +205,8 @@ async function ready(id: string): Promise<MultiHostClient> {
 }
 
 /** The SDK's own reason, without its class name. */
-const reasonOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+/** Why a channel could not be read, in the host's own words, without the client's `RPC error <code>:`. */
+const reasonOf = (error: unknown): string => hostSaid(error);
 
 async function snapshot(id: string, uri: string): Promise<void> {
   const multi = client;

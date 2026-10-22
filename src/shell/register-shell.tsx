@@ -22,6 +22,8 @@ import { TEAMS_SERVED } from '../resources/teams/state.js';
 import { registerUsage, USAGE_SECTION } from '../resources/usage/index.js';
 import { USAGE_SERVED } from '../resources/usage/state.js';
 import { POLICIES_SECTION, registerPolicies } from '../resources/policies/index.js';
+import { PLUGINS_SECTION, registerPlugins } from '../resources/plugins/index.js';
+import { PLUGINS_SERVED } from '../resources/plugins/state.js';
 import { POLICIES_SERVED } from '../resources/policies/state.js';
 import { FOLDERS_SECTION, registerFolders } from '../resources/folders/index.js';
 import { ahpPaths, windowHost } from '../bridges/data.js';
@@ -291,6 +293,13 @@ export function registerShell(scena: Scena): Disposable {
       when: `${POLICIES_SERVED} == true`,
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.policies, label: bound('shell/nav/policies'), pos: 'bottom', section: POLICIES_SECTION, args: TOGGLE },
     }),
+    // Shown while a host lists its plugins to this reader, which takes config:read.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'plugins:nav',
+      when: `${PLUGINS_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.hostPlugins, label: bound('shell/nav/plugins'), pos: 'bottom', section: PLUGINS_SECTION, args: TOGGLE },
+    }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'manage:nav',
@@ -311,6 +320,7 @@ export function registerShell(scena: Scena): Disposable {
     registerTeams(scena),
     registerUsage(scena),
     registerPolicies(scena),
+    registerPlugins(scena),
     registerFolders(scena),
     registerHost(scena),
     registerFiles(scena),

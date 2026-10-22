@@ -1,3 +1,4 @@
+import { hostSaid } from '../../bridges/said.js';
 import { tryNotify } from './context.js';
 import { DISMISS_SLOW_MS, type NotificationAction } from './types.js';
 import { EMOJIcon } from '../../resources/emojis.js';
@@ -38,7 +39,8 @@ export function warn(title: string, extra: Said = {}): void {
 
 /** Something failed. The error's own words are the description; its stack, the detail. */
 export function failed(title: string, error: unknown, extra: Omit<Said, 'description'> = {}): void {
-  const description = error instanceof Error ? error.message : String(error);
+  // The host's own words: a person has no use for the client's `RPC error <code>:`.
+  const description = hostSaid(error);
   const detail = error instanceof Error ? error.stack : undefined;
   const published = tryNotify((notifications) => {
     notifications.publish({

@@ -53,7 +53,8 @@
       "users": "Usuarios",
       "teams": "Equipos",
       "usage": "Uso",
-      "policies": "Políticas"
+      "policies": "Políticas",
+      "plugins": "Plugins"
     },
     "palette": {
       "placeholder": "Escribe un comando o una terminal"
@@ -2168,5 +2169,86 @@
       "none": "No se pudo leer tu perfil",
       "notPerson": "Esta conexión no inició sesión como una persona, así que no tiene perfil."
     }
+  },
+  "plugins": {
+    "explorer": {
+      "title": "Plugins",
+      "filter": "Filtrar plugins",
+      "group": "Agrupar",
+      "empty": "Este host no configura plugins.",
+      "notServed": "Ningún host aquí te muestra sus plugins. Requiere el permiso config:read."
+    },
+    "group": {
+      "state": "Por estado",
+      "category": "Por categoría"
+    },
+    "commands": {
+      "show": "Mostrar plugins",
+      "open": "Abrir plugin"
+    },
+    "states": {
+      "error": "Error",
+      "missing": "Ausente",
+      "incompatible": "Incompatible",
+      "unconfigured": "Sin configurar",
+      "ready": "Listo",
+      "disabled": "Desactivado"
+    },
+    "categories": {
+      "agent": "Agente",
+      "channel": "Canal",
+      "connector": "Conector",
+      "storage": "Almacenamiento",
+      "tool": "Herramienta",
+      "other": "Otros"
+    },
+    "actions": {
+      "open": "Abrir",
+      "enable": "Activar",
+      "disable": "Desactivar",
+      "enableFailed": "No se pudo activar {id}",
+      "disableFailed": "No se pudo desactivar {id}"
+    },
+    "notices": {
+      "reading": "Leyendo los plugins…",
+      "none": "No se pudieron leer los plugins"
+    },
+    "page": {
+      "gone": "Este plugin ya no está configurado.",
+      "overview": "Resumen",
+      "options": "Opciones",
+      "provides": "Ofrece",
+      "providesNothing": "Su manifiesto no nombra nada que ofrezca.",
+      "undeclared": "Se cargó, pero su manifiesto no nombra contratos, así que no se sabe qué ofrece.",
+      "notLoaded": "No se cargó, así que no se sabe qué ofrece.",
+      "spec": "Tal como está configurado",
+      "stateNote": "El estado se lee de la configuración y del paquete, no de lo que se cargó."
+    },
+    "facts": {
+      "id": "Id",
+      "state": "Estado",
+      "module": "Módulo",
+      "path": "Ruta",
+      "url": "URL"
+    },
+    "provides": {
+      "agents": "Agentes",
+      "connectors": "Tipos de conector",
+      "channels": "Canales",
+      "methods": "Comandos",
+      "resourceProviders": "Esquemas de recursos",
+      "tools": "Herramientas",
+      "triggerTypes": "Tipos de disparador"
+    },
+    "options": {
+      "save": "Guardar",
+      "reset": "Restablecer",
+      "saved": "Guardado. El host lo aplica en su próximo inicio.",
+      "none": "Este plugin no tiene opciones para fijar aquí. Un plugin desactivado, o que no se cargó, no muestra ninguna.",
+      "noSettings": "Este host no publica ajustes.",
+      "unreadable": "No se pudieron leer los ajustes"
+    },
+    "restart": "El host tiene un cambio que se aplica en su próximo inicio. Reinicia el host para aplicarlo.",
+    "restartShort": "Reinicia el host para aplicar el último cambio."
   }
 }

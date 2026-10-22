@@ -53,7 +53,8 @@
       "users": "Users",
       "teams": "Teams",
       "usage": "Usage",
-      "policies": "Policies"
+      "policies": "Policies",
+      "plugins": "Plugins"
     },
     "palette": {
       "placeholder": "Type a command or a terminal"
@@ -2168,5 +2169,86 @@
       "none": "Your profile could not be read",
       "notPerson": "This connection is not signed in as a person, so it has no profile."
     }
+  },
+  "plugins": {
+    "explorer": {
+      "title": "Plugins",
+      "filter": "Filter plugins",
+      "group": "Group",
+      "empty": "This host configures no plugins.",
+      "notServed": "No host here lists its plugins to you. It takes the config:read grant."
+    },
+    "group": {
+      "state": "By state",
+      "category": "By category"
+    },
+    "commands": {
+      "show": "Show plugins",
+      "open": "Open plugin"
+    },
+    "states": {
+      "error": "Error",
+      "missing": "Missing",
+      "incompatible": "Incompatible",
+      "unconfigured": "Unconfigured",
+      "ready": "Ready",
+      "disabled": "Disabled"
+    },
+    "categories": {
+      "agent": "Agent",
+      "channel": "Channel",
+      "connector": "Connector",
+      "storage": "Storage",
+      "tool": "Tool",
+      "other": "Other"
+    },
+    "actions": {
+      "open": "Open",
+      "enable": "Enable",
+      "disable": "Disable",
+      "enableFailed": "{id} could not be enabled",
+      "disableFailed": "{id} could not be disabled"
+    },
+    "notices": {
+      "reading": "Reading the plugins…",
+      "none": "The plugins could not be read"
+    },
+    "page": {
+      "gone": "This plugin is no longer configured.",
+      "overview": "Overview",
+      "options": "Options",
+      "provides": "Provides",
+      "providesNothing": "Its manifest names nothing it provides.",
+      "undeclared": "It loaded, but its manifest names no contracts, so what it provides is not known.",
+      "notLoaded": "It has not loaded, so what it provides is not known.",
+      "spec": "As configured",
+      "stateNote": "The state is read from the configuration and the package, not from what loaded."
+    },
+    "facts": {
+      "id": "Id",
+      "state": "State",
+      "module": "Module",
+      "path": "Path",
+      "url": "URL"
+    },
+    "provides": {
+      "agents": "Agents",
+      "connectors": "Connector kinds",
+      "channels": "Channels",
+      "methods": "Commands",
+      "resourceProviders": "Resource schemes",
+      "tools": "Tools",
+      "triggerTypes": "Trigger kinds"
+    },
+    "options": {
+      "save": "Save",
+      "reset": "Reset",
+      "saved": "Saved. The host applies it at its next start.",
+      "none": "This plugin has no options to set here. A plugin that is off, or did not load, shows none.",
+      "noSettings": "This host publishes no settings.",
+      "unreadable": "The settings could not be read"
+    },
+    "restart": "The host holds a change that applies at its next start. Restart the host to apply it.",
+    "restartShort": "Restart the host to apply the last change."
   }
 }

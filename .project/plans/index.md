@@ -50,6 +50,7 @@ What exists today: [00-plugins.md](plugins/00-plugins.md).
 | --- | --- | --- |
 | [01 - Computers and bots](plugins/01-computers-and-bots/plan.md) | built | - |
 | [02 - Bot chat and bood life](plugins/02-bot-chat-and-bood-life/plan.md) | built | - |
+| [03 - The host's plugins, in an explorer and a page](plugins/03-plugins-explorer-and-page/plan.md) | active | task 05, waiting for ahpd's version and load status |
 
 ## sessions
 
