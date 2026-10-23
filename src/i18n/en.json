@@ -54,7 +54,8 @@
       "teams": "Teams",
       "usage": "Usage",
       "policies": "Policies",
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "connectors": "Connectors"
     },
     "palette": {
       "placeholder": "Type a command or a terminal"
@@ -2176,7 +2177,7 @@
       "filter": "Filter plugins",
       "group": "Group",
       "empty": "This host configures no plugins.",
-      "notServed": "No host here lists its plugins to you. It takes the config:read grant."
+      "notServed": "No host here lists its plugins to you. It takes the plugin:list grant."
     },
     "group": {
       "state": "By state",
@@ -2222,18 +2223,20 @@
       "undeclared": "It loaded, but its manifest names no contracts, so what it provides is not known.",
       "notLoaded": "It has not loaded, so what it provides is not known.",
       "spec": "As configured",
-      "stateNote": "The state is read from the configuration and the package, not from what loaded."
+      "loadFailed": "It did not load"
     },
     "facts": {
       "id": "Id",
       "state": "State",
+      "version": "Version",
+      "running": "Running",
       "module": "Module",
       "path": "Path",
       "url": "URL"
     },
     "provides": {
       "agents": "Agents",
-      "connectors": "Connector kinds",
+      "adapters": "Adapters",
       "channels": "Channels",
       "methods": "Commands",
       "resourceProviders": "Resource schemes",
@@ -2244,11 +2247,101 @@
       "save": "Save",
       "reset": "Reset",
       "saved": "Saved. The host applies it at its next start.",
-      "none": "This plugin has no options to set here. A plugin that is off, or did not load, shows none.",
-      "noSettings": "This host publishes no settings.",
-      "unreadable": "The settings could not be read"
+      "failed": "The option could not be saved",
+      "none": "This plugin has no options to set here. A plugin that is off, or did not load, shows none."
     },
     "restart": "The host holds a change that applies at its next start. Restart the host to apply it.",
-    "restartShort": "Restart the host to apply the last change."
+    "restartShort": "Restart the host to apply the last change.",
+    "running": {
+      "yes": "Yes",
+      "no": "No, it loads at the host's next start"
+    }
+  },
+  "connectors": {
+    "explorer": {
+      "title": "Connectors",
+      "filter": "Filter connectors",
+      "group": "Group",
+      "empty": "There are no connectors here you can see.",
+      "noAdapter": "No adapter",
+      "notServed": "No host here lists connectors to you. It takes the connector:list grant."
+    },
+    "group": {
+      "adapter": "By adapter",
+      "owner": "By owner",
+      "state": "By state"
+    },
+    "commands": {
+      "show": "Show connectors",
+      "open": "Open connector",
+      "new": "New connector"
+    },
+    "states": {
+      "open": "Open",
+      "invalid": "Invalid",
+      "unavailable": "Unavailable"
+    },
+    "stateNotes": {
+      "invalid": "Its settings do not fit its adapter, or its adapter refused to open it. Change its settings to open it again.",
+      "unavailable": "No plugin registers its adapter now. Enable the plugin that offers {adapter} to open it again."
+    },
+    "owners": {
+      "me": "Me",
+      "host": "The host",
+      "team": "Team {team}"
+    },
+    "actions": {
+      "open": "Open",
+      "delete": "Delete",
+      "deleteTitle": "Delete {title}?",
+      "deleteBody": "The host closes it and forgets its secrets. You cannot undo this.",
+      "deleteFailed": "{title} could not be deleted"
+    },
+    "notices": {
+      "reading": "Reading the connectors…",
+      "none": "The connectors could not be read"
+    },
+    "form": {
+      "newTitle": "New connector",
+      "adapter": "Adapter",
+      "id": "Id",
+      "idHint": "A slug, such as ci-deploys. It cannot change later.",
+      "title": "Title",
+      "titleHint": "What the list shows. Empty, it shows the id.",
+      "owner": "Owner",
+      "create": "Create",
+      "save": "Save",
+      "reset": "Reset",
+      "saved": "Saved.",
+      "failed": "The connector could not be saved",
+      "noAdapters": "This host lists no adapters to you. Making a connector takes the connector:list grant.",
+      "noPut": "Making a connector takes the connector:put grant, which you do not hold.",
+      "settingsOf": "{adapter} settings",
+      "secretKept": "Kept. Type a new value to replace it."
+    },
+    "page": {
+      "gone": "This connector is no longer on the host.",
+      "overview": "Overview",
+      "settings": "Settings",
+      "adapter": "Adapter",
+      "plugin": "Plugin",
+      "owner": "Owner",
+      "state": "State",
+      "id": "Id",
+      "capabilities": "Capabilities",
+      "noCapabilities": "Its adapter declares no capabilities.",
+      "url": "URL",
+      "copy": "Copy",
+      "copied": "URL copied",
+      "unknownAdapter": "{adapter}, which no plugin registers now",
+      "noAdapter": "Its record names no adapter, because a host from before adapters wrote it. Delete it and make it again.",
+      "noAdapterShort": "None"
+    },
+    "capabilities": {
+      "receive": "Receives",
+      "command": "Command",
+      "action": "Action",
+      "ui": "Interface"
+    }
   }
 }

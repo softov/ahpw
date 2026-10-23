@@ -24,6 +24,8 @@ import { USAGE_SERVED } from '../resources/usage/state.js';
 import { POLICIES_SECTION, registerPolicies } from '../resources/policies/index.js';
 import { PLUGINS_SECTION, registerPlugins } from '../resources/plugins/index.js';
 import { PLUGINS_SERVED } from '../resources/plugins/state.js';
+import { CONNECTORS_SECTION, registerConnectors } from '../resources/connectors/index.js';
+import { CONNECTORS_SERVED } from '../resources/connectors/state.js';
 import { POLICIES_SERVED } from '../resources/policies/state.js';
 import { FOLDERS_SECTION, registerFolders } from '../resources/folders/index.js';
 import { ahpPaths, windowHost } from '../bridges/data.js';
@@ -300,6 +302,13 @@ export function registerShell(scena: Scena): Disposable {
       when: `${PLUGINS_SERVED} == true`,
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.hostPlugins, label: bound('shell/nav/plugins'), pos: 'bottom', section: PLUGINS_SECTION, args: TOGGLE },
     }),
+    // Shown while a host lists connectors to this reader: every kind and connector with config:read, else their own.
+    scena.surfaces.mount({
+      surface: 'activitybar',
+      key: 'connectors:nav',
+      when: `${CONNECTORS_SERVED} == true`,
+      resource: { component: 'ActivityBarItem', icon: EMOJIcon.connectors, label: bound('shell/nav/connectors'), pos: 'bottom', section: CONNECTORS_SECTION, args: TOGGLE },
+    }),
     scena.surfaces.mount({
       surface: 'activitybar',
       key: 'manage:nav',
@@ -321,6 +330,7 @@ export function registerShell(scena: Scena): Disposable {
     registerUsage(scena),
     registerPolicies(scena),
     registerPlugins(scena),
+    registerConnectors(scena),
     registerFolders(scena),
     registerHost(scena),
     registerFiles(scena),

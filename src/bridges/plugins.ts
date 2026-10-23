@@ -1,8 +1,10 @@
 /**
  * The host's plugins, through ahpd's `x-ahpd-plugins://` records channel and
- * its `x-ahpd/plugins/enable` and `/disable` commands. Both need the reader to
- * see the configuration (`config:read`, `config:write`); a host refuses the
- * rest in its own words.
+ * its `x-ahpd/plugins/enable`, `/disable` and `/options` commands. Reading takes
+ * `plugin:list`, and each command its own grant: `plugin:enable`,
+ * `plugin:disable`, `plugin:options`. A host refuses the rest in its own words,
+ * and marks its root state `ahpd.restartNeeded` once a command changed the
+ * configuration.
  *
  * The row is written here rather than imported: ahpd serves it from the
  * server, and `@ahpd/sdk` 0.13 has no `PluginManifest` yet. The channel came
@@ -19,6 +21,7 @@ export const PLUGINS = {
   channel: 'x-ahpd-plugins://',
   enable: 'x-ahpd/plugins/enable',
   disable: 'x-ahpd/plugins/disable',
+  options: 'x-ahpd/plugins/options',
 } as const;
 
 /**
@@ -66,6 +69,14 @@ export interface PluginRow {
   manifest?: PluginManifest;
   /** Loaded, but its manifest names no contracts. */
   undeclared?: boolean;
+  /** The installed package's version. */
+  version?: string;
+  /** Whether the running host loaded it; a configured plugin may not be running. */
+  loaded?: boolean;
+  /** Why it did not load, when the host tried. */
+  loadProblem?: string;
+  /** The JSON Schema of its options; absent for a plugin switched off, which is never imported. */
+  optionsSchema?: Record<string, unknown>;
 }
 
 export const pluginsReducer = recordsReducer<PluginRow>(PLUGINS.scheme);
@@ -95,6 +106,14 @@ export const enablePlugin = (host: string, id: string): Promise<PluginToggled> =
 
 /** Turns a configured plugin off, keeping its entry and options; the host drops it at its next start. */
 export const disablePlugin = (host: string, id: string): Promise<PluginToggled> => toggle(host, PLUGINS.disable, id);
+
+/**
+ * Writes one option, checked against the plugin's own schema; a `value` left
+ * out takes the option out. The host applies it at its next start.
+ */
+export async function setPluginOption(host: string, id: string, key: string, value: unknown): Promise<void> {
+  await hostBridge(host).request(PLUGINS.options as never, { id, key, ...(value === undefined ? {} : { value }) } as never);
+}
 
 /** Whether the host holds a configuration change that only a restart applies. */
 export function restartNeeded(root: RootState | undefined): boolean {

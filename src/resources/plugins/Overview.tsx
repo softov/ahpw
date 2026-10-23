@@ -26,6 +26,8 @@ export function Overview({ host, id, row }: { host: string; id: string; row: Plu
     ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} />, span: true }] : []),
     { label: t('plugins/facts/id'), value: id },
     { label: t('plugins/facts/state'), value: t(`plugins/states/${row.state}`) },
+    ...(row.version === undefined ? [] : [{ label: t('plugins/facts/version'), value: row.version }]),
+    ...(row.loaded === undefined ? [] : [{ label: t('plugins/facts/running'), value: t(row.loaded ? 'plugins/running/yes' : 'plugins/running/no') }]),
     ...(row.module === undefined ? [] : [{ label: t('plugins/facts/module'), value: row.module }]),
     ...(row.path === undefined ? [] : [{ label: t('plugins/facts/path'), value: row.path, span: true }]),
     ...(row.url === undefined ? [] : [{ label: t('plugins/facts/url'), value: row.url, span: true }]),
@@ -35,9 +37,8 @@ export function Overview({ host, id, row }: { host: string; id: string; row: Plu
     <div className="web-plugin__overview">
       {manifest?.description === undefined ? null : <Markdown text={manifest.description} />}
       {row.problem === undefined ? null : <Alert tone={tone ?? 'warning'} message={row.problem} />}
+      {row.loadProblem === undefined || row.loadProblem === row.problem ? null : <Alert tone="danger" title={t('plugins/page/loadFailed')} message={row.loadProblem} />}
       <DetailList items={facts} columns={2} />
-      {/* ahpd reads the state from the configuration and the package, not from what loaded. */}
-      <p className="web-note">{t('plugins/page/stateNote')}</p>
 
       {(manifest?.categories ?? []).length === 0 && (manifest?.links ?? []).length === 0 ? null : (
         <div className="web-plugin__tags">

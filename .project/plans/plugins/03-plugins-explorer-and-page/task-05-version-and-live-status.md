@@ -1,6 +1,6 @@
 ---
 title: A plugin's page and row show its version and whether it loaded
-status: blocked
+status: done
 depends: [task-03-a-plugins-page-and-overview.md]
 layer: "ahpw plugins"
 refs:
@@ -41,4 +41,14 @@ Read the shape ahpd ships, and correct these steps before starting.
 - By hand: a plugin whose `apply` throws shows as failed, with its problem.
 
 ## Resume
+
+Done on 2026-10-22, against ahpd main at 13b19150.
+The row carries `version`, `loaded`, `loadProblem` and `optionsSchema`; a failed load shows `failed` over the configured state.
+A `loadProblem` that repeats `problem` is said once.
+Options read the schema and the held values from the row.
+They save each changed key through `x-ahpd/plugins/options`, which refuses a bad value in the host's words.
+A refused value stays in the form.
+After a command, ahpw reads the root again for `ahpd.restartNeeded`, and its own restart marker is gone.
+The protocol client drops the `x-ahpd/restartNeeded` push, since it does not know the notification.
+By hand: Bot shows 0.13.0 and running; lastChats -5 refused; 20 saved; enabling push showed the restart note.
 

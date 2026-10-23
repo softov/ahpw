@@ -27,7 +27,9 @@ export interface WebServer {
 /** The page at `/`, and its socket carried to the daemon. Not listening yet. */
 export function createWebServer(options: WebServerOptions): WebServer {
   const files = staticRoute(options.app, '/');
-  const about = JSON.stringify({ tokenHeld: options.token !== undefined });
+  // The daemon's HTTP root, which a page served from here cannot see: a connector's URL starts with it.
+  const daemon = new URL(options.upstream.href.replace(/^ws(s?):/, 'http$1:')).origin;
+  const about = JSON.stringify({ tokenHeld: options.token !== undefined, daemon });
   const route = async (request: Request): Promise<Response> => {
     if (new URL(request.url).pathname !== SERVER_FILE) return await files(request);
     return new Response(about, { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } });

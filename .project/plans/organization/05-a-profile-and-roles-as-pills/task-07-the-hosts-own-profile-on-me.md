@@ -39,6 +39,8 @@ Read the shape ahpd ships, and correct the steps before starting.
 - `UPDATE: src/resources/profile/Info.tsx` - read `me`; mark the roles a sign-in added; root shows its grants and its pool.
 - `UPDATE: src/resources/profile/Keys.tsx` - for root, a person picker over `TokenList` and `MintForm` with `user`.
 - `UPDATE: src/resources/users/UserPage.tsx` - `writes` also asks the reader's grants, so a reader without `user:write` sees no edit controls.
+- `UPDATE: src/bridges/offers.ts` - each channel's `grant` from `ahpd.channels`.
+- `UPDATE: src/bridges/served.ts` - `trackServed` also asks that the reader holds the channel's grant.
 - `UPDATE: src/i18n/en.json` - the root words.
 - `UPDATE: src/i18n/es.json` - the same keys.
 - `UPDATE: src/i18n/pt.json` - the same keys.
@@ -53,6 +55,10 @@ Read the shape ahpd ships, and correct the steps before starting.
 6. For root's Keys, list the people, then show `TokenList` and `MintForm` for the one picked.
 7. Remove `readOwnUser` once nothing calls it.
 8. Gate the user page's writes on the reader's grants from `me`, not on the host's provider alone.
+9. Keep each channel's `grant` from `ahpd.channels` in `Offers`.
+10. Show an activity bar entry only while the reader holds its channel's grant.
+11. Match a grant by ahpd's rule: itself, `*:*`, `*:<operation>` or `<subject>:*`.
+12. Keep `connector:all` as a second grant that shows 🔌, since it reads every connector without `connector:list`.
 
 ## Validation
 
@@ -60,6 +66,7 @@ Read the shape ahpd ships, and correct the steps before starting.
 - `npx tsc -b` and `npx vitest run` pass.
 - By hand on a root connection: the Manage entry, Info, and minting a token for a person.
 - By hand as a person with a `rolesFrom` role: the role shows, marked as from sign-in.
+- By hand: a reader without `connector:list` or `plugin:list` sees no 🔌 or 🔣 entry.
 - By hand, light and dark.
 
 ## Resume

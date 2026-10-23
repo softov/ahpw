@@ -46,7 +46,8 @@ const serverFacts: Plugin = {
   configureServer(server) {
     server.middlewares.use('/ahpw.json', (_request, response) => {
       response.setHeader('content-type', 'application/json');
-      response.end(JSON.stringify({ tokenHeld: false }));
+      // The daemon behind the proxy, whose HTTP root a connector's URL starts with.
+      response.end(JSON.stringify({ tokenHeld: false, daemon: new URL(daemon).origin }));
     });
   },
 };

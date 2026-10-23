@@ -4,7 +4,7 @@ import { entryKeyOf, pluginRows, type PluginEntry, type RowWords } from './rows.
 
 const entry = (id: string, row: Partial<PluginRow>): PluginEntry => ({ host: 'h', hostName: 'dev', id, row: { spec: id, name: id, state: 'ready', ...row } });
 
-const WORDS: RowWords = { multi: false, state: (state) => state, category: (category) => (category === '' ? 'Other' : category), menu: () => [] };
+const WORDS: RowWords = { multi: false, state: (state) => state, loadFailed: 'Did not load', category: (category) => (category === '' ? 'Other' : category), menu: () => [] };
 
 describe('pluginRows', () => {
   it('puts problems first and disabled plugins last, by state', () => {
@@ -34,6 +34,13 @@ describe('pluginRows', () => {
     const [row] = pluginRows([entry('webhook', { title: 'Webhooks', state: 'error', problem: 'cannot read', manifest: { categories: ['connector'] } })], 'state', WORDS);
     expect(row?.title).toBe('Webhooks');
     expect(row?.lines).toEqual(['webhook \u{00B7} connector', 'cannot read']);
+  });
+
+  it('shows the version, and a failed load over the configured state', () => {
+    const [row] = pluginRows([entry('bot', { version: '0.14.0', loaded: false, loadProblem: 'apply threw' })], 'state', WORDS);
+    expect(row?.lines).toEqual(['0.14.0', 'apply threw']);
+    expect(row?.dot).toBe('failed');
+    expect(row?.dotLabel).toBe('Did not load');
   });
 
   it('starts a row with the host name in a window with every host', () => {

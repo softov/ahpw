@@ -11,6 +11,7 @@ import { writeLastHost } from '../sessions/last-host.js';
 import { may } from './actions.js';
 import { COMPUTER_PROVIDER, COMPUTERS_SCHEME, createComputer } from './machines.js';
 import { formSchema, manifestBody, nameProblem } from './manifest.js';
+import { EMOJIcon } from '../emojis.js';
 
 /** Makes a computer: its host with every host, its name, and the answers to the host's manifest schema. */
 export default function NewComputerPage({ host: opened }: { host: string }): ReactElement {
@@ -67,7 +68,7 @@ export default function NewComputerPage({ host: opened }: { host: string }): Rea
 
   return (
     <div className="web-page web-form">
-      <Text variant="h2" text={t('computers/commands/new')} />
+      <Text variant="h2" text={`${EMOJIcon.computers} ${t('computers/commands/new')}`} />
       <SchemaForm
         schema={schema}
         value={values}

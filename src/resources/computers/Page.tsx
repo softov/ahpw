@@ -12,6 +12,7 @@ import { timeOf } from '../automations/words.js';
 import { act, may } from './actions.js';
 import { COMPUTERS, computersReducer, computersRoot, computerUri, factsOf, standingOf, type ComputersState, type MachineFacts, type Standing } from './machines.js';
 import { sizeWords, usageOf, type Usage } from './usage.js';
+import { EMOJIcon } from '../emojis.js';
 
 type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info';
 const TONE: Record<Standing, Tone> = { running: 'success', problem: 'danger', stopped: 'default' };
@@ -102,8 +103,9 @@ export default function ComputerPage({ host, machine: id }: { host: string; mach
   return (
     <div className="web-page">
       <div className="web-page__head">
-        <div className="web-chat__title">
-          <Text variant="h2" text={id} />
+        <div className="web-role__title">
+          <Text variant="h2" text={`${EMOJIcon.computers} ${id}`} />
+          <span className="web-role__uri">{computerUri(computersRoot(offers), id)}</span>
           <Badge tone={TONE[standing]} text={facts.oomKilled ? t('computers/standing/oom') : t(`computers/standing/${standing}`)} />
         </div>
         <div className="web-page__actions">

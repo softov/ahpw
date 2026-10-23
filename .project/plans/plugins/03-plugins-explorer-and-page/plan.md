@@ -98,7 +98,7 @@ Options Save -> root/configChanged { 'plugins.<id>': { options } } -> ahpd.resta
 | [02 - The plugins explorer and its activity bar entry](task-02-the-plugins-explorer.md) | done | 01 |
 | [03 - A plugin's page and its Overview tab](task-03-a-plugins-page-and-overview.md) | done | 02 |
 | [04 - Enable, Disable, the Options tab and the restart note](task-04-enable-options-and-restart.md) | done | 03 |
-| [05 - A plugin's version and live load status](task-05-version-and-live-status.md) | blocked | 03 |
+| [05 - A plugin's version and live load status](task-05-version-and-live-status.md) | done | 03 |
 
 ## Risks and tradeoffs
 
@@ -109,10 +109,10 @@ Options Save -> root/configChanged { 'plugins.<id>': { options } } -> ahpd.resta
 
 ## Resume state
 
-- **Done so far:** tasks 01 to 04, on 2026-10-22.
-- **Next action:** task 05, once ahpd adds `version`, a live load status and `optionsSchema` to a row.
+- **Done so far:** tasks 01 to 05, on 2026-10-22.
+- **Next action:** close the plan: write `implemented.md` and set `status: built`.
 - **Open questions:** none.
-- **Blocked:** task 05 waits for ahpd to add `version`, a live load status and `optionsSchema` to a row.
+- **Blocked:** nothing.
 - **Watch out for:** "plugin" names two things in ahpw; this plan is the host's plugins, and the agent page's 🧩 plugins are an agent's own.
 
 ## Final verification checklist

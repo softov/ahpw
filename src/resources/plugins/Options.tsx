@@ -1,59 +1,68 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { rootReducer, type RootState, type StateAction } from '@microsoft/agent-host-protocol';
-import { useI18n, useScena } from '@softov/scena/react';
-import { Button, SchemaForm, Spinner, type JsonSchemaObject } from '@softov/scena/ui';
-import { useChannel } from '../../bridges/channel.js';
-import { hostBridge, ROOT } from '../../bridges/data.js';
-import { PageAlert } from '../../shell/view/PageAlert.js';
-import { restartPath } from './state.js';
+import { useI18n } from '@softov/scena/react';
+import { Alert, Button, SchemaForm, type JsonSchemaObject } from '@softov/scena/ui';
+import { setPluginOption, type PluginRow } from '../../bridges/plugins.js';
+import { hostSaid } from '../../bridges/said.js';
+import { rereadAfterChange } from './actions.js';
 
 type Bag = Record<string, unknown>;
 
 const bagOf = (value: unknown): Bag => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Bag) : {});
 
+/** The keys whose value differs between two option sets, in either. */
+export function changedKeys(held: Bag, edited: Bag): string[] {
+  const keys = [...new Set([...Object.keys(held), ...Object.keys(edited)])];
+  return keys.filter((key) => JSON.stringify(held[key]) !== JSON.stringify(edited[key]));
+}
+
 /**
- * A plugin's options, as the host's `plugins.<id>` setting describes them,
- * saved as the settings window saves: one `root/configChanged` the host
- * checks against the same schema. A secret reads `<set>` and is kept unless
- * a new value is typed. The host loads a change at its next start.
+ * A plugin's options, drawn from the schema its row carries and saved one
+ * changed key at a time through `x-ahpd/plugins/options`, which checks each
+ * against that schema and says why it refuses. A secret reads `<set>` and is
+ * sent only once a new value is typed. The host loads a change at its next
+ * start, and marks its root for it.
  */
-export function Options({ host, id }: { host: string; id: string }): ReactElement {
-  const scena = useScena();
+export function Options({ host, id, row }: { host: string; id: string; row: PluginRow }): ReactElement {
   const { t } = useI18n();
-  const { state, error } = useChannel<RootState>(host, ROOT, rootReducer);
-  const key = `plugins.${id}`;
-  const config = state?.config;
-  const schema = useMemo(() => bagOf(bagOf(bagOf(config?.schema).properties)[key]).properties, [config, key]);
-  const optionsSchema = bagOf(bagOf(schema).options) as unknown as JsonSchemaObject;
-  const held = useMemo(() => bagOf(bagOf(bagOf(config?.values)[key]).options), [config, key]);
+  const schema = (row.optionsSchema ?? {}) as JsonSchemaObject;
+  const held = useMemo(() => bagOf(typeof row.spec === 'string' ? undefined : row.spec.options), [row.spec]);
   const [edited, setEdited] = useState<Bag | null>(null);
+  const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
 
   // What the host holds now, whenever it changes.
   useEffect(() => setEdited(null), [held]);
 
-  if (error !== null) return <PageAlert tone="danger" title={t('plugins/options/unreadable')} message={error} />;
-  if (state === undefined) return <Spinner label={t('plugins/notices/reading')} />;
-  if (config === undefined) return <p className="web-note web-plugin__tab">{t('plugins/options/noSettings')}</p>;
-  // A plugin that is off, or that did not load, has an empty options schema.
-  if (Object.keys(bagOf(optionsSchema.properties)).length === 0) return <p className="web-note web-plugin__tab">{t('plugins/options/none')}</p>;
+  // A plugin that is off, or that did not load, carries no options schema.
+  if (Object.keys(bagOf(schema.properties)).length === 0) return <p className="web-note web-plugin__tab">{t('plugins/options/none')}</p>;
 
   const values = edited ?? held;
-  const dirty = edited !== null && JSON.stringify(edited) !== JSON.stringify(held);
-  const save = (): void => {
-    hostBridge(host).dispatch(ROOT, { type: 'root/configChanged', config: { [key]: { options: values } } } as StateAction);
-    // The host loads options at its next start.
-    scena.store.set(restartPath(host), true);
-    setSaved(true);
+  const changed = changedKeys(held, values);
+  const save = async (): Promise<void> => {
+    setBusy(true);
+    setFailure(null);
+    try {
+      // One key at a time: the host checks and writes each on its own, so the first refusal stops the rest.
+      for (const key of changed) await setPluginOption(host, id, key, values[key]);
+      setSaved(true);
+      await rereadAfterChange(host);
+    } catch (caught) {
+      // The edits stay, so the person corrects the value the host refused.
+      setFailure(hostSaid(caught));
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <div className="web-plugin__tab">
-      <SchemaForm schema={optionsSchema} value={values} baseline={held} onChange={(next) => { setEdited(next); setSaved(false); }} />
+      <SchemaForm schema={schema} value={values} baseline={held} onChange={(next) => { setEdited(next); setSaved(false); setFailure(null); }} />
+      {failure === null ? null : <Alert tone="danger" title={t('plugins/options/failed')} message={failure} />}
       <div className="web-page__actions">
-        <Button label={t('plugins/options/save')} variant="primary" disabled={!dirty} onClick={save} />
-        <Button label={t('plugins/options/reset')} disabled={!dirty} onClick={() => setEdited(null)} />
-        {saved && !dirty ? <span className="web-note">{t('plugins/options/saved')}</span> : null}
+        <Button label={t('plugins/options/save')} variant="primary" disabled={changed.length === 0 || busy} onClick={() => void save()} />
+        <Button label={t('plugins/options/reset')} disabled={changed.length === 0 || busy} onClick={() => { setEdited(null); setFailure(null); }} />
+        {saved && changed.length === 0 ? <span className="web-note">{t('plugins/options/saved')}</span> : null}
       </div>
     </div>
   );

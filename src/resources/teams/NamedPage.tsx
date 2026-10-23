@@ -5,7 +5,7 @@ import { ahpPaths } from '../../bridges/data.js';
 import { useChannel } from '../../bridges/channel.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import {
-  membersOf, PEOPLE, peopleReducer, putPerson, servesPeople, userBody, userFields, writesPeople,
+  membersOf, PEOPLE, peopleReducer, personUri, putPerson, servesPeople, userBody, userFields, writesPeople,
   type ListedUser, type Named, type PeopleState,
 } from '../../bridges/people.js';
 import { failed } from '../../shell/notify/index.js';
@@ -105,10 +105,13 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
 
   return (
     <div className="web-page web-form">
-      <Text variant="h2" text={
-        `${EMOJIcon.teams} ${
-        fresh ? t(domain === 'teams' ? 'teams/commands/newTeam' : 'teams/commands/newProject') : (record?.title || id)
-        }`} />
+      <div className="web-role__title">
+        <Text variant="h2" text={
+          `${EMOJIcon.teams} ${
+          fresh ? t(domain === 'teams' ? 'teams/commands/newTeam' : 'teams/commands/newProject') : (record?.title || id)
+          }`} />
+        {fresh ? null : <span className="web-role__uri">{personUri(offers, domain, id)}</span>}
+      </div>
       {writes ? null : <p className="web-note">{t('teams/notices/readOnly')}</p>}
 
       {fresh ? (

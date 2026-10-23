@@ -14,7 +14,7 @@ import { embedMode } from '../../shell/embed/index.js';
 import { ExplorerList } from '../../shell/explorer/ExplorerList.js';
 import { mayToggle, togglePlugin } from './actions.js';
 import { entryKeyOf, KNOWN_CATEGORIES, NO_CATEGORY, pluginRows, type PluginEntry, type PluginGrouping } from './rows.js';
-import { ACTIVE_PLUGIN, PLUGINS_GROUP, restartPath } from './state.js';
+import { ACTIVE_PLUGIN, PLUGINS_GROUP } from './state.js';
 
 /** A category in the reader's words: ahpd's own are translated, any other is shown as the plugin wrote it. */
 export function categoryWord(t: (key: string) => string, category: string): string {
@@ -33,7 +33,6 @@ export default function PluginsExplorer(): ReactElement {
   const { states, errors } = useChannelOnEach<PeopleState<PluginRow>>(hosts, PLUGINS.channel, pluginsReducer);
   const offers = useEach<Offers>(hosts.map((host) => ahpPaths(host).offers));
   const roots = useChannelOnEach<RootState>(hosts, ROOT, rootReducer);
-  const marked = useEach<boolean>(hosts.map(restartPath));
   const active = useStore<{ host: string; id: string }>(ACTIVE_PLUGIN);
   const grouping = useStore<PluginGrouping | null>(PLUGINS_GROUP) ?? 'state';
   const open = (key: string): void => {
@@ -50,13 +49,14 @@ export default function PluginsExplorer(): ReactElement {
         ...(mayToggle(held, row) ? [{
           title: t(specEnabled(row.spec) ? 'plugins/actions/disable' : 'plugins/actions/enable'),
           group: 'more',
-          onSelect: (picker: { closeMenu: () => void }) => { picker.closeMenu(); void togglePlugin(scena.store, host, id, row); },
+          onSelect: (picker: { closeMenu: () => void }) => { picker.closeMenu(); void togglePlugin(host, id, row); },
         }] : []),
       ];
     };
     return pluginRows(entries, grouping, {
       multi,
       state: (state) => t(`plugins/states/${state}`),
+      loadFailed: t('plugins/page/loadFailed'),
       category: (category) => categoryWord(t, category),
       menu,
     });
@@ -73,7 +73,7 @@ export default function PluginsExplorer(): ReactElement {
       : state === undefined
         ? <Spinner label={t('plugins/notices/reading')} />
         : rows.length === 0 ? <p className="web-note web-explorer__empty">{t('plugins/explorer/empty')}</p>
-          : (roots.states.some(restartNeeded) || marked.some((one) => one === true)) ? <p className="web-note web-explorer__empty web-plugins__restart">{t('plugins/restartShort')}</p> : null;
+          : roots.states.some(restartNeeded) ? <p className="web-note web-explorer__empty web-plugins__restart">{t('plugins/restartShort')}</p> : null;
   const selected = active === undefined ? null : rows.find((row) => entryKeyOf(row.key) === refKey(active.host, active.id))?.key ?? null;
 
   return (

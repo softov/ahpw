@@ -5,7 +5,7 @@ import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import { RpcError } from '@microsoft/agent-host-protocol/client';
 import { hostSaid } from './said.js';
 import type { AgentInfo, CommandMap, SessionSummary, StateAction, TerminalInfo } from '@microsoft/agent-host-protocol';
-import { readToken, serverHoldsToken } from '../lib/api.js';
+import { readToken, servedDaemon, serverHoldsToken } from '../lib/api.js';
 import { embedder, embedMode, type EmbedHost } from '../shell/embed/index.js';
 import { offering } from './protocol-versions.js';
 import { readingServerInfo } from './server-info.js';
@@ -609,6 +609,23 @@ async function openSocket(id: string): Promise<WebSocketTransport> {
   const host = await embeddedHost(id);
   addresses.set(id, host.url);
   return WebSocketTransport.connect(hostSocketUrl(host.url, await embedder.token(embedMode() === 'multi' ? id : undefined)));
+}
+
+/**
+ * Where host `id` answers HTTP, which a connector's URL starts with: the
+ * address an embedder gave for it, the daemon a server in front of the page
+ * names, or else the page's own origin, which is the daemon's when its web
+ * plugin sent the page. Nothing for an embedded host not yet connected.
+ *
+ * A daemon with a routes listener answers webhooks on another port, which no
+ * host says yet; ahpd is asked to advertise its public root.
+ */
+export function httpRoot(id: string): string | undefined {
+  if (embedder !== undefined) {
+    const address = addresses.get(id);
+    return address === undefined ? undefined : new URL(plainUrl(address)).origin;
+  }
+  return servedDaemon() ?? window.location.origin;
 }
 
 /** The embedder's host `id`: in multi one of its hosts, else the page's host. */

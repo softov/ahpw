@@ -13,7 +13,7 @@ export interface Provided {
 }
 
 /** The register methods a plugin names, in the order the page shows them; any other follows by name. */
-export const PROVIDE_ORDER = ['agents', 'connectors', 'channels', 'methods', 'resourceProviders', 'tools', 'triggerTypes'] as const;
+export const PROVIDE_ORDER = ['agents', 'adapters', 'channels', 'methods', 'resourceProviders', 'tools', 'triggerTypes'] as const;
 
 /** The section each channel scheme and resource scheme opens, where ahpw has one. */
 const SECTION: Readonly<Record<string, string>> = {
@@ -33,12 +33,15 @@ const SECTION: Readonly<Record<string, string>> = {
   policy: 'ahp.showPolicies',
   usage: 'ahp.showUsage',
   'x-ahpd-plugins': 'ahp.showPlugins',
+  'x-ahpd-connectors': 'ahp.showConnectors',
+  'x-ahpd-adapters': 'ahp.showConnectors',
 };
 
-/** Where an entry of a register method opens: an agent its page, a channel or a scheme its section; a wildcard nothing. */
+/** Where an entry of a register method opens: an agent its page, an adapter or a channel or a scheme its section; a wildcard nothing. */
 export function linkOf(kind: string, name: string, host: string): ProvidedLink | undefined {
   if (name.endsWith('*')) return undefined;
   if (kind === 'agents') return { command: 'ahp.openAgent', args: { host, provider: name } };
+  if (kind === 'adapters') return { command: 'ahp.showConnectors' };
   if (kind === 'channels' || kind === 'resourceProviders') {
     const command = SECTION[name];
     return command === undefined ? undefined : { command };

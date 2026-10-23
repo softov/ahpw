@@ -54,7 +54,8 @@
       "teams": "Equipes",
       "usage": "Uso",
       "policies": "Políticas",
-      "plugins": "Plugins"
+      "plugins": "Plugins",
+      "connectors": "Conectores"
     },
     "palette": {
       "placeholder": "Digite um comando ou um terminal"
@@ -2176,7 +2177,7 @@
       "filter": "Filtrar plugins",
       "group": "Agrupar",
       "empty": "Este host não configura plugins.",
-      "notServed": "Nenhum host aqui lista seus plugins para você. Requer a permissão config:read."
+      "notServed": "Nenhum host aqui lista os plugins para você. Requer a permissão plugin:list."
     },
     "group": {
       "state": "Por estado",
@@ -2222,18 +2223,20 @@
       "undeclared": "Foi carregado, mas seu manifesto não nomeia contratos, então não se sabe o que oferece.",
       "notLoaded": "Não foi carregado, então não se sabe o que oferece.",
       "spec": "Como está configurado",
-      "stateNote": "O estado é lido da configuração e do pacote, não do que foi carregado."
+      "loadFailed": "Não carregou"
     },
     "facts": {
       "id": "Id",
       "state": "Estado",
+      "version": "Versão",
+      "running": "Em execução",
       "module": "Módulo",
       "path": "Caminho",
       "url": "URL"
     },
     "provides": {
       "agents": "Agentes",
-      "connectors": "Tipos de conector",
+      "adapters": "Adaptadores",
       "channels": "Canais",
       "methods": "Comandos",
       "resourceProviders": "Esquemas de recursos",
@@ -2244,11 +2247,101 @@
       "save": "Salvar",
       "reset": "Restaurar",
       "saved": "Salvo. O host aplica na próxima inicialização.",
-      "none": "Este plugin não tem opções para definir aqui. Um plugin desativado, ou que não carregou, não mostra nenhuma.",
-      "noSettings": "Este host não publica configurações.",
-      "unreadable": "Não foi possível ler as configurações"
+      "failed": "Não foi possível salvar a opção",
+      "none": "Este plugin não tem opções para definir aqui. Um plugin desativado, ou que não carregou, não mostra nenhuma."
     },
     "restart": "O host tem uma mudança que vale na próxima inicialização. Reinicie o host para aplicá-la.",
-    "restartShort": "Reinicie o host para aplicar a última mudança."
+    "restartShort": "Reinicie o host para aplicar a última mudança.",
+    "running": {
+      "yes": "Sim",
+      "no": "Não, carrega no próximo início do host"
+    }
+  },
+  "connectors": {
+    "explorer": {
+      "title": "Conectores",
+      "filter": "Filtrar conectores",
+      "group": "Agrupar",
+      "empty": "Não há conectores que você possa ver.",
+      "noAdapter": "Sem adaptador",
+      "notServed": "Nenhum host aqui lista conectores para você. Requer a permissão connector:list."
+    },
+    "group": {
+      "adapter": "Por adaptador",
+      "owner": "Por dono",
+      "state": "Por estado"
+    },
+    "commands": {
+      "show": "Mostrar conectores",
+      "open": "Abrir conector",
+      "new": "Novo conector"
+    },
+    "states": {
+      "open": "Aberto",
+      "invalid": "Inválido",
+      "unavailable": "Indisponível"
+    },
+    "stateNotes": {
+      "invalid": "As configurações não servem ao adaptador, ou o adaptador se recusou a abri-lo. Mude as configurações para abri-lo de novo.",
+      "unavailable": "Nenhum plugin registra o adaptador agora. Ative o plugin que oferece {adapter} para abri-lo de novo."
+    },
+    "owners": {
+      "me": "Eu",
+      "host": "O host",
+      "team": "Equipe {team}"
+    },
+    "actions": {
+      "open": "Abrir",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir {title}?",
+      "deleteBody": "O host o fecha e esquece seus segredos. Não é possível desfazer.",
+      "deleteFailed": "Não foi possível excluir {title}"
+    },
+    "notices": {
+      "reading": "Lendo os conectores…",
+      "none": "Não foi possível ler os conectores"
+    },
+    "form": {
+      "newTitle": "Novo conector",
+      "adapter": "Adaptador",
+      "id": "Id",
+      "idHint": "Um slug, como ci-deploys. Não pode mudar depois.",
+      "title": "Título",
+      "titleHint": "O que a lista mostra. Vazio, mostra o id.",
+      "owner": "Dono",
+      "create": "Criar",
+      "save": "Salvar",
+      "reset": "Restaurar",
+      "saved": "Salvo.",
+      "failed": "Não foi possível salvar o conector",
+      "noAdapters": "Este host não lista adaptadores para você. Criar um conector requer a permissão connector:list.",
+      "noPut": "Criar um conector requer a permissão connector:put, que você não tem.",
+      "settingsOf": "Configurações de {adapter}",
+      "secretKept": "Guardado. Digite um valor novo para substituí-lo."
+    },
+    "page": {
+      "gone": "Este conector não está mais no host.",
+      "overview": "Visão geral",
+      "settings": "Configurações",
+      "adapter": "Adaptador",
+      "plugin": "Plugin",
+      "owner": "Dono",
+      "state": "Estado",
+      "id": "Id",
+      "capabilities": "Capacidades",
+      "noCapabilities": "O adaptador não declara capacidades.",
+      "url": "URL",
+      "copy": "Copiar",
+      "copied": "URL copiada",
+      "unknownAdapter": "{adapter}, que nenhum plugin registra agora",
+      "noAdapter": "O registro não nomeia um adaptador, porque um host anterior aos adaptadores o escreveu. Exclua-o e crie-o de novo.",
+      "noAdapterShort": "Nenhum"
+    },
+    "capabilities": {
+      "receive": "Recebe",
+      "command": "Comando",
+      "action": "Ação",
+      "ui": "Interface"
+    }
   }
 }

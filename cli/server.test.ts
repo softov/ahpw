@@ -104,12 +104,17 @@ describe('createWebServer', () => {
     expect(await page.text()).toContain('<title>ahpd</title>');
     expect(page.headers.get('content-security-policy')).toContain("frame-ancestors 'none'");
     expect((await fetch(`http://127.0.0.1:${port}/assets/a-1.js`)).headers.get('cache-control')).toContain('immutable');
-    expect(await (await fetch(`http://127.0.0.1:${port}/ahpw.json`)).json()).toEqual({ tokenHeld: true });
+    expect(await (await fetch(`http://127.0.0.1:${port}/ahpw.json`)).json()).toEqual({ tokenHeld: true, daemon: 'http://127.0.0.1:1' });
+  });
+
+  it('names a wss: daemon by its https: root', async () => {
+    const { port } = await serve('wss://daemon.example.com:8443/ahp');
+    expect(await (await fetch(`http://127.0.0.1:${port}/ahpw.json`)).json()).toEqual({ tokenHeld: false, daemon: 'https://daemon.example.com:8443' });
   });
 
   it('says it holds no token when it was given none', async () => {
     const { port } = await serve('ws://127.0.0.1:1');
-    expect(await (await fetch(`http://127.0.0.1:${port}/ahpw.json`)).json()).toEqual({ tokenHeld: false });
+    expect(await (await fetch(`http://127.0.0.1:${port}/ahpw.json`)).json()).toEqual({ tokenHeld: false, daemon: 'http://127.0.0.1:1' });
   });
 
   it('carries the socket with the token, and only the handshake headers', async () => {

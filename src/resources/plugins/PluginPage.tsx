@@ -12,7 +12,7 @@ import { EMOJIcon } from '../emojis.js';
 import { mayToggle, togglePlugin } from './actions.js';
 import { Options } from './Options.js';
 import { Overview } from './Overview.js';
-import { keepPluginTabKey, pluginTabKey, restartPath } from './state.js';
+import { keepPluginTabKey, pluginTabKey } from './state.js';
 
 const TONE: Record<PluginState, BadgeTone> = {
   error: 'danger',
@@ -27,7 +27,6 @@ const TONE: Record<PluginState, BadgeTone> = {
 export default function PluginPage({ host, plugin: id }: { host: string; plugin: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
-  const marked = useStore<boolean>(restartPath(host)) === true;
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const plugins = useChannel<PeopleState<PluginRow>>(host, PLUGINS.channel, pluginsReducer);
   // The host marks its root once it holds a change only a restart applies.
@@ -44,7 +43,7 @@ export default function PluginPage({ host, plugin: id }: { host: string; plugin:
       <div className="web-page__head">
         <div className="web-role__title">
           <Text variant="h2" text={`${EMOJIcon.hostPlugins} ${title}`} />
-          {title === id ? null : <span className="web-role__uri">{id}</span>}
+          <span className="web-role__uri">{`${PLUGINS.channel}${id}`}</span>
           <Badge tone={TONE[row.state]} text={t(`plugins/states/${row.state}`)} />
         </div>
         {mayToggle(offers, row) ? (
@@ -52,16 +51,16 @@ export default function PluginPage({ host, plugin: id }: { host: string; plugin:
             <Button
               size="sm"
               label={t(specEnabled(row.spec) ? 'plugins/actions/disable' : 'plugins/actions/enable')}
-              onClick={() => void togglePlugin(scena.store, host, id, row)}
+              onClick={() => void togglePlugin(host, id, row)}
             />
           </div>
         ) : null}
       </div>
-      {restartNeeded(root.state) || marked ? <Alert tone="warning" message={t('plugins/restart')} /> : null}
+      {restartNeeded(root.state) ? <Alert tone="warning" message={t('plugins/restart')} /> : null}
       <Tabs
         tabs={[
           { key: 'overview', title: t('plugins/page/overview'), child: <Overview host={host} id={id} row={row} /> },
-          { key: 'options', title: t('plugins/page/options'), child: <Options host={host} id={id} /> },
+          { key: 'options', title: t('plugins/page/options'), child: <Options host={host} id={id} row={row} /> },
         ]}
         defaultValue={pluginTabKey()}
         onChange={keepPluginTabKey}

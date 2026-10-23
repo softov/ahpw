@@ -35,6 +35,8 @@ export interface PluginEntry {
 export interface RowWords {
   multi: boolean;
   state: (state: PluginState) => string;
+  /** What a plugin the host tried and failed to load is said to be, over its configured state. */
+  loadFailed: string;
   category: (category: string) => string;
   menu: (entry: PluginEntry) => PickerAction[];
 }
@@ -74,13 +76,16 @@ export function pluginRows(entries: readonly PluginEntry[], by: PluginGrouping, 
     const categories = (row.manifest?.categories ?? []).map(words.category).join(', ');
     return {
       key: by === 'state' ? refKey(entry.host, entry.id) : `${group.key}|${refKey(entry.host, entry.id)}`,
-      dot: DOT[row.state],
-      dotLabel: words.state(row.state),
+      // A load that failed is louder than what the configuration says.
+      dot: row.loadProblem === undefined ? DOT[row.state] : 'failed',
+      dotLabel: row.loadProblem === undefined ? words.state(row.state) : words.loadFailed,
       title,
       lines: [
-        [words.multi ? entry.hostName : undefined, title === entry.id ? undefined : entry.id, categories === '' ? undefined : categories]
+        [words.multi ? entry.hostName : undefined, title === entry.id ? undefined : entry.id, row.version, categories === '' ? undefined : categories]
           .filter((bit) => bit !== undefined).join(' \u{00B7} '),
         ...(row.problem === undefined ? [] : [row.problem]),
+        // ahpd repeats a configured problem as the load's; one line says it.
+        ...(row.loadProblem === undefined || row.loadProblem === row.problem ? [] : [row.loadProblem]),
       ].filter((line) => line !== ''),
       menu: words.menu(entry),
       group: { key: group.key, label: group.label },

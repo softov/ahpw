@@ -28,6 +28,7 @@ export function writeToken(token: string | null): void {
 
 /** Whether the server that sent this page adds the token to the socket itself. */
 let tokenHeld = false;
+let daemonRoot: string | undefined;
 
 /** Whether the server holds the token, as `readServer` found. The page then sends none. */
 export function serverHoldsToken(): boolean {
@@ -35,7 +36,16 @@ export function serverHoldsToken(): boolean {
 }
 
 /**
- * Asks the server that sent this page whether it adds the token itself.
+ * The daemon's HTTP root, as a server that is not the daemon names it; nothing
+ * when the daemon sent the page itself, or the server named none.
+ */
+export function servedDaemon(): string | undefined {
+  return daemonRoot;
+}
+
+/**
+ * Asks the server that sent this page whether it adds the token itself, and
+ * where the daemon it stands in front of answers HTTP.
  *
  * `ahpw serve` and the daemon's route answer `ahpw.json` beside the page; a dev
  * server answers its page, so anything but that file is no.
@@ -44,9 +54,12 @@ export async function readServer(): Promise<boolean> {
   try {
     const response = await fetch('./ahpw.json', { headers: { accept: 'application/json' }, cache: 'no-store' });
     if (!response.ok || !(response.headers.get('content-type') ?? '').includes('application/json')) return false;
-    tokenHeld = (await response.json() as { tokenHeld?: unknown }).tokenHeld === true;
+    const facts = await response.json() as { tokenHeld?: unknown; daemon?: unknown };
+    tokenHeld = facts.tokenHeld === true;
+    daemonRoot = typeof facts.daemon === 'string' && /^https?:\/\//u.test(facts.daemon) ? facts.daemon : undefined;
   } catch {
     tokenHeld = false;
+    daemonRoot = undefined;
   }
   return tokenHeld;
 }
