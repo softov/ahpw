@@ -16,7 +16,7 @@ The icon follows the light or dark scheme shown, also when the system scheme cha
 ## What was built
 
 - [`code://src/bridges/icons.ts`](../../../../src/bridges/icons.ts) - `pickIcon`: the scheme's icon, then one with no theme, then any; only a `data:image/` source.
-- [`code://src/shell/HostIcon.tsx`](../../../../src/shell/HostIcon.tsx) - `useScheme`, `useHostIcon`, `HostIcon` as an `<img>`, and `HostTitle` for a page head.
+- [`code://src/shell/HostIcon.tsx`](../../../../src/shell/HostIcon.tsx) - `useScheme`, `useHostIcon`, `HostIcon` as an `<img>`, and `PageTitle` for a page head.
 - [`code://src/shell/explorer/ExplorerList.tsx`](../../../../src/shell/explorer/ExplorerList.tsx) - `icons` on a row and a group; the row's dot becomes a badge.
 - [`code://src/resources/plugins/rows.ts`](../../../../src/resources/plugins/rows.ts) - a plugin row carries its manifest's icons.
 - [`code://src/resources/connectors/rows.ts`](../../../../src/resources/connectors/rows.ts) - a connector row and an adapter group carry the adapter's icons.

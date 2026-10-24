@@ -18,6 +18,7 @@ import { scopeTitle } from '../users/MembershipList.js';
 import { PickTwo } from '../users/PickTwo.js';
 import { teamTab } from './state.js';
 import { EMOJIcon } from '../emojis.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 type Kind = 'teams' | 'projects';
 const reducers = { teams: peopleReducer('teams'), projects: peopleReducer('projects') };
@@ -105,13 +106,11 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
 
   return (
     <div className="web-page web-form">
-      <div className="web-role__title">
-        <Text variant="h2" text={
-          `${EMOJIcon.teams} ${
-          fresh ? t(domain === 'teams' ? 'teams/commands/newTeam' : 'teams/commands/newProject') : (record?.title || id)
-          }`} />
-        {fresh ? null : <span className="web-role__uri">{personUri(offers, domain, id)}</span>}
-      </div>
+      <PageTitle
+        emoji={EMOJIcon.teams}
+        title={fresh ? t(domain === 'teams' ? 'teams/commands/newTeam' : 'teams/commands/newProject') : (record?.title || id)}
+        uri={fresh ? undefined : personUri(offers, domain, id)}
+      />
       {writes ? null : <p className="web-note">{t('teams/notices/readOnly')}</p>}
 
       {fresh ? (

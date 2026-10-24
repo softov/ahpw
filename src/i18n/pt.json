@@ -2292,7 +2292,8 @@
     "owners": {
       "me": "Eu",
       "host": "O host",
-      "team": "Equipe {team}"
+      "team": "Equipe {team}",
+      "user": "Usuário {user}"
     },
     "actions": {
       "open": "Abrir",
@@ -2309,7 +2310,7 @@
       "newTitle": "Novo conector",
       "adapter": "Adaptador",
       "id": "Id",
-      "idHint": "Um slug, como ci-deploys. Não pode mudar depois.",
+      "idHint": "Um slug, feito do título até você mudá-lo. Não pode mudar depois.",
       "title": "Título",
       "titleHint": "O que a lista mostra. Vazio, mostra o id.",
       "owner": "Dono",
@@ -2332,8 +2333,10 @@
       "owner": "Dono",
       "state": "Estado",
       "id": "Id",
-      "capabilities": "Capacidades",
+      "capabilities": "Capacidades ({count})",
       "noCapabilities": "O adaptador não declara capacidades.",
+      "input": "Entrada",
+      "required": "Obrigatório",
       "url": "URL",
       "copy": "Copiar",
       "copied": "URL copiada",
@@ -2346,6 +2349,12 @@
       "command": "Comando",
       "action": "Ação",
       "ui": "Interface"
+    },
+    "picker": {
+      "search": "Buscar adaptadores",
+      "change": "Trocar",
+      "none": "Nenhum adaptador corresponde.",
+      "count": "{shown} de {all}"
     }
   }
 }

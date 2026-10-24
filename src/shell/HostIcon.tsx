@@ -52,14 +52,40 @@ export function HostIcon({ icons, size, fallback = null, className }: {
   );
 }
 
-/** A page's heading: the host's icon before the title, or the kind's emoji in the text when there is none. */
-export function HostTitle({ icons, emoji, title }: { icons: readonly Icon[] | undefined; emoji: string; title: string }): ReactElement {
+/**
+ * A page's heading: the host's icon, or the kind's emoji, beside two lines -
+ * the title, and under it the page's URI and its state.
+ */
+export function PageTitle({ icons, emoji, title, onTitle, titleHint, uri, uriHint, state }: {
+  icons?: readonly Icon[] | undefined;
+  emoji: string;
+  title: string;
+  /** Opens what the title names; the title is then a button. */
+  onTitle?: () => void;
+  titleHint?: string;
+  uri?: string | undefined;
+  uriHint?: string;
+  /** The state badge after the URI. */
+  state?: ReactNode;
+}): ReactElement {
   const icon = useHostIcon(icons);
-  if (icon === undefined) return <Text variant="h2" text={`${emoji} ${title}`} />;
+  const heading = <Text variant="h2" text={title} />;
   return (
-    <span className="web-host-title">
-      <img className="web-host-icon" src={icon.src} width={24} height={24} alt="" draggable={false} />
-      <Text variant="h2" text={title} />
-    </span>
+    <div className="web-page-title">
+      {icon === undefined
+        ? <span className="web-page-title__mark" aria-hidden="true">{emoji}</span>
+        : <img className="web-host-icon web-page-title__mark" src={icon.src} width={40} height={40} alt="" draggable={false} />}
+      <div className="web-page-title__lines">
+        {onTitle === undefined ? heading : (
+          <button type="button" className="web-page-title__open" {...(titleHint === undefined ? {} : { title: titleHint })} onClick={onTitle}>{heading}</button>
+        )}
+        {uri === undefined && state === undefined ? null : (
+          <div className="web-page-title__meta">
+            {uri === undefined ? null : <span className="web-role__uri" {...(uriHint === undefined ? {} : { title: uriHint })}>{uri}</span>}
+            {state}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import { isRecordId, parseGrants } from './form.js';
 import { personTab } from './state.js';
 import { RoleGrants } from './RoleGrants.js';
 import { EMOJIcon } from '../emojis.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 const rolesReducer = peopleReducer('roles');
 
@@ -72,10 +73,7 @@ export default function RolePage({ host, person: id }: { host: string; person?: 
 
   return (
     <div className="web-page web-form">
-      <div className="web-role__title">
-        <Text variant="h2" text={`${EMOJIcon.roles} ${fresh ? t('users/commands/newRole') : id}`} />
-        {fresh ? null : <span className="web-role__uri">{personUri(offers, 'roles', id)}</span>}
-      </div>
+      <PageTitle emoji={EMOJIcon.roles} title={fresh ? t('users/commands/newRole') : id} uri={fresh ? undefined : personUri(offers, 'roles', id)} />
       {writes ? null : <p className="web-note">{t('users/notices/readOnly')}</p>}
       {builtIn === undefined ? null : <p className="web-note">{t('users/role/builtInNote')}</p>}
       {replaces ? <p className="web-note">{t('users/role/replacesNote')}</p> : null}

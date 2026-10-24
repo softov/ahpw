@@ -13,6 +13,7 @@ import { timeOf } from '../automations/words.js';
 import { EMOJIcon } from '../emojis.js';
 import { monthSoFar, USAGE_ASKED } from './state.js';
 import { hoursWord, tokensWord, totalLine } from './words.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 /** What a pool's range reads: its total and the records behind it. */
 interface Ranged {
@@ -80,13 +81,15 @@ export default function UsagePoolPage({ host, pool }: { host: string; pool: stri
   return (
     <div className="web-page">
       {/* A person's, team's or project's pool names it as its own page does, and opens that page. */}
-      {owner === undefined ? <Text variant="h2" text={`${EMOJIcon.usage} ${name}`} /> : (
-        <div className="web-role__title">
-          <button type="button" className="web-pool__owner" title={t('usage/pool/openOwner', { name })} onClick={() => void scena.commands.execute(OWNERS[owner.domain].open, { host, id: owner.id })}>
-            <Text variant="h2" text={`${OWNERS[owner.domain].icon} ${name}`} />
-          </button>
-          <span className="web-role__uri" title={pool}>{personUri(offers, owner.domain, owner.id)}</span>
-        </div>
+      {owner === undefined ? <PageTitle emoji={EMOJIcon.usage} title={name} /> : (
+        <PageTitle
+          emoji={OWNERS[owner.domain].icon}
+          title={name}
+          onTitle={() => void scena.commands.execute(OWNERS[owner.domain].open, { host, id: owner.id })}
+          titleHint={t('usage/pool/openOwner', { name })}
+          uri={personUri(offers, owner.domain, owner.id)}
+          uriHint={pool}
+        />
       )}
       {owner === undefined ? <p className="web-note">{pool}</p> : null}
       <DetailList

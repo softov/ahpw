@@ -9,6 +9,7 @@ import { EMOJIcon } from '../emojis.js';
 import { Info } from './Info.js';
 import { Keys } from './Keys.js';
 import { keepProfileTabKey, profileTabKey } from './state.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 /** The signed-in person on one host: who they are and what they used, and their keys. */
 export default function ProfilePage({ host }: { host: string }): ReactElement {
@@ -19,10 +20,7 @@ export default function ProfilePage({ host }: { host: string }): ReactElement {
 
   return (
     <div className="web-page web-profile">
-      <div className="web-role__title">
-        <Text variant="h2" text={`${EMOJIcon.users} ${id}`} />
-        <span className="web-role__uri">{personUri(offers, 'users', id)}</span>
-      </div>
+      <PageTitle emoji={EMOJIcon.users} title={id} uri={personUri(offers, 'users', id)} />
       <Tabs
         tabs={[
           { key: 'info', title: t('profile/tabs/info'), child: <Info host={host} /> },

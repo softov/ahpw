@@ -8,12 +8,12 @@ import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import type { PeopleState } from '../../bridges/people.js';
 import { PLUGINS, pluginsReducer, restartNeeded, specEnabled, type PluginRow, type PluginState } from '../../bridges/plugins.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
-import { HostTitle } from '../../shell/HostIcon.js';
 import { EMOJIcon } from '../emojis.js';
 import { mayReload, mayToggle, reloadOne, saidOf, toggleMethod, togglePlugin } from './actions.js';
 import { Options } from './Options.js';
 import { Overview } from './Overview.js';
 import { keepPluginTabKey, pluginTabKey } from './state.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 const TONE: Record<PluginState, BadgeTone> = {
   error: 'danger',
@@ -45,11 +45,13 @@ export default function PluginPage({ host, plugin: id }: { host: string; plugin:
   return (
     <div className="web-page web-plugin">
       <div className="web-page__head">
-        <div className="web-role__title">
-          <HostTitle icons={row.manifest?.icons} emoji={EMOJIcon.hostPlugins} title={title} />
-          <span className="web-role__uri">{`${PLUGINS.channel}${id}`}</span>
-          <Badge tone={TONE[row.state]} text={t(`plugins/states/${row.state}`)} />
-        </div>
+        <PageTitle
+          icons={row.manifest?.icons}
+          emoji={EMOJIcon.hostPlugins}
+          title={title}
+          uri={`${PLUGINS.channel}${id}`}
+          state={<Badge tone={TONE[row.state]} text={t(`plugins/states/${row.state}`)} />}
+        />
         {mayToggle(offers, row) || mayReload(offers) ? (
           <div className="web-page__actions">
             {mayReload(offers) ? (

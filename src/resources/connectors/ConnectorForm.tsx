@@ -5,27 +5,27 @@ import { useChannel } from '../../bridges/channel.js';
 import { ADAPTERS, adaptersReducer, CONNECTORS, connectorsReducer, putConnector, type AdapterRow, type ConnectorOwner, type ConnectorRow } from '../../bridges/connectors.js';
 import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
-import { readOwnUser, type ListedUser, type PeopleState } from '../../bridges/people.js';
+import { PEOPLE, peopleReducer, readOwnUser, servesPeople, type ListedUser, type PeopleState } from '../../bridges/people.js';
+import { PLUGINS, pluginsReducer, type PluginRow } from '../../bridges/plugins.js';
 import { hostSaid } from '../../bridges/said.js';
 import { HostIcon } from '../../shell/HostIcon.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { meOn } from './actions.js';
-import { adapterSchema, configForForm, configForPut, ID_PATTERN, ownerChoices, topSchema, type TopValues } from './form.js';
+import { AdapterPicker } from './AdapterPicker.js';
+import { adapterSchema, configForForm, configForPut, ID_PATTERN, idFor, ownerChoices, topSchema, type TopValues } from './form.js';
 import { newConnectorTab } from './state.js';
 
 type Bag = Record<string, unknown>;
 
-/** An id for an adapter no connector holds yet: the adapter's name, then `-2`, `-3`, ... */
-function suggestedId(adapter: string, taken: readonly string[]): string {
-  if (!taken.includes(adapter)) return adapter;
-  for (let n = 2; ; n += 1) if (!taken.includes(`${adapter}-${n}`)) return `${adapter}-${n}`;
-}
+const usersReducer = peopleReducer('users');
+const teamsReducer = peopleReducer('teams');
 
 /**
- * One form for a new connector and for a made one's Settings, as doop's: the
- * adapter as a select on top with the id, title and owner, and the adapter's
- * own fields below. A new connector's change of adapter clears those fields;
- * a made one's adapter and id are fixed.
+ * One form for a new connector and for a made one's Settings: the adapter
+ * picked on top, then the title, id and owner, and the adapter's own fields
+ * below. A new connector's change of adapter clears those fields, and its id
+ * follows its title until a person types one; a made one's adapter and id are
+ * fixed.
  */
 export function ConnectorForm({ host, connector }: { host: string; connector?: ConnectorRow }): ReactElement {
   const scena = useScena();
@@ -38,6 +38,12 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
   const taken = useMemo(() => (connectorsRead.state?.records ?? []).map((one) => one.id), [connectorsRead.state]);
   const me = meOn(offers);
   const editing = connector !== undefined;
+  const plugins = useChannel<PeopleState<PluginRow>>(host, PLUGINS.channel, pluginsReducer);
+  const labelOf = (plugin: string): string =>
+    plugin === 'host' ? t('connectors/owners/host') : plugins.state?.records.find((one) => one.id === plugin)?.record.title ?? plugin;
+  // A root connection may name any user or team as the owner; a person names only their own.
+  const users = useChannel<PeopleState<ListedUser>>(host, me === undefined && servesPeople(offers, 'users') ? PEOPLE.users.channel : undefined, usersReducer);
+  const teams = useChannel<PeopleState<{ id: string }>>(host, me === undefined && servesPeople(offers, 'teams') ? PEOPLE.teams.channel : undefined, teamsReducer);
 
   // The person's record names their teams and grants; a root connection has none.
   const [user, setUser] = useState<ListedUser | undefined>(undefined);
@@ -67,27 +73,24 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
 
   const changeTop = (next: Bag): void => {
     let wanted = next as unknown as TopValues;
-    if (!editing && wanted.adapter !== top.adapter) {
-      setConfig({});
-      // The id follows the adapter until a person types one of their own.
-      const followed = top.id === '' || top.id === suggestedId(top.adapter, taken);
-      if (followed) wanted = { ...wanted, id: suggestedId(wanted.adapter, taken) };
+    if (!editing && wanted.adapter !== top.adapter) setConfig({});
+    // The id follows the title, or the adapter while there is none, until a person types one of their own.
+    if (!editing && wanted.id === top.id && (top.id === '' || top.id === idFor(top.title, top.adapter, taken))) {
+      wanted = { ...wanted, id: idFor(wanted.title, wanted.adapter, taken) };
     }
     setTop(wanted);
     setSaved(false);
   };
 
-  // A new connector starts on the first adapter, so the select shows what it holds.
-  useEffect(() => {
-    if (!editing && top.adapter === '' && adapters[0] !== undefined) changeTop({ ...top, adapter: adapters[0].name });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editing, adapters, top.adapter]);
-
   const owners = ownerChoices(me, user, {
     me: t('connectors/owners/me'),
     team: (team) => t('connectors/owners/team', { team }),
+    user: (user) => t('connectors/owners/user', { user }),
     host: t('connectors/owners/host'),
-  }, connector?.owner);
+  }, connector?.owner, {
+    users: (users.state?.records ?? []).map((one) => one.id),
+    teams: (teams.state?.records ?? []).map((one) => one.id),
+  });
   // A new connector's owner is the first one this reader may name.
   useEffect(() => {
     if (!editing && owners[0] !== undefined && !owners.some((one) => one.value === top.owner)) setTop((held) => ({ ...held, owner: owners[0]!.value }));
@@ -95,8 +98,7 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
   }, [editing, owners.map((one) => one.value).join('\n'), top.owner]);
 
   const adapter = adapters.find((one) => one.name === top.adapter);
-  const head = topSchema(adapters, owners, editing, {
-    adapter: t('connectors/form/adapter'),
+  const head = topSchema(owners, editing, {
     id: t('connectors/form/id'),
     idHint: t('connectors/form/idHint'),
     title: t('connectors/form/title'),
@@ -141,7 +143,11 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
         <p className="web-note">{connector.adapter === undefined ? t('connectors/page/noAdapter') : t('connectors/page/unknownAdapter', { adapter: connector.adapter })}</p>
       ) : null}
       {/* A new form has nothing to go back to; a made one goes back to what the host holds. */}
-      <SchemaForm schema={head} value={top as unknown as Bag} baseline={(editing ? heldTop : top) as unknown as Bag} onChange={changeTop} jsonTextRoot={false} />
+      <div className="web-connector-form__pick">
+        <span className="web-connector-form__label">{t('connectors/form/adapter')}{editing ? null : <span className="web-connector-form__required" aria-hidden="true">*</span>}</span>
+        <AdapterPicker adapters={adapters} value={top.adapter} labelOf={labelOf} fixed={editing} onPick={(name) => changeTop({ ...top, adapter: name } as unknown as Bag)} />
+      </div>
+      {!editing && adapter === undefined ? null : <SchemaForm schema={head} value={top as unknown as Bag} baseline={(editing ? heldTop : top) as unknown as Bag} onChange={changeTop} jsonTextRoot={false} />}
       {fields === undefined ? null : (
         <section className="web-connector-form__adapter" aria-label={t('connectors/form/settingsOf', { adapter: adapter!.title })}>
           <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={adapter!.icons} size={16} />{t('connectors/form/settingsOf', { adapter: adapter!.title })}</h3>

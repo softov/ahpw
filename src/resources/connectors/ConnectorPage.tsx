@@ -4,13 +4,13 @@ import { Alert, Badge, Button, Spinner, Tabs, Text, type BadgeTone } from '@soft
 import { useChannel } from '../../bridges/channel.js';
 import { ADAPTERS, adaptersReducer, CONNECTORS, connectorsReducer, type AdapterRow, type ConnectorRow, type ConnectorState } from '../../bridges/connectors.js';
 import type { PeopleState } from '../../bridges/people.js';
-import { HostTitle } from '../../shell/HostIcon.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { EMOJIcon } from '../emojis.js';
 import { deleteConnector } from './actions.js';
 import { ConnectorForm } from './ConnectorForm.js';
 import { Overview } from './Overview.js';
 import { connectorTab, connectorTabKey, keepConnectorTabKey } from './state.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 const TONE: Record<ConnectorState, BadgeTone> = {
   open: 'success',
@@ -36,11 +36,13 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
   return (
     <div className="web-page web-connector">
       <div className="web-page__head">
-        <div className="web-role__title">
-          <HostTitle icons={adapter?.icons} emoji={EMOJIcon.connectors} title={title} />
-          <span className="web-role__uri">{`${CONNECTORS.channel}${id}`}</span>
-          <Badge tone={TONE[row.state]} text={t(`connectors/states/${row.state}`)} />
-        </div>
+        <PageTitle
+          icons={adapter?.icons}
+          emoji={EMOJIcon.connectors}
+          title={title}
+          uri={`${CONNECTORS.channel}${id}`}
+          state={<Badge tone={TONE[row.state]} text={t(`connectors/states/${row.state}`)} />}
+        />
         <div className="web-page__actions">
           <Button
             size="sm"

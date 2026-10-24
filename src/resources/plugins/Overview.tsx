@@ -13,7 +13,7 @@ const PROBLEM_TONE: Partial<Record<PluginRow['state'], 'danger' | 'warning'>> = 
 
 /**
  * What a plugin is: its description and problem, the facts of where it comes
- * from, its categories and links, what its contracts say it provides - each
+ * from and its links, its categories, what its contracts say it provides - each
  * opening where ahpw shows it - and its configured spec.
  */
 export function Overview({ host, id, row }: { host: string; id: string; row: PluginRow }): ReactElement {
@@ -31,6 +31,11 @@ export function Overview({ host, id, row }: { host: string; id: string; row: Plu
     ...(row.module === undefined ? [] : [{ label: t('plugins/facts/module'), value: row.module }]),
     ...(row.path === undefined ? [] : [{ label: t('plugins/facts/path'), value: row.path, span: true }]),
     ...(row.url === undefined ? [] : [{ label: t('plugins/facts/url'), value: row.url, span: true }]),
+    ...(manifest?.links ?? []).map((link) => ({
+      label: link.title,
+      value: <a href={link.url} target="_blank" rel="noreferrer">{link.url}</a>,
+      span: true,
+    })),
   ];
 
   return (
@@ -40,10 +45,9 @@ export function Overview({ host, id, row }: { host: string; id: string; row: Plu
       {row.loadProblem === undefined || row.loadProblem === row.problem ? null : <Alert tone="danger" title={t('plugins/page/loadFailed')} message={row.loadProblem} />}
       <DetailList items={facts} columns={2} />
 
-      {(manifest?.categories ?? []).length === 0 && (manifest?.links ?? []).length === 0 ? null : (
+      {(manifest?.categories ?? []).length === 0 ? null : (
         <div className="web-plugin__tags">
           {(manifest?.categories ?? []).map((category) => <RemovableChip key={category} label={categoryWord(t, category)} removeLabel={category} />)}
-          {(manifest?.links ?? []).map((link) => <a key={link.url} className="web-plugin__link" href={link.url} target="_blank" rel="noreferrer">{link.title}</a>)}
         </div>
       )}
 

@@ -1,27 +1,67 @@
 import { describe, expect, it } from 'vitest';
 import type { AdapterRow } from '../../bridges/connectors.js';
 import type { ListedUser } from '../../bridges/people.js';
-import { adapterSchema, configForForm, configForPut, holds, ID_PATTERN, ownerChoices, secretFields, topSchema } from './form.js';
+import { adapterGroups, adapterSchema, configForForm, configForPut, holds, ID_PATTERN, idFor, ownerChoices, secretFields, slugOf, topSchema } from './form.js';
 
 const SCHEMA = { type: 'object', properties: { bot: { type: 'string' }, secret: { type: 'string', writeOnly: true } }, required: ['secret'] };
 const WEBHOOK: AdapterRow = { name: 'webhook', title: 'Webhook', description: 'Calls in.', schema: SCHEMA, capabilities: [], plugin: 'webhook' };
-const OWNER_WORDS = { me: 'Me', team: (team: string) => `Team ${team}`, host: 'The host' };
-const TOP_WORDS = { adapter: 'Adapter', id: 'Id', idHint: '', title: 'Title', titleHint: '', owner: 'Owner' };
+const OWNER_WORDS = { me: 'Me', team: (team: string) => `Team ${team}`, user: (user: string) => `User ${user}`, host: 'The host' };
+const TOP_WORDS = { id: 'Id', idHint: '', title: 'Title', titleHint: '', owner: 'Owner' };
 
 const user = (grants: string[], memberships: string[] = []): ListedUser => ({ id: 'ana', grants, memberships } as unknown as ListedUser);
 const values = (grants: string[], memberships: string[] = []): string[] =>
   ownerChoices('user:ana', user(grants, memberships), OWNER_WORDS).map((one) => one.value);
 
 describe('topSchema', () => {
-  it('offers each adapter by its title on a new connector', () => {
-    const schema = topSchema([WEBHOOK], [{ value: 'host', label: 'The host' }], false, TOP_WORDS);
-    expect(schema.properties?.adapter?.['x-enumOptions']).toEqual([{ value: 'webhook', label: 'Webhook' }]);
-    expect(schema.required).toEqual(['adapter', 'id', 'owner']);
+  it('draws the title before the id on a new connector', () => {
+    const schema = topSchema([{ value: 'host', label: 'The host' }], false, TOP_WORDS);
+    expect(Object.keys(schema.properties ?? {})).toEqual(['title', 'id', 'owner']);
+    expect(schema.required).toEqual(['id', 'owner']);
   });
 
-  it('leaves the adapter and id out once made', () => {
-    const schema = topSchema([WEBHOOK], [], true, TOP_WORDS);
+  it('leaves the id out once made', () => {
+    const schema = topSchema([], true, TOP_WORDS);
     expect(Object.keys(schema.properties ?? {})).toEqual(['title', 'owner']);
+  });
+});
+
+describe('idFor', () => {
+  it('makes a slug of the title, without accents, starting with a letter', () => {
+    expect(slugOf('Vendas GPT')).toBe('vendas-gpt');
+    expect(slugOf('  Atenção ao Cliente! ')).toBe('atencao-ao-cliente');
+    expect(slugOf('2026 Bot')).toBe('bot');
+    expect(slugOf('🤖')).toBe('');
+  });
+
+  it('takes the adapter name while the title gives none, and skips a taken id', () => {
+    expect(idFor('', 'openai', [])).toBe('openai');
+    expect(idFor('Vendas GPT', 'openai', ['vendas-gpt'])).toBe('vendas-gpt-2');
+    expect(idFor('Vendas', '', [])).toBe('');
+  });
+
+  it('keeps every id it makes within the id pattern', () => {
+    expect(ID_PATTERN.test(idFor('A'.repeat(80), 'openai', []))).toBe(true);
+    expect(ID_PATTERN.test(idFor('x'.repeat(80), 'openai', ['x'.repeat(36)]))).toBe(true);
+  });
+});
+
+describe('adapterGroups', () => {
+  const ai = (name: string, title: string, plugin: string, description = ''): AdapterRow => ({ ...WEBHOOK, name, title, plugin, description });
+  const label = (plugin: string): string => ({ host: 'The host', activepieces: 'Activepieces', webhook: 'Webhook' })[plugin] ?? plugin;
+  const all = [ai('slack', 'Slack', 'activepieces'), WEBHOOK, ai('openai', 'OpenAI', 'host', 'An OpenAI account.'), ai('airtable', 'Airtable', 'activepieces'), ai('anthropic', 'Anthropic', 'host')];
+
+  it('puts the host first, then plugins by title, each by title', () => {
+    expect(adapterGroups(all, label).map((group) => [group.label, group.adapters.map((one) => one.name)])).toEqual([
+      ['The host', ['anthropic', 'openai']],
+      ['Activepieces', ['airtable', 'slack']],
+      ['Webhook', ['webhook']],
+    ]);
+  });
+
+  it('keeps the adapters whose title, description or plugin holds the search', () => {
+    expect(adapterGroups(all, label, 'op').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['anthropic', 'openai']);
+    expect(adapterGroups(all, label, 'account').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['openai']);
+    expect(adapterGroups(all, label, 'ACTIVE').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['airtable', 'slack']);
   });
 });
 
@@ -45,12 +85,18 @@ describe('ownerChoices', () => {
     expect(values(['*:put'])).toEqual(['user:ana']);
   });
 
-  it('offers a root connection the host alone', () => {
+  it('offers a root connection the host, then every user and every team', () => {
     expect(ownerChoices(undefined, undefined, OWNER_WORDS).map((one) => one.value)).toEqual(['host']);
+    expect(ownerChoices(undefined, undefined, OWNER_WORDS, undefined, { users: ['softov', 'ana'], teams: ['vendas'] })).toEqual([
+      { value: 'host', label: 'The host' },
+      { value: 'user:ana', label: 'User ana' },
+      { value: 'user:softov', label: 'User softov' },
+      { value: 'team:vendas', label: 'Team vendas' },
+    ]);
   });
 
   it('keeps the current owner among them', () => {
-    expect(ownerChoices('user:ana', user(['connector:put']), OWNER_WORDS, 'user:bo')).toEqual([{ value: 'user:ana', label: 'Me' }, { value: 'user:bo', label: 'bo' }]);
+    expect(ownerChoices('user:ana', user(['connector:put']), OWNER_WORDS, 'user:bo')).toEqual([{ value: 'user:ana', label: 'Me' }, { value: 'user:bo', label: 'User bo' }]);
   });
 });
 

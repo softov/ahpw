@@ -9,6 +9,7 @@ import { HostIcon } from '../../shell/HostIcon.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { done } from '../../shell/notify/index.js';
 import { meOn, ownerWord } from './actions.js';
+import { inputsOf } from './inputs.js';
 
 /** The capability types ahpd names; another is shown by its title alone. */
 const KNOWN_TYPES = ['receive', 'command', 'action', 'ui'];
@@ -50,28 +51,43 @@ export function Overview({ host, row, adapter }: { host: string; row: ConnectorR
     <div className="web-connector__overview">
       {adapter === undefined || adapter.description === '' ? null : <p>{adapter.description}</p>}
       <DetailList items={facts} columns={2} />
-      <Text variant="h3" text={t('connectors/page/capabilities')} />
+      <Text variant="h3" text={t('connectors/page/capabilities', { count: capabilities.length })} />
       {capabilities.length === 0 ? <p className="web-note">{t('connectors/page/noCapabilities')}</p> : (
-        <dl className="web-connector__capabilities">
-          {capabilities.map((one) => (
-            <div key={`${one.type}:${one.name}`} className="web-connector__capability">
-              <dt>
-                {one.title}
-                <Badge text={KNOWN_TYPES.includes(one.type) ? t(`connectors/capabilities/${one.type}`) : one.type} />
-              </dt>
-              <dd>{one.description}</dd>
-              {(() => {
-                const url = root === undefined ? undefined : receiveUrl(root, one, row.id);
-                return url === undefined ? null : (
-                  <dd className="web-connector__url">
+        <div className="web-connector__capabilities">
+          {capabilities.map((one) => {
+            const url = root === undefined ? undefined : receiveUrl(root, one, row.id);
+            const inputs = inputsOf(one.input);
+            return (
+              <details key={`${one.type}:${one.name}`} className="web-connector__capability">
+                <summary>
+                  {one.title}
+                  <Badge text={KNOWN_TYPES.includes(one.type) ? t(`connectors/capabilities/${one.type}`) : one.type} />
+                </summary>
+                {one.description === '' ? null : <p className="web-connector__capability-text">{one.description}</p>}
+                {url === undefined ? null : (
+                  <div className="web-connector__url">
                     <code aria-label={t('connectors/page/url')}>{url}</code>
                     <Button size="sm" label={t('connectors/page/copy')} onClick={() => copy(url)} />
-                  </dd>
-                );
-              })()}
-            </div>
-          ))}
-        </dl>
+                  </div>
+                )}
+                {inputs.length === 0 ? null : (
+                  <dl className="web-connector__inputs" aria-label={t('connectors/page/input')}>
+                    {inputs.map((input) => (
+                      <div key={input.name} className="web-connector__input">
+                        <dt>
+                          <code>{input.name}</code>
+                          {input.required ? <span className="web-connector__required" title={t('connectors/page/required')}>*</span> : null}
+                          {input.type === undefined ? null : <span className="web-connector__type">{input.type}</span>}
+                        </dt>
+                        {input.description === undefined ? null : <dd>{input.description}</dd>}
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </details>
+            );
+          })}
+        </div>
       )}
     </div>
   );

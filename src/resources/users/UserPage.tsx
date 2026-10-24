@@ -19,6 +19,7 @@ import { MintForm } from '../profile/MintForm.js';
 import { TokenList } from '../profile/TokenList.js';
 import { servesTokens } from '../../bridges/tokens.js';
 import { EMOJIcon } from '../emojis.js';
+import { PageTitle } from '../../shell/HostIcon.js';
 
 const usersReducer = peopleReducer('users');
 const rolesReducer = peopleReducer('roles');
@@ -95,10 +96,7 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
   );
   return (
     <div className="web-page web-form">
-      <div className="web-role__title">
-        <Text variant="h2" text={`${EMOJIcon.users} ${fresh ? t('users/commands/newUser') : id}`} />
-        {fresh ? null : <span className="web-role__uri">{personUri(offers, 'users', id)}</span>}
-      </div>
+      <PageTitle emoji={EMOJIcon.users} title={fresh ? t('users/commands/newUser') : id} uri={fresh ? undefined : personUri(offers, 'users', id)} />
       {writes ? null : <p className="web-note">{t('users/notices/readOnly')}</p>}
 
       {fresh ? (

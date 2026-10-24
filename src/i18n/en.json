@@ -2292,7 +2292,8 @@
     "owners": {
       "me": "Me",
       "host": "The host",
-      "team": "Team {team}"
+      "team": "Team {team}",
+      "user": "User {user}"
     },
     "actions": {
       "open": "Open",
@@ -2309,7 +2310,7 @@
       "newTitle": "New connector",
       "adapter": "Adapter",
       "id": "Id",
-      "idHint": "A slug, such as ci-deploys. It cannot change later.",
+      "idHint": "A slug, made from the title until you change it. It cannot change later.",
       "title": "Title",
       "titleHint": "What the list shows. Empty, it shows the id.",
       "owner": "Owner",
@@ -2332,8 +2333,10 @@
       "owner": "Owner",
       "state": "State",
       "id": "Id",
-      "capabilities": "Capabilities",
+      "capabilities": "Capabilities ({count})",
       "noCapabilities": "Its adapter declares no capabilities.",
+      "input": "Input",
+      "required": "Required",
       "url": "URL",
       "copy": "Copy",
       "copied": "URL copied",
@@ -2346,6 +2349,12 @@
       "command": "Command",
       "action": "Action",
       "ui": "Interface"
+    },
+    "picker": {
+      "search": "Search adapters",
+      "change": "Change",
+      "none": "No adapter matches.",
+      "count": "{shown} of {all}"
     }
   }
 }

@@ -29,7 +29,6 @@ export interface TopValues {
 
 /** The words the top schema is drawn with. */
 export interface TopWords {
-  adapter: string;
   id: string;
   idHint: string;
   title: string;
@@ -38,36 +37,84 @@ export interface TopWords {
 }
 
 /**
- * The top schema. A new connector picks its adapter and id; a made one has
- * both fixed, so its form draws only its title and owner.
+ * The top schema: the title, the id and the owner. The adapter is picked
+ * above it; a made connector has its adapter and id fixed, so its form draws
+ * only its title and owner.
  */
-export function topSchema(adapters: readonly AdapterRow[], owners: readonly EnumOption[], editing: boolean, words: TopWords): JsonSchemaObject {
-  const named = {
-    title: { type: 'string', title: words.title, description: words.titleHint },
-    owner: { type: 'string', title: words.owner, enum: owners.map((one) => one.value), 'x-enumOptions': [...owners] },
-  };
-  if (editing) return { type: 'object', properties: named, required: ['owner'] };
+export function topSchema(owners: readonly EnumOption[], editing: boolean, words: TopWords): JsonSchemaObject {
+  const title = { type: 'string', title: words.title, description: words.titleHint };
+  const owner = { type: 'string', title: words.owner, enum: owners.map((one) => one.value), 'x-enumOptions': [...owners] };
+  if (editing) return { type: 'object', properties: { title, owner }, required: ['owner'] };
   return {
     type: 'object',
-    properties: {
-      adapter: {
-        type: 'string',
-        title: words.adapter,
-        enum: adapters.map((one) => one.name),
-        'x-enumOptions': adapters.map((one) => ({ value: one.name, label: one.title })),
-      },
-      id: { type: 'string', title: words.id, description: words.idHint },
-      ...named,
-    },
-    required: ['adapter', 'id', 'owner'],
+    properties: { title, id: { type: 'string', title: words.id, description: words.idHint }, owner },
+    required: ['id', 'owner'],
   };
+}
+
+/** A text as a connector id: lower case, without accents, words joined by `-`, starting with a letter. */
+export function slugOf(text: string): string {
+  return text
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^[^a-z]+/u, '')
+    .slice(0, 36)
+    .replace(/-+$/u, '');
+}
+
+/** An id no connector holds yet: the base, then `-2`, `-3`, ... */
+export function suggestedId(base: string, taken: readonly string[]): string {
+  if (!taken.includes(base)) return base;
+  for (let n = 2; ; n += 1) if (!taken.includes(`${base}-${n}`)) return `${base}-${n}`;
+}
+
+/** The id a new connector is given: from its title, or from its adapter's name while it has none. */
+export const idFor = (title: string, adapter: string, taken: readonly string[]): string =>
+  adapter === '' ? '' : suggestedId(slugOf(title) || slugOf(adapter), taken);
+
+/** One plugin's adapters, as the picker lists them. */
+export interface AdapterGroup {
+  plugin: string;
+  label: string;
+  adapters: AdapterRow[];
+}
+
+/**
+ * The adapters by the plugin that registers them, each under its plugin's
+ * title: the host's own first, then the plugins by title, and each group's
+ * adapters by title. `needle` keeps those whose title, description or plugin
+ * holds it.
+ */
+export function adapterGroups(adapters: readonly AdapterRow[], labelOf: (plugin: string) => string, needle = ''): AdapterGroup[] {
+  const wanted = needle.trim().toLowerCase();
+  const groups = new Map<string, AdapterGroup>();
+  for (const adapter of adapters) {
+    const label = labelOf(adapter.plugin);
+    if (wanted !== '' && ![adapter.title, adapter.description, label].join(' ').toLowerCase().includes(wanted)) continue;
+    const group = groups.get(adapter.plugin) ?? { plugin: adapter.plugin, label, adapters: [] };
+    group.adapters.push(adapter);
+    groups.set(adapter.plugin, group);
+  }
+  const rank = (group: AdapterGroup): number => (group.plugin === 'host' ? 0 : 1);
+  return [...groups.values()]
+    .map((group) => ({ ...group, adapters: [...group.adapters].sort((a, b) => a.title.localeCompare(b.title)) }))
+    .sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label));
 }
 
 /** The words the owner choices are named with. */
 export interface OwnerWords {
   me: string;
   team: (team: string) => string;
+  user: (user: string) => string;
   host: string;
+}
+
+/** Every user and team a host lists, which a root connection may name as an owner. */
+export interface Everyone {
+  users: readonly string[];
+  teams: readonly string[];
 }
 
 /** Whether grants hold one, by ahpd's rule for an operation: itself, or a wildcard in either place. */
@@ -80,13 +127,17 @@ export const holds = (grants: readonly string[], grant: string): boolean => {
  * Whose a connector may be, by ahpd's owner rule. Every owner takes
  * `connector:put`; then the person's own, each team they are on, and the
  * host's while they also hold `connector:host`. A root connection has no
- * record and may make the host's. `current` is kept among them, so a
+ * record and, as ahpd lets it, may make the host's, any user's and any team's. `current` is kept among them, so a
  * connector made by someone else still shows whose it is.
  */
-export function ownerChoices(me: ConnectorOwner | undefined, user: ListedUser | undefined, words: OwnerWords, current?: ConnectorOwner): EnumOption[] {
+export function ownerChoices(me: ConnectorOwner | undefined, user: ListedUser | undefined, words: OwnerWords, current?: ConnectorOwner, everyone?: Everyone): EnumOption[] {
   const grants = user?.grants ?? [];
   const choices: EnumOption[] = [];
-  if (me === undefined) choices.push({ value: 'host', label: words.host });
+  if (me === undefined) {
+    choices.push({ value: 'host', label: words.host });
+    for (const id of [...(everyone?.users ?? [])].sort()) choices.push({ value: `user:${id}`, label: words.user(id) });
+    for (const team of [...(everyone?.teams ?? [])].sort()) choices.push({ value: `team:${team}`, label: words.team(team) });
+  }
   else if (holds(grants, 'connector:put')) {
     choices.push({ value: me, label: words.me });
     const teams = [...new Set((user?.memberships ?? []).map((one) => membershipParts(one).team))].sort();
@@ -94,7 +145,7 @@ export function ownerChoices(me: ConnectorOwner | undefined, user: ListedUser | 
     if (holds(grants, 'connector:host')) choices.push({ value: 'host', label: words.host });
   }
   if (current !== undefined && !choices.some((one) => one.value === current)) {
-    choices.push({ value: current, label: current.startsWith('team:') ? words.team(current.slice('team:'.length)) : current === 'host' ? words.host : current.slice('user:'.length) });
+    choices.push({ value: current, label: current.startsWith('team:') ? words.team(current.slice('team:'.length)) : current === 'host' ? words.host : words.user(current.slice('user:'.length)) });
   }
   return choices;
 }

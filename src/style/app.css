@@ -3531,23 +3531,6 @@
   text-decoration: underline;
 }
 
-/* Usage: a pool's owner, named as a heading that opens their page. */
-.web-pool__owner {
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-
-.web-pool__owner:hover .oo-text,
-.web-pool__owner:focus-visible .oo-text {
-  color: var(--oo-color-accent);
-  text-decoration: underline;
-}
-
 /* Usage: a range of days, and a pool's records. */
 .web-spend__range {
   display: flex;
@@ -4108,13 +4091,6 @@
 }
 
 /* A role: its name with its address, and its grants as one card per subject. */
-.web-role__title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--oo-spacing-sm);
-}
-
 .web-role__uri {
   font-family: var(--oo-mono);
   font-size: var(--oo-font-size-sm);
@@ -4447,10 +4423,6 @@
   gap: var(--oo-spacing-sm);
 }
 
-.web-plugin__link {
-  font-size: var(--oo-font-size-sm);
-}
-
 .web-plugin__provides {
   display: grid;
   grid-template-columns: max-content 1fr;
@@ -4506,28 +4478,178 @@
   margin: 0;
 }
 
+.web-connector-form__pick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs, 4px);
+}
+
+.web-connector-form__label {
+  font-size: var(--oo-font-size-sm);
+  font-weight: 600;
+}
+
+.web-connector-form__required {
+  margin-left: 4px;
+  color: var(--oo-color-danger);
+}
+
+/* The adapter picker: a search over the adapters by plugin, then the one picked. */
+.web-adapter-picker {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md, 6px);
+  overflow: hidden;
+}
+
+.web-adapter-picker__search {
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--oo-color-border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.web-adapter-picker__list {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-bottom: 4px;
+}
+
+.web-adapter-picker__list > .web-note {
+  margin: 0;
+  padding: 12px;
+}
+
+.web-adapter-picker__group {
+  padding: 10px 12px 4px;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.web-adapter-picker__row,
+.web-adapter-picker__picked {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.web-adapter-picker__row {
+  cursor: pointer;
+}
+
+.web-adapter-picker__row[data-focus='true'] {
+  background: color-mix(in srgb, var(--oo-color-accent) 14%, transparent);
+}
+
+.web-adapter-picker__picked {
+  padding: 8px 12px;
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md, 6px);
+}
+
+.web-adapter-picker__blank {
+  flex: none;
+}
+
+.web-adapter-picker__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.web-adapter-picker__title {
+  font-weight: 600;
+}
+
+.web-adapter-picker__description {
+  overflow: hidden;
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-adapter-picker__foot {
+  padding: 6px 12px;
+  border-top: 1px solid var(--oo-color-border);
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+}
+
 .web-connector__capabilities {
   display: flex;
   flex-direction: column;
-  gap: var(--oo-spacing-sm);
-  margin: 0;
+  gap: var(--oo-spacing-xs, 4px);
 }
 
-.web-connector__capability dt {
+.web-connector__capability summary {
   display: flex;
   align-items: center;
   gap: var(--oo-spacing-sm);
   font-weight: 600;
+  cursor: pointer;
 }
 
-.web-connector__capability dd {
+.web-connector__capability[open] {
+  padding-bottom: var(--oo-spacing-sm);
+}
+
+.web-connector__capability-text {
   margin: 2px 0 0;
   color: var(--oo-color-muted);
   font-size: var(--oo-font-size-sm);
 }
 
+/* What a capability takes: each value's name, whether it is required, its type and its description. */
+.web-connector__inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--oo-spacing-sm) 0 0;
+  padding-left: var(--oo-spacing-md);
+  border-left: 2px solid var(--oo-color-border);
+  font-size: var(--oo-font-size-sm);
+}
+
+.web-connector__input dt {
+  display: flex;
+  align-items: baseline;
+  gap: var(--oo-spacing-xs, 4px);
+}
+
+.web-connector__input dd {
+  margin: 0 0 2px;
+  color: var(--oo-color-muted);
+}
+
+.web-connector__required {
+  color: var(--oo-color-danger);
+}
+
+.web-connector__type {
+  color: var(--oo-color-muted);
+  font-family: var(--oo-font-mono);
+  font-size: var(--oo-font-size-xs);
+}
+
 /* A receiving connector's URL, to copy into the sender. */
-.web-connector__capability dd.web-connector__url {
+.web-connector__url {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -4570,12 +4692,51 @@
   border-radius: 2px;
 }
 
-/* A page heading with the host's icon before its title. */
-.web-host-title {
-  display: inline-flex;
+/* A page heading: an icon beside the title, and the URI and state under it. */
+.web-page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-md);
+  min-width: 0;
+}
+
+.web-page-title__mark {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  font-size: 32px;
+  line-height: 40px;
+  text-align: center;
+}
+
+.web-page-title__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.web-page-title__meta {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--oo-spacing-sm);
-  align-self: center;
+}
+
+.web-page-title__open {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.web-page-title__open:hover .oo-text,
+.web-page-title__open:focus-visible .oo-text {
+  color: var(--oo-color-accent);
+  text-decoration: underline;
 }
 
 /* A line of text with the host's icon before it. */
