@@ -2346,9 +2346,9 @@
     },
     "capabilities": {
       "receive": "Receives",
-      "command": "Command",
-      "action": "Action",
-      "ui": "Interface"
+      "command": "Commands",
+      "action": "Actions",
+      "ui": "Interfaces"
     },
     "picker": {
       "search": "Search adapters",

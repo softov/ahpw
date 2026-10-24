@@ -16,6 +16,7 @@ import type {
 import { translate } from '@softov/scena';
 import { folderLabel } from '../../bridges/words.js';
 import { tokens } from '../sessions/turn.js';
+import { EMOJIcon } from '../emojis.js';
 import { plural } from '../../i18n/locales.js';
 
 /** How many models an agent offers, in words. */
@@ -34,13 +35,27 @@ export function capabilitiesOf(agent: AgentInfo): string[] {
   return out;
 }
 
-/** A model's limits, as one short line: context, output, vision. */
-export function limitsOf(model: SessionModelInfo): string {
-  const bits: string[] = [];
-  if (model.maxContextWindow !== undefined) bits.push(translate('agents/limits/context', { size: tokens(model.maxContextWindow) }));
-  if (model.maxOutputTokens !== undefined) bits.push(translate('agents/limits/output', { size: tokens(model.maxOutputTokens) }));
-  if (model.supportsVision === true) bits.push(translate('agents/limits/images'));
-  return bits.join(' \u{00B7} ');
+/** One of a model's limits: its icon, its short text and its full words. */
+export interface Limit {
+  icon: string;
+  /** The size, or empty for a limit the icon says alone. */
+  text: string;
+  title: string;
+}
+
+/** A model's limits: context, output, vision. */
+export function limitsOf(model: SessionModelInfo): Limit[] {
+  const out: Limit[] = [];
+  if (model.maxContextWindow !== undefined) {
+    const size = tokens(model.maxContextWindow);
+    out.push({ icon: EMOJIcon.download, text: size, title: translate('agents/limits/context', { size }) });
+  }
+  if (model.maxOutputTokens !== undefined) {
+    const size = tokens(model.maxOutputTokens);
+    out.push({ icon: EMOJIcon.upload, text: size, title: translate('agents/limits/output', { size }) });
+  }
+  if (model.supportsVision === true) out.push({ icon: EMOJIcon.image, text: '', title: translate('agents/limits/images') });
+  return out;
 }
 
 /** The customization kinds a person has a name for, under `agents/kinds/<kind>`. */

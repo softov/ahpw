@@ -140,4 +140,7 @@ export const EMOJIcon = {
   mcpServer: mono('🔌'),
   /** The host's connectors; the same plug an agent's MCP server shows. */
   connectors: mono('🔌'),
+  receive: mono('📥'),
+  action: mono('⚡'),
+  interface: mono('🪟'),
 };

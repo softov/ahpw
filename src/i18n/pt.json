@@ -2346,9 +2346,9 @@
     },
     "capabilities": {
       "receive": "Recebe",
-      "command": "Comando",
-      "action": "Ação",
-      "ui": "Interface"
+      "command": "Comandos",
+      "action": "Ações",
+      "ui": "Interfaces"
     },
     "picker": {
       "search": "Buscar adaptadores",

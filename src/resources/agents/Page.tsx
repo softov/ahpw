@@ -57,7 +57,13 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
               <tr key={model.id}>
                 <td>{model.name}</td>
                 <td><code>{model.id}</code></td>
-                <td>{limitsOf(model)}</td>
+                <td>
+                  <span className="web-limits">
+                    {limitsOf(model).map((limit) => (
+                      <span key={limit.title} title={limit.title} aria-label={limit.title}><span aria-hidden="true">{limit.icon}</span>{limit.text}</span>
+                    ))}
+                  </span>
+                </td>
                 <td>{model.policyState !== undefined && POLICY.has(String(model.policyState)) ? t(`agents/page/policy/${String(model.policyState)}`) : ''}</td>
               </tr>
             ))}
