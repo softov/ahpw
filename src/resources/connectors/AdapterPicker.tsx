@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { Button } from '@softov/scena/ui';
-import type { AdapterRow } from '../../bridges/connectors.js';
 import { HostIcon } from '../../shell/HostIcon.js';
-import { adapterGroups } from './form.js';
+import { adapterGroups, type Pickable } from './form.js';
 
 /** An adapter as a row: its icon, its title and its description. */
-function AdapterLine({ adapter, size }: { adapter: AdapterRow; size: number }): ReactElement {
+function AdapterLine({ adapter, size }: { adapter: Pickable; size: number }): ReactElement {
   return (
     <>
       <HostIcon icons={adapter.icons} size={size} fallback={<span className="web-adapter-picker__blank" style={{ width: size, height: size }} />} />
@@ -22,14 +21,17 @@ function AdapterLine({ adapter, size }: { adapter: AdapterRow; size: number }): 
  * The adapter of a connector: a search over the adapters, grouped by the
  * plugin that registers them, and once one is picked, that one alone with a
  * Change button. A made connector's adapter is fixed, so it shows no button.
+ * An agent's kind is picked with it too, under its own `words`.
  */
-export function AdapterPicker({ adapters, value, labelOf, fixed, onPick }: {
-  adapters: readonly AdapterRow[];
+export function AdapterPicker({ adapters, value, labelOf, fixed, onPick, words }: {
+  adapters: readonly Pickable[];
   value: string;
   /** A plugin's title, for its group's heading. */
   labelOf: (plugin: string) => string;
   fixed: boolean;
   onPick: (name: string) => void;
+  /** The list's name, the search's placeholder and the line for no match; an adapter's, by default. */
+  words?: { label: string; search: string; none: string };
 }): ReactElement | null {
   const { t } = useI18n();
   const picked = adapters.find((one) => one.name === value);
@@ -66,12 +68,12 @@ export function AdapterPicker({ adapters, value, labelOf, fixed, onPick }: {
         className="web-adapter-picker__search"
         type="search"
         value={needle}
-        placeholder={t('connectors/picker/search')}
-        aria-label={t('connectors/picker/search')}
+        placeholder={words?.search ?? t('connectors/picker/search')}
+        aria-label={words?.search ?? t('connectors/picker/search')}
         onChange={(event) => { setNeedle(event.target.value); setFocus(0); }}
       />
-      <div className="web-adapter-picker__list" role="listbox" aria-label={t('connectors/form/adapter')}>
-        {shown.length === 0 ? <p className="web-note">{t('connectors/picker/none')}</p> : groups.map((group) => (
+      <div className="web-adapter-picker__list" role="listbox" aria-label={words?.label ?? t('connectors/form/adapter')}>
+        {shown.length === 0 ? <p className="web-note">{words?.none ?? t('connectors/picker/none')}</p> : groups.map((group) => (
           <div key={group.plugin} role="group" aria-label={group.label}>
             <div className="web-adapter-picker__group">{group.label}</div>
             {group.adapters.map((adapter) => {

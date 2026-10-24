@@ -35,9 +35,10 @@ describe('capabilitiesOf', () => {
 });
 
 describe('limitsOf', () => {
-  it('puts a model\'s limits on one line', () => {
+  it('gives each of a model\'s limits a size and its full words', () => {
     const model: SessionModelInfo = { id: 'm', provider: 'echo', name: 'M', maxContextWindow: 200000, maxOutputTokens: 8000, supportsVision: true };
-    expect(limitsOf(model)).toBe('200k context \u{00B7} 8k out \u{00B7} images');
+    expect(limitsOf(model).map(({ text, title }) => [text, title])).toEqual([['200k', '200k context'], ['8k', '8k out'], ['', 'images']]);
+    expect(limitsOf({ id: 'm', provider: 'echo', name: 'M' })).toEqual([]);
   });
 });
 

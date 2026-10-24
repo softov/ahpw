@@ -4453,6 +4453,7 @@
 
 /* A connector's page and its form: the adapter's own fields under the top ones. */
 .web-connector__overview,
+.web-agent__overview,
 .web-connector-form {
   display: flex;
   flex-direction: column;
@@ -4492,6 +4493,59 @@
 .web-connector-form__required {
   margin-left: 4px;
   color: var(--oo-color-danger);
+}
+
+/* A new agent's start: one of its kind's templates, or a blank record. */
+.web-kind-templates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-xs, 4px);
+  margin-top: 8px;
+}
+
+.web-kind-templates__choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.web-kind-templates__choice > input {
+  margin-top: 3px;
+}
+
+.web-kind-templates__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.web-kind-templates__description {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-sm);
+}
+
+/* An agent's Settings: its last check over the form. */
+.web-agent__settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-md);
+  padding-top: var(--oo-spacing-md);
+}
+
+.web-agent__settings > .web-connector-form {
+  padding-top: 0;
+}
+
+.web-agent__health {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.web-agent__health > .web-note {
+  margin: 0;
 }
 
 /* The adapter picker: a search over the adapters by plugin, then the one picked. */
@@ -4592,28 +4646,107 @@
   font-size: var(--oo-font-size-xs);
 }
 
-.web-connector__capabilities {
-  display: flex;
-  flex-direction: column;
-  gap: var(--oo-spacing-xs, 4px);
+.web-connector__group + .web-connector__group {
+  margin-top: var(--oo-spacing-md);
 }
 
-.web-connector__capability summary {
+/* A type's heading: its icon, its name and how many capabilities it has. */
+.web-connector__group-head {
   display: flex;
   align-items: center;
   gap: var(--oo-spacing-sm);
+  margin-bottom: var(--oo-spacing-xs, 4px);
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
   font-weight: 600;
-  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* A type's capabilities, one row each, between dividers. */
+.web-connector__capabilities {
+  border: 1px solid var(--oo-color-border);
+  border-radius: var(--oo-radius-md, 6px);
+  overflow: hidden;
+}
+
+.web-connector__capability + .web-connector__capability {
+  border-top: 1px solid var(--oo-color-border);
 }
 
 .web-connector__capability[open] {
   padding-bottom: var(--oo-spacing-sm);
+  background: var(--oo-color-hover);
+}
+
+.web-connector__capability > :not(summary) {
+  margin-left: calc(22px + var(--oo-spacing-md) + var(--oo-spacing-sm));
+  margin-right: var(--oo-spacing-md);
+}
+
+.web-connector__capability summary {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto 12px;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  padding: var(--oo-spacing-sm) var(--oo-spacing-md);
+  cursor: pointer;
+  list-style: none;
+}
+
+.web-connector__capability summary::-webkit-details-marker {
+  display: none;
+}
+
+.web-connector__capability[open] summary {
+  align-items: start;
+}
+
+.web-connector__capability summary:hover {
+  background: var(--oo-color-hover);
+}
+
+.web-connector__capability-icon {
+  color: var(--oo-color-accent);
+  text-align: center;
+}
+
+.web-connector__capability-head {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.web-connector__capability-title {
+  font-weight: 600;
 }
 
 .web-connector__capability-text {
-  margin: 2px 0 0;
+  overflow: hidden;
   color: var(--oo-color-muted);
   font-size: var(--oo-font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-connector__capability[open] .web-connector__capability-text {
+  white-space: normal;
+}
+
+.web-connector__capability-name {
+  color: var(--oo-color-muted);
+  font-family: var(--oo-font-mono);
+  font-size: var(--oo-font-size-xs);
+}
+
+.web-connector__caret {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+}
+
+.web-connector__capability[open] .web-connector__caret--closed,
+.web-connector__capability:not([open]) .web-connector__caret--open {
+  display: none;
 }
 
 /* What a capability takes: each value's name, whether it is required, its type and its description. */
@@ -4664,6 +4797,26 @@
   overflow-wrap: anywhere;
 }
 
+/* A model's limits as icons and sizes; each one's full words show on hover. */
+.web-limits {
+  display: inline-flex;
+  gap: var(--oo-spacing-md);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.web-limits > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: default;
+}
+
+.web-limits > span > [aria-hidden] {
+  color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+}
+
 /* A host's icon, drawn as an image. */
 .web-host-icon {
   flex: none;
@@ -4677,6 +4830,13 @@
   width: 20px;
   height: 20px;
   margin-top: 1px;
+}
+
+.web-row__emoji {
+  display: block;
+  font-size: 16px;
+  line-height: 20px;
+  text-align: center;
 }
 
 .web-row__mark .web-row__dot {
