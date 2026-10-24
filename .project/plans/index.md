@@ -55,6 +55,7 @@ What exists today: [00-plugins.md](plugins/00-plugins.md).
 | [05 - A plugin's and an adapter's own icon](plugins/05-plugin-and-adapter-icons/plan.md) | built | - |
 | [06 - Live plugin commands](plugins/06-live-plugin-commands/plan.md) | built | - |
 | [07 - A working connector shows as ready](plugins/07-a-working-connector-is-ready/plan.md) | active | task 01 implemented; live check against ahpd plugin 62 |
+| [08 - Agents from records, with Add agent and a Settings tab](plugins/08-agents-from-records/plan.md) | planned | task 04 needs ahpd host 123 |
 
 ## sessions
 
