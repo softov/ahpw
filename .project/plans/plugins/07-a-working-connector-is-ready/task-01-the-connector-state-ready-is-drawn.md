@@ -1,6 +1,6 @@
 ---
 title: The connector state ready is read and drawn
-status: todo
+status: implemented
 depends: []
 layer: "ahpw connectors"
 refs:
@@ -41,3 +41,12 @@ ahpw reads `state: 'ready'` on a connector row and labels it "Ready", "Pronto" a
 - A working connector shows "Pronto" in ahpw against an ahpd with plugin 62.
 
 ## Resume
+
+- Changed `ConnectorState` and `CONNECTOR_STATES` to `ready` in `src/bridges/connectors.ts`.
+- Changed the comment that names the state there, and the one on the grouping in `rows.ts`.
+- Changed the `TONE` key and the note check in `ConnectorPage.tsx`, and the `DOT` key in `rows.ts`.
+- Changed `connectors.states.open` to `connectors.states.ready` in `en.json`, `pt.json` and `es.json`.
+- Changed the test rows and the expected group in `rows.test.ts` and `connectors.test.ts`.
+- Kept `connectors.actions.open`, the verb on the button.
+- `pnpm -s typecheck` and `pnpm -s test` pass, with 105 files and 558 tests.
+- Left: a working connector against a live ahpd with plugin 62 shows "Pronto".

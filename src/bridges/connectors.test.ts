@@ -19,7 +19,7 @@ const request = vi.hoisted(() => vi.fn());
 vi.mock('./data.js', () => ({ hostBridge: () => ({ request }) }));
 
 const WEBHOOK: AdapterRow = { name: 'webhook', title: 'Webhook', description: 'Calls in.', schema: { type: 'object' }, capabilities: [], plugin: 'webhook' };
-const HOOK: ConnectorRow = { id: 'ci', adapter: 'webhook', owner: 'user:ana', config: { secret: { $secret: 'user:ana/connector/ci/secret' } }, state: 'open' };
+const HOOK: ConnectorRow = { id: 'ci', adapter: 'webhook', owner: 'user:ana', config: { secret: { $secret: 'user:ana/connector/ci/secret' } }, state: 'ready' };
 
 beforeEach(() => {
   request.mockReset();

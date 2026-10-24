@@ -13,7 +13,7 @@ import { connectorTab, connectorTabKey, keepConnectorTabKey } from './state.js';
 import { PageTitle } from '../../shell/HostIcon.js';
 
 const TONE: Record<ConnectorState, BadgeTone> = {
-  open: 'success',
+  ready: 'success',
   invalid: 'warning',
   unavailable: 'danger',
 };
@@ -52,7 +52,7 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
           />
         </div>
       </div>
-      {row.state === 'open' ? null : (
+      {row.state === 'ready' ? null : (
         <Alert tone={row.state === 'unavailable' ? 'danger' : 'warning'} message={row.adapter === undefined ? t('connectors/page/noAdapter') : t(`connectors/stateNotes/${row.state}`, { adapter: row.adapter })} />
       )}
       <Tabs

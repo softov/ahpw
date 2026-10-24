@@ -2281,7 +2281,7 @@
       "new": "New connector"
     },
     "states": {
-      "open": "Open",
+      "ready": "Ready",
       "invalid": "Invalid",
       "unavailable": "Unavailable"
     },

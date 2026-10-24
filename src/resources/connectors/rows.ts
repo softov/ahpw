@@ -11,7 +11,7 @@ export const CONNECTOR_GROUPINGS: readonly ConnectorGrouping[] = ['adapter', 'ow
 const DOT: Record<ConnectorState, Dot> = {
   unavailable: 'failed',
   invalid: 'attention',
-  open: 'ok',
+  ready: 'ok',
 };
 
 /** One connector of one host, as the list is given it, with the adapters that host lists. */
@@ -56,7 +56,7 @@ function ownerRank(owner: ConnectorOwner, me: ConnectorOwner | undefined): numbe
 /**
  * The list's rows. By adapter, groups follow the adapters' titles, and a
  * record that names none closes the list. By owner, the reader's own lead. By
- * state, problems lead and open ones close it.
+ * state, problems lead and ready ones close it.
  */
 export function connectorRows(entries: readonly ConnectorEntry[], by: ConnectorGrouping, words: RowWords): Row[] {
   const titleOf = (row: ConnectorRow): string => row.title || row.id;

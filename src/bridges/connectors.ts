@@ -66,13 +66,13 @@ export interface AdapterRow {
 }
 
 /**
- * Where a connector is: `open` answers, `invalid` no longer fits its
+ * Where a connector is: `ready` answers, `invalid` no longer fits its
  * adapter's schema or its adapter refused to open it, `unavailable` has no
  * plugin registering its adapter.
  */
-export type ConnectorState = 'open' | 'invalid' | 'unavailable';
+export type ConnectorState = 'ready' | 'invalid' | 'unavailable';
 
-export const CONNECTOR_STATES: readonly ConnectorState[] = ['unavailable', 'invalid', 'open'];
+export const CONNECTOR_STATES: readonly ConnectorState[] = ['unavailable', 'invalid', 'ready'];
 
 /** One stored connector, as `x-ahpd-connectors` lists it. */
 export interface ConnectorRow {

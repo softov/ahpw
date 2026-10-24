@@ -2281,7 +2281,7 @@
       "new": "Novo conector"
     },
     "states": {
-      "open": "Aberto",
+      "ready": "Pronto",
       "invalid": "Inválido",
       "unavailable": "Indisponível"
     },
