@@ -74,11 +74,14 @@ export function suggestedId(base: string, taken: readonly string[]): string {
 export const idFor = (title: string, adapter: string, taken: readonly string[]): string =>
   adapter === '' ? '' : suggestedId(slugOf(title) || slugOf(adapter), taken);
 
+/** What the picker lists: an adapter, or an agent kind, which a plugin registers the same way. */
+export type Pickable = Pick<AdapterRow, 'name' | 'title' | 'description' | 'plugin' | 'icons'>;
+
 /** One plugin's adapters, as the picker lists them. */
-export interface AdapterGroup {
+export interface AdapterGroup<T extends Pickable = AdapterRow> {
   plugin: string;
   label: string;
-  adapters: AdapterRow[];
+  adapters: T[];
 }
 
 /**
@@ -87,9 +90,9 @@ export interface AdapterGroup {
  * adapters by title. `needle` keeps those whose title, description or plugin
  * holds it.
  */
-export function adapterGroups(adapters: readonly AdapterRow[], labelOf: (plugin: string) => string, needle = ''): AdapterGroup[] {
+export function adapterGroups<T extends Pickable>(adapters: readonly T[], labelOf: (plugin: string) => string, needle = ''): AdapterGroup<T>[] {
   const wanted = needle.trim().toLowerCase();
-  const groups = new Map<string, AdapterGroup>();
+  const groups = new Map<string, AdapterGroup<T>>();
   for (const adapter of adapters) {
     const label = labelOf(adapter.plugin);
     if (wanted !== '' && ![adapter.title, adapter.description, label].join(' ').toLowerCase().includes(wanted)) continue;
@@ -97,7 +100,7 @@ export function adapterGroups(adapters: readonly AdapterRow[], labelOf: (plugin:
     group.adapters.push(adapter);
     groups.set(adapter.plugin, group);
   }
-  const rank = (group: AdapterGroup): number => (group.plugin === 'host' ? 0 : 1);
+  const rank = (group: AdapterGroup<T>): number => (group.plugin === 'host' ? 0 : 1);
   return [...groups.values()]
     .map((group) => ({ ...group, adapters: [...group.adapters].sort((a, b) => a.title.localeCompare(b.title)) }))
     .sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label));
@@ -126,11 +129,12 @@ export const holds = (grants: readonly string[], grant: string): boolean => {
 /**
  * Whose a connector may be, by ahpd's owner rule. Every owner takes
  * `connector:put`; then the person's own, each team they are on, and the
- * host's while they also hold `connector:host`. A root connection has no
+ * host's while they also hold `connector:host`. An agent's owner follows the
+ * same rule under `subject` `agent`. A root connection has no
  * record and, as ahpd lets it, may make the host's, any user's and any team's. `current` is kept among them, so a
  * connector made by someone else still shows whose it is.
  */
-export function ownerChoices(me: ConnectorOwner | undefined, user: ListedUser | undefined, words: OwnerWords, current?: ConnectorOwner, everyone?: Everyone): EnumOption[] {
+export function ownerChoices(me: ConnectorOwner | undefined, user: ListedUser | undefined, words: OwnerWords, current?: ConnectorOwner, everyone?: Everyone, subject: 'connector' | 'agent' = 'connector'): EnumOption[] {
   const grants = user?.grants ?? [];
   const choices: EnumOption[] = [];
   if (me === undefined) {
@@ -138,11 +142,11 @@ export function ownerChoices(me: ConnectorOwner | undefined, user: ListedUser | 
     for (const id of [...(everyone?.users ?? [])].sort()) choices.push({ value: `user:${id}`, label: words.user(id) });
     for (const team of [...(everyone?.teams ?? [])].sort()) choices.push({ value: `team:${team}`, label: words.team(team) });
   }
-  else if (holds(grants, 'connector:put')) {
+  else if (holds(grants, `${subject}:put`)) {
     choices.push({ value: me, label: words.me });
     const teams = [...new Set((user?.memberships ?? []).map((one) => membershipParts(one).team))].sort();
     for (const team of teams) choices.push({ value: `team:${team}`, label: words.team(team) });
-    if (holds(grants, 'connector:host')) choices.push({ value: 'host', label: words.host });
+    if (holds(grants, `${subject}:host`)) choices.push({ value: 'host', label: words.host });
   }
   if (current !== undefined && !choices.some((one) => one.value === current)) {
     choices.push({ value: current, label: current.startsWith('team:') ? words.team(current.slice('team:'.length)) : current === 'host' ? words.host : words.user(current.slice('user:'.length)) });

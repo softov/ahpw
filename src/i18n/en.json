@@ -1041,7 +1041,8 @@
   "agents": {
     "commands": {
       "show": "Show agents",
-      "open": "Open agent"
+      "open": "Open agent",
+      "new": "New agent"
     },
     "newSession": "New session",
     "models": {
@@ -1130,7 +1131,6 @@
     },
     "explorer": {
       "title": "Agents",
-      "offered": "Offered",
       "sessions": {
         "one": "{count} session",
         "other": "{count} sessions"
@@ -1138,7 +1138,16 @@
       "needsSignIn": "needs sign-in",
       "open": "Open",
       "empty": "This server offers no agent.",
-      "filter": "Filter agents"
+      "filter": "Filter agents",
+      "status": {
+        "configured": "configured",
+        "standalone": "standalone",
+        "standby": "standby"
+      },
+      "standby": {
+        "unavailable": "kind {kind} is not loaded",
+        "invalid": "settings do not fit the kind"
+      }
     },
     "page": {
       "gone": "This server no longer offers this agent.",
@@ -1146,7 +1155,11 @@
         "provider": "Provider",
         "models": "Models",
         "sessions": "Sessions",
-        "can": "Can"
+        "can": "Can",
+        "kind": "Kind",
+        "owner": "Owner",
+        "plugin": "Plugin",
+        "state": "State"
       },
       "oneChat": "One chat in one folder per session",
       "needsSignIn": "Needs sign-in",
@@ -1166,7 +1179,52 @@
       "customizations": "Customizations",
       "signIn": "Sign-in",
       "required": "Required",
-      "optional": "Optional"
+      "optional": "Optional",
+      "overview": "Overview",
+      "settings": "Settings",
+      "standby": {
+        "unavailable": "Kind {kind} is not loaded, so the host does not serve this agent.",
+        "invalid": "These settings do not fit kind {kind}, so the host does not serve this agent."
+      }
+    },
+    "actions": {
+      "check": "Check",
+      "checkFailed": "{name} could not be checked",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeBody": "The host stops serving it and forgets its secrets. You cannot undo this.",
+      "removeFailed": "{name} could not be removed"
+    },
+    "form": {
+      "newTitle": "New agent",
+      "name": "Name",
+      "id": "Id",
+      "idHint": "Lowercase letters, digits and dashes. It cannot change later.",
+      "owner": "Owner",
+      "description": "Description",
+      "model": "Model",
+      "modelHint": "Leave empty and the agent picks its own.",
+      "modelDefault": "The agent's own",
+      "kind": "Kind",
+      "startFrom": "Start from",
+      "blank": "Blank",
+      "noKinds": "This server lists no agent kinds.",
+      "reading": "Reading",
+      "noPut": "You may not add an agent on this server.",
+      "unknownKind": "Kind {kind} is not loaded, so its settings cannot be shown.",
+      "settingsOf": "{kind} settings",
+      "failed": "The agent was not saved",
+      "create": "Create",
+      "searchKinds": "Search kinds",
+      "noKindMatch": "No kind matches."
+    },
+    "health": {
+      "ok": "OK",
+      "unreachable": "Unreachable",
+      "failed": "Failed",
+      "never": "Not checked yet",
+      "line": "{result} at {at}",
+      "lineWith": "{result} at {at}: {message}"
     }
   },
   "commands": {

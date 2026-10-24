@@ -1041,7 +1041,8 @@
   "agents": {
     "commands": {
       "show": "Mostrar agentes",
-      "open": "Abrir agente"
+      "open": "Abrir agente",
+      "new": "Novo agente"
     },
     "newSession": "Nova sessão",
     "models": {
@@ -1130,7 +1131,6 @@
     },
     "explorer": {
       "title": "Agentes",
-      "offered": "Disponível",
       "sessions": {
         "one": "{count} sessão",
         "other": "{count} sessões"
@@ -1138,7 +1138,16 @@
       "needsSignIn": "requer login",
       "open": "Abrir",
       "empty": "Este servidor não oferece nenhum agente.",
-      "filter": "Filtrar agentes"
+      "filter": "Filtrar agentes",
+      "status": {
+        "configured": "configurado",
+        "standalone": "independente",
+        "standby": "em espera"
+      },
+      "standby": {
+        "unavailable": "o tipo {kind} não está carregado",
+        "invalid": "as configurações não cabem no tipo"
+      }
     },
     "page": {
       "gone": "Este servidor não oferece mais este agente.",
@@ -1146,7 +1155,11 @@
         "provider": "Provedor",
         "models": "Modelos",
         "sessions": "Sessões",
-        "can": "Pode"
+        "can": "Pode",
+        "kind": "Tipo",
+        "owner": "Dono",
+        "plugin": "Plugin",
+        "state": "Estado"
       },
       "oneChat": "Um chat em uma pasta por sessão",
       "needsSignIn": "Requer login",
@@ -1166,7 +1179,52 @@
       "customizations": "Personalizações",
       "signIn": "Login",
       "required": "Obrigatório",
-      "optional": "Opcional"
+      "optional": "Opcional",
+      "overview": "Visão geral",
+      "settings": "Configurações",
+      "standby": {
+        "unavailable": "O tipo {kind} não está carregado, então o host não serve este agente.",
+        "invalid": "Estas configurações não servem ao tipo {kind}, então o host não serve este agente."
+      }
+    },
+    "actions": {
+      "check": "Verificar",
+      "checkFailed": "Não foi possível verificar {name}",
+      "remove": "Remover",
+      "removeTitle": "Remover {name}?",
+      "removeBody": "O host deixa de servi-lo e esquece seus segredos. Não é possível desfazer.",
+      "removeFailed": "Não foi possível remover {name}"
+    },
+    "form": {
+      "newTitle": "Novo agente",
+      "name": "Nome",
+      "id": "Id",
+      "idHint": "Letras minúsculas, dígitos e hifens. Não pode mudar depois.",
+      "owner": "Dono",
+      "description": "Descrição",
+      "model": "Modelo",
+      "modelHint": "Deixe vazio e o agente escolhe o seu.",
+      "modelDefault": "O do agente",
+      "kind": "Tipo",
+      "startFrom": "Começar de",
+      "blank": "Em branco",
+      "noKinds": "Este servidor não lista tipos de agente.",
+      "reading": "Lendo",
+      "noPut": "Você não pode adicionar um agente neste servidor.",
+      "unknownKind": "O tipo {kind} não está carregado, então suas configurações não podem ser mostradas.",
+      "settingsOf": "Configurações de {kind}",
+      "failed": "O agente não foi salvo",
+      "create": "Criar",
+      "searchKinds": "Buscar tipos",
+      "noKindMatch": "Nenhum tipo corresponde."
+    },
+    "health": {
+      "ok": "OK",
+      "unreachable": "Inacessível",
+      "failed": "Falhou",
+      "never": "Ainda não verificado",
+      "line": "{result} às {at}",
+      "lineWith": "{result} às {at}: {message}"
     }
   },
   "commands": {

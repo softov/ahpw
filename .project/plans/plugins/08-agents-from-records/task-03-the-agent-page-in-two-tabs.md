@@ -1,6 +1,6 @@
 ---
 title: The agent page in two tabs
-status: todo
+status: implemented
 depends: [task-02-one-merged-agents-list.md]
 layer: "resources/agents"
 refs:
@@ -39,3 +39,4 @@ An agent with a record opens on Overview and Settings tabs, and Settings edits, 
 
 ## Resume
 
+Implemented 2026-10-24. The form logic is in a new `src/resources/agents/form.ts` with 9 tests. Remove is in `src/resources/agents/actions.ts`, and the tab keys are in `src/resources/agents/state.ts`. The Settings tab shows the last check with a Check button over the form. `ownerChoices` in `src/resources/connectors/form.ts` now takes the subject whose grants it reads. It waits for review.

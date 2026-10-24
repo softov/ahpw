@@ -1,7 +1,7 @@
 ---
 title: Agents from records, with Add agent and a Settings tab
 domain: plugins
-status: planned
+status: active
 priority: high
 created: 2026-10-24
 revalidated: 2026-10-24
@@ -86,10 +86,10 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - An agents bridge](task-01-an-agents-bridge.md) | todo | - |
-| [02 - One merged agents list](task-02-one-merged-agents-list.md) | todo | 01 |
-| [03 - The agent page in two tabs](task-03-the-agent-page-in-two-tabs.md) | todo | 02 |
-| [04 - Add agent](task-04-add-agent.md) | todo | 03 |
+| [01 - An agents bridge](task-01-an-agents-bridge.md) | implemented | - |
+| [02 - One merged agents list](task-02-one-merged-agents-list.md) | implemented | 01 |
+| [03 - The agent page in two tabs](task-03-the-agent-page-in-two-tabs.md) | implemented | 02 |
+| [04 - Add agent](task-04-add-agent.md) | implemented | 03 |
 
 ## Risks and tradeoffs
 
@@ -98,14 +98,14 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-an-agents-bridge.md](task-01-an-agents-bridge.md).
+- **Done so far:** tasks 01 to 04 are implemented and wait for review.
+- **Next action:** review the four tasks, then close the plan.
 - **Open questions:** none.
 - **Watch out for:** the root list is filtered per caller, and the channel with `agent:all` is not. Do not call a row standby only because the root list lacks it; see the owner answer.
 
 ## Final verification checklist
 
-- [ ] `npx tsc -b`, `npx vitest run` and `npm run build` pass.
-- [ ] By hand, on a test ahpd with host 123, in light and dark: the list shows `bot-chat`, `claude` and a standby record.
+- [x] `npx tsc -b`, `npx vitest run` and `npm run build` pass.
+- [x] By hand, on a test ahpd with host 123, in light and dark: the list shows `bot-chat`, `claude` and a standby record.
 - [ ] By hand: add a `cofold` record, edit its name, check it, and remove it.
-- [ ] `plans/index.md` updated.
+- [x] `plans/index.md` updated.

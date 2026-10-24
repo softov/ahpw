@@ -19,6 +19,8 @@ export interface Row {
   icon?: ReactNode;
   /** A host's icon for what the row names, drawn with the dot as a badge on its corner; without `icon`. */
   icons?: readonly Icon[];
+  /** An emoji drawn in the icon's place, with the dot on its corner, while `icons` has none to draw. */
+  emoji?: string;
   title: string;
   time?: string;
   lines: ReactNode[];
@@ -184,10 +186,12 @@ function RowMark({ row }: { row: Row }): ReactElement {
       {row.dot === 'working' ? <><i /><i /><i /><i /></> : null}
     </span>
   );
-  if (icon === undefined) return dot;
+  if (icon === undefined && row.emoji === undefined) return dot;
   return (
     <span className="web-row__mark">
-      <img className="web-host-icon" src={icon.src} width={20} height={20} alt="" draggable={false} />
+      {icon === undefined
+        ? <span className="web-row__emoji" aria-hidden="true">{row.emoji}</span>
+        : <img className="web-host-icon" src={icon.src} width={20} height={20} alt="" draggable={false} />}
       {dot}
     </span>
   );
