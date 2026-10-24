@@ -12,9 +12,12 @@ import { PLUGINS, pluginsReducer, restartNeeded, specEnabled, type PluginRow } f
 import { useServingHosts } from '../../bridges/served.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { ExplorerList } from '../../shell/explorer/ExplorerList.js';
-import { mayToggle, togglePlugin } from './actions.js';
+import { mayReload, mayToggle, reloadOne, saidOf, toggleMethod, togglePlugin } from './actions.js';
 import { entryKeyOf, KNOWN_CATEGORIES, NO_CATEGORY, pluginRows, type PluginEntry, type PluginGrouping } from './rows.js';
 import { ACTIVE_PLUGIN, PLUGINS_GROUP } from './state.js';
+
+/** A menu entry's tooltip, when the host says what its command does. */
+const tooltip = (said: string | undefined): { tooltip?: string } => (said === undefined ? {} : { tooltip: said });
 
 /** A category in the reader's words: ahpd's own are translated, any other is shown as the plugin wrote it. */
 export function categoryWord(t: (key: string) => string, category: string): string {
@@ -50,6 +53,13 @@ export default function PluginsExplorer(): ReactElement {
           title: t(specEnabled(row.spec) ? 'plugins/actions/disable' : 'plugins/actions/enable'),
           group: 'more',
           onSelect: (picker: { closeMenu: () => void }) => { picker.closeMenu(); void togglePlugin(host, id, row); },
+          ...tooltip(saidOf(held, toggleMethod(row))),
+        }] : []),
+        ...(mayReload(held) ? [{
+          title: t('plugins/actions/reimport'),
+          group: 'more',
+          onSelect: (picker: { closeMenu: () => void }) => { picker.closeMenu(); void reloadOne(host, id); },
+          ...tooltip(saidOf(held, PLUGINS.reload)),
         }] : []),
       ];
     };

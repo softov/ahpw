@@ -12,7 +12,8 @@ import { readLastHost, startHost } from '../sessions/last-host.js';
 import { EMOJIcon } from '../emojis.js';
 import { english } from '../../i18n/locales.js';
 import { PLUGIN_GROUPINGS } from './rows.js';
-import { ACTIVE_PLUGIN, GROUP_KEY, pluginTab, PLUGINS_GROUP, PLUGINS_SERVED } from './state.js';
+import { applyAll } from './actions.js';
+import { ACTIVE_PLUGIN, GROUP_KEY, pluginTab, PLUGINS_APPLY, PLUGINS_GROUP, PLUGINS_SERVED } from './state.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -52,6 +53,7 @@ export function registerPlugins(scena: Scena): Disposable {
 
   return combineDisposables(
     trackServed(scena, PLUGINS.scheme, PLUGINS_SERVED),
+    trackServed(scena, (offers) => offers.methods.includes(PLUGINS.apply), PLUGINS_APPLY),
     registerChoice(scena, { resource: 'plugins', name: 'group', slot: GROUP_SLOT, path: PLUGINS_GROUP, values: PLUGIN_GROUPINGS, usual: 'state', key: GROUP_KEY }),
     scena.components.register({
       component: 'PluginsExplorer',
@@ -61,6 +63,7 @@ export function registerPlugins(scena: Scena): Disposable {
         title: { t: 'plugins/explorer/title' },
         actions: [
           { command: 'plugins.reload', icon: EMOJIcon.reload, label: { t: 'common/reload' } },
+          { command: 'plugins.apply', icon: EMOJIcon.apply, label: { t: 'plugins/actions/apply' }, when: `${PLUGINS_APPLY} == true` },
           { command: 'plugins.group', menu: GROUP_SLOT, icon: EMOJIcon.group, label: { t: 'plugins/explorer/group' }, active: `${PLUGINS_GROUP} != null` },
           HOST_FILTER_ACTION,
         ],
@@ -71,6 +74,11 @@ export function registerPlugins(scena: Scena): Disposable {
       id: 'plugins.reload',
       title: () => translate('common/reload'),
       run: () => Promise.all(servingHosts().map((host) => hostBridge(host).refresh(PLUGINS.channel))),
+    }),
+    scena.commands.register({
+      id: 'plugins.apply',
+      title: () => translate('plugins/actions/apply'),
+      run: () => applyAll(servingHosts().filter((host) => offersOf(host).methods.includes(PLUGINS.apply))),
     }),
     scena.commands.register({
       id: 'ahp.showPlugins',

@@ -19,13 +19,15 @@ export interface Provider {
 
 export interface Offers {
   methods: string[];
+  /** What the host says each method does, by its name; a method that says nothing is absent. */
+  described: Record<string, string>;
   channels: string[];
   providers: Record<string, Provider>;
   /** Who this connection is, `user:<id>` or `root:<host>`; absent on a host with no users. */
   principal?: string;
 }
 
-export const NO_OFFERS: Offers = { methods: [], channels: [], providers: {} };
+export const NO_OFFERS: Offers = { methods: [], described: {}, channels: [], providers: {} };
 
 function bag(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -50,6 +52,17 @@ function providerOf(value: unknown): Provider | null {
   };
 }
 
+/** Each method's description, from a list of `{ method, description }` entries; a map, as an older ahpd sent, has none. */
+function descriptionsOf(value: unknown): Record<string, string> {
+  if (!Array.isArray(value)) return {};
+  const described: Record<string, string> = {};
+  for (const one of value) {
+    const entry = bag(one);
+    if (typeof entry?.method === 'string' && typeof entry.description === 'string' && entry.description !== '') described[entry.method] = entry.description;
+  }
+  return described;
+}
+
 /** The offers in an `initialize` answer's `_meta`. */
 export function offersOf(meta: unknown): Offers {
   const providers: Record<string, Provider> = {};
@@ -60,6 +73,7 @@ export function offersOf(meta: unknown): Offers {
   const principal = ahpdKey(meta, 'principal');
   return {
     methods: namesOf(ahpdKey(meta, 'methods'), 'method'),
+    described: descriptionsOf(ahpdKey(meta, 'methods')),
     channels: namesOf(ahpdKey(meta, 'channels'), 'scheme'),
     providers,
     ...(typeof principal === 'string' && principal !== '' ? { principal } : {}),

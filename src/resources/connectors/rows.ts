@@ -39,6 +39,12 @@ export interface RowWords {
 export const adapterTitle = (adapters: readonly AdapterRow[], name: string): string =>
   adapters.find((one) => one.name === name)?.title ?? name;
 
+/** The icons of the adapter a connector names, if it has any. */
+const iconsOf = (entry: ConnectorEntry): { icons?: NonNullable<AdapterRow['icons']> } => {
+  const icons = entry.row.adapter === undefined ? undefined : entry.adapters.find((one) => one.name === entry.row.adapter)?.icons;
+  return icons === undefined ? {} : { icons };
+};
+
 /** An owner's place in the owner grouping: me, then teams, then the host, then other people. */
 function ownerRank(owner: ConnectorOwner, me: ConnectorOwner | undefined): number {
   if (owner === me) return 0;
@@ -76,6 +82,7 @@ export function connectorRows(entries: readonly ConnectorEntry[], by: ConnectorG
       dot: DOT[row.state],
       dotLabel: words.state(row.state),
       title,
+      ...iconsOf(entry),
       lines: [
         [
           words.multi ? entry.hostName : undefined,
@@ -85,7 +92,7 @@ export function connectorRows(entries: readonly ConnectorEntry[], by: ConnectorG
         ].filter((bit) => bit !== undefined).join(' \u{00B7} '),
       ].filter((line) => line !== ''),
       menu: words.menu(entry),
-      group: { key: group.key, label: group.label },
+      group: { key: group.key, label: group.label, ...(by === 'adapter' ? iconsOf(entry) : {}) },
     };
   });
 }

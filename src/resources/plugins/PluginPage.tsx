@@ -8,8 +8,9 @@ import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import type { PeopleState } from '../../bridges/people.js';
 import { PLUGINS, pluginsReducer, restartNeeded, specEnabled, type PluginRow, type PluginState } from '../../bridges/plugins.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
+import { HostTitle } from '../../shell/HostIcon.js';
 import { EMOJIcon } from '../emojis.js';
-import { mayToggle, togglePlugin } from './actions.js';
+import { mayReload, mayToggle, reloadOne, saidOf, toggleMethod, togglePlugin } from './actions.js';
 import { Options } from './Options.js';
 import { Overview } from './Overview.js';
 import { keepPluginTabKey, pluginTabKey } from './state.js';
@@ -22,6 +23,9 @@ const TONE: Record<PluginState, BadgeTone> = {
   ready: 'success',
   disabled: 'default',
 };
+
+/** A button's tooltip, when the host says what its command does. */
+const said = (text: string | undefined): { title?: string } => (text === undefined ? {} : { title: text });
 
 /** One of the host's plugins: its head with its state and Enable or Disable, over Overview and Options. */
 export default function PluginPage({ host, plugin: id }: { host: string; plugin: string }): ReactElement {
@@ -42,17 +46,23 @@ export default function PluginPage({ host, plugin: id }: { host: string; plugin:
     <div className="web-page web-plugin">
       <div className="web-page__head">
         <div className="web-role__title">
-          <Text variant="h2" text={`${EMOJIcon.hostPlugins} ${title}`} />
+          <HostTitle icons={row.manifest?.icons} emoji={EMOJIcon.hostPlugins} title={title} />
           <span className="web-role__uri">{`${PLUGINS.channel}${id}`}</span>
           <Badge tone={TONE[row.state]} text={t(`plugins/states/${row.state}`)} />
         </div>
-        {mayToggle(offers, row) ? (
+        {mayToggle(offers, row) || mayReload(offers) ? (
           <div className="web-page__actions">
-            <Button
-              size="sm"
-              label={t(specEnabled(row.spec) ? 'plugins/actions/disable' : 'plugins/actions/enable')}
-              onClick={() => void togglePlugin(host, id, row)}
-            />
+            {mayReload(offers) ? (
+              <Button size="sm" label={t('plugins/actions/reimport')} {...said(saidOf(offers, PLUGINS.reload))} onClick={() => void reloadOne(host, id)} />
+            ) : null}
+            {mayToggle(offers, row) ? (
+              <Button
+                size="sm"
+                label={t(specEnabled(row.spec) ? 'plugins/actions/disable' : 'plugins/actions/enable')}
+                {...said(saidOf(offers, toggleMethod(row)))}
+                onClick={() => void togglePlugin(host, id, row)}
+              />
+            ) : null}
           </div>
         ) : null}
       </div>

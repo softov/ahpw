@@ -16,3 +16,4 @@ A host names what it serves in the `_meta` of its `initialize` answer: `ahpd.met
 - [`code://src/bridges/served.ts`](../../../src/bridges/served.ts) says which hosts serve a channel; a plugin's entry shows only while one does.
 - [`code://src/resources/computers/`](../../../src/resources/computers/) lists, opens and makes computers.
 - [`code://src/resources/bots/`](../../../src/resources/bots/) lists, opens, makes and edits bots, drawn by `@cofold/bood`, and floats them at the window's edges.
+- [`code://src/resources/plugins/`](../../../src/resources/plugins/) lists the host's plugins under 🔣, enables and disables them, and sets their options.

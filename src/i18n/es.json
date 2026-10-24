@@ -2208,7 +2208,11 @@
       "enable": "Activar",
       "disable": "Desactivar",
       "enableFailed": "No se pudo activar {id}",
-      "disableFailed": "No se pudo desactivar {id}"
+      "disableFailed": "No se pudo desactivar {id}",
+      "reimport": "Importar de nuevo",
+      "reimportFailed": "No se pudo importar de nuevo {id}",
+      "apply": "Aplicar la configuración",
+      "applyFailed": "No se pudo aplicar la configuración"
     },
     "notices": {
       "reading": "Leyendo los plugins…",

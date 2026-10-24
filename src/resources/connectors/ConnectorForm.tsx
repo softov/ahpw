@@ -7,6 +7,7 @@ import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { readOwnUser, type ListedUser, type PeopleState } from '../../bridges/people.js';
 import { hostSaid } from '../../bridges/said.js';
+import { HostIcon } from '../../shell/HostIcon.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { meOn } from './actions.js';
 import { adapterSchema, configForForm, configForPut, ID_PATTERN, ownerChoices, topSchema, type TopValues } from './form.js';
@@ -143,7 +144,7 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
       <SchemaForm schema={head} value={top as unknown as Bag} baseline={(editing ? heldTop : top) as unknown as Bag} onChange={changeTop} jsonTextRoot={false} />
       {fields === undefined ? null : (
         <section className="web-connector-form__adapter" aria-label={t('connectors/form/settingsOf', { adapter: adapter!.title })}>
-          <h3 className="web-connector-form__heading">{t('connectors/form/settingsOf', { adapter: adapter!.title })}</h3>
+          <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={adapter!.icons} size={16} />{t('connectors/form/settingsOf', { adapter: adapter!.title })}</h3>
           {/* The schema says what the form is when it can; the adapter says it otherwise. */}
           {adapter!.description === '' || typeof adapter!.schema.description === 'string' ? null : <p className="web-note">{adapter!.description}</p>}
           <SchemaForm key={top.adapter} schema={fields} value={config} baseline={heldConfig} onChange={(next) => { setConfig(next); setSaved(false); }} />

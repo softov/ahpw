@@ -2,7 +2,9 @@ import { Fragment, useState, type MouseEvent, type ReactElement, type ReactNode 
 import { useI18n } from '@softov/scena/react';
 import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
+import type { Icon } from '../../bridges/icons.js';
 import { EMOJIcon } from '../../resources/emojis.js';
+import { HostIcon, useHostIcon } from '../HostIcon.js';
 import { HostLines } from './HostLines.js';
 
 /** The colour of a row's dot, by meaning. */
@@ -15,6 +17,8 @@ export interface Row {
   dotLabel: string;
   /** Drawn in place of the dot, such as a bot's figure; `dotLabel` still names it. */
   icon?: ReactNode;
+  /** A host's icon for what the row names, drawn with the dot as a badge on its corner; without `icon`. */
+  icons?: readonly Icon[];
   title: string;
   time?: string;
   lines: ReactNode[];
@@ -22,7 +26,7 @@ export interface Row {
   /** Drawn bold: something a person has not looked at yet. */
   strong?: boolean;
   /** The group the row is listed under; rows come grouped already, in order. */
-  group?: { key: string; label: string };
+  group?: { key: string; label: string; icons?: readonly Icon[] };
   /** A group inside `group`, drawn as an indented heading; its key is unique across the list. */
   subgroup?: { key: string; label: string };
   /** An icon button on the row, beside its time. */
@@ -98,6 +102,7 @@ export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabe
                   <li className="web-explorer__group" role="presentation">
                     <button type="button" aria-expanded={!hidden} onClick={() => fold(group.key)}>
                       <span className="web-explorer__fold" aria-hidden="true">{hidden ? EMOJIcon.caretRight : EMOJIcon.caretDown}</span>
+                      <HostIcon icons={group.icons} size={16} className="web-explorer__group-icon" />
                       <span className="web-explorer__group-label">{group.label}</span>
                       <span className="web-explorer__count">{count}</span>
                     </button>
@@ -133,11 +138,9 @@ export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabe
                     }}
                     onContextMenu={(event) => openMenu(event, row)}
                   >
-                    {row.icon === undefined ? (
-                      <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel}>
-                        {row.dot === 'working' ? <><i /><i /><i /><i /></> : null}
-                      </span>
-                    ) : <span className="web-row__icon" title={row.dotLabel} aria-label={row.dotLabel}>{row.icon}</span>}
+                    {row.icon !== undefined
+                      ? <span className="web-row__icon" title={row.dotLabel} aria-label={row.dotLabel}>{row.icon}</span>
+                      : <RowMark row={row} />}
                     <span className="web-row__body">
                       <span className="web-row__head">
                         <span className="web-row__title" data-strong={row.strong === true ? 'true' : 'false'}>{row.title}</span>
@@ -170,5 +173,22 @@ export function ExplorerList({ label, rows, selected, onOpen, notice, filterLabe
       </div>
       {menu === null ? null : <ContextMenu spec={{ items: menu.items }} x={menu.x} y={menu.y} onClose={() => setMenu(null)} />}
     </div>
+  );
+}
+
+/** A row's dot, or its host icon with the dot as a badge on its corner. */
+function RowMark({ row }: { row: Row }): ReactElement {
+  const icon = useHostIcon(row.icons);
+  const dot = (
+    <span className="web-row__dot" data-dot={row.dot} title={row.dotLabel} aria-label={row.dotLabel}>
+      {row.dot === 'working' ? <><i /><i /><i /><i /></> : null}
+    </span>
+  );
+  if (icon === undefined) return dot;
+  return (
+    <span className="web-row__mark">
+      <img className="web-host-icon" src={icon.src} width={20} height={20} alt="" draggable={false} />
+      {dot}
+    </span>
   );
 }

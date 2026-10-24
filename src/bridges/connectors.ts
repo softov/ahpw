@@ -18,6 +18,7 @@
  */
 
 import { hostBridge } from './data.js';
+import type { Icon } from './icons.js';
 import type { Offers } from './offers.js';
 import { recordsReducer } from './people.js';
 
@@ -60,6 +61,8 @@ export interface AdapterRow {
   capabilities: Capability[];
   /** The plugin that registered it. */
   plugin: string;
+  /** What is drawn beside its title. */
+  icons?: Icon[];
 }
 
 /**

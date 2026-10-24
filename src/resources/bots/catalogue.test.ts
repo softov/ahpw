@@ -45,7 +45,7 @@ describe('bot chats', () => {
   });
 
   it('chats in the bot\'s own session on a host without bot chats, and not at all without one', async () => {
-    const offers = { methods: [], channels: [], providers: {} };
+    const offers = { methods: [], described: {}, channels: [], providers: {} };
     expect(await readBotChat('h', offers, bot('nimbo', { session: 'cofold:/abc' }), false)).toBe('cofold:/abc');
     expect(await readBotChat('h', offers, bot('nimbo'), false)).toBeNull();
   });

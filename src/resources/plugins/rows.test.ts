@@ -7,6 +7,12 @@ const entry = (id: string, row: Partial<PluginRow>): PluginEntry => ({ host: 'h'
 const WORDS: RowWords = { multi: false, state: (state) => state, loadFailed: 'Did not load', category: (category) => (category === '' ? 'Other' : category), menu: () => [] };
 
 describe('pluginRows', () => {
+  it('carries the manifest\'s icons on its row', () => {
+    const icons = [{ src: 'data:image/png;base64,AAAA' }];
+    const rows = pluginRows([entry('drawn', { manifest: { icons } }), entry('plain', {})], 'state', WORDS);
+    expect(rows.map((one) => one.icons)).toEqual([icons, undefined]);
+  });
+
   it('puts problems first and disabled plugins last, by state', () => {
     const rows = pluginRows([
       entry('off', { state: 'disabled' }),

@@ -80,6 +80,7 @@ export function pluginRows(entries: readonly PluginEntry[], by: PluginGrouping, 
       dot: row.loadProblem === undefined ? DOT[row.state] : 'failed',
       dotLabel: row.loadProblem === undefined ? words.state(row.state) : words.loadFailed,
       title,
+      ...(row.manifest?.icons === undefined ? {} : { icons: row.manifest.icons }),
       lines: [
         [words.multi ? entry.hostName : undefined, title === entry.id ? undefined : entry.id, row.version, categories === '' ? undefined : categories]
           .filter((bit) => bit !== undefined).join(' \u{00B7} '),

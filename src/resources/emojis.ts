@@ -59,6 +59,7 @@ export const EMOJIcon = {
 
   // actions
   reload: '↻',
+  apply: '⤓',
   run: mono('▶'),
   pause: mono('⏸'),
   stop: mono('⏹'),

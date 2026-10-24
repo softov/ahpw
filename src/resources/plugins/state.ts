@@ -3,6 +3,9 @@ import type { BindingPath } from '@softov/scena/types';
 /** Whether any host this page connects to lists its plugins to this reader; the 🔣 entry shows while one does. */
 export const PLUGINS_SERVED = '$/ahp/plugins/served' as BindingPath;
 
+/** Whether any host this page connects to offers to load what its configuration file names; the list's Apply shows while one does. */
+export const PLUGINS_APPLY = '$/ahp/plugins/apply' as BindingPath;
+
 /** The plugin open in `main`, as `{ host, id }`. */
 export const ACTIVE_PLUGIN = '$/ahp/plugins/active' as BindingPath;
 

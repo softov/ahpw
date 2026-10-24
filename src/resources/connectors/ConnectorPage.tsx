@@ -4,6 +4,7 @@ import { Alert, Badge, Button, Spinner, Tabs, Text, type BadgeTone } from '@soft
 import { useChannel } from '../../bridges/channel.js';
 import { ADAPTERS, adaptersReducer, CONNECTORS, connectorsReducer, type AdapterRow, type ConnectorRow, type ConnectorState } from '../../bridges/connectors.js';
 import type { PeopleState } from '../../bridges/people.js';
+import { HostTitle } from '../../shell/HostIcon.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { EMOJIcon } from '../emojis.js';
 import { deleteConnector } from './actions.js';
@@ -36,7 +37,7 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
     <div className="web-page web-connector">
       <div className="web-page__head">
         <div className="web-role__title">
-          <Text variant="h2" text={`${EMOJIcon.connectors} ${title}`} />
+          <HostTitle icons={adapter?.icons} emoji={EMOJIcon.connectors} title={title} />
           <span className="web-role__uri">{`${CONNECTORS.channel}${id}`}</span>
           <Badge tone={TONE[row.state]} text={t(`connectors/states/${row.state}`)} />
         </div>

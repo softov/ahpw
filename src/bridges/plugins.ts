@@ -1,10 +1,11 @@
 /**
  * The host's plugins, through ahpd's `x-ahpd-plugins://` records channel and
- * its `x-ahpd/plugins/enable`, `/disable` and `/options` commands. Reading takes
- * `plugin:list`, and each command its own grant: `plugin:enable`,
- * `plugin:disable`, `plugin:options`. A host refuses the rest in its own words,
- * and marks its root state `ahpd.restartNeeded` once a command changed the
- * configuration.
+ * its `x-ahpd/plugins/enable`, `/disable`, `/options`, `/reload` and `/apply`
+ * commands. Reading takes `plugin:list`, and each command its own grant:
+ * `plugin:enable`, `plugin:disable`, `plugin:options`, `plugin:reload`,
+ * `plugin:apply`. A host refuses the rest in its own words. It applies a
+ * change at once, and marks its root state `ahpd.restartNeeded` only when a
+ * plugin that holds a port or a URI scheme is in the way.
  *
  * The row is written here rather than imported: ahpd serves it from the
  * server, and `@ahpd/sdk` 0.13 has no `PluginManifest` yet. The channel came
@@ -12,6 +13,7 @@
  */
 
 import type { RootState } from '@microsoft/agent-host-protocol';
+import type { Icon } from './icons.js';
 import { hostBridge } from './data.js';
 import type { Offers } from './offers.js';
 import { recordsReducer } from './people.js';
@@ -22,6 +24,8 @@ export const PLUGINS = {
   enable: 'x-ahpd/plugins/enable',
   disable: 'x-ahpd/plugins/disable',
   options: 'x-ahpd/plugins/options',
+  reload: 'x-ahpd/plugins/reload',
+  apply: 'x-ahpd/plugins/apply',
 } as const;
 
 /**
@@ -50,6 +54,8 @@ export interface PluginManifest {
   categories?: string[];
   links?: PluginLink[];
   contracts?: PluginContracts;
+  /** What is drawn beside its name; the host sends a file it read as a `data:` URI. */
+  icons?: Icon[];
 }
 
 /** How the configuration names a plugin: the module alone, or with its options and whether it is on. */
@@ -86,7 +92,7 @@ export function servesPlugins(offers: Offers): boolean {
   return offers.channels.includes(PLUGINS.scheme);
 }
 
-/** What an enable or a disable answers: the plugin, whether it is now on, and that a restart loads it. */
+/** What an enable or a disable answers: the plugin, whether it is now on, and whether only a restart applies it. */
 export interface PluginToggled {
   id: string;
   enabled: boolean;
@@ -101,18 +107,28 @@ async function toggle(host: string, method: string, id: string): Promise<PluginT
   return { id: answer.id, enabled: answer.enabled, restart: answer.restart === true };
 }
 
-/** Turns a configured plugin on; the host loads it at its next start. */
+/** Turns a configured plugin on; the host loads it at once. */
 export const enablePlugin = (host: string, id: string): Promise<PluginToggled> => toggle(host, PLUGINS.enable, id);
 
-/** Turns a configured plugin off, keeping its entry and options; the host drops it at its next start. */
+/** Turns a configured plugin off, keeping its entry and options; the host unloads it at once. */
 export const disablePlugin = (host: string, id: string): Promise<PluginToggled> => toggle(host, PLUGINS.disable, id);
 
 /**
  * Writes one option, checked against the plugin's own schema; a `value` left
- * out takes the option out. The host applies it at its next start.
+ * out takes the option out. The host applies it at once.
  */
 export async function setPluginOption(host: string, id: string, key: string, value: unknown): Promise<void> {
   await hostBridge(host).request(PLUGINS.options as never, { id, key, ...(value === undefined ? {} : { value }) } as never);
+}
+
+/** Imports a plugin's code again; its closers run first. */
+export async function reloadPlugin(host: string, id: string): Promise<void> {
+  await hostBridge(host).request(PLUGINS.reload as never, { id } as never);
+}
+
+/** Loads, unloads or reconfigures the host's plugins to match its configuration file. */
+export async function applyPlugins(host: string): Promise<void> {
+  await hostBridge(host).request(PLUGINS.apply as never, {} as never);
 }
 
 /** Whether the host holds a configuration change that only a restart applies. */

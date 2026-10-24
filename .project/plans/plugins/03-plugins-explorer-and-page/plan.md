@@ -1,7 +1,7 @@
 ---
 title: The host's plugins, in an explorer and a page that enables them and sets their options
 domain: plugins
-status: active
+status: built
 priority: medium
 created: 2026-10-22
 revalidated: 2026-10-22
@@ -74,11 +74,11 @@ Options Save -> root/configChanged { 'plugins.<id>': { options } } -> ahpd.resta
 | By category, a plugin shows under each category it names, and one with none under *Other*. | (defaulted: a plugin is found under every role it has) | 02 |
 | The explorer follows the policies resource, with `ExplorerList`, not web-next's `Listable`. | (defaulted: every ahpw explorer is an `ExplorerList`) | 02 |
 | A row's type is written in ahpw, since `PluginRow` is the server's and not in `@ahpd/sdk`. | (defaulted: as the bot record is, `catalogue.ts`) | 01 |
-| Options save as one `root/configChanged` of `plugins.<id>`, as the settings window saves. | (defaulted: one Save for the whole form, checked by the host against the same schema) | 04 |
+| Options save each changed key through `x-ahpd/plugins/options`, from the row's schema. | (defaulted: the command ahpd shipped for task 05, which checks each value) | 05 |
 | Enable, Disable and Save show while the host offers their commands; a refusal shows the host's words. | (defaulted: the reader's grants are not known until `x-ahpd/me`) | 04 |
 | 🔣 shows to a reader without `config:read`, whose list then shows the host's refusal. | (defaulted: ahpd lists the channel to every reader; hiding it needs `x-ahpd/me`) | 02 |
 | A channel's error and a failure toast are the host's sentence, without `RPC error <code>:`. | (defaulted: the code means nothing to a person) | 02 |
-| The restart note also follows a command's `restart: true` and an options save. | (defaulted: ahpd marks the root only for a settings change) | 04 |
+| After a command, ahpw reads the root again, and the note follows `ahpd.restartNeeded`. | (defaulted: ahpd marks the root after each plugin command) | 05 |
 
 ## Proposed architecture
 
@@ -110,16 +110,16 @@ Options Save -> root/configChanged { 'plugins.<id>': { options } } -> ahpd.resta
 ## Resume state
 
 - **Done so far:** tasks 01 to 05, on 2026-10-22.
-- **Next action:** close the plan: write `implemented.md` and set `status: built`.
+- **Next action:** none; the plan is built, see [implemented.md](implemented.md).
 - **Open questions:** none.
 - **Blocked:** nothing.
 - **Watch out for:** "plugin" names two things in ahpw; this plan is the host's plugins, and the agent page's 🧩 plugins are an agent's own.
 
 ## Final verification checklist
 
-- [ ] `npx tsc -b`, `npx vitest run` and `npm run build` pass.
-- [ ] By hand, on an isolated ahpd from main at port 9199, in Chromium, light and dark: the explorer by state and by category.
-- [ ] By hand: a plugin's Overview, and each *provides* link opening its section.
+- [x] `npx tsc -b`, `npx vitest run` and `npm run build` pass.
+- [x] By hand, on an isolated ahpd from main at port 9199, in Chromium, light and dark: the explorer by state and by category.
+- [x] By hand: a plugin's Overview, and each *provides* link opening its section.
 - [ ] By hand: Disable, Enable and an options change, each with the restart note, and a refusal without `config:write`.
 - [ ] By hand: a reader without `config:read` sees the host's refusal in its words; no entry once `x-ahpd/me` gives the grants.
-- [ ] `plans/index.md` updated.
+- [x] `plans/index.md` updated.

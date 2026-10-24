@@ -2208,7 +2208,11 @@
       "enable": "Enable",
       "disable": "Disable",
       "enableFailed": "{id} could not be enabled",
-      "disableFailed": "{id} could not be disabled"
+      "disableFailed": "{id} could not be disabled",
+      "reimport": "Import again",
+      "reimportFailed": "{id} could not be imported again",
+      "apply": "Apply the configuration",
+      "applyFailed": "The configuration could not be applied"
     },
     "notices": {
       "reading": "Reading the plugins…",

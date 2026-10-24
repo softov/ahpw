@@ -30,6 +30,16 @@ const ENTRIES = [
 const groups = (rows: ReturnType<typeof connectorRows>): string[] => [...new Set(rows.map((one) => one.group?.label))] as string[];
 
 describe('connectorRows', () => {
+  it('carries the adapter\'s icons on its row and its adapter group', () => {
+    const icons = [{ src: 'data:image/png;base64,AAAA' }];
+    const drawn = (one: ConnectorRow): ConnectorEntry => ({ ...entry(one), adapters: [{ ...ADAPTERS[0]!, icons }, ADAPTERS[1]!] });
+    const [hook, plain] = connectorRows([drawn(row('a', 'webhook', 'host', 'open')), drawn(row('b', 'github', 'host', 'open'))], 'adapter', WORDS)
+      .sort((x, y) => x.title.localeCompare(y.title));
+    expect([hook?.icons, hook?.group?.icons]).toEqual([icons, icons]);
+    expect([plain?.icons, plain?.group?.icons]).toEqual([undefined, undefined]);
+    expect(connectorRows([drawn(row('a', 'webhook', 'host', 'open'))], 'state', WORDS)[0]?.group?.icons).toBeUndefined();
+  });
+
   it('groups by adapter, by the adapters\' titles, names one no plugin registers by its name, and closes with records that name none', () => {
     const rows = connectorRows(ENTRIES, 'adapter', WORDS);
     expect(groups(rows)).toEqual(['GitHub', 'gone', 'Webhook', 'No adapter']);

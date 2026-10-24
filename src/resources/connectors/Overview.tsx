@@ -5,6 +5,7 @@ import { receiveUrl, type AdapterRow, type ConnectorRow } from '../../bridges/co
 import { ahpPaths, httpRoot } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { embedMode } from '../../shell/embed/index.js';
+import { HostIcon } from '../../shell/HostIcon.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { done } from '../../shell/notify/index.js';
 import { meOn, ownerWord } from './actions.js';
@@ -29,7 +30,9 @@ export function Overview({ host, row, adapter }: { host: string; row: ConnectorR
     { label: t('connectors/page/state'), value: t(`connectors/states/${row.state}`) },
     {
       label: t('connectors/page/adapter'),
-      value: adapter?.title ?? (row.adapter === undefined ? t('connectors/page/noAdapterShort') : t('connectors/page/unknownAdapter', { adapter: row.adapter })),
+      value: adapter === undefined
+        ? (row.adapter === undefined ? t('connectors/page/noAdapterShort') : t('connectors/page/unknownAdapter', { adapter: row.adapter }))
+        : <span className="web-host-label"><HostIcon icons={adapter.icons} size={16} />{adapter.title}</span>,
     },
     { label: t('connectors/page/owner'), value: ownerWord(t, row.owner, meOn(offers)) },
     ...(plugin === undefined ? [] : [{

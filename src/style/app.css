@@ -4541,3 +4541,46 @@
   color: var(--oo-color-text);
   overflow-wrap: anywhere;
 }
+
+/* A host's icon, drawn as an image. */
+.web-host-icon {
+  flex: none;
+  object-fit: contain;
+}
+
+/* A row's host icon, with its dot as a badge on the lower corner. */
+.web-row__mark {
+  flex: none;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+
+.web-row__mark .web-row__dot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  margin: 0;
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--oo-color-surface);
+}
+
+.web-explorer__group-icon {
+  border-radius: 2px;
+}
+
+/* A page heading with the host's icon before its title. */
+.web-host-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  align-self: center;
+}
+
+/* A line of text with the host's icon before it. */
+.web-host-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
