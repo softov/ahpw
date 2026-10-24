@@ -54,6 +54,7 @@ What exists today: [00-plugins.md](plugins/00-plugins.md).
 | [04 - Connectors in an explorer, a form and a page](plugins/04-connectors/plan.md) | active | task 07, waiting for ahpd's public root |
 | [05 - A plugin's and an adapter's own icon](plugins/05-plugin-and-adapter-icons/plan.md) | built | - |
 | [06 - Live plugin commands](plugins/06-live-plugin-commands/plan.md) | built | - |
+| [07 - A working connector shows as ready](plugins/07-a-working-connector-is-ready/plan.md) | planned | task 01, with ahpd plugin 62 |
 
 ## sessions
 
