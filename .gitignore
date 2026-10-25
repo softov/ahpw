@@ -1,3 +1,12 @@
+# Dependencies and build output.
 node_modules
 dist
 *.tsbuildinfo
+
+# Environment files hold secrets; only the example is tracked.
+.env
+.env.*
+!.env.example
+
+# Local experiments, kept out of git for now.
+/.scratch
