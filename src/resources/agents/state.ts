@@ -1,7 +1,7 @@
 import type { BindingPath } from '@softov/scena/types';
 
-/** Whether any host this page connects to lists its agent kinds; the explorer's + shows while one does. */
-export const AGENT_KINDS_SERVED = '$/ahp/agents/kindsServed' as BindingPath;
+/** Whether any host this page connects to lists its engines; the explorer's + shows while one does. */
+export const ENGINES_SERVED = '$/ahp/agents/enginesServed' as BindingPath;
 
 /** The agent whose page is open, as `{ host, provider }`. */
 export const ACTIVE_AGENT = '$/ahp/activeAgent' as BindingPath;

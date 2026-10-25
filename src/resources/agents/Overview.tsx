@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { useI18n, useStore } from '@softov/scena/react';
 import { DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
-import type { AgentKindRow, AgentRow } from '../../bridges/agents.js';
+import type { EngineRow, AgentRow } from '../../bridges/agents.js';
 import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { embedMode } from '../../shell/embed/index.js';
@@ -24,11 +24,11 @@ export function healthLine(t: (key: string, values?: Record<string, unknown>) =>
 }
 
 /**
- * One agent's Overview: what it is, its record's kind, owner and plugin, its
+ * One agent's Overview: what it is, its record's engine, owner and plugin, its
  * models, what it is customized with and how to sign in to it. An agent the
  * host does not serve has its record's facts only.
  */
-export function Overview({ host, info, record, kind }: { host: string; info?: AgentInfo; record?: AgentRow; kind?: AgentKindRow }): ReactElement {
+export function Overview({ host, info, record, engine }: { host: string; info?: AgentInfo; record?: AgentRow; engine?: EngineRow }): ReactElement {
   const { t } = useI18n();
   const sessions = useStore<SessionSummary[]>(ahpPaths(host).sessions) ?? [];
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
@@ -41,9 +41,9 @@ export function Overview({ host, info, record, kind }: { host: string; info?: Ag
     ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} /> }] : []),
     { label: t('agents/page/facts/provider'), value: <code>{id}</code> },
     ...(record === undefined ? [] : [
-      { label: t('agents/page/facts/kind'), value: kind?.title ?? record.kind },
+      { label: t('agents/page/facts/engine'), value: engine?.title ?? record.engine },
       { label: t('agents/page/facts/owner'), value: ownerWord(t, record.owner, meOn(offers)) },
-      ...(kind === undefined ? [] : [{ label: t('agents/page/facts/plugin'), value: <code>{kind.plugin}</code> }]),
+      ...(engine === undefined ? [] : [{ label: t('agents/page/facts/plugin'), value: <code>{engine.plugin}</code> }]),
       { label: t('agents/page/facts/state'), value: [t(`connectors/states/${record.state}`), health].filter((bit) => bit !== undefined).join(' \u{00B7} ') },
     ]),
     ...(info === undefined ? [] : [

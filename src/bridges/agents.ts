@@ -1,13 +1,13 @@
 /**
- * The host's agent kinds and the agents made from them.
+ * The host's engines and the agents made from them.
  *
- * `x-ahpd-agent-kinds://` lists the kinds the loaded plugins register, keyed by
- * the kind's name, and is read-only. `x-ahpd-agents://` lists the stored agent
+ * `x-ahpd-engines://` lists the engines the loaded plugins register, keyed by
+ * the engine's name, and is read-only. `x-ahpd-agents://` lists the stored agent
  * records, keyed by the agent's id, which is also its `provider` in the root
  * list. `x-ahpd/agents/put`, `/remove` and `/check` make, take out and test one.
  *
  * A record of another owner is listed only to a reader holding `agent:all`. A
- * secret field, `writeOnly` in the kind's schema or one of its `keyVariables`,
+ * secret field, `writeOnly` in the engine's schema or one of its `keyVariables`,
  * is kept as a `{ $secret }` reference, and a put that sends it as `""` keeps
  * the one stored.
  *
@@ -22,9 +22,9 @@ import type { ConnectorOwner } from './connectors.js';
 import type { Offers } from './offers.js';
 import { recordsReducer } from './people.js';
 
-export const AGENT_KINDS = {
-  scheme: 'x-ahpd-agent-kinds',
-  channel: 'x-ahpd-agent-kinds://',
+export const ENGINES = {
+  scheme: 'x-ahpd-engines',
+  channel: 'x-ahpd-engines://',
 } as const;
 
 export const AGENTS = {
@@ -40,8 +40,8 @@ export type AgentOwner = ConnectorOwner;
 
 /**
  * Where an agent is: `ready` is served by the host, `invalid` no longer fits
- * its kind's schema or its kind refused to open it, `unavailable` has no plugin
- * registering its kind.
+ * its engine's schema or its engine refused to open it, `unavailable` has no plugin
+ * registering its engine.
  */
 export type AgentState = 'ready' | 'invalid' | 'unavailable';
 
@@ -57,21 +57,21 @@ export interface AgentHealth {
 /** One stored agent, as `x-ahpd-agents` lists it: its record and its state. */
 export interface AgentRow {
   id: string;
-  /** The name of the kind it is one of. */
-  kind: string;
+  /** The name of the engine it is one of. */
+  engine: string;
   owner: AgentOwner;
   name: string;
   description?: string;
   /** What is drawn for the agent; an `Icon` URL, not an emoji. */
   icon?: Icon;
   model?: string;
-  /** The kind's own values, each secret as a `{ $secret }` reference. */
+  /** The engine's own values, each secret as a `{ $secret }` reference. */
   config: Record<string, unknown>;
   state: AgentState;
   health?: AgentHealth;
 }
 
-/** What a new record starts from, as a kind offers it. */
+/** What a new record starts from, as an engine offers it. */
 export interface AgentTemplate {
   name: string;
   description?: string;
@@ -80,18 +80,18 @@ export interface AgentTemplate {
   config?: Record<string, unknown>;
 }
 
-/** One agent kind a plugin registers, as `x-ahpd-agent-kinds` lists it under its name. */
-export interface AgentKindRow {
+/** One engine a plugin registers, as `x-ahpd-engines` lists it under its name. */
+export interface EngineRow {
   name: string;
   title: string;
   description: string;
-  /** The JSON Schema the form for a record of this kind is drawn from. */
+  /** The JSON Schema the form for a record of this engine is drawn from. */
   schema: Record<string, unknown>;
   /** The plugin that registered it. */
   plugin: string;
   /** What is drawn beside its title. */
   icons?: Icon[];
-  /** What a new record of this kind starts from. */
+  /** What a new record of this engine starts from. */
   templates?: AgentTemplate[];
   /** The fields only the host's own record may set. */
   hostOnly?: string[];
@@ -99,7 +99,7 @@ export interface AgentKindRow {
   keyVariables?: string[];
 }
 
-export const agentKindsReducer = recordsReducer<AgentKindRow>(AGENT_KINDS.scheme);
+export const enginesReducer = recordsReducer<EngineRow>(ENGINES.scheme);
 export const agentsReducer = recordsReducer<AgentRow>(AGENTS.scheme);
 
 /** Whether a host serves agents to this reader: the channel is among its offers. */
@@ -107,15 +107,15 @@ export function servesAgents(offers: Offers): boolean {
   return offers.channels.includes(AGENTS.scheme);
 }
 
-/** Whether a host lists the agent kinds it serves: the channel is among its offers. */
-export function servesAgentKinds(offers: Offers): boolean {
-  return offers.channels.includes(AGENT_KINDS.scheme);
+/** Whether a host lists the engines it serves: the channel is among its offers. */
+export function servesEngines(offers: Offers): boolean {
+  return offers.channels.includes(ENGINES.scheme);
 }
 
 /** What a put sends: the whole record, every secret as its value or `""` to keep it. */
 export interface AgentWanted {
   id: string;
-  kind: string;
+  engine: string;
   owner: AgentOwner;
   name: string;
   description?: string;
@@ -129,11 +129,11 @@ const isRow = (value: unknown): value is AgentRow => {
   return typeof held === 'object' && held !== null && typeof held.id === 'string' && typeof held.owner === 'string';
 };
 
-/** Makes or changes one agent; the host checks it against its kind and serves it. Answers the row it now lists. */
+/** Makes or changes one agent; the host checks it against its engine and serves it. Answers the row it now lists. */
 export async function putAgent(host: string, wanted: AgentWanted): Promise<AgentRow> {
   const params = {
     id: wanted.id,
-    kind: wanted.kind,
+    engine: wanted.engine,
     owner: wanted.owner,
     name: wanted.name,
     ...(wanted.description === undefined || wanted.description === '' ? {} : { description: wanted.description }),

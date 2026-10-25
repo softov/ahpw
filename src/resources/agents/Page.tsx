@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, Tabs, type BadgeTone } from '@softov/scena/ui';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
-import { AGENT_KINDS, AGENTS, agentKindsReducer, agentsReducer, checkAgent, servesAgentKinds, servesAgents, type AgentKindRow, type AgentRow } from '../../bridges/agents.js';
+import { ENGINES, AGENTS, enginesReducer, agentsReducer, checkAgent, servesEngines, servesAgents, type EngineRow, type AgentRow } from '../../bridges/agents.js';
 import { useChannel } from '../../bridges/channel.js';
 import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
@@ -56,7 +56,7 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const infos = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
   const records = useChannel<PeopleState<AgentRow>>(host, servesAgents(offers) ? AGENTS.channel : undefined, agentsReducer).state;
-  const kinds = useChannel<PeopleState<AgentKindRow>>(host, servesAgentKinds(offers) ? AGENT_KINDS.channel : undefined, agentKindsReducer).state;
+  const engines = useChannel<PeopleState<EngineRow>>(host, servesEngines(offers) ? ENGINES.channel : undefined, enginesReducer).state;
   const agent = useMemo(
     () => mergeAgents(infos.filter((one) => one.provider === provider), (records?.records ?? []).map((one) => one.record).filter((one) => one.id === provider))[0],
     [infos, records, provider],
@@ -64,10 +64,10 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
   if (agent === undefined || provider === undefined) return <PageAlert tone="warning" message={t('agents/page/gone')} />;
 
   const { info, record } = agent;
-  const kind = record === undefined ? undefined : kinds?.records.find((one) => one.id === record.kind)?.record;
+  const engine = record === undefined ? undefined : engines?.records.find((one) => one.id === record.engine)?.record;
   const signIn = info === undefined ? [] : signInOf(info);
-  const icons = record?.icon === undefined ? kind?.icons : [record.icon];
-  const overview = <Overview host={host} {...(info === undefined ? {} : { info })} {...(record === undefined ? {} : { record })} {...(kind === undefined ? {} : { kind })} />;
+  const icons = record?.icon === undefined ? engine?.icons : [record.icon];
+  const overview = <Overview host={host} {...(info === undefined ? {} : { info })} {...(record === undefined ? {} : { record })} {...(engine === undefined ? {} : { engine })} />;
   const remove = record === undefined ? null : (
     <Button
       variant="danger"
@@ -96,7 +96,7 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
         </div>
       </div>
       {agent.status !== 'standby' || record === undefined ? null : (
-        <Alert tone={record.state === 'unavailable' ? 'danger' : 'warning'} message={t(`agents/page/standby/${record.state}`, { kind: record.kind })} />
+        <Alert tone={record.state === 'unavailable' ? 'danger' : 'warning'} message={t(`agents/page/standby/${record.state}`, { engine: record.engine })} />
       )}
       {record === undefined ? overview : (
         <Tabs

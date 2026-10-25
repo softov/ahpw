@@ -1,13 +1,13 @@
 /**
  * What the agent form draws and sends. The top is ahpw's own: the name, the
- * id, the owner, the description and the model. Below it, the kind's schema,
+ * id, the owner, the description and the model. Below it, the engine's schema,
  * as the host lists it, with its key variables drawn as one password field
  * each in place of their place in `env`. A secret the host stores is never
  * listed back: its field is empty, and an empty one sent as `""` keeps it.
  */
 
 import type { EnumOption, JsonSchemaObject } from '@softov/scena/ui';
-import type { AgentKindRow, AgentOwner, AgentRow, AgentWanted } from '../../bridges/agents.js';
+import type { EngineRow, AgentOwner, AgentRow, AgentWanted } from '../../bridges/agents.js';
 import { isSecretRef } from '../../bridges/connectors.js';
 import type { Icon } from '../../bridges/icons.js';
 import { adapterSchema, configForForm, configForPut, secretFields } from '../connectors/form.js';
@@ -57,7 +57,7 @@ export function agentTopSchema(owners: readonly EnumOption[], editing: boolean, 
   return { type: 'object', properties, required: editing ? ['name', 'owner'] : ['name', 'id', 'owner'] } as JsonSchemaObject;
 }
 
-/** The values a form for `kind` starts from: a made agent's own, or a template's. */
+/** The values a form for `engine` starts from: a made agent's own, or a template's. */
 export function topOf(record: AgentRow | undefined, owner: string): AgentTop {
   return {
     id: record?.id ?? '',
@@ -69,28 +69,28 @@ export function topOf(record: AgentRow | undefined, owner: string): AgentTop {
 }
 
 /**
- * The kind's schema as the form draws it. Each `writeOnly` field is a
+ * The engine's schema as the form draws it. Each `writeOnly` field is a
  * password; each key variable is a password field of its own, under its name;
  * a `hostOnly` field is left out of a record the host does not own.
  */
-export function kindSchema(kind: AgentKindRow, held: Bag, owner: string, keptWord: string): JsonSchemaObject {
-  const drawn = adapterSchema(kind.schema, held, keptWord) as Bag;
+export function engineSchema(engine: EngineRow, held: Bag, owner: string, keptWord: string): JsonSchemaObject {
+  const drawn = adapterSchema(engine.schema, held, keptWord) as Bag;
   const properties = { ...bagOf(drawn.properties) };
   if (owner !== 'host') {
-    for (const field of kind.hostOnly ?? []) delete properties[field];
+    for (const field of engine.hostOnly ?? []) delete properties[field];
     // Only the key variables are any owner's to set, and they are drawn below.
-    if ((kind.keyVariables ?? []).length > 0) delete properties.env;
+    if ((engine.keyVariables ?? []).length > 0) delete properties.env;
   }
   const env = bagOf(held.env);
-  for (const name of kind.keyVariables ?? []) {
+  for (const name of engine.keyVariables ?? []) {
     properties[name] = { type: 'string', title: name, format: 'password', ...(isSecretRef(env[name]) ? { description: keptWord } : {}) };
   }
   return { ...drawn, properties } as JsonSchemaObject;
 }
 
 /** A held config as the form shows it: each kept secret empty, and each key variable lifted out of `env`. */
-export function agentConfigForForm(kind: AgentKindRow | undefined, config: Bag): Bag {
-  const keys = kind?.keyVariables ?? [];
+export function agentConfigForForm(engine: EngineRow | undefined, config: Bag): Bag {
+  const keys = engine?.keyVariables ?? [];
   const shown = configForForm(config);
   if (keys.length === 0) return shown;
   const env = bagOf(config.env);
@@ -109,11 +109,11 @@ export function agentConfigForForm(kind: AgentKindRow | undefined, config: Bag):
  * host stores one, and left out where it stores none. A `hostOnly` field is
  * left out of a record the host does not own.
  */
-export function agentConfigForPut(kind: AgentKindRow, form: Bag, held: Bag, owner: string): Bag {
-  const keys = kind.keyVariables ?? [];
+export function agentConfigForPut(engine: EngineRow, form: Bag, held: Bag, owner: string): Bag {
+  const keys = engine.keyVariables ?? [];
   const values = Object.fromEntries(Object.entries(form).filter(([name]) => !keys.includes(name)));
-  const out = configForPut(values, kind.schema);
-  if (owner !== 'host') for (const field of kind.hostOnly ?? []) delete out[field];
+  const out = configForPut(values, engine.schema);
+  if (owner !== 'host') for (const field of engine.hostOnly ?? []) delete out[field];
   if (keys.length === 0) return out;
   const stored = bagOf(held.env);
   const env: Bag = owner === 'host' ? { ...bagOf(out.env) } : {};
@@ -126,29 +126,29 @@ export function agentConfigForPut(kind: AgentKindRow, form: Bag, held: Bag, owne
   return Object.keys(env).length === 0 ? out : { ...out, env };
 }
 
-/** Whether a kind's form has a secret field, so its Settings say how a kept one is shown. */
-export const hasSecrets = (kind: AgentKindRow): boolean => secretFields(kind.schema).length > 0 || (kind.keyVariables ?? []).length > 0;
+/** Whether an engine's form has a secret field, so its Settings say how a kept one is shown. */
+export const hasSecrets = (engine: EngineRow): boolean => secretFields(engine.schema).length > 0 || (engine.keyVariables ?? []).length > 0;
 
-/** What a put sends for a form: the top trimmed, the config made from the kind, and the icon the agent has. */
-export function agentWanted(kind: AgentKindRow, top: AgentTop, form: Bag, held: Bag, icon?: Icon): AgentWanted {
+/** What a put sends for a form: the top trimmed, the config made from the engine, and the icon the agent has. */
+export function agentWanted(engine: EngineRow, top: AgentTop, form: Bag, held: Bag, icon?: Icon): AgentWanted {
   return {
     ...(icon === undefined ? {} : { icon }),
     id: top.id,
-    kind: kind.name,
+    engine: engine.name,
     owner: top.owner as AgentOwner,
     name: top.name.trim(),
     description: top.description.trim(),
     model: top.model.trim(),
-    config: agentConfigForPut(kind, form, held, top.owner),
+    config: agentConfigForPut(engine, form, held, top.owner),
   };
 }
 
-/** What a new record of a kind starts from: its template at `at`, or a blank record for -1. */
-export function startOf(kind: AgentKindRow, at: number): { top: Pick<AgentTop, 'name' | 'description' | 'model'>; config: Bag; icon?: Icon } {
-  const template = at === -1 ? undefined : kind.templates?.[at];
+/** What a new record of an engine starts from: its template at `at`, or a blank record for -1. */
+export function startOf(engine: EngineRow, at: number): { top: Pick<AgentTop, 'name' | 'description' | 'model'>; config: Bag; icon?: Icon } {
+  const template = at === -1 ? undefined : engine.templates?.[at];
   return {
     top: { name: template?.name ?? '', description: template?.description ?? '', model: template?.model ?? '' },
-    config: agentConfigForForm(kind, bagOf(template?.config)),
+    config: agentConfigForForm(engine, bagOf(template?.config)),
     ...(template?.icon === undefined ? {} : { icon: template.icon }),
   };
 }

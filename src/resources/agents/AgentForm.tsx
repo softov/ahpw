@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, SchemaForm, Spinner, type EnumOption, type JsonSchemaObject } from '@softov/scena/ui';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
-import { AGENT_KINDS, AGENTS, agentKindsReducer, agentsReducer, putAgent, type AgentKindRow, type AgentRow } from '../../bridges/agents.js';
+import { ENGINES, AGENTS, enginesReducer, agentsReducer, putAgent, type EngineRow, type AgentRow } from '../../bridges/agents.js';
 import { useChannel } from '../../bridges/channel.js';
 import { ahpPaths } from '../../bridges/data.js';
 import type { Icon } from '../../bridges/icons.js';
@@ -14,8 +14,8 @@ import { HostIcon } from '../../shell/HostIcon.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { meOn } from '../connectors/actions.js';
 import { ID_PATTERN, idFor, ownerChoices } from '../connectors/form.js';
-import { agentConfigForForm, agentTopSchema, agentWanted, kindSchema, startOf, topOf, type AgentTop } from './form.js';
-import { KindPicker } from './KindPicker.js';
+import { agentConfigForForm, agentTopSchema, agentWanted, engineSchema, startOf, topOf, type AgentTop } from './form.js';
+import { EnginePicker } from './EnginePicker.js';
 import { newAgentTab } from './state.js';
 
 type Bag = Record<string, unknown>;
@@ -24,10 +24,10 @@ const usersReducer = peopleReducer('users');
 const teamsReducer = peopleReducer('teams');
 
 /**
- * One form for a new agent and for a made one's Settings: the kind picked on
+ * One form for a new agent and for a made one's Settings: the engine picked on
  * top, with the template it starts from, then the name, id, owner,
- * description and model, and the kind's own fields below. A new agent's id
- * follows its name until a person types one; a made one's kind and id are
+ * description and model, and the engine's own fields below. A new agent's id
+ * follows its name until a person types one; a made one's engine and id are
  * fixed.
  */
 export function AgentForm({ host, record, actions }: { host: string; record?: AgentRow; actions?: ReactElement }): ReactElement {
@@ -35,9 +35,9 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
   const { t } = useI18n();
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const infos = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
-  const kindsRead = useChannel<PeopleState<AgentKindRow>>(host, AGENT_KINDS.channel, agentKindsReducer);
+  const enginesRead = useChannel<PeopleState<EngineRow>>(host, ENGINES.channel, enginesReducer);
   const recordsRead = useChannel<PeopleState<AgentRow>>(host, AGENTS.channel, agentsReducer);
-  const kinds = useMemo(() => (kindsRead.state?.records ?? []).map((one) => one.record), [kindsRead.state]);
+  const engines = useMemo(() => (enginesRead.state?.records ?? []).map((one) => one.record), [enginesRead.state]);
   // A new id is suggested past the agents this reader sees; the host refuses one it already serves.
   const taken = useMemo(
     () => [...(recordsRead.state?.records ?? []).map((one) => one.id), ...infos.map((one) => one.provider)],
@@ -61,11 +61,11 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
     return () => { live = false; };
   }, [host, offers, me]);
 
-  const [kindName, setKindName] = useState(record?.kind ?? '');
-  const kind = kinds.find((one) => one.name === kindName);
+  const [engineName, setEngineName] = useState(record?.engine ?? '');
+  const engine = engines.find((one) => one.name === engineName);
   const heldConfig = useMemo<Bag>(() => record?.config ?? {}, [record]);
   const heldTop = useMemo<AgentTop>(() => topOf(record, me ?? 'host'), [record, me]);
-  const heldForm = useMemo<Bag>(() => agentConfigForForm(kind, heldConfig), [kind, heldConfig]);
+  const heldForm = useMemo<Bag>(() => agentConfigForForm(engine, heldConfig), [engine, heldConfig]);
   const [top, setTop] = useState<AgentTop>(heldTop);
   const [config, setConfig] = useState<Bag>(heldForm);
   const [template, setTemplate] = useState(0);
@@ -83,27 +83,27 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
   }, [editing, heldTop, heldForm, record]);
 
   const named = (wanted: AgentTop): AgentTop =>
-    // The id follows the name, or the kind while there is none, until a person types one of their own.
-    (!editing && wanted.id === top.id && (top.id === '' || top.id === idFor(top.name, kindName, taken)) ? { ...wanted, id: idFor(wanted.name, kindName, taken) } : wanted);
+    // The id follows the name, or the engine while there is none, until a person types one of their own.
+    (!editing && wanted.id === top.id && (top.id === '' || top.id === idFor(top.name, engineName, taken)) ? { ...wanted, id: idFor(wanted.name, engineName, taken) } : wanted);
 
-  const start = (next: AgentKindRow, at: number): void => {
+  const start = (next: EngineRow, at: number): void => {
     const from = startOf(next, at);
     const wanted = { ...top, ...from.top };
-    setTop(top.id === '' || top.id === idFor(top.name, kindName, taken) ? { ...wanted, id: idFor(wanted.name, next.name, taken) } : wanted);
+    setTop(top.id === '' || top.id === idFor(top.name, engineName, taken) ? { ...wanted, id: idFor(wanted.name, next.name, taken) } : wanted);
     setConfig(from.config);
     setIcon(from.icon);
     setSaved(false);
   };
-  const pickKind = (name: string): void => {
-    const next = kinds.find((one) => one.name === name);
-    setKindName(name);
+  const pickEngine = (name: string): void => {
+    const next = engines.find((one) => one.name === name);
+    setEngineName(name);
     const at = (next?.templates ?? []).length === 0 ? -1 : 0;
     setTemplate(at);
     if (next !== undefined) start(next, at);
   };
   const pickTemplate = (at: number): void => {
     setTemplate(at);
-    if (kind !== undefined) start(kind, at);
+    if (engine !== undefined) start(engine, at);
   };
   const changeTop = (next: Bag): void => {
     setTop(named(next as unknown as AgentTop));
@@ -138,22 +138,22 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
     modelHint: t('agents/form/modelHint'),
     modelDefault: t('agents/form/modelDefault'),
   }, models);
-  const fields: JsonSchemaObject | undefined = kind === undefined ? undefined : kindSchema(kind, heldConfig, top.owner, t('connectors/form/secretKept'));
+  const fields: JsonSchemaObject | undefined = engine === undefined ? undefined : engineSchema(engine, heldConfig, top.owner, t('connectors/form/secretKept'));
 
-  // Without agent:list the host lists no kinds, so a new agent has nothing to be made from.
-  if (kindsRead.error !== null && !editing) return <PageAlert tone="warning" title={t('agents/form/noKinds')} message={kindsRead.error} />;
-  if (kindsRead.state === undefined && kindsRead.error === null) return <Spinner label={t('agents/form/reading')} />;
+  // Without agent:list the host lists no engines, so a new agent has nothing to be made from.
+  if (enginesRead.error !== null && !editing) return <PageAlert tone="warning" title={t('agents/form/noEngines')} message={enginesRead.error} />;
+  if (enginesRead.state === undefined && enginesRead.error === null) return <Spinner label={t('agents/form/reading')} />;
   if (!userRead) return <Spinner label={t('agents/form/reading')} />;
-  if (!editing && kinds.length === 0) return <p className="web-note">{t('agents/form/noKinds')}</p>;
+  if (!editing && engines.length === 0) return <p className="web-note">{t('agents/form/noEngines')}</p>;
   if (!editing && owners.length === 0) return <p className="web-note">{t('agents/form/noPut')}</p>;
 
   const dirty = JSON.stringify(top) !== JSON.stringify(heldTop) || JSON.stringify(config) !== JSON.stringify(heldForm);
-  const ready = kind !== undefined && ID_PATTERN.test(top.id) && top.name.trim() !== '' && top.owner !== '';
+  const ready = engine !== undefined && ID_PATTERN.test(top.id) && top.name.trim() !== '' && top.owner !== '';
   const save = (): void => {
-    if (kind === undefined) return;
+    if (engine === undefined) return;
     setBusy(true);
     setFailure(null);
-    putAgent(host, agentWanted(kind, top, config, heldConfig, icon)).then(
+    putAgent(host, agentWanted(engine, top, config, heldConfig, icon)).then(
       (row) => {
         setBusy(false);
         if (editing) { setSaved(true); return; }
@@ -166,19 +166,19 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
 
   return (
     <div className="web-connector-form">
-      {editing && kind === undefined ? <p className="web-note">{t('agents/form/unknownKind', { kind: record.kind })}</p> : null}
-      {editing && kind === undefined ? null : (
+      {editing && engine === undefined ? <p className="web-note">{t('agents/form/unknownEngine', { engine: record.engine })}</p> : null}
+      {editing && engine === undefined ? null : (
         <div className="web-connector-form__pick">
-          <span className="web-connector-form__label">{t('agents/form/kind')}{editing ? null : <span className="web-connector-form__required" aria-hidden="true">*</span>}</span>
-          <KindPicker kinds={kinds} value={kindName} template={template} labelOf={labelOf} fixed={editing} onPick={pickKind} onTemplate={pickTemplate} />
+          <span className="web-connector-form__label">{t('agents/form/engine')}{editing ? null : <span className="web-connector-form__required" aria-hidden="true">*</span>}</span>
+          <EnginePicker engines={engines} value={engineName} template={template} labelOf={labelOf} fixed={editing} onPick={pickEngine} onTemplate={pickTemplate} />
         </div>
       )}
-      {kind === undefined ? null : <SchemaForm schema={head} value={top as unknown as Bag} baseline={(editing ? heldTop : top) as unknown as Bag} onChange={changeTop} jsonTextRoot={false} />}
+      {engine === undefined ? null : <SchemaForm schema={head} value={top as unknown as Bag} baseline={(editing ? heldTop : top) as unknown as Bag} onChange={changeTop} jsonTextRoot={false} />}
       {fields === undefined ? null : (
-        <section className="web-connector-form__adapter" aria-label={t('agents/form/settingsOf', { kind: kind!.title })}>
-          <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={kind!.icons} size={16} />{t('agents/form/settingsOf', { kind: kind!.title })}</h3>
-          {kind!.description === '' || typeof kind!.schema.description === 'string' ? null : <p className="web-note">{kind!.description}</p>}
-          <SchemaForm key={`${kindName}:${template}`} schema={fields} value={config} baseline={editing ? heldForm : config} onChange={(next) => { setConfig(next); setSaved(false); }} />
+        <section className="web-connector-form__adapter" aria-label={t('agents/form/settingsOf', { engine: engine!.title })}>
+          <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={engine!.icons} size={16} />{t('agents/form/settingsOf', { engine: engine!.title })}</h3>
+          {engine!.description === '' || typeof engine!.schema.description === 'string' ? null : <p className="web-note">{engine!.description}</p>}
+          <SchemaForm key={`${engineName}:${template}`} schema={fields} value={config} baseline={editing ? heldForm : config} onChange={(next) => { setConfig(next); setSaved(false); }} />
         </section>
       )}
       {failure === null ? null : <Alert tone="danger" title={t('agents/form/failed')} message={failure} />}

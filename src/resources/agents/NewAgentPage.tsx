@@ -4,7 +4,7 @@ import { Text } from '@softov/scena/ui';
 import { EMOJIcon } from '../emojis.js';
 import { AgentForm } from './AgentForm.js';
 
-/** The page a new agent is made on: one form, its kind picked first. */
+/** The page a new agent is made on: one form, its engine picked first. */
 export default function NewAgentPage({ host }: { host: string }): ReactElement {
   const { t } = useI18n();
   return (

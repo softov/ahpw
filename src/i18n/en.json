@@ -1145,8 +1145,8 @@
         "standby": "standby"
       },
       "standby": {
-        "unavailable": "kind {kind} is not loaded",
-        "invalid": "settings do not fit the kind"
+        "unavailable": "engine {engine} is not loaded",
+        "invalid": "settings do not fit the engine"
       }
     },
     "page": {
@@ -1156,7 +1156,7 @@
         "models": "Models",
         "sessions": "Sessions",
         "can": "Can",
-        "kind": "Kind",
+        "engine": "Engine",
         "owner": "Owner",
         "plugin": "Plugin",
         "state": "State"
@@ -1183,8 +1183,8 @@
       "overview": "Overview",
       "settings": "Settings",
       "standby": {
-        "unavailable": "Kind {kind} is not loaded, so the host does not serve this agent.",
-        "invalid": "These settings do not fit kind {kind}, so the host does not serve this agent."
+        "unavailable": "Engine {engine} is not loaded, so the host does not serve this agent.",
+        "invalid": "These settings do not fit engine {engine}, so the host does not serve this agent."
       }
     },
     "actions": {
@@ -1205,18 +1205,18 @@
       "model": "Model",
       "modelHint": "Leave empty and the agent picks its own.",
       "modelDefault": "The agent's own",
-      "kind": "Kind",
+      "engine": "Engine",
       "startFrom": "Start from",
       "blank": "Blank",
-      "noKinds": "This server lists no agent kinds.",
+      "noEngines": "This server lists no engines.",
       "reading": "Reading",
       "noPut": "You may not add an agent on this server.",
-      "unknownKind": "Kind {kind} is not loaded, so its settings cannot be shown.",
-      "settingsOf": "{kind} settings",
+      "unknownEngine": "Engine {engine} is not loaded, so its settings cannot be shown.",
+      "settingsOf": "{engine} settings",
       "failed": "The agent was not saved",
       "create": "Create",
-      "searchKinds": "Search kinds",
-      "noKindMatch": "No kind matches."
+      "searchEngines": "Search engines",
+      "noEngineMatch": "No engine matches."
     },
     "health": {
       "ok": "OK",

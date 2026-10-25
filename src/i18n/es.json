@@ -1145,8 +1145,8 @@
         "standby": "en espera"
       },
       "standby": {
-        "unavailable": "el tipo {kind} no está cargado",
-        "invalid": "la configuración no encaja con el tipo"
+        "unavailable": "el motor {engine} no está cargado",
+        "invalid": "la configuración no encaja con el motor"
       }
     },
     "page": {
@@ -1156,7 +1156,7 @@
         "models": "Modelos",
         "sessions": "Sesiones",
         "can": "Puede",
-        "kind": "Tipo",
+        "engine": "Motor",
         "owner": "Dueño",
         "plugin": "Plugin",
         "state": "Estado"
@@ -1183,8 +1183,8 @@
       "overview": "Resumen",
       "settings": "Ajustes",
       "standby": {
-        "unavailable": "El tipo {kind} no está cargado, así que el host no sirve este agente.",
-        "invalid": "Estos ajustes no encajan con el tipo {kind}, así que el host no sirve este agente."
+        "unavailable": "El motor {engine} no está cargado, así que el host no sirve este agente.",
+        "invalid": "Estos ajustes no encajan con el motor {engine}, así que el host no sirve este agente."
       }
     },
     "actions": {
@@ -1205,18 +1205,18 @@
       "model": "Modelo",
       "modelHint": "Déjelo vacío y el agente elige el suyo.",
       "modelDefault": "El del agente",
-      "kind": "Tipo",
+      "engine": "Motor",
       "startFrom": "Empezar desde",
       "blank": "En blanco",
-      "noKinds": "Este servidor no lista tipos de agente.",
+      "noEngines": "Este servidor no lista motores.",
       "reading": "Leyendo",
       "noPut": "No puede añadir un agente en este servidor.",
-      "unknownKind": "El tipo {kind} no está cargado, así que sus ajustes no se pueden mostrar.",
-      "settingsOf": "Ajustes de {kind}",
+      "unknownEngine": "El motor {engine} no está cargado, así que sus ajustes no se pueden mostrar.",
+      "settingsOf": "Ajustes de {engine}",
       "failed": "El agente no se guardó",
       "create": "Crear",
-      "searchKinds": "Buscar tipos",
-      "noKindMatch": "Ningún tipo coincide."
+      "searchEngines": "Buscar motores",
+      "noEngineMatch": "Ningún motor coincide."
     },
     "health": {
       "ok": "OK",

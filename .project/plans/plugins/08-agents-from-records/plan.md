@@ -73,6 +73,8 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 | The icon is drawn, not picked; the form has no icon picker yet | (defaulted: Softov asked to show the icon; `icon` is an `Icon` URL, not an emoji) | 03 |
 | The row types are written in ahpw, as the connector rows are | (defaulted: `@ahpd/sdk` 0.13 has no agent record types) | 01 |
 | The new UI strings go in en, es and pt | (defaulted: every ahpw string is in the three) | 02-04 |
+| An agent comes from an engine on `x-ahpd-engines`, and its record field is `engine` | Softov, 2026-10-25: "So engines be it", scope "Everything" | 05 |
+| No fallback to `x-ahpd-agent-kinds` or `kind` | Softov, 2026-10-25: "We did not even released it yet" | 05 |
 
 ## Proposed architecture
 
@@ -90,6 +92,7 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 | [02 - One merged agents list](task-02-one-merged-agents-list.md) | implemented | 01 |
 | [03 - The agent page in two tabs](task-03-the-agent-page-in-two-tabs.md) | implemented | 02 |
 | [04 - Add agent](task-04-add-agent.md) | implemented | 03 |
+| [05 - Agents come from engines](task-05-agents-come-from-engines.md) | implemented | 04 |
 
 ## Risks and tradeoffs
 
@@ -98,8 +101,8 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 
 ## Resume state
 
-- **Done so far:** tasks 01 to 04 are implemented and wait for review.
-- **Next action:** review the four tasks, then close the plan.
+- **Done so far:** tasks 01 to 05 are implemented and wait for review. Task 05 is not committed.
+- **Next action:** review tasks 01 to 05. Check task 05 against an ahpd with host 123 task 03, as `/github/ahpd/.project/pending/host-123-engines-checks.md` says.
 - **Open questions:** none.
 - **Watch out for:** the root list is filtered per caller, and the channel with `agent:all` is not. Do not call a row standby only because the root list lacks it; see the owner answer.
 
