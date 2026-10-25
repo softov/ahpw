@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, type ReactElement } from '
 import { useStore } from '@softov/scena/react';
 import { resolveThemeMode, THEME_MODE_PATH, type ThemeModeChoice } from '@softov/scena/styles';
 import {
-  action, actionsOf, ambient, blink, creatures, ease, glance, pop, pose, randomTransit, scene, swing, transit,
+  action, actionsOf, ambient, BOOD_TRANSITS, blink, creatures, ease, glance, pop, pose, randomTransit, scene, swing, transit,
   type BoodMood, type BoodPose, type BoodScene, type BoodTransit,
 } from '@cofold/bood';
 import { mountBood, type BoodView } from '@cofold/bood/dom';
@@ -33,6 +33,8 @@ const TILT_REACH = [0.4, 1] as const;
 /** How often, by default, an idle bot plays one of its moves: between 3 and 7 minutes. */
 export const ACT_EVERY_MS: readonly [number, number] = [180_000, 420_000];
 const TRANSIT_GAP_MS = 400;
+/** The transits a bot goes away with: not `erase`, whose hide shows the body again when it ends. */
+const AWAY_TRANSITS = BOOD_TRANSITS.filter((kind) => kind !== 'erase');
 
 type Point = { x: number; y: number } | null;
 
@@ -56,20 +58,25 @@ const between = (min: number, max: number): number => min + Math.random() * (max
  * again. Unless `still` it breathes and blinks, glances about, turns its head
  * to the pointer, now and then stares off somewhere, and when idle plays one
  * of its moves every `actEvery` (ms, least and most). A new `arrive.at` shows it with `arrive.transit`,
- * as a bot that just teleported to where it is drawn.
+ * as a bot that just teleported to where it is drawn. Turned `away`, it
+ * leaves with a transit and stays gone, still, until it comes back with
+ * another.
  */
-export function Bood({ body, color, mood = 'idle', width, still = false, arrive, actEvery = ACT_EVERY_MS }: {
+export function Bood({ body, color, mood = 'idle', width, still = false, arrive, away = false, actEvery = ACT_EVERY_MS }: {
   body: string;
   color?: string | undefined;
   mood?: BoodMood;
   width: number;
   still?: boolean;
   arrive?: { transit: BoodTransit; at: number } | undefined;
+  away?: boolean;
   /** How often an idle bot plays one of its moves, in ms, as the least and the most it waits. */
   actEvery?: readonly [number, number];
 }): ReactElement {
   const box = useRef<HTMLDivElement>(null);
   const view = useRef<BoodView | null>(null);
+  /** Whether the view shows the body gone. */
+  const wasAway = useRef(false);
   const scheme = resolveThemeMode(useStore<ThemeModeChoice>(THEME_MODE_PATH) ?? 'system');
   const drawn = useMemo(() => botScene(body, color, mood, scheme, width), [body, color, mood, scheme, width]);
   // Read by a move when it starts, so a colour change does not restart the body's life.
@@ -80,6 +87,7 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive,
 
   useLayoutEffect(() => {
     view.current = mountBood(box.current!, drawn);
+    wasAway.current = false;
     return () => {
       view.current?.destroy();
       view.current = null;
@@ -94,24 +102,31 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive,
 
   // Before paint, so an arriving body is not seen before its show starts from hidden.
   useLayoutEffect(() => {
-    if (arrive === undefined || still) return;
+    if (arrive === undefined || still || away) return;
     view.current?.play(transit(arrive.transit, 'show', { color: paint.current }), { key: 'act' });
     // It plays on a new `at` only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arrive?.at]);
+
+  // Going away and coming back play on their own key: the moves below stop theirs when it goes away.
+  useLayoutEffect(() => {
+    if (still || away === wasAway.current) return;
+    wasAway.current = away;
+    view.current?.play(transit(AWAY_TRANSITS[Math.floor(Math.random() * AWAY_TRANSITS.length)]!, away ? 'hide' : 'show', { color: paint.current }), { key: 'away' });
+  }, [away, still]);
 
   // A small pop when the mood changes, not when the body first shows.
   const shownMood = useRef(mood);
   useEffect(() => {
     if (shownMood.current === mood) return;
     shownMood.current = mood;
-    if (!still) view.current?.play(pop());
-  }, [mood, still]);
+    if (!still && !away) view.current?.play(pop());
+  }, [mood, still, away]);
 
   useEffect(() => {
     const shown = view.current;
     const held = box.current;
-    if (still || shown === null || held === null) return;
+    if (still || away || shown === null || held === null) return;
     const kind = boodBody(body);
     const moves = ambient(kind, mood, { scheme, brows: false });
     moves.forEach((move, at) => shown.play(move, { key: `ambient:${at}` }));
@@ -262,7 +277,7 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive,
       moves.forEach((_, at) => shown.stop(`ambient:${at}`));
       for (const key of ['blink', 'pose', 'glance', 'swing', 'act']) shown.stop(key);
     };
-  }, [body, mood, scheme, still, actMin, actMax]);
+  }, [body, mood, scheme, still, away, actMin, actMax]);
 
   return <div ref={box} className="web-bood" style={{ width }} aria-hidden="true" />;
 }

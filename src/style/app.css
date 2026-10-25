@@ -3319,6 +3319,11 @@
   color: var(--oo-color-accent);
 }
 
+/* A bot whose chat is on screen: gone, its place kept, and nothing to click. */
+.web-bot-puck__bot[data-away='true'] {
+  pointer-events: none;
+}
+
 /* A drag: the bots it moves fade where they were, a ghost follows the pointer, and the puck it would join is ringed. */
 .web-bot-puck__bot[data-moving='true'] {
   opacity: 0.35;

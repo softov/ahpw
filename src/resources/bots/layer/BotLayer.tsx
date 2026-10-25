@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactElement } from 'react';
 import { useI18n, useScena } from '@softov/scena/react';
+import type { ScenaLayout } from '@softov/scena/types';
+import type { SessionSummary } from '@microsoft/agent-host-protocol';
 import { randomTransit, type BoodTransit } from '@cofold/bood';
 import { ContextMenu } from '@softov/scena/ui';
 import { useChannelOnEach } from '../../../bridges/channel.js';
-import { refKey, refOf, useShownHosts } from '../../../bridges/hosts.js';
+import { ahpPaths } from '../../../bridges/data.js';
+import { refKey, refOf, useEach, useShownHosts } from '../../../bridges/hosts.js';
 import { useServingHosts } from '../../../bridges/served.js';
 import { Bood } from '../Bood.js';
 import { BOTS, BOTS_SCHEME, botsReducer, type BotRecord, type BotsState } from '../catalogue.js';
 import { BotPopover } from './BotPopover.js';
+import { botsInShownChats, shownMountKeys } from './shown.js';
 import { fillPucks, joinPuck, readPucks, snapPuck, splitCluster, takeOut, writePucks, type Edge, type Puck } from './pucks.js';
 
 /** How wide a floating bot is drawn. */
@@ -61,7 +65,9 @@ function besideOf(box: DOMRect, edge: Edge): { x: number; y: number } {
  * makes it glad, and lets a person talk to it. A bot dragged out rests on the
  * nearest edge, or joins the puck it is dropped on; held first, the whole puck
  * moves, and each bot dropped shows at its new place with a bood transit, as
- * though it teleported there. Where they rest is kept in this browser.
+ * though it teleported there. A bot whose chat is on screen, in any group,
+ * leaves its place and comes back when the chat is not. Where they rest is
+ * kept in this browser.
  */
 export default function BotLayer(): ReactElement | null {
   const scena = useScena();
@@ -82,6 +88,14 @@ export default function BotLayer(): ReactElement | null {
     const timer = window.setTimeout(() => setArriving((held) => (held === arriving ? null : held)), ARRIVE_MS);
     return () => window.clearTimeout(timer);
   }, [arriving]);
+  const [layout, setLayout] = useState<ScenaLayout>(() => scena.layout.get());
+  useEffect(() => {
+    setLayout(scena.layout.get());
+    const watch = scena.layout.subscribe(setLayout);
+    return () => watch.dispose();
+  }, [scena]);
+  const sessionLists = useEach<SessionSummary[]>(hosts.map((host) => ahpPaths(host).sessions));
+  const away = useMemo(() => botsInShownChats(shownMountKeys(layout), hosts, sessionLists), [layout, hosts, sessionLists]);
   const press = useRef<Press | null>(null);
   const puckBoxes = useRef(new Map<string, HTMLDivElement>());
 
@@ -179,6 +193,8 @@ export default function BotLayer(): ReactElement | null {
                   className="web-bot-puck__bot"
                   data-open={opened?.key === key ? 'true' : 'false'}
                   data-moving={drag?.bots.includes(key) === true ? 'true' : 'false'}
+                  data-away={away.has(key) ? 'true' : 'false'}
+                  tabIndex={away.has(key) ? -1 : undefined}
                   title={bot.name}
                   aria-label={bot.name}
                   onMouseEnter={() => setHovered(key)}
@@ -201,7 +217,7 @@ export default function BotLayer(): ReactElement | null {
                     setOpened(opened?.key === key ? null : { key, ...besideOf(event.currentTarget.getBoundingClientRect(), puck.edge) });
                   }}
                 >
-                  <Bood body={bot.body} color={bot.color} mood={mood} width={WIDTH} arrive={transit === undefined ? undefined : { transit, at: arriving!.at }} />
+                  <Bood body={bot.body} color={bot.color} mood={mood} width={WIDTH} arrive={transit === undefined ? undefined : { transit, at: arriving!.at }} away={away.has(key)} />
                 </button>
               );
             })}
