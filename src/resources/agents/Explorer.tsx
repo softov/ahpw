@@ -1,7 +1,7 @@
 import { useMemo, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
-import { AGENTS, agentsReducer, type AgentRow } from '../../bridges/agents.js';
+import { AGENT_KINDS, AGENTS, agentKindsReducer, agentsReducer, type AgentKindRow, type AgentRow } from '../../bridges/agents.js';
 import { useChannelOnEach } from '../../bridges/channel.js';
 import { ahpPaths } from '../../bridges/data.js';
 import { refKey, refOf, useEach, useHostNames, useShownHosts } from '../../bridges/hosts.js';
@@ -40,6 +40,9 @@ export default function AgentExplorer(): ReactElement {
   // Records are read only on a host that offers the agents channel; elsewhere every agent is standalone.
   const serving = useServingHosts(hosts, AGENTS.scheme);
   const recordStates = useChannelOnEach<PeopleState<AgentRow>>(serving, AGENTS.channel, agentsReducer).states;
+  // A record with no icon of its own draws its kind's.
+  const servingKinds = useServingHosts(hosts, AGENT_KINDS.scheme);
+  const kindStates = useChannelOnEach<PeopleState<AgentKindRow>>(servingKinds, AGENT_KINDS.channel, agentKindsReducer).states;
   const offers = useEach<Offers>(hosts.map((host) => ahpPaths(host).offers));
   const active = useStore<{ host: string; provider: string }>(ACTIVE_AGENT);
   const open = (key: string): void => {
@@ -52,6 +55,7 @@ export default function AgentExplorer(): ReactElement {
     () => hosts.flatMap((host, at) => {
       const served = serving.indexOf(host);
       const records = served === -1 ? [] : (recordStates[served]?.records ?? []).map((one) => one.record);
+      const kinds = kindStates[servingKinds.indexOf(host)]?.records ?? [];
       const me = meOn(offers[at] ?? NO_OFFERS);
       return mergeAgents(agentLists[at] ?? [], records).map((agent) => {
         const { info, record } = agent;
@@ -62,11 +66,12 @@ export default function AgentExplorer(): ReactElement {
         // A record outside the reader's root list is another owner's: the line names that owner.
         const owner = info === undefined && record !== undefined && agent.status === 'configured' ? ownerWord(t, record.owner, me) : undefined;
         const description = info?.description || record?.description || '';
+        const icons = record === undefined ? undefined : record.icon === undefined ? kinds.find((one) => one.id === record.kind)?.record.icons : [record.icon];
         return {
           key: refKey(host, agent.id),
           dot: dotOf(agent),
           dotLabel: status,
-          ...(record?.icon === undefined ? {} : { icons: [record.icon] }),
+          ...(icons === undefined ? {} : { icons }),
           emoji: EMOJIcon.agents,
           title: agentTitle(agent),
           lines: [
@@ -89,7 +94,7 @@ export default function AgentExplorer(): ReactElement {
       });
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [hosts, serving, agentLists, recordStates, sessionLists, offers, hostName, t],
+    [hosts, serving, agentLists, recordStates, servingKinds, kindStates, sessionLists, offers, hostName, t],
   );
 
   return (
