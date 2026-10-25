@@ -15,7 +15,8 @@ export const MANAGE_SLOT = 'ahp:manage';
 
 /**
  * The Manage menu, as VS Code's gear: language, layout and theme open their
- * lists in the palette, then settings, and the account group parted below.
+ * lists in the palette, then the host and settings, and the account group
+ * parted below.
  */
 export function registerManage(scena: Scena, embedded: boolean): Disposable {
   return combineDisposables(
@@ -50,6 +51,17 @@ export function registerManage(scena: Scena, embedded: boolean): Disposable {
       run: (ctx) => {
         ctx.host?.closeMenu();
         openPalette(ctx.scena, themeList(ctx.scena));
+      },
+    }),
+    scena.commands.register({
+      id: 'ahp.manage.host',
+      title: () => translate('shell/nav/host'),
+      keywords: [english('shell/nav/host')],
+      icon: EMOJIcon.host,
+      slots: [MANAGE_SLOT],
+      run: (ctx) => {
+        ctx.host?.closeMenu();
+        void ctx.scena.commands.execute('ahp.openHostInfo');
       },
     }),
     scena.commands.register({

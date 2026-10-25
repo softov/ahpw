@@ -26,7 +26,7 @@ const MODUS_CLASS = '$/modus/class' as BindingPath;
 const SURFACE_NAME = '$/surface/name' as BindingPath;
 const TAB_KEY = '$/tab/key' as BindingPath;
 
-/** The host's information and settings, at the foot of the activity bar. */
+/** The host's information and settings, opened from the Manage menu. */
 export function registerHost(scena: Scena): Disposable {
   return combineDisposables(
     scena.components.register({

@@ -245,11 +245,6 @@ export function registerShell(scena: Scena): Disposable {
     }),
     scena.surfaces.mount({
       surface: 'activitybar',
-      key: 'host:info:nav',
-      resource: { component: 'ActivityBarItem', icon: EMOJIcon.host, label: bound('shell/nav/host'), pos: 'bottom', command: 'ahp.openHostInfo' },
-    }),
-    scena.surfaces.mount({
-      surface: 'activitybar',
       key: 'agents:nav',
       resource: { component: 'ActivityBarItem', icon: EMOJIcon.agents, label: bound('shell/nav/agents'), pos: 'bottom', section: AGENTS_SECTION, args: TOGGLE },
     }),
