@@ -40,6 +40,7 @@ import { AddButton, Attached } from './Attached.js';
 import { useComposerDrop } from './composer-drop.js';
 import { warn } from '../../shell/notify/index.js';
 import { COMPOSER_FOCUS, hostCommands, registerHostCommands, type HostCommand } from './host-commands.js';
+import { useAgentIconSrc } from '../agents/icons.js';
 
 /** Tells one composer from another in the store's focus path. */
 let composers = 0;
@@ -95,6 +96,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   const { t } = useI18n();
   const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
   const agent = agents.find((one) => one.provider === summary.provider);
+  const agentImage = useAgentIconSrc(useMemo(() => [host], [host]))(host, summary.provider);
   const path = useMemo(() => composerPath(host, chatUri), [host, chatUri]);
   const [focus] = useState(() => `composer-${++composers}`);
   const folder = summary.workingDirectories?.[0];
@@ -340,7 +342,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
 
       <div className="web-composer__where">
         {folder === undefined ? null : <Pill label={`${EMOJIcon.folder} ${folderLabel(folder)}`} title={t('sessions/composer/folderHint')} />}
-        <Pill label={`${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}`} title={agent?.description ?? t('sessions/composer/agentHint')} />
+        <Pill label={agentImage === undefined ? `${EMOJIcon.agents} ${agent?.displayName ?? summary.provider}` : agent?.displayName ?? summary.provider} image={agentImage} title={agent?.description ?? t('sessions/composer/agentHint')} />
       </div>
 
       <div

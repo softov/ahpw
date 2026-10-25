@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:calendar",
+  "group": "code",
+  "time": "30 8 * * 1",
+  "title": {
+    "en": "Monday plan",
+    "pt-BR": "Plano da segunda",
+    "es": "Plan del lunes"
+  },
+  "prompt": {
+    "en": "Prepare the plan for this week in this repository.\n1. List the pull requests merged and the issues closed last week.\n2. Summarize them in a few lines grouped by theme, not one line per commit.\n3. Read the open issues and pull requests. Note the ones that are blocked, waiting on review for more than three days, or marked urgent.\n4. Suggest what to do first this week: at most five items, in order, each with a link and one line on why.\n5. Write the result to weekly-plan-YYYY-MM-DD.md, short enough to read in two minutes.\nDo not change issues, labels, pull requests or code.",
+    "pt-BR": "Prepare o plano da semana para este repositório.\n1. Liste os pull requests integrados e as issues fechadas na semana passada.\n2. Resuma tudo em poucas linhas agrupadas por tema, e não uma linha por commit.\n3. Leia as issues e os pull requests abertos. Destaque os que estão bloqueados, esperando revisão há mais de três dias ou marcados como urgentes.\n4. Sugira o que fazer primeiro nesta semana: no máximo cinco itens, em ordem, cada um com link e uma linha explicando por quê.\n5. Escreva o resultado em weekly-plan-AAAA-MM-DD.md, curto o bastante para ler em dois minutos.\nNão altere issues, labels, pull requests nem código.",
+    "es": "Prepara el plan de la semana para este repositorio.\n1. Lista los pull requests integrados y las issues cerradas la semana pasada.\n2. Resúmelos en pocas líneas agrupadas por tema, no una línea por commit.\n3. Lee las issues y los pull requests abiertos. Señala los bloqueados, los que esperan revisión hace más de tres días o los marcados como urgentes.\n4. Sugiere qué hacer primero esta semana: como máximo cinco puntos, en orden, cada uno con enlace y una línea sobre por qué.\n5. Escribe el resultado en weekly-plan-AAAA-MM-DD.md, lo bastante corto para leerlo en dos minutos.\nNo cambies issues, etiquetas, pull requests ni código."
+  }
+}

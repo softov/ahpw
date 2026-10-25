@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:folder-open",
+  "group": "everyday",
+  "time": "0 10 * * 0",
+  "title": {
+    "en": "Tidy Downloads",
+    "pt-BR": "Organizar Downloads",
+    "es": "Ordenar Descargas"
+  },
+  "pitch": {
+    "en": "Keep your Downloads folder tidy.",
+    "pt-BR": "Deixe sua pasta Downloads em ordem.",
+    "es": "Mantén ordenada tu carpeta Descargas."
+  },
+  "prompt": {
+    "en": "Tidy up the Downloads folder, which is this folder.\n1. Look at the files at the top level. Leave the existing subfolders alone.\n2. Move each file into a folder by type and month, for example Documents/2026-09, Images/2026-09, Installers/2026-09, Archives/2026-09 or Other/2026-09. Use the date the file was last changed.\n3. If a file with the same name is already there, add a number to the name. Never overwrite.\n4. Write tidy-log.md with what moved where, and a short list of files that look important: contracts, invoices, tickets, IDs.\nNever delete anything. Skip files still downloading or changed in the last hour.",
+    "pt-BR": "Organize a pasta Downloads, que é esta pasta.\n1. Veja os arquivos soltos na raiz. Não mexa nas subpastas que já existem.\n2. Mova cada arquivo para uma pasta por tipo e mês, por exemplo Documentos/2026-09, Imagens/2026-09, Instaladores/2026-09, Compactados/2026-09 ou Outros/2026-09. Use a data da última alteração do arquivo.\n3. Se já existir um arquivo com o mesmo nome lá, acrescente um número ao nome. Nunca sobrescreva.\n4. Escreva tidy-log.md com o que foi para onde e uma lista curta de arquivos que parecem importantes: contratos, notas fiscais, passagens, documentos pessoais.\nNunca apague nada. Ignore arquivos ainda baixando ou alterados na última hora.",
+    "es": "Ordena la carpeta Descargas, que es esta carpeta.\n1. Mira los archivos sueltos en la raíz. No toques las subcarpetas que ya existen.\n2. Mueve cada archivo a una carpeta por tipo y mes, por ejemplo Documentos/2026-09, Imágenes/2026-09, Instaladores/2026-09, Comprimidos/2026-09 u Otros/2026-09. Usa la fecha de la última modificación del archivo.\n3. Si ya hay un archivo con el mismo nombre, añade un número al nombre. Nunca sobrescribas.\n4. Escribe tidy-log.md con lo que se movió y adónde, y una lista corta de archivos que parezcan importantes: contratos, facturas, billetes, documentos de identidad.\nNunca borres nada. Omite archivos que se estén descargando o que cambiaron en la última hora."
+  }
+}

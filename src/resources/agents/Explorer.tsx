@@ -1,7 +1,7 @@
 import { useMemo, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
-import { ENGINES, AGENTS, enginesReducer, agentsReducer, type EngineRow, type AgentRow } from '../../bridges/agents.js';
+import { AGENTS, agentsReducer, type AgentRow } from '../../bridges/agents.js';
 import { useChannelOnEach } from '../../bridges/channel.js';
 import { ahpPaths } from '../../bridges/data.js';
 import { refKey, refOf, useEach, useHostNames, useShownHosts } from '../../bridges/hosts.js';
@@ -12,6 +12,7 @@ import { embedMode } from '../../shell/embed/index.js';
 import { ExplorerList, type Dot, type Row } from '../../shell/explorer/ExplorerList.js';
 import { EMOJIcon } from '../emojis.js';
 import { meOn, ownerWord } from '../connectors/actions.js';
+import { useAgentIcons } from './icons.js';
 import { ACTIVE_AGENT } from './state.js';
 import { agentTitle, mergeAgents, type MergedAgent } from './merge.js';
 import { modelsLine, signInOf } from './words.js';
@@ -40,9 +41,7 @@ export default function AgentExplorer(): ReactElement {
   // Records are read only on a host that offers the agents channel; elsewhere every agent is standalone.
   const serving = useServingHosts(hosts, AGENTS.scheme);
   const recordStates = useChannelOnEach<PeopleState<AgentRow>>(serving, AGENTS.channel, agentsReducer).states;
-  // A record with no icon of its own draws its engine's.
-  const servingEngines = useServingHosts(hosts, ENGINES.scheme);
-  const engineStates = useChannelOnEach<PeopleState<EngineRow>>(servingEngines, ENGINES.channel, enginesReducer).states;
+  const iconsOf = useAgentIcons(hosts);
   const offers = useEach<Offers>(hosts.map((host) => ahpPaths(host).offers));
   const active = useStore<{ host: string; provider: string }>(ACTIVE_AGENT);
   const open = (key: string): void => {
@@ -55,7 +54,6 @@ export default function AgentExplorer(): ReactElement {
     () => hosts.flatMap((host, at) => {
       const served = serving.indexOf(host);
       const records = served === -1 ? [] : (recordStates[served]?.records ?? []).map((one) => one.record);
-      const engines = engineStates[servingEngines.indexOf(host)]?.records ?? [];
       const me = meOn(offers[at] ?? NO_OFFERS);
       return mergeAgents(agentLists[at] ?? [], records).map((agent) => {
         const { info, record } = agent;
@@ -66,7 +64,7 @@ export default function AgentExplorer(): ReactElement {
         // A record outside the reader's root list is another owner's: the line names that owner.
         const owner = info === undefined && record !== undefined && agent.status === 'configured' ? ownerWord(t, record.owner, me) : undefined;
         const description = info?.description || record?.description || '';
-        const icons = record === undefined ? undefined : record.icon === undefined ? engines.find((one) => one.id === record.engine)?.record.icons : [record.icon];
+        const icons = iconsOf(host, agent.id);
         return {
           key: refKey(host, agent.id),
           dot: dotOf(agent),
@@ -94,7 +92,7 @@ export default function AgentExplorer(): ReactElement {
       });
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [hosts, serving, agentLists, recordStates, servingEngines, engineStates, sessionLists, offers, hostName, t],
+    [hosts, serving, agentLists, recordStates, iconsOf, sessionLists, offers, hostName, t],
   );
 
   return (

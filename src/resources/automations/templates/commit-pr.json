@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:git-pull-request",
+  "group": "code",
+  "time": "0 18 * * 1-5",
+  "title": {
+    "en": "Commits and pull requests",
+    "pt-BR": "Commits e pull requests",
+    "es": "Commits y pull requests"
+  },
+  "pitch": {
+    "en": "Automate commits and pull requests.",
+    "pt-BR": "Automatize commits e pull requests.",
+    "es": "Automatiza commits y pull requests."
+  },
+  "prompt": {
+    "en": "Turn the finished work in this repository into commits and a draft pull request.\n1. If the current branch is main or master, create a new branch named after the change. Never commit or push to main.\n2. Look at the uncommitted changes. Leave anything half-done or unrelated uncommitted.\n3. Run the tests. If they fail, stop and say what failed in your summary.\n4. Group the finished work into small commits, each with a clear message that says what changed and why.\n5. Push the branch and open a draft pull request describing the change and how it was tested.\nNever merge, force-push or delete files. If you are unsure what belongs together, stop and ask.",
+    "pt-BR": "Transforme o trabalho pronto deste repositório em commits e em um pull request em rascunho.\n1. Se o branch atual for main ou master, crie um branch novo com um nome que descreva a mudança. Nunca faça commit nem push na main.\n2. Veja as alterações sem commit. Deixe de fora o que estiver pela metade ou sem relação.\n3. Rode os testes. Se falharem, pare e conte no resumo o que falhou.\n4. Agrupe o trabalho pronto em commits pequenos, cada um com uma mensagem clara sobre o que mudou e por quê.\n5. Faça push do branch e abra um pull request em rascunho explicando a mudança e como foi testada.\nNunca faça merge, force-push nem apague arquivos. Na dúvida sobre o que vai junto, pare e pergunte.",
+    "es": "Convierte el trabajo terminado de este repositorio en commits y un pull request en borrador.\n1. Si la rama actual es main o master, crea una rama nueva con un nombre que describa el cambio. Nunca hagas commit ni push a main.\n2. Revisa los cambios sin commit. Deja fuera lo que esté a medias o no tenga relación.\n3. Ejecuta los tests. Si fallan, detente y explica en el resumen qué falló.\n4. Agrupa el trabajo terminado en commits pequeños, cada uno con un mensaje claro sobre qué cambió y por qué.\n5. Sube la rama y abre un pull request en borrador que explique el cambio y cómo se probó.\nNunca hagas merge, force-push ni borres archivos. Si no tienes claro qué va junto, detente y pregunta."
+  }
+}

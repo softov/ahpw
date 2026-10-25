@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:moon",
+  "group": "code",
+  "time": "0 2 * * *",
+  "title": {
+    "en": "Nightly test triage",
+    "pt-BR": "Triagem noturna de testes",
+    "es": "Triaje nocturno de tests"
+  },
+  "pitch": {
+    "en": "Triage failing tests overnight.",
+    "pt-BR": "Faça a triagem dos testes à noite.",
+    "es": "Clasifica los tests fallidos de noche."
+  },
+  "prompt": {
+    "en": "Run the test suite of this repository and triage what fails.\n1. Run the full test suite on the current code of the default branch.\n2. If everything passes, write one line saying so and stop.\n3. Group the failures by likely cause: the same error, the same module, or the same recent commit.\n4. Pick the group that hurts most and open an issue for it, or update the issue if one is already open. Include the failing tests, the error, the commit where it likely started and exact steps to reproduce.\n5. Summarize the other groups in your final message.\nDo not fix code, skip tests or change the test setup. Open at most one issue per run.",
+    "pt-BR": "Rode a suíte de testes deste repositório e faça a triagem do que falhar.\n1. Rode todos os testes no código atual do branch principal.\n2. Se tudo passar, escreva uma linha dizendo isso e pare.\n3. Agrupe as falhas pela causa provável: o mesmo erro, o mesmo módulo ou o mesmo commit recente.\n4. Escolha o grupo mais grave e abra uma issue para ele, ou atualize a issue que já estiver aberta. Inclua os testes que falham, o erro, o commit onde o problema deve ter começado e os passos exatos para reproduzir.\n5. Resuma os outros grupos na mensagem final.\nNão corrija código, não pule testes nem mude a configuração deles. Abra no máximo uma issue por execução.",
+    "es": "Ejecuta la suite de tests de este repositorio y clasifica lo que falle.\n1. Ejecuta todos los tests sobre el código actual de la rama principal.\n2. Si todo pasa, escribe una línea diciéndolo y detente.\n3. Agrupa los fallos por causa probable: el mismo error, el mismo módulo o el mismo commit reciente.\n4. Elige el grupo más grave y abre una issue para él, o actualiza la que ya esté abierta. Incluye los tests que fallan, el error, el commit donde probablemente empezó y los pasos exactos para reproducirlo.\n5. Resume los demás grupos en tu mensaje final.\nNo corrijas código, no omitas tests ni cambies su configuración. Abre como máximo una issue por ejecución."
+  }
+}

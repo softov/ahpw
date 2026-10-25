@@ -38,6 +38,7 @@ import { contextReadout, footerSide } from './footer.js';
 import { EMOJIcon } from '../emojis.js';
 import { Pill, TextPill } from './pills.js';
 import { slashCommandsOf } from '../agents/words.js';
+import { useAgentIconSrc } from '../agents/icons.js';
 import { warn } from '../../shell/notify/index.js';
 import { agentCommands, COMPOSER_FOCUS, registerHostCommands } from './host-commands.js';
 
@@ -109,6 +110,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
   const host = multi ? startHost((hostList ?? []).map((one) => one.id), picked) ?? '' : windowHost();
   const hostName = useHostNames();
   const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
+  const iconSrcOf = useAgentIconSrc(useMemo(() => [host], [host]));
   const home = useStore<string | null>(ahpPaths(host).defaultDirectory);
   const [provider, setProvider] = useState(offered ?? '');
   const [folder, setFolder] = useState('');
@@ -307,8 +309,8 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
   }, [pickAgent]);
 
   // What the box's commands read and do: the agent, the model, the settings, Add context. A session not yet made has no turn to stop.
-  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, provider, pickWhere, host, folder, hostList, hostName });
-  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, provider, pickWhere, host, folder, hostList, hostName };
+  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, iconSrcOf, provider, pickWhere, host, folder, hostList, hostName });
+  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, iconSrcOf, provider, pickWhere, host, folder, hostList, hostName };
   // The folder and its host, in one list: the folders used, a host's folder picker, and with every host the hosts to manage.
   useEffect(() => scena.commands.register({
     id: WHERE_COMMAND,
@@ -396,14 +398,18 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
       ctx.host?.pushList({
         title: translate('sessions/new/agent'),
         sentinel: '/agent',
-        items: now.agents.map((one) => ({
-          title: one.displayName,
-          active: one.provider === now.provider,
-          onSelect: (host) => {
-            now.pickAgent(one.provider);
-            host.closeMenu();
-          },
-        })),
+        items: now.agents.map((one): PickerAction => {
+          const iconSrc = now.iconSrcOf(now.host, one.provider);
+          return {
+            title: one.displayName,
+            ...(iconSrc === undefined ? {} : { iconSrc }),
+            active: one.provider === now.provider,
+            onSelect: (host) => {
+              now.pickAgent(one.provider);
+              host.closeMenu();
+            },
+          };
+        }),
       });
     },
   }).dispose, [scena]);
@@ -483,7 +489,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
         {trayOpen ? (
           <div className="web-composer__where web-new__tray">
             {wherePill}
-            <Pill label={agentLabel} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
+            <Pill label={agentLabel} image={iconSrcOf(host, provider)} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
             <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label={t('sessions/new/fold')} title={t('sessions/new/fold')} onClick={() => foldTray(false)}>
               {EMOJIcon.caretDown}
             </button>

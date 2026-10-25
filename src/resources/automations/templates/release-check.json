@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:rocket",
+  "group": "code",
+  "time": "0 14 * * 5",
+  "title": {
+    "en": "Pre-release checks",
+    "pt-BR": "Checagem antes do release",
+    "es": "Revisión antes de publicar"
+  },
+  "prompt": {
+    "en": "Check whether this repository is ready for a release.\n1. On the default branch, run the build, the full test suite and the linter.\n2. Check that the version number changed since the last tag and is the same in every file that holds it.\n3. Check that the changelog has an entry for this version that covers the merged work.\n4. Look for leftovers: debug logging, skipped tests, TODOs added since the last tag.\n5. Write release-check.md with two lists: what failed, with the error, and what needs a person to decide.\nDo not fix anything, bump versions, tag or publish. Report only.",
+    "pt-BR": "Verifique se este repositório está pronto para um release.\n1. No branch principal, rode o build, todos os testes e o linter.\n2. Confira se o número de versão mudou desde a última tag e se é o mesmo em todos os arquivos que o guardam.\n3. Confira se o changelog tem uma entrada para esta versão que cubra o que foi integrado.\n4. Procure sobras: logs de depuração, testes pulados, TODOs adicionados desde a última tag.\n5. Escreva release-check.md com duas listas: o que falhou, com o erro, e o que precisa da decisão de uma pessoa.\nNão corrija nada, não mude versões, não crie tags nem publique. Só relate.",
+    "es": "Comprueba si este repositorio está listo para una release.\n1. En la rama principal, ejecuta el build, todos los tests y el linter.\n2. Comprueba que el número de versión cambió desde la última etiqueta y que es el mismo en todos los archivos que lo guardan.\n3. Comprueba que el changelog tiene una entrada para esta versión que cubre lo integrado.\n4. Busca restos: logs de depuración, tests omitidos, TODOs añadidos desde la última etiqueta.\n5. Escribe release-check.md con dos listas: lo que falló, con el error, y lo que necesita que una persona decida.\nNo corrijas nada, no cambies versiones, no crees etiquetas ni publiques. Solo informa."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:list",
+  "group": "code",
+  "time": "0 9 1 * *",
+  "title": {
+    "en": "TODO sweep",
+    "pt-BR": "Varredura de TODOs",
+    "es": "Repaso de TODOs"
+  },
+  "prompt": {
+    "en": "Collect the TODO, FIXME and HACK comments in this repository and help decide what to tackle.\n1. Search the tracked files for these markers. Skip vendored code, build output and dependencies.\n2. Use git blame to find when each one was added and by whom.\n3. Group them by area (folder or module) and by age: under a month, under a year, older.\n4. Write todo-sweep-YYYY-MM.md with the groups and counts, then the top 5 to tackle, each with why it matters and a rough size.\nPrefer items that hide bugs or block other work over cosmetic ones. Do not edit or remove any comment and do not commit.",
+    "pt-BR": "Reúna os comentários TODO, FIXME e HACK deste repositório e ajude a decidir o que atacar.\n1. Procure essas marcas nos arquivos versionados. Ignore código de terceiros, saída de build e dependências.\n2. Use git blame para saber quando cada uma foi adicionada e por quem.\n3. Agrupe por área (pasta ou módulo) e por idade: menos de um mês, menos de um ano, mais antigas.\n4. Escreva todo-sweep-AAAA-MM.md com os grupos e as contagens e depois os 5 principais a atacar, cada um com o motivo e um tamanho aproximado.\nPrefira itens que escondem bugs ou travam outro trabalho aos cosméticos. Não edite nem remova comentários e não faça commit.",
+    "es": "Reúne los comentarios TODO, FIXME y HACK de este repositorio y ayuda a decidir qué abordar.\n1. Busca esas marcas en los archivos versionados. Omite código de terceros, salida de build y dependencias.\n2. Usa git blame para saber cuándo se añadió cada una y quién lo hizo.\n3. Agrúpalas por área (carpeta o módulo) y por antigüedad: menos de un mes, menos de un año, más antiguas.\n4. Escribe todo-sweep-AAAA-MM.md con los grupos y los recuentos y luego los 5 principales a abordar, cada uno con su motivo y un tamaño aproximado.\nPrioriza lo que oculta bugs o bloquea otro trabajo frente a lo cosmético. No edites ni borres comentarios y no hagas commit."
+  }
+}

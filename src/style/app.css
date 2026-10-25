@@ -476,6 +476,29 @@
   width: 100%;
 }
 
+/* The automation form's agent field: a button that opens the agents with their icons. */
+.web-agent-field {
+  display: flex;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+  text-align: start;
+  cursor: pointer;
+}
+
+.web-agent-field__image {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.web-agent-field__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .web-composer {
   position: relative;
   flex: none;
@@ -652,6 +675,12 @@
 .web-chip__short,
 .web-chip__icon {
   display: none;
+}
+
+.web-chip__image {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
 }
 
 @container composer (width < 40rem) {

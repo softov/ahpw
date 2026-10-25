@@ -1,6 +1,8 @@
-import { useState, type ReactElement } from 'react';
+import { useMemo, useRef, useState, type ReactElement } from 'react';
+import { getLocale } from '@softov/scena';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, Spinner, Text } from '@softov/scena/ui';
+import { Button, ContextMenu, Spinner, Text } from '@softov/scena/ui';
+import type { PickerAction } from '@softov/scena/types';
 import {
   automationReducer,
   type AgentInfo,
@@ -18,6 +20,10 @@ import { cronWords, definitionOf, draftOf, draftProblem, type Draft } from './wo
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { Field } from '../../shell/view/Field.js';
 import { plural } from '../../i18n/locales.js';
+import { useAgentIconSrc } from '../agents/icons.js';
+import { EMOJIcon } from '../emojis.js';
+import { confirm } from '../../shell/notify/confirm.js';
+import { templatesIn, type AutomationTemplate } from './templates.js';
 
 /** Schedules most people want, so a cron expression is something to read rather than write. */
 const PRESETS: { key: string; expression: string }[] = [
@@ -29,6 +35,98 @@ const PRESETS: { key: string; expression: string }[] = [
   { key: 'weekdaysAt9', expression: '0 9 * * 1-5' },
   { key: 'mondayAt5', expression: '0 5 * * 1' },
 ];
+
+/** The agent an automation runs with, picked from a list that draws each agent's icon; empty is the host's default. */
+function AgentField({ host, agents, value, onChange }: { host: string; agents: readonly AgentInfo[]; value: string; onChange: (provider: string) => void }): ReactElement {
+  const { t } = useI18n();
+  const iconSrcOf = useAgentIconSrc(useMemo(() => [host], [host]));
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const agent = agents.find((one) => one.provider === value);
+  const image = value === '' ? undefined : iconSrcOf(host, value);
+  const pick = (provider: string) => (list: { closeMenu: () => void }): void => {
+    list.closeMenu();
+    onChange(provider);
+  };
+  return (
+    <>
+      <button
+        type="button"
+        className="web-field web-agent-field"
+        aria-haspopup="menu"
+        aria-expanded={menu !== null}
+        onClick={(event) => {
+          const box = event.currentTarget.getBoundingClientRect();
+          setMenu({ x: box.left, y: box.bottom });
+        }}
+      >
+        {image === undefined ? null : <img className="web-agent-field__image" src={image} alt="" />}
+        <span className="web-agent-field__label">{value === '' ? t('automations/defaults/host') : agent?.displayName ?? value}</span>
+        <span aria-hidden="true">{EMOJIcon.caretDown}</span>
+      </button>
+      {menu === null ? null : (
+        <ContextMenu
+          spec={{
+            items: [
+              { title: t('automations/defaults/host'), active: value === '', onSelect: pick('') },
+              ...agents.map((one): PickerAction => {
+                const iconSrc = iconSrcOf(host, one.provider);
+                return { title: one.displayName, ...(iconSrc === undefined ? {} : { iconSrc }), active: one.provider === value, onSelect: pick(one.provider) };
+              }),
+            ],
+          }}
+          x={menu.x}
+          y={menu.y}
+          onClose={() => setMenu(null)}
+        />
+      )}
+    </>
+  );
+}
+
+/** A button that lists the examples and hands back the one picked, asking first when it would replace what was typed. */
+function ExamplesButton({ dirty, onPick }: { dirty: boolean; onPick: (template: AutomationTemplate) => void }): ReactElement {
+  const { t } = useI18n();
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const anchor = useRef<HTMLDivElement>(null);
+  const take = (template: AutomationTemplate) => (list: { closeMenu: () => void }): void => {
+    list.closeMenu();
+    if (!dirty) {
+      onPick(template);
+      return;
+    }
+    void confirm({ title: t('automations/edit/examples/replace'), body: t('automations/edit/examples/replaceNote'), confirmLabel: t('automations/edit/examples/replaceYes'), cancelLabel: t('automations/edit/examples/replaceNo') })
+      .then((yes) => { if (yes) onPick(template); });
+  };
+  // The menu sits inside the anchor: a page's own children take its gutter as a margin.
+  return (
+    <div ref={anchor}>
+      <Button
+        label={`${t('automations/edit/examples/open')} ${EMOJIcon.caretDown}`}
+        onClick={() => {
+          const box = anchor.current?.getBoundingClientRect();
+          if (box !== undefined) setMenu({ x: box.left, y: box.bottom });
+        }}
+      />
+      {menu === null ? null : (
+        <ContextMenu
+          spec={{
+            rich: true,
+            items: templatesIn(getLocale()).map((one) => ({
+              title: one.title,
+              description: cronWords(one.expression),
+              icon: one.emoji,
+              group: t(`automations/edit/examples/${one.group}`),
+              onSelect: take(one),
+            })),
+          }}
+          x={menu.x}
+          y={menu.y}
+          onClose={() => setMenu(null)}
+        />
+      )}
+    </div>
+  );
+}
 
 /** Creates an automation, or edits the one named by `resource`. */
 export default function AutomationEditPage({ host: opened, resource }: { host: string; resource?: string }): ReactElement {
@@ -85,6 +183,13 @@ export default function AutomationEditPage({ host: opened, resource }: { host: s
         </Field>
       ) : null}
 
+      {entry === undefined ? (
+        <ExamplesButton
+          dirty={shown.title.trim() !== '' || shown.message.trim() !== '' || shown.expression.trim() !== ''}
+          onPick={(template) => set({ title: template.title, message: template.prompt, expression: template.expression })}
+        />
+      ) : null}
+
       <Field label={t('automations/edit/title')}>
         <input className="web-field" value={shown.title} onChange={(event) => set({ title: event.target.value })} />
       </Field>
@@ -95,10 +200,7 @@ export default function AutomationEditPage({ host: opened, resource }: { host: s
 
       <div className="web-form__row">
         <Field label={t('automations/edit/agent')}>
-          <select className="web-field" value={shown.provider} onChange={(event) => set({ provider: event.target.value, model: '' })}>
-            <option value="">{t('automations/defaults/host')}</option>
-            {agents.map((one) => <option key={one.provider} value={one.provider}>{one.displayName}</option>)}
-          </select>
+          <AgentField host={host} agents={agents} value={shown.provider} onChange={(provider) => set({ provider, model: '' })} />
         </Field>
         <Field label={t('automations/edit/model')}>
           <select className="web-field" value={shown.model} onChange={(event) => set({ model: event.target.value })}>
@@ -143,7 +245,7 @@ export default function AutomationEditPage({ host: opened, resource }: { host: s
 
       <div className="web-form__row">
         <Field label={t('automations/edit/afterRuns')} hint={t('automations/edit/keepsOn')}>
-          <input className="web-field" inputMode="numeric" value={shown.afterRuns} onChange={(event) => set({ afterRuns: event.target.value })} />
+          <input className="web-field" type="number" min={1} step={1} value={shown.afterRuns} onChange={(event) => set({ afterRuns: event.target.value })} />
         </Field>
         <Field label={t('automations/edit/afterDate')} hint={t('automations/edit/keepsOn')}>
           <input className="web-field" type="date" value={shown.afterDate} onChange={(event) => set({ afterDate: event.target.value })} />

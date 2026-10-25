@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:receipt",
+  "group": "everyday",
+  "time": "0 9 1 * *",
+  "title": {
+    "en": "Monthly receipts",
+    "pt-BR": "Recibos do mês",
+    "es": "Recibos del mes"
+  },
+  "pitch": {
+    "en": "Sum up the month's receipts.",
+    "pt-BR": "Some os recibos do mês.",
+    "es": "Suma los recibos del mes."
+  },
+  "prompt": {
+    "en": "Gather last month's receipts and invoices in this folder into one summary.\n1. Find the PDFs and images of receipts and invoices dated last month.\n2. Read each one and get the date, the vendor, the total amount and the currency.\n3. Write receipts-YYYY-MM.csv with the columns date, vendor, amount, currency, file, sorted by date.\n4. Flag likely duplicates: the same vendor and amount on the same day, or the same receipt saved twice.\n5. Finish with the total per currency and the files you could not read.\nDo not rename, move or delete the receipts. When a number is hard to read, leave it empty and mark the row for me to check. Never guess.",
+    "pt-BR": "Reúna os recibos e notas fiscais do mês passado desta pasta em um único resumo.\n1. Encontre os PDFs e as imagens de recibos e notas com data do mês passado.\n2. Leia cada um e anote a data, o fornecedor, o valor total e a moeda.\n3. Escreva recibos-AAAA-MM.csv com as colunas data, fornecedor, valor, moeda, arquivo, em ordem de data.\n4. Marque os prováveis duplicados: mesmo fornecedor e valor no mesmo dia, ou o mesmo recibo salvo duas vezes.\n5. No fim, dê o total por moeda e liste os arquivos que não conseguiu ler.\nNão renomeie, não mova e não apague os recibos. Se um valor estiver ilegível, deixe em branco e marque a linha para eu conferir. Nunca chute.",
+    "es": "Reúne los recibos y facturas del mes pasado de esta carpeta en un solo resumen.\n1. Encuentra los PDF y las imágenes de recibos y facturas con fecha del mes pasado.\n2. Lee cada uno y anota la fecha, el proveedor, el importe total y la moneda.\n3. Escribe recibos-AAAA-MM.csv con las columnas fecha, proveedor, importe, moneda, archivo, ordenado por fecha.\n4. Marca los posibles duplicados: mismo proveedor e importe el mismo día, o el mismo recibo guardado dos veces.\n5. Al final, da el total por moneda y lista los archivos que no pudiste leer.\nNo renombres, muevas ni borres los recibos. Si un importe no se lee bien, déjalo vacío y marca la fila para que la revise. Nunca adivines."
+  }
+}

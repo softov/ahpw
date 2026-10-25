@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:eye",
+  "group": "code",
+  "time": "0 9 * * 1-5",
+  "title": {
+    "en": "Review yesterday's commits",
+    "pt-BR": "Revisar os commits de ontem",
+    "es": "Revisar los commits de ayer"
+  },
+  "pitch": {
+    "en": "Get a review of every new commit.",
+    "pt-BR": "Receba uma revisão de cada commit novo.",
+    "es": "Recibe una revisión de cada commit nuevo."
+  },
+  "prompt": {
+    "en": "Review the commits made to this repository since yesterday morning.\n1. Fetch the latest changes without touching any branch, then list the commits since yesterday on the active branches.\n2. Read each diff. Look for bugs, risky changes (security, data loss, migrations, config), missing or weakened tests, and code that is hard to follow.\n3. Write reviews/review-YYYY-MM-DD.md with one section per commit: hash, author, a one-line summary and your findings, most serious first.\n4. End with a short list of what a person should look at today.\nDo not change code, push, commit the report or comment on pull requests. If there are no new commits, say so in one line.",
+    "pt-BR": "Revise os commits feitos neste repositório desde ontem de manhã.\n1. Busque as últimas alterações sem mexer em nenhum branch e liste os commits desde ontem nos branches ativos.\n2. Leia cada diff. Procure bugs, mudanças arriscadas (segurança, perda de dados, migrações, configuração), testes ausentes ou enfraquecidos e código difícil de entender.\n3. Escreva reviews/review-AAAA-MM-DD.md com uma seção por commit: hash, autor, resumo em uma linha e o que encontrou, do mais grave ao mais leve.\n4. Termine com uma lista curta do que alguém precisa olhar hoje.\nNão altere código, não faça push, não faça commit do relatório e não comente em pull requests. Sem commits novos, diga isso em uma linha.",
+    "es": "Revisa los commits hechos en este repositorio desde ayer por la mañana.\n1. Trae los últimos cambios sin tocar ninguna rama y lista los commits desde ayer en las ramas activas.\n2. Lee cada diff. Busca bugs, cambios arriesgados (seguridad, pérdida de datos, migraciones, configuración), tests que faltan o se debilitaron y código difícil de seguir.\n3. Escribe reviews/review-AAAA-MM-DD.md con una sección por commit: hash, autor, resumen de una línea y lo que encontraste, de lo más grave a lo más leve.\n4. Termina con una lista corta de lo que alguien debería mirar hoy.\nNo cambies código, no hagas push, no hagas commit del informe ni comentes en pull requests. Si no hay commits nuevos, dilo en una línea."
+  }
+}

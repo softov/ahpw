@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:journal",
+  "group": "everyday",
+  "time": "0 17 * * 5",
+  "title": {
+    "en": "Weekly review",
+    "pt-BR": "Revisão semanal",
+    "es": "Repaso semanal"
+  },
+  "pitch": {
+    "en": "Close the week with a short review.",
+    "pt-BR": "Feche a semana com uma revisão curta.",
+    "es": "Cierra la semana con un breve repaso."
+  },
+  "prompt": {
+    "en": "Help me close the week using the notes and journal files in this folder.\n1. Read the notes, journal entries and to-do files changed since last Saturday.\n2. Summarize the week in five to eight lines: what got done, what moved forward, what went sideways.\n3. List the open loops: things started but not finished, promises to other people, questions still waiting on an answer.\n4. Suggest three priorities for next week, each with one line on why.\n5. Write it all to weekly-review-YYYY-MM-DD.md in plain, friendly words.\nDo not edit or move my notes. If the week looks empty, say so briefly instead of making things up.",
+    "pt-BR": "Me ajude a fechar a semana usando as notas e os diários desta pasta.\n1. Leia as notas, as entradas do diário e as listas de tarefas alteradas desde o último sábado.\n2. Resuma a semana em cinco a oito linhas: o que foi feito, o que avançou e o que saiu do rumo.\n3. Liste as pontas soltas: coisas começadas e não terminadas, promessas feitas a outras pessoas, perguntas ainda sem resposta.\n4. Sugira três prioridades para a próxima semana, cada uma com uma linha explicando por quê.\n5. Escreva tudo em revisao-semanal-AAAA-MM-DD.md, com palavras simples e leves.\nNão edite nem mova minhas notas. Se a semana parecer vazia, diga isso em poucas palavras em vez de inventar.",
+    "es": "Ayúdame a cerrar la semana con las notas y los diarios de esta carpeta.\n1. Lee las notas, las entradas del diario y las listas de tareas modificadas desde el sábado pasado.\n2. Resume la semana en cinco a ocho líneas: lo que se hizo, lo que avanzó y lo que se torció.\n3. Lista los cabos sueltos: cosas empezadas y sin terminar, promesas a otras personas, preguntas que siguen sin respuesta.\n4. Sugiere tres prioridades para la próxima semana, cada una con una línea sobre por qué.\n5. Escríbelo todo en repaso-semanal-AAAA-MM-DD.md, con palabras sencillas y cercanas.\nNo edites ni muevas mis notas. Si la semana parece vacía, dilo en pocas palabras en lugar de inventar."
+  }
+}

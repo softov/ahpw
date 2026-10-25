@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:pricetags",
+  "group": "code",
+  "time": "30 8 * * 1-5",
+  "title": {
+    "en": "Triage new issues",
+    "pt-BR": "Triagem de issues novas",
+    "es": "Triaje de issues nuevas"
+  },
+  "pitch": {
+    "en": "Keep new issues labeled and sorted.",
+    "pt-BR": "Mantenha as issues novas organizadas.",
+    "es": "Mantén las issues nuevas ordenadas."
+  },
+  "prompt": {
+    "en": "Triage the issues opened on this repository since the last run.\n1. Read each new issue and the labels this project already uses. Do not create new labels.\n2. Add the labels that fit: type, area, and priority when it is clear.\n3. Search open and closed issues for duplicates. When you find one, comment with a link to it, but do not close the issue.\n4. If a bug report lacks steps, versions or logs, leave one polite comment asking for exactly what is missing.\n5. List the issues that need a decision from a person in your summary.\nNever close, assign or lock issues. When unsure about a label, leave it off.",
+    "pt-BR": "Faça a triagem das issues abertas neste repositório desde a última execução.\n1. Leia cada issue nova e as labels que o projeto já usa. Não crie labels novas.\n2. Aplique as labels que se encaixam: tipo, área e prioridade quando estiver claro.\n3. Procure duplicadas entre as issues abertas e fechadas. Ao achar uma, comente com o link dela, mas não feche a issue.\n4. Se um relato de bug não tiver passos, versões ou logs, deixe um comentário educado pedindo exatamente o que falta.\n5. No resumo, liste as issues que precisam da decisão de uma pessoa.\nNunca feche, atribua nem bloqueie issues. Na dúvida sobre uma label, não a aplique.",
+    "es": "Clasifica las issues abiertas en este repositorio desde la última ejecución.\n1. Lee cada issue nueva y las etiquetas que el proyecto ya usa. No crees etiquetas nuevas.\n2. Añade las etiquetas que correspondan: tipo, área y prioridad cuando esté claro.\n3. Busca duplicadas entre las issues abiertas y cerradas. Si encuentras una, comenta con su enlace, pero no cierres la issue.\n4. Si a un reporte de bug le faltan pasos, versiones o logs, deja un comentario amable pidiendo justo lo que falta.\n5. En el resumen, lista las issues que necesitan la decisión de una persona.\nNunca cierres, asignes ni bloquees issues. Si dudas de una etiqueta, no la pongas."
+  }
+}

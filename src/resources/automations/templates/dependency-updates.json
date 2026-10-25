@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:cube",
+  "group": "code",
+  "time": "0 8 * * 1",
+  "title": {
+    "en": "Update dependencies",
+    "pt-BR": "Atualizar dependências",
+    "es": "Actualizar dependencias"
+  },
+  "pitch": {
+    "en": "Keep your dependencies up to date.",
+    "pt-BR": "Mantenha as dependências em dia.",
+    "es": "Mantén tus dependencias al día."
+  },
+  "prompt": {
+    "en": "Keep the dependencies of this repository current.\n1. Detect the package manager and list the outdated packages.\n2. Create a branch named deps/YYYY-MM-DD from the default branch. Never work on main.\n3. Update patch and minor versions only, with the project's own tool so the lockfile stays consistent.\n4. Run the build and the tests. If something fails, undo the update that caused it and note it.\n5. Commit, push the branch and open a draft pull request listing each update with its old and new version.\n6. List major updates separately in the pull request, with a link to their changelog, without applying them.\nNever merge the pull request.",
+    "pt-BR": "Mantenha as dependências deste repositório atualizadas.\n1. Identifique o gerenciador de pacotes e liste os pacotes desatualizados.\n2. Crie um branch chamado deps/AAAA-MM-DD a partir do branch principal. Nunca trabalhe na main.\n3. Atualize só versões patch e minor, com a ferramenta do próprio projeto para o lockfile continuar consistente.\n4. Rode o build e os testes. Se algo falhar, desfaça a atualização que causou a falha e anote.\n5. Faça commit, push do branch e abra um pull request em rascunho listando cada atualização com a versão antiga e a nova.\n6. Liste as atualizações major à parte no pull request, com link para o changelog, sem aplicá-las.\nNunca faça merge do pull request.",
+    "es": "Mantén al día las dependencias de este repositorio.\n1. Detecta el gestor de paquetes y lista los paquetes desactualizados.\n2. Crea una rama llamada deps/AAAA-MM-DD desde la rama principal. Nunca trabajes en main.\n3. Actualiza solo versiones patch y minor, con la herramienta del propio proyecto para que el lockfile siga siendo coherente.\n4. Ejecuta el build y los tests. Si algo falla, deshaz la actualización que lo causó y anótalo.\n5. Haz commit, sube la rama y abre un pull request en borrador con cada actualización y su versión anterior y nueva.\n6. Lista aparte en el pull request las actualizaciones major, con enlace a su changelog, sin aplicarlas.\nNunca hagas merge del pull request."
+  }
+}

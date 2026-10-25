@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:book",
+  "group": "code",
+  "time": "0 10 15 * *",
+  "title": {
+    "en": "Check docs against code",
+    "pt-BR": "Conferir docs com o código",
+    "es": "Contrastar docs con el código"
+  },
+  "prompt": {
+    "en": "Find where the README and docs of this repository no longer match the code.\n1. Read the README and the docs. List every command, flag, config option, environment variable and API they mention.\n2. Check each one against the code: does it exist, is it spelled the same, does it take the same arguments and defaults?\n3. Note what the code has that the docs never mention, when users would need it.\n4. Write docs-drift.md with each mismatch, the file and line in the docs, and what the code says.\n5. Fix the clear cases on a new branch and open a draft pull request. Leave anything unclear in the report.\nNever push to main or change code to match the docs.",
+    "pt-BR": "Descubra onde o README e a documentação deste repositório não batem mais com o código.\n1. Leia o README e a documentação. Liste cada comando, flag, opção de configuração, variável de ambiente e API citados.\n2. Confira cada um no código: existe, tem o mesmo nome, recebe os mesmos argumentos e valores padrão?\n3. Anote o que o código tem e a documentação nunca menciona, quando o usuário precisaria saber.\n4. Escreva docs-drift.md com cada divergência, o arquivo e a linha na documentação e o que o código diz.\n5. Corrija os casos claros em um branch novo e abra um pull request em rascunho. Deixe o que for incerto só no relatório.\nNunca faça push na main nem mude o código para bater com a documentação.",
+    "es": "Encuentra dónde el README y la documentación de este repositorio ya no coinciden con el código.\n1. Lee el README y la documentación. Lista cada comando, flag, opción de configuración, variable de entorno y API que mencionan.\n2. Contrasta cada uno con el código: ¿existe, se escribe igual, recibe los mismos argumentos y valores por defecto?\n3. Anota lo que el código tiene y la documentación nunca menciona, cuando el usuario lo necesitaría.\n4. Escribe docs-drift.md con cada diferencia, el archivo y la línea en la documentación y lo que dice el código.\n5. Corrige los casos claros en una rama nueva y abre un pull request en borrador. Deja lo dudoso solo en el informe.\nNunca hagas push a main ni cambies el código para que coincida con la documentación."
+  }
+}

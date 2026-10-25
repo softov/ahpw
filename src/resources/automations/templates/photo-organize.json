@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:images",
+  "group": "everyday",
+  "time": "0 11 1 * *",
+  "title": {
+    "en": "Organize photos",
+    "pt-BR": "Organizar fotos",
+    "es": "Organizar fotos"
+  },
+  "prompt": {
+    "en": "Organize the new photos in this folder by date.\n1. Find the photos and videos at the top level of this folder. Leave the year folders already in place alone.\n2. Read the date taken from each file's metadata. If there is none, use the file date and note it.\n3. Move each one into a YYYY/MM folder, for example 2026/09. If a name is taken, add a number. Never overwrite.\n4. Find exact duplicates by comparing file content, not names, and move them to a Duplicates folder for me to review.\n5. Write photos-log.md with how many files moved, which used the file date, and the duplicates found.\nNever delete anything.",
+    "pt-BR": "Organize por data as fotos novas desta pasta.\n1. Encontre as fotos e os vídeos soltos na raiz desta pasta. Não mexa nas pastas de ano que já existem.\n2. Leia a data em que cada foto foi tirada nos metadados do arquivo. Se não houver, use a data do arquivo e anote.\n3. Mova cada uma para uma pasta AAAA/MM, por exemplo 2026/09. Se o nome já existir, acrescente um número. Nunca sobrescreva.\n4. Encontre duplicatas exatas comparando o conteúdo, não o nome, e mova para uma pasta Duplicadas para eu revisar.\n5. Escreva photos-log.md com quantos arquivos foram movidos, quais usaram a data do arquivo e as duplicatas encontradas.\nNunca apague nada.",
+    "es": "Organiza por fecha las fotos nuevas de esta carpeta.\n1. Encuentra las fotos y los vídeos sueltos en la raíz de esta carpeta. No toques las carpetas de año que ya existen.\n2. Lee la fecha en que se tomó cada foto en los metadatos del archivo. Si no la hay, usa la fecha del archivo y anótalo.\n3. Mueve cada una a una carpeta AAAA/MM, por ejemplo 2026/09. Si el nombre ya existe, añade un número. Nunca sobrescribas.\n4. Encuentra duplicados exactos comparando el contenido, no el nombre, y muévelos a una carpeta Duplicados para que los revise.\n5. Escribe photos-log.md con cuántos archivos se movieron, cuáles usaron la fecha del archivo y los duplicados encontrados.\nNunca borres nada."
+  }
+}

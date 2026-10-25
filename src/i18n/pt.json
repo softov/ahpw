@@ -620,6 +620,15 @@
     "edit": {
       "noCreate": "Este host não permite que clientes criem automações.",
       "host": "Host",
+      "examples": {
+        "open": "Exemplos",
+        "code": "Para código",
+        "everyday": "Dia a dia",
+        "replace": "Substituir o que você escreveu?",
+        "replaceNote": "Isso substitui o título, a mensagem e o agendamento.",
+        "replaceYes": "Substituir",
+        "replaceNo": "Manter o meu"
+      },
       "title": "Título",
       "message": "Mensagem",
       "messageHint": "O que é dito ao agente a cada execução.",

@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:bug",
+  "group": "code",
+  "time": "0 7 * * 1",
+  "title": {
+    "en": "Find weekend bugs",
+    "pt-BR": "Bugs do fim de semana",
+    "es": "Bugs del fin de semana"
+  },
+  "pitch": {
+    "en": "Catch weekend bugs first thing Monday.",
+    "pt-BR": "Pegue os bugs do fim de semana cedo.",
+    "es": "Detecta los bugs del fin de semana."
+  },
+  "prompt": {
+    "en": "Find what may have broken in this repository since Friday.\n1. List the commits merged since Friday afternoon, the CI runs since then with their results, and the issues opened since Friday.\n2. If there are error logs in this folder or linked from the README, read the entries since Friday.\n3. Connect the signals: a failing CI run, a new error or a new bug report that lines up with a specific commit.\n4. Write weekend-bugs-YYYY-MM-DD.md with the likely regressions ranked by impact, each with its evidence and the commit you suspect.\nDo not revert, fix or push anything. Say clearly when a link is a guess and not proven.",
+    "pt-BR": "Descubra o que pode ter quebrado neste repositório desde sexta-feira.\n1. Liste os commits integrados desde sexta à tarde, as execuções de CI desde então com seus resultados e as issues abertas desde sexta.\n2. Se houver logs de erro nesta pasta ou citados no README, leia as entradas desde sexta.\n3. Ligue os sinais: um CI que falhou, um erro novo ou um bug relatado que coincida com um commit específico.\n4. Escreva weekend-bugs-AAAA-MM-DD.md com as prováveis regressões por ordem de impacto, cada uma com a evidência e o commit suspeito.\nNão reverta, não corrija e não faça push de nada. Deixe claro quando uma ligação é palpite e não está comprovada.",
+    "es": "Averigua qué pudo romperse en este repositorio desde el viernes.\n1. Lista los commits integrados desde el viernes por la tarde, las ejecuciones de CI desde entonces con sus resultados y las issues abiertas desde el viernes.\n2. Si hay logs de errores en esta carpeta o enlazados desde el README, lee las entradas desde el viernes.\n3. Relaciona las señales: un CI que falló, un error nuevo o un bug reportado que coincida con un commit concreto.\n4. Escribe weekend-bugs-AAAA-MM-DD.md con las regresiones probables ordenadas por impacto, cada una con su evidencia y el commit sospechoso.\nNo reviertas, no corrijas ni hagas push de nada. Aclara cuando una relación es una suposición y no está probada."
+  }
+}

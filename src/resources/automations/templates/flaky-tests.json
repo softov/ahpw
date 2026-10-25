@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:shuffle",
+  "group": "code",
+  "time": "0 3 * * 3",
+  "title": {
+    "en": "Find flaky tests",
+    "pt-BR": "Achar testes instáveis",
+    "es": "Encontrar tests inestables"
+  },
+  "prompt": {
+    "en": "Find tests in this repository that pass and fail without any code change.\n1. Run the full test suite five times in a row on the same commit. If the suite is slow, run it three times.\n2. Record every test that failed at least once but not every time.\n3. For each one, note how often it failed, the error messages and the likely cause: timing, test order, shared state, network or dates.\n4. Write flaky-tests-YYYY-MM-DD.md with the list, most frequent first, and the evidence for each.\nDo not change, skip or retry tests in the code, and do not commit anything. If the whole suite fails every time, stop and report that instead.",
+    "pt-BR": "Encontre testes deste repositório que passam e falham sem nenhuma mudança no código.\n1. Rode a suíte completa cinco vezes seguidas no mesmo commit. Se ela for lenta, rode três vezes.\n2. Anote cada teste que falhou pelo menos uma vez, mas não em todas.\n3. Para cada um, registre com que frequência falhou, as mensagens de erro e a causa provável: tempo, ordem dos testes, estado compartilhado, rede ou datas.\n4. Escreva flaky-tests-AAAA-MM-DD.md com a lista, dos mais frequentes aos menos, e a evidência de cada um.\nNão altere, não pule nem repita testes no código, e não faça commit de nada. Se a suíte inteira falhar sempre, pare e relate isso.",
+    "es": "Encuentra tests de este repositorio que pasan y fallan sin ningún cambio en el código.\n1. Ejecuta la suite completa cinco veces seguidas sobre el mismo commit. Si es lenta, ejecútala tres veces.\n2. Anota cada test que falló al menos una vez, pero no todas.\n3. Para cada uno, registra con qué frecuencia falló, los mensajes de error y la causa probable: tiempos, orden de los tests, estado compartido, red o fechas.\n4. Escribe flaky-tests-AAAA-MM-DD.md con la lista, de los más frecuentes a los menos, y la evidencia de cada uno.\nNo cambies, omitas ni reintentes tests en el código, y no hagas commit de nada. Si toda la suite falla siempre, detente e infórmalo."
+  }
+}

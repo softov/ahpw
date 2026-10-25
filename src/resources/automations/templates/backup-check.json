@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:cloud-done",
+  "group": "everyday",
+  "time": "0 20 * * 0",
+  "title": {
+    "en": "Backup check",
+    "pt-BR": "Conferir backups",
+    "es": "Revisar copias de seguridad"
+  },
+  "prompt": {
+    "en": "Check that the backups in this folder are healthy.\n1. List the backup files and folders here with their date and size.\n2. Flag anything empty, anything that shrank by more than 20% since the last check, and the newest backup if it is older than a week.\n3. If backup-check.log exists from before, compare against it. Then add today's list to the end of that log so the next run can compare.\n4. Start your summary with one line: all good, or what needs attention.\nDo not delete, move, open or restore any backup. Only read sizes and dates, and append to backup-check.log.",
+    "pt-BR": "Verifique se os backups desta pasta estão em bom estado.\n1. Liste os arquivos e pastas de backup daqui com data e tamanho.\n2. Aponte o que estiver vazio, o que encolheu mais de 20% desde a última verificação e o backup mais novo se ele tiver mais de uma semana.\n3. Se já existir um backup-check.log, compare com ele. Depois acrescente a lista de hoje ao fim desse log para a próxima execução poder comparar.\n4. Comece o resumo com uma linha: tudo certo, ou o que precisa de atenção.\nNão apague, não mova, não abra e não restaure nenhum backup. Só leia tamanhos e datas e acrescente ao backup-check.log.",
+    "es": "Comprueba que las copias de seguridad de esta carpeta están en buen estado.\n1. Lista los archivos y carpetas de copia de seguridad de aquí con su fecha y tamaño.\n2. Señala lo que esté vacío, lo que se haya reducido más de un 20% desde la última revisión y la copia más reciente si tiene más de una semana.\n3. Si ya existe un backup-check.log, compara con él. Luego añade la lista de hoy al final de ese log para que la próxima ejecución pueda comparar.\n4. Empieza el resumen con una línea: todo bien, o lo que necesita atención.\nNo borres, muevas, abras ni restaures ninguna copia. Solo lee tamaños y fechas y añade al backup-check.log."
+  }
+}

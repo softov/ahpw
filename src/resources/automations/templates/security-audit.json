@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:shield-checkmark",
+  "group": "code",
+  "time": "0 6 * * 3",
+  "title": {
+    "en": "Security audit",
+    "pt-BR": "Auditoria de segurança",
+    "es": "Auditoría de seguridad"
+  },
+  "prompt": {
+    "en": "Check this repository for known vulnerabilities and leaked secrets.\n1. Run the audit tool of the package manager (npm audit, pip-audit, cargo audit or similar) and collect the advisories with their severity.\n2. Search the code and the git history for secrets: API keys, tokens, passwords, private keys and committed .env files.\n3. Write security-audit-YYYY-MM-DD.md with each finding, its severity, where it is and the suggested fix. Mask any secret you find; never copy it in full.\n4. If a fix is a safe version bump, make it on a new branch and open a draft pull request. Change nothing else.\nNever push to main, rewrite history or rotate credentials yourself.",
+    "pt-BR": "Verifique este repositório em busca de vulnerabilidades conhecidas e segredos vazados.\n1. Rode a ferramenta de auditoria do gerenciador de pacotes (npm audit, pip-audit, cargo audit ou similar) e reúna os alertas com sua gravidade.\n2. Procure no código e no histórico do git por segredos: chaves de API, tokens, senhas, chaves privadas e arquivos .env commitados.\n3. Escreva security-audit-AAAA-MM-DD.md com cada achado, a gravidade, onde está e a correção sugerida. Mascare qualquer segredo; nunca copie o valor inteiro.\n4. Se a correção for uma atualização de versão segura, faça em um branch novo e abra um pull request em rascunho. Não mude mais nada.\nNunca faça push na main, não reescreva o histórico nem troque credenciais por conta própria.",
+    "es": "Revisa este repositorio en busca de vulnerabilidades conocidas y secretos filtrados.\n1. Ejecuta la herramienta de auditoría del gestor de paquetes (npm audit, pip-audit, cargo audit o similar) y reúne los avisos con su gravedad.\n2. Busca en el código y en el historial de git secretos: claves de API, tokens, contraseñas, claves privadas y archivos .env subidos.\n3. Escribe security-audit-AAAA-MM-DD.md con cada hallazgo, su gravedad, dónde está y la corrección sugerida. Enmascara cualquier secreto; nunca lo copies entero.\n4. Si la corrección es una subida de versión segura, hazla en una rama nueva y abre un pull request en borrador. No cambies nada más.\nNunca hagas push a main, no reescribas el historial ni rotes credenciales por tu cuenta."
+  }
+}

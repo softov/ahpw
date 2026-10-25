@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:newspaper",
+  "group": "everyday",
+  "time": "0 19 * * *",
+  "title": {
+    "en": "Reading digest",
+    "pt-BR": "Resumo de leituras",
+    "es": "Resumen de lecturas"
+  },
+  "prompt": {
+    "en": "Make a digest of the new things I saved to read in this folder.\n1. Find the articles, PDFs and saved web pages added since the last digest. The newest digest file tells you when that was; if there is none, use the last 24 hours.\n2. For each one, write the title, the source if known, a summary of three to five sentences and why it may matter to me.\n3. Put the most useful items first and group items on the same topic.\n4. Save it all to digest-YYYY-MM-DD.md.\nDo not move, rename or delete the originals, and do not open links to fetch more. If a file cannot be read, list it at the end with the reason.",
+    "pt-BR": "Faça um resumo das coisas novas que salvei para ler nesta pasta.\n1. Encontre os artigos, PDFs e páginas salvas adicionados desde o último resumo. O arquivo de resumo mais recente diz quando foi; se não houver nenhum, use as últimas 24 horas.\n2. Para cada um, escreva o título, a fonte se souber, um resumo de três a cinco frases e por que pode me interessar.\n3. Coloque os itens mais úteis primeiro e agrupe os que tratam do mesmo assunto.\n4. Salve tudo em digest-AAAA-MM-DD.md.\nNão mova, não renomeie e não apague os originais, nem abra links para buscar mais. Se um arquivo não abrir, liste no fim com o motivo.",
+    "es": "Haz un resumen de lo nuevo que guardé para leer en esta carpeta.\n1. Encuentra los artículos, PDF y páginas guardadas añadidos desde el último resumen. El archivo de resumen más reciente indica cuándo fue; si no hay ninguno, usa las últimas 24 horas.\n2. Para cada uno, escribe el título, la fuente si se conoce, un resumen de tres a cinco frases y por qué podría interesarme.\n3. Pon primero lo más útil y agrupa lo que trate del mismo tema.\n4. Guárdalo todo en digest-AAAA-MM-DD.md.\nNo muevas, renombres ni borres los originales, ni abras enlaces para buscar más. Si un archivo no se puede leer, anótalo al final con el motivo."
+  }
+}

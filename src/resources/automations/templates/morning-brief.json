@@ -1,0 +1,15 @@
+{
+  "icon": "Ionicons:sunny",
+  "group": "everyday",
+  "time": "0 7 * * *",
+  "title": {
+    "en": "Morning brief",
+    "pt-BR": "Resumo da manhã",
+    "es": "Resumen de la mañana"
+  },
+  "prompt": {
+    "en": "Prepare a short brief for my day from the files in this folder.\n1. Read my notes and to-do files: text, Markdown and documents changed in the last two weeks.\n2. Find what is due today or overdue, what has a date this week, and anything I marked as important or urgent.\n3. Write brief-YYYY-MM-DD.md with three parts: today's priorities (at most five), upcoming deadlines, and things I left open.\n4. Keep it under half a page, in plain words, and name the file each item came from.\nDo not edit, move or delete my files. If a date is unclear, list the item and say the date is unclear.",
+    "pt-BR": "Prepare um resumo curto do meu dia a partir dos arquivos desta pasta.\n1. Leia minhas notas e listas de tarefas: textos, Markdown e documentos alterados nas últimas duas semanas.\n2. Encontre o que vence hoje ou já venceu, o que tem data nesta semana e o que marquei como importante ou urgente.\n3. Escreva resumo-AAAA-MM-DD.md com três partes: prioridades de hoje (no máximo cinco), prazos que estão chegando e o que deixei em aberto.\n4. Use no máximo meia página, em linguagem simples, e diga de qual arquivo veio cada item.\nNão edite, não mova e não apague meus arquivos. Se uma data não estiver clara, liste o item e avise.",
+    "es": "Prepara un resumen corto de mi día a partir de los archivos de esta carpeta.\n1. Lee mis notas y listas de tareas: textos, Markdown y documentos modificados en las últimas dos semanas.\n2. Encuentra lo que vence hoy o ya venció, lo que tiene fecha esta semana y lo que marqué como importante o urgente.\n3. Escribe resumen-AAAA-MM-DD.md con tres partes: prioridades de hoy (como máximo cinco), plazos próximos y lo que dejé pendiente.\n4. Que ocupe menos de media página, en palabras sencillas, e indica de qué archivo sale cada punto.\nNo edites, muevas ni borres mis archivos. Si una fecha no está clara, anota el punto y avísalo."
+  }
+}

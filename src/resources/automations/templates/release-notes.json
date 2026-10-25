@@ -1,0 +1,20 @@
+{
+  "icon": "Ionicons:megaphone",
+  "group": "code",
+  "time": "0 16 * * 5",
+  "title": {
+    "en": "Draft release notes",
+    "pt-BR": "Rascunho das notas de versão",
+    "es": "Borrador de notas de versión"
+  },
+  "pitch": {
+    "en": "Draft release notes every Friday.",
+    "pt-BR": "Escreva as notas de versão toda sexta.",
+    "es": "Redacta las notas de versión cada viernes."
+  },
+  "prompt": {
+    "en": "Draft release notes for the work merged in this repository since the last release.\n1. Find the most recent version tag. List the merged pull requests and commits between that tag and the default branch.\n2. Sort them into Features, Fixes, Breaking changes and Other. Skip merge commits and chores unless they matter to users.\n3. Write each entry as one line a user understands, with the pull request number.\n4. Put breaking changes first, each with what users must do.\n5. Save the draft to release-notes-draft.md.\nDo not create a tag, a release or a commit. If there is no tag yet, use the last 30 days and say so.",
+    "pt-BR": "Escreva um rascunho das notas de versão com o que foi integrado neste repositório desde a última versão.\n1. Encontre a tag de versão mais recente. Liste os pull requests e commits integrados entre essa tag e o branch principal.\n2. Separe em Novidades, Correções, Mudanças incompatíveis e Outros. Ignore commits de merge e tarefas internas que não afetam usuários.\n3. Escreva cada item em uma linha que um usuário entenda, com o número do pull request.\n4. Coloque as mudanças incompatíveis primeiro, cada uma com o que o usuário precisa fazer.\n5. Salve o rascunho em release-notes-draft.md.\nNão crie tag, release nem commit. Se ainda não houver tag, use os últimos 30 dias e avise.",
+    "es": "Redacta un borrador de las notas de versión con lo integrado en este repositorio desde la última versión.\n1. Encuentra la etiqueta de versión más reciente. Lista los pull requests y commits integrados entre esa etiqueta y la rama principal.\n2. Sepáralos en Novedades, Correcciones, Cambios incompatibles y Otros. Omite commits de merge y tareas internas que no afecten a usuarios.\n3. Escribe cada entrada en una línea que un usuario entienda, con el número del pull request.\n4. Pon primero los cambios incompatibles, cada uno con lo que el usuario debe hacer.\n5. Guarda el borrador en release-notes-draft.md.\nNo crees etiquetas, releases ni commits. Si aún no hay etiqueta, usa los últimos 30 días y avísalo."
+  }
+}

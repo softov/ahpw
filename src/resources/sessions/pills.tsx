@@ -6,9 +6,10 @@ const CARET = EMOJIcon.caretDown;
 /**
  * A small rounded control: a fact, or a button that opens a menu when `onOpen`
  * is given. With `short` and `icon`, a narrow composer box shows those instead
- * of `label`, which stays the tooltip and the accessible name.
+ * of `label`, which stays the tooltip and the accessible name. With `image`,
+ * that image is drawn before the label, such as an agent's icon.
  */
-export function Pill({ label, short, icon, title, onOpen, on }: { label: string; short?: string; icon?: string; title?: string; onOpen?: () => void; on?: boolean }): ReactElement {
+export function Pill({ label, short, icon, image, title, onOpen, on }: { label: string; short?: string; icon?: string; image?: string | undefined; title?: string; onOpen?: () => void; on?: boolean }): ReactElement {
   return (
     <button
       type="button"
@@ -22,6 +23,7 @@ export function Pill({ label, short, icon, title, onOpen, on }: { label: string;
       onClick={onOpen}
       {...(onOpen === undefined ? {} : { 'aria-haspopup': 'menu' as const })}
     >
+      {image === undefined ? null : <img className="web-chip__image" src={image} alt="" />}
       <span className="web-chip__long">{label}</span>
       {short === undefined ? null : <span className="web-chip__short">{short}</span>}
       {icon === undefined ? null : <span className="web-chip__icon">{icon}</span>}

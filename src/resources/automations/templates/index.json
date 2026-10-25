@@ -1,0 +1,24 @@
+{
+  "templates": [
+    { "id": "commit-pr", "file": "commit-pr.json" },
+    { "id": "review-commits", "file": "review-commits.json" },
+    { "id": "nightly-triage", "file": "nightly-triage.json" },
+    { "id": "weekend-bugs", "file": "weekend-bugs.json" },
+    { "id": "issue-triage", "file": "issue-triage.json" },
+    { "id": "dependency-updates", "file": "dependency-updates.json" },
+    { "id": "security-audit", "file": "security-audit.json" },
+    { "id": "flaky-tests", "file": "flaky-tests.json" },
+    { "id": "release-notes", "file": "release-notes.json" },
+    { "id": "release-check", "file": "release-check.json" },
+    { "id": "todo-sweep", "file": "todo-sweep.json" },
+    { "id": "docs-drift", "file": "docs-drift.json" },
+    { "id": "monday-plan", "file": "monday-plan.json" },
+    { "id": "morning-brief", "file": "morning-brief.json" },
+    { "id": "downloads-tidy", "file": "downloads-tidy.json" },
+    { "id": "receipts", "file": "receipts.json" },
+    { "id": "weekly-review", "file": "weekly-review.json" },
+    { "id": "reading-digest", "file": "reading-digest.json" },
+    { "id": "backup-check", "file": "backup-check.json" },
+    { "id": "photo-organize", "file": "photo-organize.json" }
+  ]
+}
