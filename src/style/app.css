@@ -35,13 +35,38 @@
 }
 
 .web-page {
+  /* The width of a page's content, and the space each side of it on a wider surface. */
+  --web-page-width: 72rem;
+  --web-page-gutter: max(var(--oo-spacing-lg), calc((100% - var(--web-page-width)) / 2));
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-md);
-  padding: var(--oo-spacing-lg) max(var(--oo-spacing-lg), calc((100% - 72rem) / 2));
+  padding: var(--oo-spacing-lg) 0;
   overflow-y: auto;
   height: 100%;
   box-sizing: border-box;
+}
+
+/*
+ * The page spans the surface, so its scroll bar is on the surface's edge, and
+ * each part centres its content in the gutter. Tabs span the surface too: the
+ * strip is the band under the head, and the panel scrolls with its content
+ * centred.
+ */
+.web-page > :not(.oo-tabs) {
+  margin-inline: var(--web-page-gutter);
+}
+
+.web-page > .oo-tabs > .oo-tabs__strip {
+  padding-inline: var(--web-page-gutter);
+}
+
+.web-page > .oo-tabs > [role="tabpanel"] {
+  padding: var(--oo-spacing-sm) var(--web-page-gutter) var(--oo-spacing-lg);
+}
+
+.web-page:has(> .oo-tabs) {
+  padding-bottom: 0;
 }
 
 .web-page__head {
@@ -1246,16 +1271,6 @@
 .web-automation__message {
   padding: var(--oo-spacing-sm) var(--oo-spacing-md);
   border-left: 2px solid var(--oo-color-border);
-}
-
-/*
- * A form page fills the surface, as every page does, and centres a narrower
- * column than `.web-page` does. Capping the page's own width instead left the
- * page's padding measured from the whole surface, so a wide surface (a sidebar
- * hidden) ate the column and the pickers fell into one line each.
- */
-.web-page.web-form {
-  padding-inline: max(var(--oo-spacing-lg), calc((100% - 48rem) / 2));
 }
 
 .web-form__field {
