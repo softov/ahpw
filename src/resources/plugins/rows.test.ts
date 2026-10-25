@@ -11,6 +11,7 @@ describe('pluginRows', () => {
     const icons = [{ src: 'data:image/png;base64,AAAA' }];
     const rows = pluginRows([entry('drawn', { manifest: { icons } }), entry('plain', {})], 'state', WORDS);
     expect(rows.map((one) => one.icons)).toEqual([icons, undefined]);
+    expect(rows.every((one) => one.emoji !== undefined)).toBe(true);
   });
 
   it('puts problems first and disabled plugins last, by state', () => {

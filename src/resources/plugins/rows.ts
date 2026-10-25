@@ -2,6 +2,7 @@ import type { PickerAction } from '@softov/scena/types';
 import { refKey } from '../../bridges/hosts.js';
 import { PLUGIN_STATES, type PluginRow, type PluginState } from '../../bridges/plugins.js';
 import type { Dot, Row } from '../../shell/explorer/ExplorerList.js';
+import { EMOJIcon } from '../emojis.js';
 import { arrange } from '../sessions/grouping.js';
 
 /** How the list groups its plugins. */
@@ -81,6 +82,7 @@ export function pluginRows(entries: readonly PluginEntry[], by: PluginGrouping, 
       dotLabel: row.loadProblem === undefined ? words.state(row.state) : words.loadFailed,
       title,
       ...(row.manifest?.icons === undefined ? {} : { icons: row.manifest.icons }),
+      emoji: EMOJIcon.hostPlugins,
       lines: [
         [words.multi ? entry.hostName : undefined, title === entry.id ? undefined : entry.id, row.version, categories === '' ? undefined : categories]
           .filter((bit) => bit !== undefined).join(' \u{00B7} '),
