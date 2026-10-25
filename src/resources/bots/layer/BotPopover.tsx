@@ -12,8 +12,8 @@ import { readBotChat, servesBotChats, type BotRecord } from '../catalogue.js';
 
 /**
  * A floating bot, opened: its name, which opens the bot, what it is for, a
- * line to say something in its chat, and an icon to its chat. A message waits
- * in the queue while the bot is still answering.
+ * line to say something in its chat, and an icon to its chat. Sending opens
+ * the chat; a message waits in the queue while the bot is still answering.
  */
 export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: BotRecord; x: number; y: number; onClose: () => void }): ReactElement {
   const scena = useScena();
@@ -46,7 +46,7 @@ export function BotPopover({ host, bot, x, y, onClose }: { host: string; bot: Bo
     hostBridge(host).dispatch(chatUri, (chat.state?.activeTurn === undefined
       ? { type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message }
       : { type: 'chat/pendingMessageSet', kind: 'queued', id: newId(), message }) as StateAction);
-    setText('');
+    run('ahp.chatWithBot');
   };
 
   return (

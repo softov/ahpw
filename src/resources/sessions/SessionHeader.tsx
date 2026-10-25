@@ -7,6 +7,7 @@ import { ahpPaths, hostBridge, type HostFacts } from '../../bridges/data.js';
 import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
 import { inFolder } from '../terminals/terminal.js';
+import type { BotMark } from '../bots/chat/mark.js';
 import { claimedTerminals, subagentChats, subagentsOf } from './header.js';
 
 /**
@@ -41,10 +42,11 @@ function useSessionTerminals(host: string, session: string, folder: string | und
  * The header's buttons, each shown only when it has something to count:
  * changed files, terminals, the subagents (one per chat its calls hand work
  * to, each opened from its menu), the session's own chats, a way back from a
- * subagent's chat, and a menu of how the chat reads: the Raw view, and the
- * calls hidden. Each of those, while on, shows its icon, which turns it off.
+ * subagent's chat, and a menu: the bot a chat is with, and how the chat
+ * reads: the Raw view, and the calls hidden. Each of those, while on, shows
+ * its icon, which turns it off.
  */
-export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw, calls }: {
+export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw, calls, bot }: {
   host: string;
   summary: SessionSummary;
   session: SessionState | undefined;
@@ -57,6 +59,8 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
   onRaw: (on: boolean) => void;
   /** Whether the chat hides its calls, on a page that draws them. */
   calls?: { hidden: boolean; onHidden: (hidden: boolean) => void };
+  /** The bot the session is a chat with. */
+  bot?: BotMark;
 }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -90,6 +94,7 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     onSelect: (picked) => { picked.closeMenu(); onSubagent(one.chat); },
   })));
   const viewMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, [
+    ...(bot === undefined ? [] : [{ title: t('bots/commands/open'), icon: EMOJIcon.bots, onSelect: (picked) => { picked.closeMenu(); run('ahp.openBot', { host, slug: bot.bot, name: bot.name }); } }]),
     { title: t('sessions/raw/button'), icon: EMOJIcon.data, active: raw, onSelect: () => onRaw(!raw) },
     ...(calls === undefined ? [] : [{ title: t('sessions/header/hideCalls'), icon: EMOJIcon.callsHidden, active: calls.hidden, onSelect: () => calls.onHidden(!calls.hidden) }]),
   ]);

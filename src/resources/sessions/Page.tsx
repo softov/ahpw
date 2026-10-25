@@ -241,7 +241,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
       onSubagent={openSubagent}
       raw={raw}
       onRaw={setRaw}
-      {...(mark === undefined ? { calls: { hidden: callsHidden, onHidden: setCallsHidden } } : {})}
+      {...(mark === undefined ? { calls: { hidden: callsHidden, onHidden: setCallsHidden } } : { bot: mark })}
     />
   );
   // Drawn inside the page's session host and folder, which both pages provide.
