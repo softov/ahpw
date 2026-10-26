@@ -94,7 +94,7 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     onSelect: (picked) => { picked.closeMenu(); onSubagent(one.chat); },
   })));
   const viewMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, [
-    ...(bot === undefined ? [] : [{ title: t('bots/commands/open'), icon: EMOJIcon.bots, onSelect: (picked) => { picked.closeMenu(); run('ahp.openBot', { host, slug: bot.bot, name: bot.name }); } }]),
+    ...(bot === undefined ? [] : [{ title: t('bots/commands/open'), icon: EMOJIcon.bots, onSelect: (picked) => { picked.closeMenu(); run('ahp.openBot', { host, slug: bot.bot, name: bot.name }); } } satisfies PickerAction]),
     { title: t('sessions/raw/button'), icon: EMOJIcon.data, active: raw, onSelect: () => onRaw(!raw) },
     ...(calls === undefined ? [] : [{ title: t('sessions/header/hideCalls'), icon: EMOJIcon.callsHidden, active: calls.hidden, onSelect: () => calls.onHidden(!calls.hidden) }]),
   ]);
