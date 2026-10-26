@@ -1,36 +1,23 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { getLocale } from '@softov/scena';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Button, DetailList, Spinner, Text } from '@softov/scena/ui';
+import { DetailList, Spinner, Text } from '@softov/scena/ui';
 import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { personUri } from '../../bridges/people.js';
-import { poolOwner, totalWords, usagePeriods, usageRange, usageRecords, type DayRange, type PoolOwner, type UsageEntry, type UsagePeriods, type UsageTotal } from '../../bridges/usage.js';
+import { poolOwner, usagePeriods, usageRange, usageRecords, type DayRange, type PoolOwner, type UsageEntry, type UsagePeriods, type UsageTotal } from '../../bridges/usage.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
-import { timeOf } from '../automations/words.js';
 import { EMOJIcon } from '../emojis.js';
 import { monthSoFar, USAGE_ASKED } from './state.js';
-import { hoursWord, tokensWord, totalLine } from './words.js';
+import { UsageRecords } from './Records.js';
+import { totalLine } from './words.js';
 import { PageTitle } from '../../shell/HostIcon.js';
 
 /** What a pool's range reads: its total and the records behind it. */
 interface Ranged {
   total: UsageTotal;
   records: UsageEntry[];
-}
-
-/** A record's measure: a model call's tokens, cache included, or a computer's hours. */
-function measureOf(record: UsageEntry): string {
-  if (record.kind === 'computer') return hoursWord(record.seconds / 3600);
-  const { input = 0, output = 0, cache } = record.model;
-  return tokensWord(input + output + (cache?.read ?? 0) + (cache?.write ?? 0));
-}
-
-/** A record's cost, when it was charged one in US dollars, the currency the totals add. */
-function costOf(record: UsageEntry): string | undefined {
-  return record.cost?.currency.toLowerCase() === 'usd' ? totalWords({ usd: record.cost.amount }, getLocale()).cost : undefined;
 }
 
 /** The command that opens an owner's page, and the icon its list shows it with. */
@@ -110,23 +97,7 @@ export default function UsagePoolPage({ host, pool }: { host: string; pool: stri
           <p>{totalLine(ranged.total) || nothing}</p>
           <Text variant="h3" text={`${EMOJIcon.records} ${t('usage/pool/records')}`} />
           {ranged.records.length === 0 ? <p className="web-note">{t('usage/pool/noRecords')}</p> : (
-            <ul className="web-spend__records">
-              {ranged.records.map((record, at) => {
-                const cost = costOf(record);
-                const what = record.kind === 'model' ? record.model.name : record.computer;
-                return (
-                  <li key={`${record.at}\u{0000}${String(at)}`} className="web-spend__record">
-                    <span className="web-spend__when">{timeOf(record.at)}</span>
-                    <span className="web-spend__what" title={what}>{what}</span>
-                    <span className="web-spend__measure">{measureOf(record)}</span>
-                    <span className="web-spend__cost">{cost ?? ''}</span>
-                    {record.session === undefined ? <span /> : (
-                      <Button label={t('usage/pool/openSession')} size="sm" onClick={() => void scena.commands.execute('ahp.openSession', { host, resource: record.session })} />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+            <UsageRecords host={host} records={ranged.records} />
           )}
         </>
       )}

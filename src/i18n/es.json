@@ -2058,6 +2058,48 @@
       "noRecords": "No hay registros en estos días.",
       "openOwner": "Abrir {name}",
       "openSession": "Abrir sesión"
+    },
+    "record": {
+      "show": "Mostrar detalles",
+      "hide": "Ocultar detalles",
+      "origin": "Origen",
+      "tokens": "Tokens",
+      "cost": "Costo",
+      "where": "Dónde",
+      "source": "Fuente",
+      "kind": "Tipo",
+      "model": "Modelo",
+      "provider": "Proveedor",
+      "agent": "Agente",
+      "computer": "Computadora",
+      "owner": "Dueño",
+      "team": "Equipo",
+      "project": "Proyecto",
+      "input": "Entrada",
+      "output": "Salida",
+      "cacheRead": "Caché leída",
+      "cacheWrite": "Caché escrita",
+      "time": "Tiempo",
+      "charged": "Cobrado",
+      "providerCost": "Del proveedor",
+      "session": "Sesión",
+      "chat": "Chat",
+      "turn": "Turno",
+      "opens": "abre el turno",
+      "pools": "Pools",
+      "sources": {
+        "proxy": "Proxy",
+        "agent": "Agente",
+        "computer": "Computadora"
+      },
+      "kinds": {
+        "model": "Modelo",
+        "computer": "Tiempo de computadora"
+      },
+      "from": {
+        "harness": "harness",
+        "price": "precio"
+      }
     }
   },
   "policies": {

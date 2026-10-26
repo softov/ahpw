@@ -143,4 +143,11 @@ export const EMOJIcon = {
   receive: mono('📥'),
   action: mono('⚡'),
   interface: mono('🪟'),
+
+  // a usage record: what wrote it, and its tokens
+  proxy: '⇄',
+  tokensIn: '↑',
+  tokensOut: '↓',
+  cacheRead: '⟲',
+  cacheWrite: '⟳',
 };

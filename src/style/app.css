@@ -3617,36 +3617,76 @@
 }
 
 .web-spend__records {
+  container: spend-records / inline-size;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .web-spend__record {
-  display: grid;
-  /* Fixed columns, so each record's measure and cost line up under the one above. */
-  grid-template-columns: 9.5rem minmax(0, 1fr) 6rem 4.5rem 6.5rem;
-  gap: var(--oo-spacing-md);
-  align-items: center;
-  padding: var(--oo-spacing-xs) 0;
   border-bottom: 1px solid var(--oo-color-border);
 }
 
+/* Fixed columns, so each record's tokens and cost line up under the one above. */
+.web-spend__row {
+  display: grid;
+  grid-template-columns: 1rem 11rem 2.6rem minmax(0, 1fr) 4.5rem 4.5rem 5rem 5.5rem 6.5rem;
+  gap: var(--oo-spacing-md);
+  align-items: center;
+  padding: var(--oo-spacing-xs) 0;
+  cursor: pointer;
+}
+
+.web-spend__row:hover {
+  background: var(--oo-color-hover);
+}
+
+.web-spend__caret {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--oo-color-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
 .web-spend__when,
-.web-spend__measure,
+.web-spend__num,
 .web-spend__cost {
   color: var(--oo-color-muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.web-spend__measure,
+.web-spend__num,
 .web-spend__cost {
   text-align: right;
 }
 
-.web-spend__record > button {
-  justify-self: end;
+.web-spend__num b {
+  margin-right: 3px;
+  color: var(--oo-color-subtle);
+  font-weight: normal;
+}
+
+/* A computer's hours take the three token columns. */
+.web-spend__tokens {
+  display: contents;
+}
+
+.web-spend__hours {
+  grid-column: span 3;
+}
+
+.web-spend__icons {
+  display: flex;
+  gap: 4px;
+  color: var(--oo-color-muted);
+}
+
+.web-spend__icons > span {
+  width: 1.1rem;
+  text-align: center;
 }
 
 .web-spend__what {
@@ -3655,21 +3695,110 @@
   white-space: nowrap;
 }
 
-/* On a phone a record takes two lines: when and cost, then what, its measure and the session. */
-@media (max-width: 600px) {
-  .web-spend__record {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+.web-spend__what small {
+  margin-left: var(--oo-spacing-sm);
+  color: var(--oo-color-muted);
+}
+
+.web-spend__fallback {
+  color: var(--oo-color-muted);
+  font-style: italic;
+}
+
+.web-spend__row > :last-child {
+  justify-self: end;
+}
+
+.web-spend__detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 10px var(--oo-spacing-lg);
+  padding: var(--oo-spacing-xs) 0 10px calc(1rem + var(--oo-spacing-md));
+}
+
+.web-spend__detail h4 {
+  margin: 0 0 4px;
+  color: var(--oo-color-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.web-spend__detail dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  margin: 0;
+}
+
+.web-spend__detail dt {
+  color: var(--oo-color-muted);
+}
+
+.web-spend__detail dd {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.web-spend__link {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--oo-color-accent);
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.web-spend__link:hover,
+.web-spend__link:focus-visible {
+  text-decoration: underline;
+}
+
+.web-spend__chip {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 6px;
+  border-radius: var(--oo-radius-full);
+  background: var(--oo-color-hover);
+  color: var(--oo-color-muted);
+  font-size: 11px;
+}
+
+/* In a narrow pane a record takes three lines: icons, when and cost, then what and the session, then its tokens. */
+@container spend-records (width < 50rem) {
+  .web-spend__row {
+    grid-template-columns: 1rem auto minmax(0, 1fr) auto;
     grid-template-areas:
-      "when when cost"
-      "what measure open";
+      "caret icons when cost"
+      ". what what open"
+      ". tokens tokens tokens";
     row-gap: 2px;
   }
 
+  .web-spend__caret { grid-area: caret; }
+  .web-spend__icons { grid-area: icons; }
   .web-spend__when { grid-area: when; }
   .web-spend__cost { grid-area: cost; }
   .web-spend__what { grid-area: what; }
-  .web-spend__measure { grid-area: measure; }
-  .web-spend__record > :last-child { grid-area: open; }
+  .web-spend__row > :last-child { grid-area: open; }
+
+  .web-spend__tokens {
+    display: flex;
+    grid-area: tokens;
+    gap: var(--oo-spacing-md);
+  }
+
+  .web-spend__num {
+    text-align: left;
+  }
 }
 
 /* Trusted folders on the host page: the forget button sits at the row's end. */

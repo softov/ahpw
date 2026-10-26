@@ -2058,6 +2058,48 @@
       "noRecords": "No records in these days.",
       "openOwner": "Open {name}",
       "openSession": "Open session"
+    },
+    "record": {
+      "show": "Show details",
+      "hide": "Hide details",
+      "origin": "Origin",
+      "tokens": "Tokens",
+      "cost": "Cost",
+      "where": "Where",
+      "source": "Source",
+      "kind": "Kind",
+      "model": "Model",
+      "provider": "Provider",
+      "agent": "Agent",
+      "computer": "Computer",
+      "owner": "Owner",
+      "team": "Team",
+      "project": "Project",
+      "input": "Input",
+      "output": "Output",
+      "cacheRead": "Cache read",
+      "cacheWrite": "Cache written",
+      "time": "Time",
+      "charged": "Charged",
+      "providerCost": "From the provider",
+      "session": "Session",
+      "chat": "Chat",
+      "turn": "Turn",
+      "opens": "opens the turn",
+      "pools": "Pools",
+      "sources": {
+        "proxy": "Proxy",
+        "agent": "Agent",
+        "computer": "Computer"
+      },
+      "kinds": {
+        "model": "Model",
+        "computer": "Computer time"
+      },
+      "from": {
+        "harness": "harness",
+        "price": "price"
+      }
     }
   },
   "policies": {
