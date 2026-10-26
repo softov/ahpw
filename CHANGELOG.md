@@ -5,6 +5,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-26
+
+### Changed
+
+- **The title bar's brand** holds the activity bar's column, so the host switcher in an embedder's window starts where the sidebar does.
+- **The host switcher** is rounded: its button, menu rows and options button no longer take the bar's square corners.
+  The button is shorter, with smaller type and a smaller status dot, and shows its edge when hovered or open.
+  The button, the rows and the options button show the pointer.
+
+### Fixed
+
+- A host's options in the host switcher open beside its row, with the host menu still open, instead of floating on their own.
+- The options button's glyph is centred.
+
 ## [0.7.0] - 2026-10-26
 
 ### Added
@@ -285,7 +299,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/softov/ahpw/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/softov/ahpw/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/softov/ahpw/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/softov/ahpw/compare/v0.4.0...v0.5.0
