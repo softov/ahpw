@@ -25,8 +25,8 @@ importers:
         version: 0.3.0
     devDependencies:
       '@ahpd/sdk':
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.14.0
+        version: 0.14.0
       '@codemirror/autocomplete':
         specifier: ^6.20.3
         version: 6.20.3
@@ -144,8 +144,8 @@ packages:
   '@acemir/cssom@0.9.31':
     resolution: {integrity: sha512-ZnR3GSaH+/vJ0YlHau21FjfLYjMpYVIzTD8M8vIEQvIGxeOXyXdzCI140rrCY862p/C/BbzWsjc1dgnM9mkoTA==}
 
-  '@ahpd/sdk@0.13.0':
-    resolution: {integrity: sha512-nyzrq42zwRmw3ebMd6TqhvfQQkmvKBaK+/+q1uJTYyscshuuJYPr5J1w6cp8o0S3LMrODcDb1ISwyO+31NZ0yw==}
+  '@ahpd/sdk@0.14.0':
+    resolution: {integrity: sha512-nNMdkkWqUKduwCY3yS9RDCR94GCukogJ5t96vD9XHVHv0fQq4zwy5VoGdDNmod9jx+yjhenbt5+xLu0Mimvc0Q==}
     engines: {node: '>=22.1'}
 
   '@asamuzakjp/css-color@5.1.11':
@@ -990,7 +990,7 @@ snapshots:
   '@acemir/cssom@0.9.31':
     optional: true
 
-  '@ahpd/sdk@0.13.0':
+  '@ahpd/sdk@0.14.0':
     dependencies:
       '@microsoft/agent-host-protocol': 1.0.0
     optionalDependencies:

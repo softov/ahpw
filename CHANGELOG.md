@@ -5,6 +5,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-26
+
+### Added
+
+- **The host's plugins**, a 🔣 explorer grouped by state or by category, each plugin opening a page with Overview and Options.
+  Options enable, disable and set a plugin, and a note says when the host must restart.
+  The page shows the plugin's icon, version, whether it is running, its repository, what it provides, and *Import again* and *Apply*.
+- **A plugin's alerts** on its page, grouped by level: errors, warnings, info and notices, each with what it is about.
+  A plugin with an error has a red dot in the list.
+- **Connectors**, a 🔌 explorer by adapter, owner or state.
+  One form picks the adapter with a search, slugs the id from the title, and lets the root name any user or team.
+  A connector's page has Overview, Settings and Delete, and the URL a webhook receives at.
+- **Agents from the host's engines**: one list with each agent's state, a page with Overview and Settings, and *Add agent* from an engine.
+  Agent rows, pickers and pills show the engine's icon.
+- **The signed-in person's profile**, from the Manage menu above *Sign out*, with Info and Keys.
+  Keys makes a key with a label, an expiry and some of the person's grants, shows the secret once, and revokes keys.
+- **A user's Keys** on their page, for a person who can write users.
+- **Usage records** show their source, kind and tokens, and open to their details: origin, tokens or time, cost, and where they were spent.
+- **Automation examples** to start from, and a number for turning an automation off after some runs.
+- *Open bot* in a bot chat's menu.
+
+### Changed
+
+- **ahpd 0.14.** Plugins, connectors, engines and agents come from the host's channels.
+- **scena 0.5.13** and **bood 0.2.1.**
+- A user's roles are pills, each with ✕ to remove it and *Add a role* for the rest, saved with *Save*.
+  Team and project member chips use the same pill.
+- A usage pool's page is titled with its owner, which opens the user, team or project.
+- Host opens from the Manage menu.
+- A page's header band and its scroll span the surface, and its content is centred at one width.
+- Sending from a bot opens its chat, and the bot goes away while that chat is shown.
+- Errors from the host's channels and failure toasts use the host's own words.
+- Plugin, connector, team, project and computer pages show their URI.
+
 ## [0.6.0] - 2026-10-20
 
 ### Added
@@ -251,7 +285,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/softov/ahpw/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/softov/ahpw/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/softov/ahpw/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/softov/ahpw/compare/v0.3.1...v0.4.0
