@@ -1,6 +1,7 @@
 # Dependencies and build output.
 node_modules
 dist
+docs/.vitepress/cache
 *.tsbuildinfo
 
 # Environment files hold secrets; only the example is tracked.

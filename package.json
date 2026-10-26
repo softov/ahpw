@@ -51,7 +51,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build && tsc -p tsconfig.plugin.json && tsc -p tsconfig.cli.json && tsc -p tsconfig.embed.json && chmod +x dist/cli/main.js",
     "typecheck": "tsc -b",
-    "test": "vitest run"
+    "test": "vitest run",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "peerDependencies": {
     "@ahpd/sdk": ">=0.9"
@@ -99,6 +102,7 @@
     "react-dom": "^19.2.8",
     "typescript": "^5.9.3",
     "vite": "^8.2.1",
+    "vitepress": "^1.6.4",
     "vitest": "^4.1.0"
   },
   "ahpd": {
