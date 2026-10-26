@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, type ReactElement } from '
 import { useStore } from '@softov/scena/react';
 import { resolveThemeMode, THEME_MODE_PATH, type ThemeModeChoice } from '@softov/scena/styles';
 import {
-  action, actionsOf, ambient, BOOD_TRANSITS, blink, creatures, ease, glance, pop, pose, randomTransit, scene, swing, transit,
+  action, actionsOf, ambient, blink, creatures, ease, glance, pop, pose, randomTransit, scene, swing, transit,
   type BoodMood, type BoodPose, type BoodScene, type BoodTransit,
 } from '@cofold/bood';
 import { mountBood, type BoodView } from '@cofold/bood/dom';
@@ -33,8 +33,6 @@ const TILT_REACH = [0.4, 1] as const;
 /** How often, by default, an idle bot plays one of its moves: between 3 and 7 minutes. */
 export const ACT_EVERY_MS: readonly [number, number] = [180_000, 420_000];
 const TRANSIT_GAP_MS = 400;
-/** The transits a bot goes away with: not `erase`, whose hide shows the body again when it ends. */
-const AWAY_TRANSITS = BOOD_TRANSITS.filter((kind) => kind !== 'erase');
 
 type Point = { x: number; y: number } | null;
 
@@ -112,7 +110,7 @@ export function Bood({ body, color, mood = 'idle', width, still = false, arrive,
   useLayoutEffect(() => {
     if (still || away === wasAway.current) return;
     wasAway.current = away;
-    view.current?.play(transit(AWAY_TRANSITS[Math.floor(Math.random() * AWAY_TRANSITS.length)]!, away ? 'hide' : 'show', { color: paint.current }), { key: 'away' });
+    view.current?.play(transit(randomTransit(), away ? 'hide' : 'show', { color: paint.current }), { key: 'away' });
   }, [away, still]);
 
   // A small pop when the mood changes, not when the body first shows.
