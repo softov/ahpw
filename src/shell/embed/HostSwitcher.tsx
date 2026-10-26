@@ -128,9 +128,9 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
                   aria-label={t('shell/embed/hostOptions', { host: host.name })}
                   title={t('shell/embed/hostOptions', { host: host.name })}
                   onClick={(event) => {
+                    // Beside the row, with the host menu still open, so the options read as that host's.
                     const box = event.currentTarget.getBoundingClientRect();
-                    setOpen(false);
-                    setOptions({ id: host.id, x: box.right, y: box.bottom });
+                    setOptions({ id: host.id, x: box.right + 4, y: box.top - 4 });
                   }}
                 >
                   {EMOJIcon.more}
@@ -179,6 +179,7 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
       onSelect: (menu) => {
         menu.closeMenu();
         setOptions(null);
+        setOpen(false);
         fn();
       },
     });
