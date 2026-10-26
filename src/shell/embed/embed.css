@@ -57,22 +57,28 @@ html.is-framed.is-maximized #root {
   position: relative;
 }
 
-.embed-host__button {
+/* With the bar's slot, to outrank scena's `.oo-bar__slot button`, which squares a bar's buttons. */
+.oo-bar__slot .embed-host__button {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 8px;
-  border: 0;
-  border-radius: 6px;
+  /* scena's height for a button in a bar, so the bar keeps room above and below it. */
+  height: var(--oo-button-bar-height-sm, 20px);
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--oo-radius-md);
   background: transparent;
   color: var(--oo-color-text);
   font: inherit;
-  cursor: default;
+  font-size: 90%;
+  cursor: pointer;
 }
 
-.embed-host__button:hover,
-.embed-host__button[aria-expanded='true'] {
+/* As scena's select in a bar: hovered or open, it shows its edge. */
+.oo-bar__slot .embed-host__button:hover,
+.oo-bar__slot .embed-host__button[aria-expanded='true'] {
   background: var(--oo-color-hover);
+  border-color: var(--oo-color-border);
 }
 
 .embed-host__menu {
@@ -106,7 +112,7 @@ html.is-framed.is-maximized #root {
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: default;
+  cursor: pointer;
 }
 
 .embed-host__item:hover {
@@ -131,14 +137,20 @@ html.is-framed.is-maximized #root {
 
 .embed-host__more {
   flex: none;
+  /* The glyph centred in the box, rather than on the line the inherited line height draws. */
+  display: grid;
+  place-items: center;
   width: 24px;
   height: 24px;
+  padding: 0;
+  line-height: 1;
   border: 0;
   border-radius: 6px;
   background: transparent;
   color: var(--oo-color-muted);
   font: inherit;
   opacity: 0;
+  cursor: pointer;
 }
 
 .embed-host__row:hover .embed-host__more,
@@ -149,6 +161,12 @@ html.is-framed.is-maximized #root {
 .embed-host__more:hover {
   background: var(--oo-color-hover);
   color: var(--oo-color-text);
+}
+
+/* The menu sits in the bar's slot, whose `.oo-bar__slot button` squares its buttons; two classes outrank it. */
+.embed-host__menu .embed-host__item,
+.embed-host__menu .embed-host__more {
+  border-radius: var(--oo-radius-md);
 }
 
 /* The line between the hosts and what manages them. */
@@ -186,9 +204,9 @@ html.is-framed.is-maximized #root {
 
 /* The host list's dots: filled connected, half connecting, hollow down. */
 .embed-dot {
-  width: 10px;
-  height: 10px;
-  border: 2px solid currentColor;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid currentColor;
   border-radius: 50%;
   flex: none;
 }
