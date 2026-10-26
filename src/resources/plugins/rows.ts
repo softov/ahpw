@@ -38,6 +38,8 @@ export interface RowWords {
   state: (state: PluginState) => string;
   /** What a plugin the host tried and failed to load is said to be, over its configured state. */
   loadFailed: string;
+  /** What a running plugin that raised an error is said to be. */
+  failing: string;
   category: (category: string) => string;
   menu: (entry: PluginEntry) => PickerAction[];
 }
@@ -75,11 +77,12 @@ export function pluginRows(entries: readonly PluginEntry[], by: PluginGrouping, 
     const { row } = entry;
     const title = row.title ?? entry.id;
     const categories = (row.manifest?.categories ?? []).map(words.category).join(', ');
+    const error = row.alerts?.find((alert) => alert.level === 'error');
     return {
       key: by === 'state' ? refKey(entry.host, entry.id) : `${group.key}|${refKey(entry.host, entry.id)}`,
-      // A load that failed is louder than what the configuration says.
-      dot: row.loadProblem === undefined ? DOT[row.state] : 'failed',
-      dotLabel: row.loadProblem === undefined ? words.state(row.state) : words.loadFailed,
+      // An error is louder than what the configuration says.
+      dot: error === undefined ? DOT[row.state] : 'failed',
+      dotLabel: error === undefined ? words.state(row.state) : row.loaded === false ? words.loadFailed : words.failing,
       title,
       ...(row.manifest?.icons === undefined ? {} : { icons: row.manifest.icons }),
       emoji: EMOJIcon.hostPlugins,
@@ -88,7 +91,7 @@ export function pluginRows(entries: readonly PluginEntry[], by: PluginGrouping, 
           .filter((bit) => bit !== undefined).join(' \u{00B7} '),
         ...(row.problem === undefined ? [] : [row.problem]),
         // ahpd repeats a configured problem as the load's; one line says it.
-        ...(row.loadProblem === undefined || row.loadProblem === row.problem ? [] : [row.loadProblem]),
+        ...(error === undefined || error.text === row.problem ? [] : [error.text]),
       ].filter((line) => line !== ''),
       menu: words.menu(entry),
       group: { key: group.key, label: group.label },

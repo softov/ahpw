@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import { useI18n, useScena } from '@softov/scena/react';
 import { Alert, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
-import type { PluginRow } from '../../bridges/plugins.js';
+import type { PluginAlert, PluginRow } from '../../bridges/plugins.js';
+import { plural } from '../../i18n/locales.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { RemovableChip } from '../../shell/view/RemovableChip.js';
@@ -11,9 +12,12 @@ import { PROVIDE_ORDER, providedGroups } from './provides.js';
 /** A state that is a problem, and how loud it is. */
 const PROBLEM_TONE: Partial<Record<PluginRow['state'], 'danger' | 'warning'>> = { error: 'danger', missing: 'danger', incompatible: 'warning', unconfigured: 'warning' };
 
+/** The alert levels, loudest first, and the tone each is drawn in. */
+const ALERT_LEVELS: [PluginAlert['level'], 'danger' | 'warning' | 'info'][] = [['error', 'danger'], ['warning', 'warning'], ['info', 'info'], ['notice', 'info']];
+
 /**
  * What a plugin is: its description and problem, the facts of where it comes
- * from and its links, its categories, what its contracts say it provides - each
+ * from and its links, its categories, its alerts by level, what its contracts say it provides - each
  * opening where ahpw shows it - and its configured spec.
  */
 export function Overview({ host, id, row }: { host: string; id: string; row: PluginRow }): ReactElement {
@@ -22,6 +26,8 @@ export function Overview({ host, id, row }: { host: string; id: string; row: Plu
   const manifest = row.manifest;
   const groups = providedGroups(manifest?.contracts, host);
   const tone = PROBLEM_TONE[row.state];
+  // ahpd repeats a configured problem as the load's error; the problem above says it.
+  const alerts = (row.alerts ?? []).filter((alert) => alert.text !== row.problem);
   const facts: DetailItem[] = [
     ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} />, span: true }] : []),
     { label: t('plugins/facts/id'), value: id },
@@ -42,13 +48,33 @@ export function Overview({ host, id, row }: { host: string; id: string; row: Plu
     <div className="web-plugin__overview">
       {manifest?.description === undefined ? null : <Markdown text={manifest.description} />}
       {row.problem === undefined ? null : <Alert tone={tone ?? 'warning'} message={row.problem} />}
-      {row.loadProblem === undefined || row.loadProblem === row.problem ? null : <Alert tone="danger" title={t('plugins/page/loadFailed')} message={row.loadProblem} />}
       <DetailList items={facts} columns={2} />
 
       {(manifest?.categories ?? []).length === 0 ? null : (
         <div className="web-plugin__tags">
           {(manifest?.categories ?? []).map((category) => <RemovableChip key={category} label={categoryWord(t, category)} removeLabel={category} />)}
         </div>
+      )}
+
+      {alerts.length === 0 ? null : (
+        <>
+          <Text variant="h3" text={t('plugins/page/alerts')} />
+          {ALERT_LEVELS.map(([level, alertTone]) => {
+            const said = alerts.filter((alert) => alert.level === level);
+            return said.length === 0 ? null : (
+              <Alert key={level} tone={alertTone} title={plural(`plugins/alerts/${level}`, said.length)}>
+                <ul className="web-plugin__alerts">
+                  {said.map((alert, at) => (
+                    <li key={alert.ref ?? `#${String(at)}`}>
+                      {alert.text}
+                      {alert.ref === undefined ? null : <code className="web-plugin__entry">{alert.ref}</code>}
+                    </li>
+                  ))}
+                </ul>
+              </Alert>
+            );
+          })}
+        </>
       )}
 
       <Text variant="h3" text={t('plugins/page/provides')} />

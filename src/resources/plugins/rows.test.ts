@@ -4,7 +4,7 @@ import { entryKeyOf, pluginRows, type PluginEntry, type RowWords } from './rows.
 
 const entry = (id: string, row: Partial<PluginRow>): PluginEntry => ({ host: 'h', hostName: 'dev', id, row: { spec: id, name: id, state: 'ready', ...row } });
 
-const WORDS: RowWords = { multi: false, state: (state) => state, loadFailed: 'Did not load', category: (category) => (category === '' ? 'Other' : category), menu: () => [] };
+const WORDS: RowWords = { multi: false, state: (state) => state, loadFailed: 'Did not load', failing: 'Has errors', category: (category) => (category === '' ? 'Other' : category), menu: () => [] };
 
 describe('pluginRows', () => {
   it('carries the manifest\'s icons on its row', () => {
@@ -44,10 +44,20 @@ describe('pluginRows', () => {
   });
 
   it('shows the version, and a failed load over the configured state', () => {
-    const [row] = pluginRows([entry('bot', { version: '0.14.0', loaded: false, loadProblem: 'apply threw' })], 'state', WORDS);
+    const alerts = [{ level: 'warning' as const, text: 'no logo' }, { level: 'error' as const, text: 'apply threw' }];
+    const [row] = pluginRows([entry('bot', { version: '0.14.0', loaded: false, alerts })], 'state', WORDS);
     expect(row?.lines).toEqual(['0.14.0', 'apply threw']);
     expect(row?.dot).toBe('failed');
     expect(row?.dotLabel).toBe('Did not load');
+  });
+
+  it('marks a running plugin with an error, and not one with warnings alone', () => {
+    const [failing, warned] = pluginRows([
+      entry('a', { loaded: true, alerts: [{ level: 'error', text: 'lost the database' }] }),
+      entry('b', { loaded: true, alerts: [{ level: 'warning', text: 'no logo' }] }),
+    ], 'state', WORDS);
+    expect([failing?.dot, failing?.dotLabel]).toEqual(['failed', 'Has errors']);
+    expect([warned?.dot, warned?.lines]).toEqual(['ok', []]);
   });
 
   it('starts a row with the host name in a window with every host', () => {

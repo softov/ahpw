@@ -61,6 +61,14 @@ export interface PluginManifest {
 /** How the configuration names a plugin: the module alone, or with its options and whether it is on. */
 export type PluginSpec = string | { name: string; options?: Record<string, unknown>; enabled?: boolean; grants?: string[] };
 
+/** One thing a plugin's row says about it; a later alert with the same `ref` replaced the one before. */
+export interface PluginAlert {
+  level: 'notice' | 'info' | 'warning' | 'error';
+  text: string;
+  /** What it is about, as `<kind>:<id>`. */
+  ref?: string;
+}
+
 /** One configured plugin, as the channel lists it; a secret option reads `<set>`. */
 export interface PluginRow {
   spec: PluginSpec;
@@ -79,8 +87,8 @@ export interface PluginRow {
   version?: string;
   /** Whether the running host loaded it; a configured plugin may not be running. */
   loaded?: boolean;
-  /** Why it did not load, when the host tried. */
-  loadProblem?: string;
+  /** What the plugin or its load raised; a load that failed is an `error`. */
+  alerts?: PluginAlert[];
   /** The JSON Schema of its options; absent for a plugin switched off, which is never imported. */
   optionsSchema?: Record<string, unknown>;
 }

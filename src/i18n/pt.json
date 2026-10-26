@@ -2336,7 +2336,9 @@
       "undeclared": "Foi carregado, mas seu manifesto não nomeia contratos, então não se sabe o que oferece.",
       "notLoaded": "Não foi carregado, então não se sabe o que oferece.",
       "spec": "Como está configurado",
-      "loadFailed": "Não carregou"
+      "loadFailed": "Não carregou",
+      "alerts": "Alertas",
+      "failing": "Tem erros"
     },
     "facts": {
       "id": "Id",
@@ -2368,6 +2370,24 @@
     "running": {
       "yes": "Sim",
       "no": "Não, carrega no próximo início do host"
+    },
+    "alerts": {
+      "error": {
+        "one": "{count} erro",
+        "other": "{count} erros"
+      },
+      "warning": {
+        "one": "{count} aviso",
+        "other": "{count} avisos"
+      },
+      "info": {
+        "one": "{count} informação",
+        "other": "{count} informações"
+      },
+      "notice": {
+        "one": "{count} nota",
+        "other": "{count} notas"
+      }
     }
   },
   "connectors": {

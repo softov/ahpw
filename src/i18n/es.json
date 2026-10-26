@@ -2336,7 +2336,9 @@
       "undeclared": "Se cargó, pero su manifiesto no nombra contratos, así que no se sabe qué ofrece.",
       "notLoaded": "No se cargó, así que no se sabe qué ofrece.",
       "spec": "Tal como está configurado",
-      "loadFailed": "No se cargó"
+      "loadFailed": "No se cargó",
+      "alerts": "Alertas",
+      "failing": "Tiene errores"
     },
     "facts": {
       "id": "Id",
@@ -2368,6 +2370,24 @@
     "running": {
       "yes": "Sí",
       "no": "No, se carga en el próximo inicio del host"
+    },
+    "alerts": {
+      "error": {
+        "one": "{count} error",
+        "other": "{count} errores"
+      },
+      "warning": {
+        "one": "{count} advertencia",
+        "other": "{count} advertencias"
+      },
+      "info": {
+        "one": "{count} información",
+        "other": "{count} informaciones"
+      },
+      "notice": {
+        "one": "{count} nota",
+        "other": "{count} notas"
+      }
     }
   },
   "connectors": {

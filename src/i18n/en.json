@@ -2336,7 +2336,9 @@
       "undeclared": "It loaded, but its manifest names no contracts, so what it provides is not known.",
       "notLoaded": "It has not loaded, so what it provides is not known.",
       "spec": "As configured",
-      "loadFailed": "It did not load"
+      "loadFailed": "It did not load",
+      "alerts": "Alerts",
+      "failing": "It has errors"
     },
     "facts": {
       "id": "Id",
@@ -2368,6 +2370,24 @@
     "running": {
       "yes": "Yes",
       "no": "No, it loads at the host's next start"
+    },
+    "alerts": {
+      "error": {
+        "one": "{count} error",
+        "other": "{count} errors"
+      },
+      "warning": {
+        "one": "{count} warning",
+        "other": "{count} warnings"
+      },
+      "info": {
+        "one": "{count} info",
+        "other": "{count} infos"
+      },
+      "notice": {
+        "one": "{count} notice",
+        "other": "{count} notices"
+      }
     }
   },
   "connectors": {

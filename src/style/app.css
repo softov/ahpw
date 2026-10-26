@@ -4624,6 +4624,19 @@
   margin: 0;
 }
 
+.web-plugin__alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.web-plugin__alerts code {
+  margin-left: var(--oo-spacing-sm);
+  color: var(--oo-color-muted);
+}
+
 .web-plugin__entry {
   font-family: var(--oo-font-mono);
   font-size: var(--oo-font-size-sm);

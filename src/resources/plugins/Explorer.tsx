@@ -67,6 +67,7 @@ export default function PluginsExplorer(): ReactElement {
       multi,
       state: (state) => t(`plugins/states/${state}`),
       loadFailed: t('plugins/page/loadFailed'),
+      failing: t('plugins/page/failing'),
       category: (category) => categoryWord(t, category),
       menu,
     });
