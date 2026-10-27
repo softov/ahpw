@@ -8,8 +8,8 @@
       keeps a favicon by its URL and never fetches a new one at the same URL,
       which left the old logo in every tab after the new one shipped.
     -->
-    <link rel="icon" type="image/svg+xml" href="./src/shell/ahpw.svg" />
-    <title>ahpw</title>
+    <link rel="icon" type="image/svg+xml" href="./src/shell/ahpio.svg" />
+    <title>ahpio</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -51,26 +51,28 @@
         overflow: visible;
       }
 
-      /* Three copies of the A leave the mark, a third of a cycle apart; the same motion as src/shell/ahpw-mark.css. */
-      .boot-echo {
-        transform-box: view-box;
-        transform-origin: 32px 32px;
-        opacity: 0;
-        animation: boot-echo 1.5s cubic-bezier(0.25, 0.6, 0.3, 1) infinite;
+      /* The dots rest dim and light in turn, a quarter of a cycle apart; the same motion as src/shell/ahpio-mark.css. */
+      .boot-dot {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: boot-pulse 1.2s ease-in-out infinite;
       }
 
-      .boot-echo--second {
-        animation-delay: 0.5s;
+      .boot-dot:nth-of-type(2) {
+        animation-delay: 0.3s;
       }
 
-      .boot-echo--third {
-        animation-delay: 1s;
+      .boot-dot:nth-of-type(3) {
+        animation-delay: 0.6s;
       }
 
-      @keyframes boot-echo {
-        0% { transform: scale(1); opacity: 0.6; }
-        75% { opacity: 0; }
-        100% { transform: scale(1.95); opacity: 0; }
+      .boot-dot:nth-of-type(4) {
+        animation-delay: 0.9s;
+      }
+
+      @keyframes boot-pulse {
+        0%, 50%, 100% { transform: scale(1); opacity: 0.35; }
+        15% { transform: scale(1.18); opacity: 1; }
       }
 
       @keyframes boot-in {
@@ -90,7 +92,7 @@
           animation: none;
         }
 
-        .boot-echo {
+        .boot-dot {
           animation: none;
         }
       }
@@ -98,19 +100,16 @@
   </head>
   <body>
     <div id="root">
-      <div class="boot-loading" role="status" aria-label="Loading ahpw">
+      <div class="boot-loading" role="status" aria-label="Loading ahpio">
         <svg class="boot-mark" width="72" height="72" viewBox="0 0 64 64" aria-hidden="true">
-          <path class="boot-echo" fill="#62c9b0" d="M29.29 7.08 L34.83 7.08 L52.12 56.84 L40.28 56.84 L32.06 33.15 L23.85 56.84 L12.01 56.84 Z" />
-          <path class="boot-echo boot-echo--second" fill="#62c9b0" d="M29.29 7.08 L34.83 7.08 L52.12 56.84 L40.28 56.84 L32.06 33.15 L23.85 56.84 L12.01 56.84 Z" />
-          <path class="boot-echo boot-echo--third" fill="#62c9b0" d="M29.29 7.08 L34.83 7.08 L52.12 56.84 L40.28 56.84 L32.06 33.15 L23.85 56.84 L12.01 56.84 Z" />
-          <rect x="23.56" y="42.23" width="17.1" height="7.92" fill="#356b5e" />
-          <path fill="#356b5e" d="M7 11.25 L18.84 11.25 L23.85 56.88 L12.01 56.88 Z" />
-          <path fill="#356b5e" d="M57 11.25 L45.16 11.25 L40.15 56.88 L51.99 56.88 Z" />
-          <path fill="#62c9b0" d="M29.29 7.08 L34.83 7.08 L52.12 56.84 L40.28 56.84 L32.06 33.15 L23.85 56.84 L12.01 56.84 Z" />
+          <circle class="boot-dot" cx="31.64" cy="9.32" r="7.92" fill="#00A859" />
+          <circle class="boot-dot" cx="31.64" cy="36.68" r="7.92" fill="#5B9BFF" />
+          <circle class="boot-dot" cx="8.6" cy="54.68" r="7.92" fill="#FFC82A" />
+          <circle class="boot-dot" cx="55.4" cy="54.68" r="7.92" fill="#ED3237" />
         </svg>
       </div>
       <noscript>
-        <p class="boot-noscript">ahpw needs JavaScript to run.</p>
+        <p class="boot-noscript">ahpio needs JavaScript to run.</p>
       </noscript>
     </div>
     <script type="module" src="/src/main.tsx"></script>

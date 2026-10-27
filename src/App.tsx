@@ -6,7 +6,7 @@ import { Scena as ScenaRoot, useScena } from '@softov/scena/react/core';
 import { DefaultShell, useI18n } from '@softov/scena/react';
 import { Limen, PortaContextProvider, SIGILLUM_PATHS, createPorta, registerPortaBlocks, useSession } from '@softov/scena/porta';
 import { registerBuiltins, registerBuiltinLayouts } from '@softov/scena/ui/builtins';
-import { AhpwMark } from './shell/AhpwMark.js';
+import { AhpioMark } from './shell/AhpioMark.js';
 import { PRESENTATION } from './shell/presentation.js';
 import { registerShell } from './shell/register-shell.js';
 import { hostKey } from './lib/storage-keys.js';
@@ -80,7 +80,7 @@ function PortaBridge({ children }: { children: ReactNode }): ReactElement {
     };
   }, [session, scena]);
 
-  return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading" role="status" aria-label="Loading ahpw"><AhpwMark size={72} echo /></div> : children}</PortaContextProvider>;
+  return <PortaContextProvider porta={porta}>{restoring ? <div className="web-loading" role="status" aria-label="Loading ahpio"><AhpioMark size={72} pulse /></div> : children}</PortaContextProvider>;
 }
 
 /** The sign-in page's line, in the chosen language; its own component so App never re-renders on a language switch. */
@@ -99,7 +99,7 @@ export default function App(): ReactElement {
   return (
     <ScenaRoot options={options} onRender={onRender}>
       <PortaBridge>
-        <Limen permission={SIGNED_IN} title={<AhpwMark size={48} label="ahpw" set />} subtitle={<SignInNote />}>
+        <Limen permission={SIGNED_IN} title={<AhpioMark size={48} label="ahpio" set />} subtitle={<SignInNote />}>
           <DefaultShell presentation={PRESENTATION} />
         </Limen>
       </PortaBridge>

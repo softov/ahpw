@@ -17,7 +17,7 @@
 }
 
 .web-title {
-  font-weight: 600;
+  display: flex;
 }
 
 /* The brand holds the activity bar's column, so what comes after it starts where the sidebar does. */
