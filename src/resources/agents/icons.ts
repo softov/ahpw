@@ -6,9 +6,10 @@ import type { PeopleState } from '../../bridges/people.js';
 import { useServingHosts } from '../../bridges/served.js';
 import { useScheme } from '../../shell/HostIcon.js';
 
-/** The icons drawn for an agent: its record's own, else its engine's, which the host gives its plugin's when it has none. */
+/** The icons drawn for an agent: the row's, else its record's own, else its engine's, which the host gives its plugin's when it has none. */
 export function agentIcons(record: AgentRow | undefined, engines: readonly { id: string; record: EngineRow }[]): Icon[] | undefined {
   if (record === undefined) return undefined;
+  if (record.icons !== undefined && record.icons.length > 0) return record.icons;
   if (record.icon !== undefined) return [record.icon];
   return engines.find((one) => one.id === record.engine)?.record.icons;
 }
