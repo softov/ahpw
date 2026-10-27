@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- An agent's page header is drawn with the same icons as its row in the list.
 - An agent is drawn with the `icons` its agents row carries, light and dark, before its record's own `icon`. An ACP agent with no icon of its own shows its vendor's mark.
 
 ## [0.7.1] - 2026-10-26
