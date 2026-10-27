@@ -2483,7 +2483,13 @@
       "search": "Search adapters",
       "change": "Change",
       "none": "No adapter matches.",
-      "count": "{shown} of {all}"
+      "count": "{shown} of {all}",
+      "group": "Group adapters",
+      "noCapability": "No capability",
+      "by": {
+        "plugin": "By plugin",
+        "type": "By type"
+      }
     }
   }
 }

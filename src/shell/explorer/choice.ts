@@ -30,7 +30,8 @@ export function readChoice<T extends string>(key: string, values: readonly T[], 
   }
 }
 
-function writeChoice(key: string, value: string): void {
+/** Keeps a choice in storage, or nothing when storage is shut. */
+export function writeChoice(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
   } catch {

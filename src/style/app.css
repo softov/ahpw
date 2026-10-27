@@ -4838,9 +4838,25 @@
 }
 
 .web-adapter-picker__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oo-spacing-sm);
   padding: 6px 12px;
   border-top: 1px solid var(--oo-color-border);
   color: var(--oo-color-muted);
+  font-size: var(--oo-font-size-xs);
+}
+
+.web-adapter-picker__grouping {
+  display: flex;
+  gap: 4px;
+}
+
+.web-adapter-picker__plugin {
+  margin-left: 6px;
+  color: var(--oo-color-muted);
+  font-weight: normal;
   font-size: var(--oo-font-size-xs);
 }
 

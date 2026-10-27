@@ -7,7 +7,7 @@
  */
 
 import type { EnumOption, JsonSchemaObject } from '@softov/scena/ui';
-import { isSecretRef, type AdapterRow, type ConnectorOwner } from '../../bridges/connectors.js';
+import { isSecretRef, type AdapterRow, type Capability, type ConnectorOwner } from '../../bridges/connectors.js';
 import { EVERY, grantParts } from '../../bridges/grants.js';
 import type { ListedUser } from '../../bridges/people.js';
 import { membershipParts } from '../users/memberships.js';
@@ -74,15 +74,32 @@ export function suggestedId(base: string, taken: readonly string[]): string {
 export const idFor = (title: string, adapter: string, taken: readonly string[]): string =>
   adapter === '' ? '' : suggestedId(slugOf(title) || slugOf(adapter), taken);
 
-/** What the picker lists: an adapter, or an agent kind, which a plugin registers the same way. */
-export type Pickable = Pick<AdapterRow, 'name' | 'title' | 'description' | 'plugin' | 'icons'>;
+/** What the picker lists: an adapter, or an agent kind, which a plugin registers the same way. An agent kind declares no capabilities. */
+export type Pickable = Pick<AdapterRow, 'name' | 'title' | 'description' | 'plugin' | 'icons'> & {
+  capabilities?: readonly Pick<Capability, 'type' | 'title'>[];
+};
 
-/** One plugin's adapters, as the picker lists them. */
+/** One group of adapters, as the picker lists them: a plugin's, or a capability type's. */
 export interface AdapterGroup<T extends Pickable = AdapterRow> {
-  plugin: string;
+  key: string;
   label: string;
   adapters: T[];
 }
+
+/** How the picker groups adapters: by the plugin that registers them, or by the types of capability they declare. */
+export type AdapterGrouping = 'plugin' | 'type';
+
+export const ADAPTER_GROUPINGS: readonly AdapterGrouping[] = ['plugin', 'type'];
+
+/** The key under which each browser keeps the picker's grouping. */
+export const ADAPTER_GROUPING_KEY = 'ahpd-web.adapter-picker-group';
+
+/** Whether an adapter's title, description or plugin title holds `wanted`, which is lowercase. */
+const matches = (adapter: Pickable, plugin: string, wanted: string): boolean =>
+  wanted === '' || [adapter.title, adapter.description, plugin].join(' ').toLowerCase().includes(wanted);
+
+const byTitle = <T extends Pickable>(group: AdapterGroup<T>): AdapterGroup<T> =>
+  ({ ...group, adapters: [...group.adapters].sort((a, b) => a.title.localeCompare(b.title)) });
 
 /**
  * The adapters by the plugin that registers them, each under its plugin's
@@ -95,15 +112,45 @@ export function adapterGroups<T extends Pickable>(adapters: readonly T[], labelO
   const groups = new Map<string, AdapterGroup<T>>();
   for (const adapter of adapters) {
     const label = labelOf(adapter.plugin);
-    if (wanted !== '' && ![adapter.title, adapter.description, label].join(' ').toLowerCase().includes(wanted)) continue;
-    const group = groups.get(adapter.plugin) ?? { plugin: adapter.plugin, label, adapters: [] };
+    if (!matches(adapter, label, wanted)) continue;
+    const group = groups.get(adapter.plugin) ?? { key: adapter.plugin, label, adapters: [] };
     group.adapters.push(adapter);
     groups.set(adapter.plugin, group);
   }
-  const rank = (group: AdapterGroup<T>): number => (group.plugin === 'host' ? 0 : 1);
-  return [...groups.values()]
-    .map((group) => ({ ...group, adapters: [...group.adapters].sort((a, b) => a.title.localeCompare(b.title)) }))
-    .sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label));
+  const rank = (group: AdapterGroup<T>): number => (group.key === 'host' ? 0 : 1);
+  return [...groups.values()].map(byTitle).sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label));
+}
+
+/**
+ * The adapters by the types of capability they declare, one under each of its
+ * types, and one that declares none under `none`. A type is headed by
+ * `typeLabel(type, title)`, where `title` is the host's title for its first
+ * capability of that type. The groups are by heading with `none` last, and
+ * each group's adapters by title. `needle` keeps adapters as `adapterGroups`
+ * does, and every adapter of a group whose heading or type holds it.
+ */
+export function capabilityGroups<T extends Pickable>(adapters: readonly T[], typeLabel: (type: string, title: string) => string, pluginLabel: (plugin: string) => string, none: string, needle = ''): AdapterGroup<T>[] {
+  const wanted = needle.trim().toLowerCase();
+  const groups = new Map<string, AdapterGroup<T>>();
+  const add = (key: string, label: string, adapter: T): void => {
+    const group = groups.get(key) ?? { key, label, adapters: [] };
+    if (!group.adapters.includes(adapter)) group.adapters.push(adapter);
+    groups.set(key, group);
+  };
+  // A group's heading also matches: `models` keeps every adapter under "Serves models".
+  const heads = (label: string): boolean => label.toLowerCase().includes(wanted);
+  for (const adapter of adapters) {
+    const own = matches(adapter, pluginLabel(adapter.plugin), wanted);
+    const capabilities = adapter.capabilities ?? [];
+    if (capabilities.length === 0 && (own || heads(none))) add('', none, adapter);
+    for (const capability of capabilities) {
+      const key = `type:${capability.type}`;
+      const label = groups.get(key)?.label ?? typeLabel(capability.type, capability.title);
+      if (own || heads(label) || heads(capability.type)) add(key, label, adapter);
+    }
+  }
+  const rank = (group: AdapterGroup<T>): number => (group.key === '' ? 1 : 0);
+  return [...groups.values()].map(byTitle).sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label));
 }
 
 /** The words the owner choices are named with. */

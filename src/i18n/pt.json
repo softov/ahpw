@@ -2483,7 +2483,13 @@
       "search": "Buscar adaptadores",
       "change": "Trocar",
       "none": "Nenhum adaptador corresponde.",
-      "count": "{shown} de {all}"
+      "count": "{shown} de {all}",
+      "group": "Agrupar adaptadores",
+      "noCapability": "Sem capacidade",
+      "by": {
+        "plugin": "Por plugin",
+        "type": "Por tipo"
+      }
     }
   }
 }

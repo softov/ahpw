@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AdapterRow } from '../../bridges/connectors.js';
 import type { ListedUser } from '../../bridges/people.js';
-import { adapterGroups, adapterSchema, configForForm, configForPut, holds, ID_PATTERN, idFor, ownerChoices, secretFields, slugOf, topSchema } from './form.js';
+import { adapterGroups, adapterSchema, capabilityGroups, configForForm, configForPut, holds, ID_PATTERN, idFor, ownerChoices, secretFields, slugOf, topSchema } from './form.js';
 
 const SCHEMA = { type: 'object', properties: { bot: { type: 'string' }, secret: { type: 'string', writeOnly: true } }, required: ['secret'] };
 const WEBHOOK: AdapterRow = { name: 'webhook', title: 'Webhook', description: 'Calls in.', schema: SCHEMA, capabilities: [], plugin: 'webhook' };
@@ -62,6 +62,39 @@ describe('adapterGroups', () => {
     expect(adapterGroups(all, label, 'op').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['anthropic', 'openai']);
     expect(adapterGroups(all, label, 'account').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['openai']);
     expect(adapterGroups(all, label, 'ACTIVE').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['airtable', 'slack']);
+  });
+});
+
+describe('capabilityGroups', () => {
+  const cap = (type: string, title = type): AdapterRow['capabilities'][number] => ({ type, name: type, title, description: '' });
+  const ai = (name: string, title: string, plugin: string, capabilities: AdapterRow['capabilities']): AdapterRow => ({ ...WEBHOOK, name, title, plugin, description: '', capabilities });
+  const all = [
+    ai('openai', 'OpenAI', 'host', [cap('models', 'Serves models')]),
+    ai('anthropic', 'Anthropic', 'host', [cap('models', 'Serves models')]),
+    ai('slack', 'Slack', 'activepieces', [cap('action'), cap('action'), cap('receive')]),
+    ai('hook', 'Hook', 'webhook', [cap('receive')]),
+    ai('bare', 'Bare', 'activepieces', []),
+  ];
+  const words: Record<string, string> = { action: 'Actions', receive: 'Receives' };
+  const typeLabel = (type: string, title: string): string => words[type] ?? title;
+  const plugin = (one: string): string => ({ host: 'The host', activepieces: 'Activepieces' })[one] ?? one;
+
+  it('puts an adapter under each type it declares, once each, heads an unknown type by the host\'s title, and closes with those that declare none', () => {
+    expect(capabilityGroups(all, typeLabel, plugin, 'No capability').map((group) => [group.label, group.adapters.map((one) => one.name)])).toEqual([
+      ['Actions', ['slack']],
+      ['Receives', ['hook', 'slack']],
+      ['Serves models', ['anthropic', 'openai']],
+      ['No capability', ['bare']],
+    ]);
+  });
+
+  it('keeps the adapters whose title, description or plugin holds the search', () => {
+    expect(capabilityGroups(all, typeLabel, plugin, 'No capability', 'host').flatMap((group) => group.adapters.map((one) => one.name))).toEqual(['anthropic', 'openai']);
+  });
+
+  it('keeps every adapter of a group whose heading or type holds the search, under that group only', () => {
+    expect(capabilityGroups(all, typeLabel, plugin, 'No capability', 'models').map((group) => [group.label, group.adapters.map((one) => one.name)])).toEqual([['Serves models', ['anthropic', 'openai']]]);
+    expect(capabilityGroups(all, typeLabel, plugin, 'No capability', 'receive').map((group) => [group.label, group.adapters.map((one) => one.name)])).toEqual([['Receives', ['hook', 'slack']]]);
   });
 });
 
