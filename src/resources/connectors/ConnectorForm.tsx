@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, SchemaForm, Spinner, type JsonSchemaObject } from '@softov/scena/ui';
+import { SETTINGS_VIEWS } from '../editor/yamlView.js';
 import { useChannel } from '../../bridges/channel.js';
 import { ADAPTERS, adaptersReducer, CONNECTORS, connectorsReducer, putConnector, type AdapterRow, type ConnectorOwner, type ConnectorRow } from '../../bridges/connectors.js';
 import { ahpPaths } from '../../bridges/data.js';
@@ -153,7 +154,7 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
           <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={adapter!.icons} size={16} />{t('connectors/form/settingsOf', { adapter: adapter!.title })}</h3>
           {/* The schema says what the form is when it can; the adapter says it otherwise. */}
           {adapter!.description === '' || typeof adapter!.schema.description === 'string' ? null : <p className="web-note">{adapter!.description}</p>}
-          <SchemaForm key={top.adapter} schema={fields} value={config} baseline={heldConfig} onChange={(next) => { setConfig(next); setSaved(false); }} />
+          <SchemaForm key={top.adapter} schema={fields} views={SETTINGS_VIEWS} value={config} baseline={heldConfig} onChange={(next) => { setConfig(next); setSaved(false); }} />
         </section>
       )}
       {failure === null ? null : <Alert tone="danger" title={t('connectors/form/failed')} message={failure} />}

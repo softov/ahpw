@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, SchemaForm, Spinner, type EnumOption, type JsonSchemaObject } from '@softov/scena/ui';
+import { SETTINGS_VIEWS } from '../editor/yamlView.js';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
 import { ENGINES, AGENTS, enginesReducer, agentsReducer, putAgent, type EngineRow, type AgentRow } from '../../bridges/agents.js';
 import { useChannel } from '../../bridges/channel.js';
@@ -178,7 +179,7 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
         <section className="web-connector-form__adapter" aria-label={t('agents/form/settingsOf', { engine: engine!.title })}>
           <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={engine!.icons} size={16} />{t('agents/form/settingsOf', { engine: engine!.title })}</h3>
           {engine!.description === '' || typeof engine!.schema.description === 'string' ? null : <p className="web-note">{engine!.description}</p>}
-          <SchemaForm key={`${engineName}:${template}`} schema={fields} value={config} baseline={editing ? heldForm : config} onChange={(next) => { setConfig(next); setSaved(false); }} />
+          <SchemaForm key={`${engineName}:${template}`} schema={fields} views={SETTINGS_VIEWS} value={config} baseline={editing ? heldForm : config} onChange={(next) => { setConfig(next); setSaved(false); }} />
         </section>
       )}
       {failure === null ? null : <Alert tone="danger" title={t('agents/form/failed')} message={failure} />}

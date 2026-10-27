@@ -23,6 +23,9 @@ importers:
       '@cofold/terminal':
         specifier: ^0.3.0
         version: 0.3.0
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
     devDependencies:
       '@ahpd/sdk':
         specifier: ^0.14.0
@@ -100,8 +103,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@softov/scena':
-        specifier: ^0.5.13
-        version: 0.5.13(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^0.5.14
+        version: 0.5.14(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.5
@@ -113,7 +116,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^6.0.5
-        version: 6.1.1(vite@8.3.2(@types/node@22.20.5))
+        version: 6.1.1(vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1))
       '@xterm/addon-fit':
         specifier: ^0.11.0
         version: 0.11.0
@@ -134,13 +137,13 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^8.2.1
-        version: 8.3.2(@types/node@22.20.5)
+        version: 8.3.2(@types/node@22.20.5)(yaml@2.9.1)
       vitepress:
         specifier: ^1.6.4
         version: 1.6.4(@algolia/client-search@5.60.0)(@types/node@22.20.5)(@types/react@19.3.0)(lightningcss@1.33.0)(postcss@8.5.31)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(search-insights@2.17.3)(typescript@5.9.3)
       vitest:
         specifier: ^4.1.0
-        version: 4.1.11(@types/node@22.20.5)(jsdom@28.1.0)(vite@8.3.2(@types/node@22.20.5))
+        version: 4.1.11(@types/node@22.20.5)(jsdom@28.1.0)(vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1))
 
 packages:
 
@@ -895,8 +898,8 @@ packages:
   '@shikijs/vscode-textmate@10.1.0':
     resolution: {integrity: sha512-cVBuhDQjBZaNMTwBquYfPydrUP+E3hE6oYGasx8h6ZrODIM7/r+gxLDXdd66oszbrggZHEntdE6j+5gYIVyMWQ==}
 
-  '@softov/scena@0.5.13':
-    resolution: {integrity: sha512-yG+b+3kjONWPhCPDzodYn1vVe1LpPuo5oABp07ogd0i3J9doVFg/sJO6BXZIh+/BV1vgGnVDjyMUIELGzJKhTg==}
+  '@softov/scena@0.5.14':
+    resolution: {integrity: sha512-KncjJ4XP56ROkLDFYy2U1eKjIvkGPw0Hgav7WWnpSPvntb9psjLvn79OO0xkslvZ1jB7w7VDfBW0AxTgI8QMpQ==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -1762,6 +1765,11 @@ packages:
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
+  yaml@2.9.1:
+    resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -2514,7 +2522,7 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.1.0': {}
 
-  '@softov/scena@0.5.13(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@softov/scena@0.5.14(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     optionalDependencies:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -2565,10 +2573,10 @@ snapshots:
 
   '@ungap/structured-clone@1.4.0': {}
 
-  '@vitejs/plugin-react@6.1.1(vite@8.3.2(@types/node@22.20.5))':
+  '@vitejs/plugin-react@6.1.1(vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.2(@types/node@22.20.5)
+      vite: 8.3.2(@types/node@22.20.5)(yaml@2.9.1)
 
   '@vitejs/plugin-vue@5.2.4(vite@5.4.21(@types/node@22.20.5)(lightningcss@1.33.0))(vue@3.5.44(typescript@5.9.3))':
     dependencies:
@@ -2584,13 +2592,13 @@ snapshots:
       chai: 6.3.0
       tinyrainbow: 3.2.0
 
-  '@vitest/mocker@4.1.11(vite@8.3.2(@types/node@22.20.5))':
+  '@vitest/mocker@4.1.11(vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.3.2(@types/node@22.20.5)
+      vite: 8.3.2(@types/node@22.20.5)(yaml@2.9.1)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -3281,7 +3289,7 @@ snapshots:
       fsevents: 2.3.3
       lightningcss: 1.33.0
 
-  vite@8.3.2(@types/node@22.20.5):
+  vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -3291,6 +3299,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.20.5
       fsevents: 2.3.3
+      yaml: 2.9.1
 
   vitepress@1.6.4(@algolia/client-search@5.60.0)(@types/node@22.20.5)(@types/react@19.3.0)(lightningcss@1.33.0)(postcss@8.5.31)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(search-insights@2.17.3)(typescript@5.9.3):
     dependencies:
@@ -3342,10 +3351,10 @@ snapshots:
       - typescript
       - universal-cookie
 
-  vitest@4.1.11(@types/node@22.20.5)(jsdom@28.1.0)(vite@8.3.2(@types/node@22.20.5)):
+  vitest@4.1.11(@types/node@22.20.5)(jsdom@28.1.0)(vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.3.2(@types/node@22.20.5))
+      '@vitest/mocker': 4.1.11(vite@8.3.2(@types/node@22.20.5)(yaml@2.9.1))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -3362,7 +3371,7 @@ snapshots:
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tinyrainbow: 3.2.0
-      vite: 8.3.2(@types/node@22.20.5)
+      vite: 8.3.2(@types/node@22.20.5)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.20.5
@@ -3415,5 +3424,7 @@ snapshots:
 
   xmlchars@2.2.0:
     optional: true
+
+  yaml@2.9.1: {}
 
   zwitch@2.0.4: {}

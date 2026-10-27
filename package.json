@@ -90,7 +90,7 @@
     "@codemirror/view": "^6.43.14",
     "@lezer/highlight": "^1.2.5",
     "@microsoft/agent-host-protocol": "^1.0.0",
-    "@softov/scena": "^0.5.13",
+    "@softov/scena": "^0.5.14",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.3",
@@ -114,6 +114,7 @@
     "@cofold/commands": "^0.3.0",
     "@cofold/config": "^0.3.1",
     "@cofold/remote": "^0.5.0",
-    "@cofold/terminal": "^0.3.0"
+    "@cofold/terminal": "^0.3.0",
+    "yaml": "^2.9.1"
   }
 }
