@@ -14,6 +14,7 @@ import { EMOJIcon } from '../emojis.js';
 import { deleteAgent } from './actions.js';
 import { AgentForm } from './AgentForm.js';
 import { agentTitle, mergeAgents, type MergedAgent } from './merge.js';
+import { agentIcons } from './icons.js';
 import { healthLine, Overview } from './Overview.js';
 import { agentTab, agentTabKey, keepAgentTabKey } from './state.js';
 import { signInOf } from './words.js';
@@ -66,7 +67,7 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
   const { info, record } = agent;
   const engine = record === undefined ? undefined : engines?.records.find((one) => one.id === record.engine)?.record;
   const signIn = info === undefined ? [] : signInOf(info);
-  const icons = record?.icon === undefined ? engine?.icons : [record.icon];
+  const icons = agentIcons(record, engines?.records ?? []);
   const overview = <Overview host={host} {...(info === undefined ? {} : { info })} {...(record === undefined ? {} : { record })} {...(engine === undefined ? {} : { engine })} />;
   const remove = record === undefined ? null : (
     <Button
