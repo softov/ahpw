@@ -76,7 +76,7 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5180,
     // A key starting with ^ is a pattern. Plain '/ahp' was a prefix, so it also
-    // sent '/ahpw.svg' (the favicon) to the daemon, and the page had no icon.
+    // sent '/ahpw.svg' (the favicon then) to the daemon, and the page had no icon.
     proxy: {
       '^/api(?:[/?]|$)': {
         target: daemon,

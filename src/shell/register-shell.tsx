@@ -46,9 +46,15 @@ import { MANAGE_SLOT, registerManage } from './manage.js';
 import type { BindingPath } from '@softov/scena/types';
 import { THEME_ID_KEY, THEME_MODE_KEY } from '../lib/theme-keys.js';
 import { embedder } from './embed/index.js';
+import { AhpioMark } from './AhpioMark.js';
 
-function AppTitle({ text }: { text?: string }): ReactElement {
-  return <span className="web-title">{text ?? 'ahpw'}</span>;
+/** The title bar's brand: ahpio's mark, in the activity bar's column. */
+function AppTitle(): ReactElement {
+  return (
+    <span className="web-title">
+      <AhpioMark size={16} label="ahpio" />
+    </span>
+  );
 }
 
 /** What an activity item passes to `sidebar.activate`: pressed again, it closes the sidebar. */
@@ -141,7 +147,7 @@ export function registerShell(scena: Scena): Disposable {
     scena.surfaces.mount({
       surface: 'titlebar',
       key: 'chrome:title',
-      resource: { component: 'AppTitle', slot: 'left', text: 'ahpw' },
+      resource: { component: 'AppTitle', slot: 'left' },
     }),
     registerView(scena),
     // After every owner of a UI setting: the theme, notifications, the view.
