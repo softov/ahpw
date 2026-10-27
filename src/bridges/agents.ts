@@ -64,6 +64,8 @@ export interface AgentRow {
   description?: string;
   /** What is drawn for the agent; an `Icon` URL, not an emoji. */
   icon?: Icon;
+  /** The icons the host draws the agent with: its own `icon`, else its template's, light and dark. */
+  icons?: Icon[];
   model?: string;
   /** The engine's own values, each secret as a `{ $secret }` reference. */
   config: Record<string, unknown>;
