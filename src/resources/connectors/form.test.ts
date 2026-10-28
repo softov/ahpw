@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AdapterRow } from '../../bridges/connectors.js';
 import type { ListedUser } from '../../bridges/people.js';
-import { adapterGroups, adapterSchema, capabilityGroups, configForForm, configForPut, holds, ID_PATTERN, idFor, ownerChoices, secretFields, slugOf, topSchema } from './form.js';
+import { adapterGroups, adapterSchema, capabilityGroups, configForForm, configForPut, configForSignIn, holds, ID_PATTERN, idFor, ownerChoices, secretFields, slugOf, topSchema } from './form.js';
 
 const SCHEMA = { type: 'object', properties: { bot: { type: 'string' }, secret: { type: 'string', writeOnly: true } }, required: ['secret'] };
 const WEBHOOK: AdapterRow = { name: 'webhook', title: 'Webhook', description: 'Calls in.', schema: SCHEMA, capabilities: [], plugin: 'webhook' };
@@ -152,6 +152,14 @@ describe('secrets', () => {
     expect(configForForm({ bot: 'bot://a', secret: { $secret: 'x' } })).toEqual({ bot: 'bot://a', secret: '' });
     expect(configForPut({ bot: 'bot://a' }, SCHEMA)).toEqual({ bot: 'bot://a', secret: '' });
     expect(configForPut({ secret: 'new' }, SCHEMA)).toEqual({ secret: 'new' });
+  });
+});
+
+describe('configForSignIn', () => {
+  const KEYED = { type: 'object', properties: { endpoint: { type: 'string' }, key: { type: 'string', writeOnly: true }, secret: { type: 'string', writeOnly: true } } };
+
+  it('drops the field the sign-in fills, sends another empty secret as "", and keeps the plain fields', () => {
+    expect(configForSignIn({ endpoint: 'https://x', key: 'typed' }, KEYED, 'key')).toEqual({ endpoint: 'https://x', secret: '' });
   });
 });
 

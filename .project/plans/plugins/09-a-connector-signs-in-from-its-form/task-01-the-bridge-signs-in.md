@@ -1,6 +1,6 @@
 ---
 title: The bridge signs in, and the log hides the code
-status: todo
+status: implemented
 depends: []
 layer: "bridges, connectors screen, log"
 refs:
@@ -56,3 +56,7 @@ The wire log shows no pasted code and no typed key.
 - `pnpm -s typecheck && pnpm -s test` passes.
 
 ## Resume
+
+- **Done so far:** the two bridge calls, `configForSignIn` and the wire log mask, with their tests.
+- **Next action:** Softov reviews the change.
+- **Open questions:** none.

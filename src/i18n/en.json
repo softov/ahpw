@@ -2453,6 +2453,17 @@
       "settingsOf": "{adapter} settings",
       "secretKept": "Kept. Type a new value to replace it."
     },
+    "signIn": {
+      "orType": "Sign in, or type the key above.",
+      "step": "Sign in on the page that opened, copy the code it shows, and paste it here.",
+      "openAgain": "Open the page again",
+      "code": "Code",
+      "finish": "Finish",
+      "cancel": "Cancel",
+      "failed": "The sign-in did not finish",
+      "done": "Signed in with {provider}. State: {state}.",
+      "again": "Sign in again"
+    },
     "page": {
       "gone": "This connector is no longer on the host.",
       "overview": "Overview",
@@ -2471,13 +2482,17 @@
       "copied": "URL copied",
       "unknownAdapter": "{adapter}, which no plugin registers now",
       "noAdapter": "Its record names no adapter, because a host from before adapters wrote it. Delete it and make it again.",
-      "noAdapterShort": "None"
+      "noAdapterShort": "None",
+      "models": "Models",
+      "check": "Last check",
+      "lastFailure": "Last failure"
     },
     "capabilities": {
       "receive": "Receives",
       "command": "Commands",
       "action": "Actions",
-      "ui": "Interfaces"
+      "ui": "Interfaces",
+      "models": "Models"
     },
     "picker": {
       "search": "Search adapters",
@@ -2489,6 +2504,37 @@
       "by": {
         "plugin": "By plugin",
         "type": "By type"
+      }
+    },
+    "health": {
+      "ok": "Works",
+      "denied": "Refused",
+      "unreachable": "Unreachable",
+      "failed": "Failed"
+    },
+    "models": {
+      "reading": "Reading the models...",
+      "failed": "The models could not be read",
+      "search": "Search models",
+      "count": {
+        "one": "{count} model",
+        "other": "{count} models"
+      },
+      "shown": {
+        "one": "{shown} of {count} model",
+        "other": "{shown} of {count} models"
+      },
+      "at": "read at {when}",
+      "again": "Read again",
+      "none": "The provider lists no models.",
+      "copy": "Copy the model name",
+      "refused": "You may not call this model.",
+      "priceHint": "Dollars per million tokens: prompt / answer",
+      "columns": {
+        "model": "Model",
+        "name": "Name",
+        "context": "Context",
+        "price": "Price"
       }
     }
   }

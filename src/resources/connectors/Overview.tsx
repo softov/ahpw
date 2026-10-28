@@ -1,14 +1,16 @@
 import type { ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Button, DetailList, Text, type DetailItem } from '@softov/scena/ui';
-import { receiveUrl, type AdapterRow, type Capability, type ConnectorRow } from '../../bridges/connectors.js';
+import { receiveUrl, type AdapterRow, type Capability, type ConnectorHealth, type ConnectorRow } from '../../bridges/connectors.js';
 import { ahpPaths, httpRoot } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { EMOJIcon } from '../emojis.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { HostIcon } from '../../shell/HostIcon.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
+import { copyText } from '../../shell/controls/CopyButton.js';
 import { done } from '../../shell/notify/index.js';
+import { when } from '../sessions/turn.js';
 import { meOn, ownerWord } from './actions.js';
 import { inputsOf } from './inputs.js';
 
@@ -18,6 +20,7 @@ const KNOWN_TYPES = new Map([
   ['command', EMOJIcon.terminal],
   ['action', EMOJIcon.action],
   ['ui', EMOJIcon.interface],
+  ['models', EMOJIcon.model],
 ]);
 
 /** Capabilities grouped by type: the known types in their order, then the others in the order they come. */
@@ -44,7 +47,7 @@ function CapabilityRow({ capability, url }: { capability: Capability; url: strin
   const { t } = useI18n();
   const inputs = inputsOf(capability.input);
   const copy = (text: string): void => {
-    void navigator.clipboard?.writeText(text).then(() => done(t('connectors/page/copied')), () => undefined);
+    void copyText(text).then((copied) => { if (copied) done(t('connectors/page/copied')); });
   };
   return (
     <details className="web-connector__capability">
@@ -82,6 +85,22 @@ function CapabilityRow({ capability, url }: { capability: Capability; url: strin
   );
 }
 
+/** The health facts: the last check, and the last failure when there is one. */
+function healthFacts(t: (key: string, values?: Record<string, unknown>) => string, health: ConnectorHealth | undefined): DetailItem[] {
+  const out: DetailItem[] = [];
+  const check = health?.check;
+  if (check !== undefined) {
+    const words = [t(`connectors/health/${check.result}`), when(check.at), ...(check.message === undefined || check.message === '' ? [] : [check.message])];
+    out.push({ label: t('connectors/page/check'), value: words.join(' \u{00B7} ') });
+  }
+  const failure = health?.lastFailure;
+  if (failure !== undefined) {
+    const why = failure.error ?? (failure.status === undefined ? undefined : String(failure.status));
+    out.push({ label: t('connectors/page/lastFailure'), value: [when(failure.at), ...(why === undefined ? [] : [why])].join(' \u{00B7} '), span: true });
+  }
+  return out;
+}
+
 /**
  * What a connector is: its adapter and the plugin that offers it, whose it
  * is, its state, and what its adapter declares it does. An adapter no plugin
@@ -96,6 +115,7 @@ export function Overview({ host, row, adapter }: { host: string; row: ConnectorR
     ...(embedMode() === 'multi' ? [{ label: t('common/host'), value: <HostTag host={host} />, span: true }] : []),
     { label: t('connectors/page/id'), value: row.id },
     { label: t('connectors/page/state'), value: t(`connectors/states/${row.state}`) },
+    ...healthFacts(t, row.health),
     {
       label: t('connectors/page/adapter'),
       value: adapter === undefined

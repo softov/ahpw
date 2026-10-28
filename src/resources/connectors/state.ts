@@ -18,11 +18,11 @@ export const connectorTab = (host: string, id: string): string => `connectors:${
 export const newConnectorTab = (host: string): string => `connectors:new:${host}`;
 
 /** A connector page's tabs. */
-export type ConnectorTabKey = 'overview' | 'settings';
+export type ConnectorTabKey = 'overview' | 'models' | 'settings';
 
 /** The tab a connector's page opens on: the one chosen last, kept while the page lives. */
 let chosenTab: ConnectorTabKey = 'overview';
 export const connectorTabKey = (): ConnectorTabKey => chosenTab;
 export function keepConnectorTabKey(key: string): void {
-  if (key === 'overview' || key === 'settings') chosenTab = key;
+  if (key === 'overview' || key === 'models' || key === 'settings') chosenTab = key;
 }

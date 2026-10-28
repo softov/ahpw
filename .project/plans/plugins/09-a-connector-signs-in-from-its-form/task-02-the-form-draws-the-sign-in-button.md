@@ -1,6 +1,6 @@
 ---
 title: The form draws the sign-in button
-status: todo
+status: implemented
 depends: [task-01-the-bridge-signs-in.md]
 layer: "connectors screen, catalogs, docs"
 refs:
@@ -60,3 +60,7 @@ A click opens the provider's page and a code step, and Finish makes or changes t
 - By hand: a made OpenRouter connector signs in again from Settings and shows "Saved.".
 
 ## Resume
+
+- **Done so far:** `SignInStep`, the form wiring with `afterPut`, the catalogs, the CSS and the docs paragraph. Typecheck, tests and build pass.
+- **Next action:** Softov runs the checks by hand in [`plugins-09-sign-in-checks.md`](../../../pending/plugins-09-sign-in-checks.md).
+- **Open questions:** none.

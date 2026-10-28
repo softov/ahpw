@@ -2453,6 +2453,17 @@
       "settingsOf": "Configurações de {adapter}",
       "secretKept": "Guardado. Digite um valor novo para substituí-lo."
     },
+    "signIn": {
+      "orType": "Entre, ou digite a chave acima.",
+      "step": "Entre na página que abriu, copie o código que ela mostra e cole aqui.",
+      "openAgain": "Abrir a página de novo",
+      "code": "Código",
+      "finish": "Concluir",
+      "cancel": "Cancelar",
+      "failed": "O login não foi concluído",
+      "done": "Conectado com {provider}. Estado: {state}.",
+      "again": "Entrar de novo"
+    },
     "page": {
       "gone": "Este conector não está mais no host.",
       "overview": "Visão geral",
@@ -2471,13 +2482,17 @@
       "copied": "URL copiada",
       "unknownAdapter": "{adapter}, que nenhum plugin registra agora",
       "noAdapter": "O registro não nomeia um adaptador, porque um host anterior aos adaptadores o escreveu. Exclua-o e crie-o de novo.",
-      "noAdapterShort": "Nenhum"
+      "noAdapterShort": "Nenhum",
+      "models": "Modelos",
+      "check": "Última verificação",
+      "lastFailure": "Última falha"
     },
     "capabilities": {
       "receive": "Recebe",
       "command": "Comandos",
       "action": "Ações",
-      "ui": "Interfaces"
+      "ui": "Interfaces",
+      "models": "Modelos"
     },
     "picker": {
       "search": "Buscar adaptadores",
@@ -2489,6 +2504,37 @@
       "by": {
         "plugin": "Por plugin",
         "type": "Por tipo"
+      }
+    },
+    "health": {
+      "ok": "Funciona",
+      "denied": "Recusado",
+      "unreachable": "Inacessível",
+      "failed": "Falhou"
+    },
+    "models": {
+      "reading": "Lendo os modelos...",
+      "failed": "Não foi possível ler os modelos",
+      "search": "Buscar modelos",
+      "count": {
+        "one": "{count} modelo",
+        "other": "{count} modelos"
+      },
+      "shown": {
+        "one": "{shown} de {count} modelo",
+        "other": "{shown} de {count} modelos"
+      },
+      "at": "lido às {when}",
+      "again": "Ler de novo",
+      "none": "O provedor não lista modelos.",
+      "copy": "Copiar o nome do modelo",
+      "refused": "Você não pode chamar este modelo.",
+      "priceHint": "Dólares por milhão de tokens: prompt / resposta",
+      "columns": {
+        "model": "Modelo",
+        "name": "Nome",
+        "context": "Contexto",
+        "price": "Preço"
       }
     }
   }

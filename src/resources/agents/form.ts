@@ -1,16 +1,16 @@
 /**
  * What the agent form draws and sends. The top is ahpw's own: the name, the
  * id, the owner, the description and the model. Below it, the engine's schema,
- * as the host lists it, with its key variables drawn as one password field
- * each in place of their place in `env`. A secret the host stores is never
- * listed back: its field is empty, and an empty one sent as `""` keeps it.
+ * as the host lists it, in its own shape, each `writeOnly` field a password. A
+ * secret the host stores is never listed back: its field is empty, and an empty
+ * one sent as `""` keeps it.
  */
 
 import type { EnumOption, JsonSchemaObject } from '@softov/scena/ui';
 import type { EngineRow, AgentOwner, AgentRow, AgentWanted } from '../../bridges/agents.js';
 import { isSecretRef } from '../../bridges/connectors.js';
 import type { Icon } from '../../bridges/icons.js';
-import { adapterSchema, configForForm, configForPut, secretFields } from '../connectors/form.js';
+import { configForPut } from '../connectors/form.js';
 
 type Bag = Record<string, unknown>;
 
@@ -69,65 +69,85 @@ export function topOf(record: AgentRow | undefined, owner: string): AgentTop {
 }
 
 /**
- * The engine's schema as the form draws it. Each `writeOnly` field is a
- * password; each key variable is a password field of its own, under its name;
- * a `hostOnly` field is left out of a record the host does not own.
+ * A schema with each `writeOnly` field, at any depth and as a map's values,
+ * drawn as a password. Where `held` keeps a secret at that field, its
+ * description says it is kept.
  */
-export function engineSchema(engine: EngineRow, held: Bag, owner: string, keptWord: string): JsonSchemaObject {
-  const drawn = adapterSchema(engine.schema, held, keptWord) as Bag;
-  const properties = { ...bagOf(drawn.properties) };
-  if (owner !== 'host') {
-    for (const field of engine.hostOnly ?? []) delete properties[field];
-    // Only the key variables are any owner's to set, and they are drawn below.
-    if ((engine.keyVariables ?? []).length > 0) delete properties.env;
+function passwords(schema: Bag, held: unknown, keptWord: string): Bag {
+  const out: Bag = { ...schema };
+  if (schema.writeOnly === true) {
+    out.format = 'password';
+    if (isSecretRef(held)) out.description = keptWord;
   }
-  const env = bagOf(held.env);
-  for (const name of engine.keyVariables ?? []) {
-    properties[name] = { type: 'string', title: name, format: 'password', ...(isSecretRef(env[name]) ? { description: keptWord } : {}) };
+  const properties = bagOf(schema.properties);
+  if (Object.keys(properties).length > 0) {
+    out.properties = Object.fromEntries(Object.entries(properties).map(([name, field]) => [name, passwords(bagOf(field), bagOf(held)[name], keptWord)]));
   }
-  return { ...drawn, properties } as JsonSchemaObject;
-}
-
-/** A held config as the form shows it: each kept secret empty, and each key variable lifted out of `env`. */
-export function agentConfigForForm(engine: EngineRow | undefined, config: Bag): Bag {
-  const keys = engine?.keyVariables ?? [];
-  const shown = configForForm(config);
-  if (keys.length === 0) return shown;
-  const env = bagOf(config.env);
-  const rest = Object.fromEntries(Object.entries(env).filter(([name]) => !keys.includes(name)));
-  const { env: _env, ...others } = shown;
-  return {
-    ...others,
-    ...(Object.keys(rest).length === 0 ? {} : { env: rest }),
-    ...Object.fromEntries(keys.map((name) => [name, isSecretRef(env[name]) ? '' : env[name] ?? ''])),
-  };
+  const values = schema.additionalProperties;
+  if (typeof values === 'object' && values !== null) out.additionalProperties = passwords(values as Bag, undefined, keptWord);
+  return out;
 }
 
 /**
- * The config a put sends. A `writeOnly` field left empty goes as `""`. A key
- * variable goes back into `env`: typed, as its value; empty, as `""` where the
- * host stores one, and left out where it stores none. A `hostOnly` field is
- * left out of a record the host does not own.
+ * The engine's schema as the form draws it: as the host lists it, with each
+ * `writeOnly` field a password. A `hostOnly` field is left out of a record the
+ * host does not own.
+ */
+export function engineSchema(engine: EngineRow, held: Bag, owner: string, keptWord: string): JsonSchemaObject {
+  const drawn = passwords(engine.schema, held, keptWord);
+  if (owner === 'host' || (engine.hostOnly ?? []).length === 0) return drawn as JsonSchemaObject;
+  const properties = { ...bagOf(drawn.properties) };
+  for (const field of engine.hostOnly ?? []) delete properties[field];
+  return { ...drawn, properties } as JsonSchemaObject;
+}
+
+/** A held config as the form shows it: the same shape, with each kept secret empty, since the host never lists its value. */
+export function agentConfigForForm(config: Bag): Bag {
+  const shown = (value: unknown): unknown => {
+    if (isSecretRef(value)) return '';
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return value;
+    return Object.fromEntries(Object.entries(value as Bag).map(([name, one]) => [name, shown(one)]));
+  };
+  return shown(config) as Bag;
+}
+
+/**
+ * Each secret `held` keeps, at any depth, sent as `""` where the form leaves it
+ * empty, so the host keeps it.
+ */
+function keepSecrets(form: Bag, held: Bag): Bag {
+  const out: Bag = { ...form };
+  for (const [name, value] of Object.entries(held)) {
+    if (isSecretRef(value)) {
+      if (out[name] === undefined || out[name] === null) out[name] = '';
+    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      const inner = out[name];
+      if (inner === undefined || (typeof inner === 'object' && inner !== null && !Array.isArray(inner))) out[name] = keepSecrets(bagOf(inner), value as Bag);
+    }
+  }
+  return out;
+}
+
+/**
+ * The config a put sends, in the shape the form holds. A top `writeOnly` field
+ * left empty goes as `""`, and so does each secret the record keeps at any
+ * depth, which keeps the one stored. A `hostOnly` field is left out of a record
+ * the host does not own.
  */
 export function agentConfigForPut(engine: EngineRow, form: Bag, held: Bag, owner: string): Bag {
-  const keys = engine.keyVariables ?? [];
-  const values = Object.fromEntries(Object.entries(form).filter(([name]) => !keys.includes(name)));
-  const out = configForPut(values, engine.schema);
+  const out = keepSecrets(configForPut(form, engine.schema), held);
   if (owner !== 'host') for (const field of engine.hostOnly ?? []) delete out[field];
-  if (keys.length === 0) return out;
-  const stored = bagOf(held.env);
-  const env: Bag = owner === 'host' ? { ...bagOf(out.env) } : {};
-  for (const name of keys) {
-    const typed = form[name];
-    if (typeof typed === 'string' && typed !== '') env[name] = typed;
-    else if (isSecretRef(stored[name])) env[name] = '';
-  }
-  delete out.env;
-  return Object.keys(env).length === 0 ? out : { ...out, env };
+  return out;
 }
 
 /** Whether an engine's form has a secret field, so its Settings say how a kept one is shown. */
-export const hasSecrets = (engine: EngineRow): boolean => secretFields(engine.schema).length > 0 || (engine.keyVariables ?? []).length > 0;
+export function hasSecrets(engine: EngineRow): boolean {
+  const any = (schema: Bag): boolean =>
+    schema.writeOnly === true
+    || Object.values(bagOf(schema.properties)).some((field) => any(bagOf(field)))
+    || (typeof schema.additionalProperties === 'object' && schema.additionalProperties !== null && any(schema.additionalProperties as Bag));
+  return any(engine.schema);
+}
 
 /** What a put sends for a form: the top trimmed, the config made from the engine, and the icon the agent has. */
 export function agentWanted(engine: EngineRow, top: AgentTop, form: Bag, held: Bag, icon?: Icon): AgentWanted {
@@ -148,7 +168,7 @@ export function startOf(engine: EngineRow, at: number): { top: Pick<AgentTop, 'n
   const template = at === -1 ? undefined : engine.templates?.[at];
   return {
     top: { name: template?.name ?? '', description: template?.description ?? '', model: template?.model ?? '' },
-    config: agentConfigForForm(engine, bagOf(template?.config)),
+    config: agentConfigForForm(bagOf(template?.config)),
     ...(template?.icon === undefined ? {} : { icon: template.icon }),
   };
 }

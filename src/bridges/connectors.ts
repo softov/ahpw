@@ -22,6 +22,8 @@ import type { Icon } from './icons.js';
 import type { Offers } from './offers.js';
 import { recordsReducer } from './people.js';
 
+type Bag = Record<string, unknown>;
+
 export const ADAPTERS = {
   scheme: 'x-ahpd-adapters',
   channel: 'x-ahpd-adapters://',
@@ -32,6 +34,9 @@ export const CONNECTORS = {
   channel: 'x-ahpd-connectors://',
   put: 'x-ahpd/connectors/put',
   remove: 'x-ahpd/connectors/remove',
+  signin: 'x-ahpd/connectors/signin',
+  signinFinish: 'x-ahpd/connectors/signin-finish',
+  models: 'x-ahpd/connectors/models',
 } as const;
 
 /** `receive` answers calls, `command` adds a `/` command, `action` is offered to run, `ui` is reserved. Another is shown by its title. */
@@ -51,6 +56,14 @@ export interface Capability {
 /** Whose connector it is: the host's, a team's or a person's. */
 export type ConnectorOwner = 'host' | `team:${string}` | `user:${string}`;
 
+/** How a connector of an adapter signs in to its provider, as the adapter row says. */
+export interface SignInRow {
+  /** What the button says. */
+  title: string;
+  /** The secret field of the adapter's schema that the sign-in fills. */
+  field: string;
+}
+
 /** One adapter a plugin registers, as `x-ahpd-adapters` lists it under its name. */
 export interface AdapterRow {
   name: string;
@@ -63,6 +76,8 @@ export interface AdapterRow {
   plugin: string;
   /** What is drawn beside its title. */
   icons?: Icon[];
+  /** Sent by the host for an adapter whose connectors sign in to their provider. */
+  signIn?: SignInRow;
 }
 
 /**
@@ -74,6 +89,28 @@ export type ConnectorState = 'ready' | 'invalid' | 'unavailable';
 
 export const CONNECTOR_STATES: readonly ConnectorState[] = ['unavailable', 'invalid', 'ready'];
 
+/** What a connector's last check found. */
+export type CheckOutcome = 'ok' | 'denied' | 'unreachable' | 'failed';
+
+/** One call a connector made or answered. */
+export interface CallRow {
+  /** When it happened, as an ISO time. */
+  at: string;
+  ok: boolean;
+  /** The status the service answered, when there was one. */
+  status?: number;
+  /** What went wrong, as the host said it. */
+  error?: string;
+}
+
+/** What the host knows of a connector's health, kept in its memory only. */
+export interface ConnectorHealth {
+  /** The last check, and when it ran. */
+  check?: { result: CheckOutcome; message?: string; at: string };
+  lastCall?: CallRow;
+  lastFailure?: CallRow;
+}
+
 /** One stored connector, as `x-ahpd-connectors` lists it. */
 export interface ConnectorRow {
   id: string;
@@ -84,6 +121,8 @@ export interface ConnectorRow {
   /** The values filled in, each secret as a `{ $secret }` reference. */
   config: Record<string, unknown>;
   state: ConnectorState;
+  /** Absent on a host from before health, and until the host knows something. */
+  health?: ConnectorHealth;
 }
 
 export const adaptersReducer = recordsReducer<AdapterRow>(ADAPTERS.scheme);
@@ -118,18 +157,84 @@ const isRow = (value: unknown): value is ConnectorRow => {
   return typeof held === 'object' && held !== null && typeof held.id === 'string' && typeof held.owner === 'string';
 };
 
+/** A put's params: the title only when there is one. */
+const putParams = (wanted: ConnectorWanted): Bag => ({
+  id: wanted.id,
+  adapter: wanted.adapter,
+  owner: wanted.owner,
+  ...(wanted.title === undefined || wanted.title === '' ? {} : { title: wanted.title }),
+  config: wanted.config,
+});
+
 /** Makes or changes one connector; the host checks it against its adapter and opens it. Answers the row it now lists. */
 export async function putConnector(host: string, wanted: ConnectorWanted): Promise<ConnectorRow> {
-  const params = {
-    id: wanted.id,
-    adapter: wanted.adapter,
-    owner: wanted.owner,
-    ...(wanted.title === undefined || wanted.title === '' ? {} : { title: wanted.title }),
-    config: wanted.config,
-  };
-  const answer = await hostBridge(host).request(CONNECTORS.put as never, params as never) as unknown;
+  const answer = await hostBridge(host).request(CONNECTORS.put as never, putParams(wanted) as never) as unknown;
   if (!isRow(answer)) throw new Error(`${CONNECTORS.put} answered no connector`);
   return answer;
+}
+
+/** A started sign-in: the provider's page, and the state its finish names. */
+export interface SignInStarted {
+  url: string;
+  state: string;
+}
+
+const nonEmpty = (value: unknown): value is string => typeof value === 'string' && value !== '';
+
+/**
+ * Starts a sign-in for the connector a put would make, without the field the
+ * sign-in fills. Answers the page a person opens and the state to finish with.
+ */
+export async function startSignIn(host: string, wanted: ConnectorWanted): Promise<SignInStarted> {
+  const answer = await hostBridge(host).request(CONNECTORS.signin as never, putParams(wanted) as never) as unknown;
+  const held = answer as Partial<SignInStarted> | null;
+  if (typeof held !== 'object' || held === null || !nonEmpty(held.url) || !nonEmpty(held.state)) {
+    throw new Error(`${CONNECTORS.signin} answered no sign-in`);
+  }
+  return { url: held.url, state: held.state };
+}
+
+/** Finishes a sign-in with the code the provider showed. Answers the row the host now lists. */
+export async function finishSignIn(host: string, state: string, code: string): Promise<ConnectorRow> {
+  const answer = await hostBridge(host).request(CONNECTORS.signinFinish as never, { state, code } as never) as unknown;
+  if (!isRow(answer)) throw new Error(`${CONNECTORS.signinFinish} answered no connector`);
+  return answer;
+}
+
+/** One model a provider connector serves, as `x-ahpd/connectors/models` answers it. */
+export interface ConnectorModel {
+  /** The model's id on its provider. */
+  id: string;
+  /** The name a caller sends as `model` to the host's proxy. */
+  model: string;
+  /** What the provider calls it, when it sends a name. */
+  name?: string;
+  /** The prompt the model reads, in tokens, when the provider says. */
+  context_length?: number;
+  /** Dollars per token, as strings, when the provider prices it. */
+  pricing?: { prompt?: string; completion?: string };
+  /** Whether this reader may call it through the proxy now; absent on a host that serves no proxy. */
+  callable?: boolean;
+}
+
+/** A connector's models, and when the host last read them from the provider. */
+export interface ConnectorModels {
+  models: ConnectorModel[];
+  /** An ISO time; absent before the first read. */
+  at?: string;
+}
+
+const isModel = (value: unknown): value is ConnectorModel => {
+  const held = value as Partial<ConnectorModel> | null;
+  return typeof held === 'object' && held !== null && typeof held.id === 'string' && typeof held.model === 'string';
+};
+
+/** The models one open provider connector serves, for this reader. */
+export async function readConnectorModels(host: string, id: string): Promise<ConnectorModels> {
+  const answer = await hostBridge(host).request(CONNECTORS.models as never, { id } as never) as unknown;
+  const held = answer as Partial<ConnectorModels> | null;
+  if (typeof held !== 'object' || held === null || !Array.isArray(held.models)) throw new Error(`${CONNECTORS.models} answered no models`);
+  return { models: held.models.filter(isModel), ...(typeof held.at === 'string' ? { at: held.at } : {}) };
 }
 
 /** Closes one connector and takes it, and its secrets, off the host. */

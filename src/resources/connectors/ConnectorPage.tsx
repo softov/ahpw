@@ -8,6 +8,7 @@ import { PageAlert } from '../../shell/view/PageAlert.js';
 import { EMOJIcon } from '../emojis.js';
 import { deleteConnector } from './actions.js';
 import { ConnectorForm } from './ConnectorForm.js';
+import { Models } from './Models.js';
 import { Overview } from './Overview.js';
 import { connectorTab, connectorTabKey, keepConnectorTabKey } from './state.js';
 import { PageTitle } from '../../shell/HostIcon.js';
@@ -18,7 +19,7 @@ const TONE: Record<ConnectorState, BadgeTone> = {
   unavailable: 'danger',
 };
 
-/** One connector: its head with its state and Delete, over Overview and Settings. */
+/** One connector: its head with its state and Delete, over Overview, Models when its adapter serves models, and Settings. */
 export default function ConnectorPage({ host, connector: id }: { host: string; connector: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -32,6 +33,9 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
   if (row === undefined) return <PageAlert tone="warning" message={t('connectors/page/gone')} />;
   const adapter = adapters?.records.find((one) => one.id === row.adapter)?.record;
   const title = row.title || id;
+  // The host lists models only for an open connector; one that is not ready has none to show.
+  const servesModels = row.state === 'ready' && (adapter?.capabilities ?? []).some((one) => one.type === 'models');
+  const chosen = connectorTabKey();
 
   return (
     <div className="web-page web-connector">
@@ -58,9 +62,10 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
       <Tabs
         tabs={[
           { key: 'overview', title: t('connectors/page/overview'), child: <Overview host={host} row={row} adapter={adapter} /> },
+          ...(servesModels ? [{ key: 'models', title: t('connectors/page/models'), child: <Models host={host} id={id} /> }] : []),
           { key: 'settings', title: t('connectors/page/settings'), child: <ConnectorForm host={host} connector={row} /> },
         ]}
-        defaultValue={connectorTabKey()}
+        defaultValue={chosen === 'models' && !servesModels ? 'overview' : chosen}
         onChange={keepConnectorTabKey}
       />
     </div>

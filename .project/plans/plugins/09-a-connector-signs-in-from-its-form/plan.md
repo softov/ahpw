@@ -1,7 +1,7 @@
 ---
 title: A connector signs in from its form
 domain: plugins
-status: planned
+status: active
 priority: medium
 created: 2026-10-27
 revalidated: 2026-10-27
@@ -145,8 +145,8 @@ When the host refuses, the step closes and the form shows the alert.
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - The bridge signs in, and the log hides the code](task-01-the-bridge-signs-in.md) | todo | - |
-| [02 - The form draws the sign-in button](task-02-the-form-draws-the-sign-in-button.md) | todo | 01 |
+| [01 - The bridge signs in, and the log hides the code](task-01-the-bridge-signs-in.md) | implemented | - |
+| [02 - The form draws the sign-in button](task-02-the-form-draws-the-sign-in-button.md) | implemented | 01 |
 
 ## Risks and tradeoffs
 
@@ -157,8 +157,8 @@ When the host refuses, the step closes and the form shows the alert.
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-the-bridge-signs-in.md](task-01-the-bridge-signs-in.md).
+- **Done so far:** tasks 01 and 02 are implemented on branch `plugins/09-a-connector-signs-in-from-its-form`.
+- **Next action:** Softov runs the checks by hand in [`plugins-09-sign-in-checks.md`](../../../pending/plugins-09-sign-in-checks.md).
 - **Open questions:** none.
 - **Watch out for:** the code is never in the scena store, a `console` call, or a thrown message that ahpw writes.
 

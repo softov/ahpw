@@ -51,6 +51,24 @@ describe('log', () => {
     expect(String(logLines()[0]?.detail)).not.toContain('secret');
   });
 
+  it('masks the code a signin-finish frame carries, in the detail and in a refusal', () => {
+    noteFrame('daemon', 'sent', JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'x-ahpd/connectors/signin-finish', params: { state: 's1', code: 'pasted-code' } }));
+    noteFrame('daemon', 'received', JSON.stringify({ jsonrpc: '2.0', id: 2, error: { code: -32602, message: 'expired' } }));
+    expect(String(logLines()[0]?.detail)).toContain('••••••');
+    expect(JSON.stringify(logLines())).not.toContain('pasted-code');
+  });
+
+  it('masks each config string of a put and a signin, and keeps the id, adapter and owner', () => {
+    for (const method of ['x-ahpd/connectors/put', 'x-ahpd/connectors/signin']) {
+      clearLog();
+      noteFrame('daemon', 'sent', JSON.stringify({ jsonrpc: '2.0', id: 3, method, params: { id: 'or', adapter: 'openrouter', owner: 'user:ana', config: { key: 'typed-key', endpoint: 'https://x', retries: 2 } } }));
+      const detail = String(logLines()[0]?.detail);
+      expect(detail).not.toContain('typed-key');
+      expect(detail).not.toContain('https://x');
+      expect(JSON.parse(detail).params).toMatchObject({ id: 'or', adapter: 'openrouter', owner: 'user:ana', config: { key: '••••••', endpoint: '••••••', retries: 2 } });
+    }
+  });
+
   it('says which terminals came and went', () => {
     const changed = (terminals: { resource: string; title: string }[]): string =>
       JSON.stringify({ jsonrpc: '2.0', method: 'action', params: { channel: 'ahp-root://', action: { type: 'root/terminalsChanged', terminals } } });
