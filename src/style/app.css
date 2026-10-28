@@ -4677,6 +4677,25 @@
   margin: 0;
 }
 
+.web-connector-form__signin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-connector-form__signin > .web-note {
+  margin: 0;
+}
+
+.web-connector-form__signin-start {
+  display: flex;
+}
+
+.web-connector-form__signed-in {
+  margin: 0;
+  color: var(--oo-color-success);
+}
+
 .web-connector-form__pick {
   display: flex;
   flex-direction: column;
@@ -5009,6 +5028,60 @@
   font-size: var(--oo-font-size-sm);
   color: var(--oo-color-text);
   overflow-wrap: anywhere;
+}
+
+/* A provider connector's models: a search over a table that scrolls sideways on a narrow page. */
+.web-connector__models {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-md);
+  padding-top: var(--oo-spacing-md);
+}
+
+.web-connector__models-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oo-spacing-sm);
+}
+
+.web-connector__models-head > .web-note {
+  margin: 0;
+}
+
+.web-connector__models-table {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.web-connector__model-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oo-spacing-xs, 4px);
+}
+
+.web-connector__model-name code {
+  font-family: var(--oo-font-mono);
+  font-size: var(--oo-font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.web-connector__model-number {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On a narrow page the provider's name goes, so the name a caller sends keeps its width. */
+@media (max-width: 600px) {
+  .web-connector__models-table th:nth-child(2),
+  .web-connector__models-table td:nth-child(2) {
+    display: none;
+  }
+}
+
+/* A model this reader may not call: shown, so the list is whole, but dimmed. */
+.web-connector__model--refused td {
+  opacity: 0.5;
 }
 
 /* A model's limits as icons and sizes; each one's full words show on hover. */

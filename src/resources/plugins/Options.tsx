@@ -3,6 +3,7 @@ import { useI18n } from '@softov/scena/react';
 import { Alert, Button, SchemaForm, type JsonSchemaObject } from '@softov/scena/ui';
 import { setPluginOption, type PluginRow } from '../../bridges/plugins.js';
 import { hostSaid } from '../../bridges/said.js';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 import { rereadAfterChange } from './actions.js';
 
 type Bag = Record<string, unknown>;
@@ -30,6 +31,7 @@ export function Options({ host, id, row }: { host: string; id: string; row: Plug
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const [jsonValid, setJsonValid] = useState(true);
 
   // What the host holds now, whenever it changes.
   useEffect(() => setEdited(null), [held]);
@@ -57,10 +59,10 @@ export function Options({ host, id, row }: { host: string; id: string; row: Plug
 
   return (
     <div className="web-plugin__tab">
-      <SchemaForm schema={schema} value={values} baseline={held} onChange={(next) => { setEdited(next); setSaved(false); setFailure(null); }} />
+      <SchemaForm schema={schema} value={values} baseline={held} onChange={(next) => { setEdited(next); setSaved(false); setFailure(null); }} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} fieldActions />
       {failure === null ? null : <Alert tone="danger" title={t('plugins/options/failed')} message={failure} />}
       <div className="web-page__actions">
-        <Button label={t('plugins/options/save')} variant="primary" disabled={changed.length === 0 || busy} onClick={() => void save()} />
+        <Button label={t('plugins/options/save')} variant="primary" disabled={changed.length === 0 || busy || !jsonValid} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={() => void save()} />
         <Button label={t('plugins/options/reset')} disabled={changed.length === 0 || busy} onClick={() => { setEdited(null); setFailure(null); }} />
         {saved && changed.length === 0 ? <span className="web-note">{t('plugins/options/saved')}</span> : null}
       </div>

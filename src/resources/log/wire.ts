@@ -15,6 +15,7 @@
  */
 
 import type { AhpTransport } from '@microsoft/agent-host-protocol/client';
+import { CONNECTORS } from '../../bridges/connectors.js';
 import { logEvent, type LogLevel, type LogScope } from './log.js';
 
 /** Frames longer than this are kept cut, so one huge snapshot does not hold megabytes. */
@@ -161,15 +162,26 @@ function actionLine(host: string, envelope: Bag): void {
 /** What the log shows in place of a credential. */
 const HIDDEN = '••••••';
 
+/** A config with each non-empty string hidden, since the log does not know which fields an adapter keeps secret. */
+function hiddenConfig(config: Bag): Bag {
+  return Object.fromEntries(Object.entries(config).map(([field, value]) => [field, typeof value === 'string' && value !== '' ? HIDDEN : value]));
+}
+
 /**
- * A frame with its credential masked, or the frame itself when it carries none.
- * `authenticate` sends a resource's token in `params.token`, and the log is
- * readable by anyone at the screen.
+ * A frame with its credentials masked, or the frame itself when it carries
+ * none, since the log is readable by anyone at the screen. `authenticate`
+ * sends a resource's token in `params.token`, a connector `put` and `signin`
+ * send a typed key in `params.config`, and `signin-finish` sends the code the
+ * provider showed in `params.code`.
  */
 function masked(frame: Bag): Bag {
   const params = bag(frame.params);
-  if (frame.method !== 'authenticate' || typeof params.token !== 'string') return frame;
-  return { ...frame, params: { ...params, token: HIDDEN } };
+  if (frame.method === 'authenticate' && typeof params.token === 'string') return { ...frame, params: { ...params, token: HIDDEN } };
+  if (frame.method === CONNECTORS.signinFinish && typeof params.code === 'string') return { ...frame, params: { ...params, code: HIDDEN } };
+  if ((frame.method === CONNECTORS.put || frame.method === CONNECTORS.signin) && typeof params.config === 'object' && params.config !== null) {
+    return { ...frame, params: { ...params, config: hiddenConfig(bag(params.config)) } };
+  }
+  return frame;
 }
 
 /** One frame to or from the host `host`, either way. */

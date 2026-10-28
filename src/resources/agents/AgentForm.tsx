@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, SchemaForm, Spinner, type EnumOption, type JsonSchemaObject } from '@softov/scena/ui';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 import { SETTINGS_VIEWS } from '../editor/yamlView.js';
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
 import { ENGINES, AGENTS, enginesReducer, agentsReducer, putAgent, type EngineRow, type AgentRow } from '../../bridges/agents.js';
@@ -66,7 +67,7 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
   const engine = engines.find((one) => one.name === engineName);
   const heldConfig = useMemo<Bag>(() => record?.config ?? {}, [record]);
   const heldTop = useMemo<AgentTop>(() => topOf(record, me ?? 'host'), [record, me]);
-  const heldForm = useMemo<Bag>(() => agentConfigForForm(engine, heldConfig), [engine, heldConfig]);
+  const heldForm = useMemo<Bag>(() => agentConfigForForm(heldConfig), [heldConfig]);
   const [top, setTop] = useState<AgentTop>(heldTop);
   const [config, setConfig] = useState<Bag>(heldForm);
   const [template, setTemplate] = useState(0);
@@ -74,6 +75,7 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [jsonValid, setJsonValid] = useState(true);
 
   // What the host holds now, whenever it changes.
   useEffect(() => {
@@ -179,13 +181,13 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
         <section className="web-connector-form__adapter" aria-label={t('agents/form/settingsOf', { engine: engine!.title })}>
           <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={engine!.icons} size={16} />{t('agents/form/settingsOf', { engine: engine!.title })}</h3>
           {engine!.description === '' || typeof engine!.schema.description === 'string' ? null : <p className="web-note">{engine!.description}</p>}
-          <SchemaForm key={`${engineName}:${template}`} schema={fields} views={SETTINGS_VIEWS} value={config} baseline={editing ? heldForm : config} onChange={(next) => { setConfig(next); setSaved(false); }} />
+          <SchemaForm key={`${engineName}:${template}`} schema={fields} views={SETTINGS_VIEWS} value={config} baseline={editing ? heldForm : config} onChange={(next) => { setConfig(next); setSaved(false); }} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} fieldActions />
         </section>
       )}
       {failure === null ? null : <Alert tone="danger" title={t('agents/form/failed')} message={failure} />}
       <div className="web-page__actions">
         {actions ?? null}
-        <Button label={t(editing ? 'connectors/form/save' : 'agents/form/create')} variant="primary" disabled={!ready || busy || (editing && !dirty)} onClick={save} />
+        <Button label={t(editing ? 'connectors/form/save' : 'agents/form/create')} variant="primary" disabled={!ready || busy || !jsonValid || (editing && !dirty)} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={save} />
         {editing ? <Button label={t('connectors/form/reset')} disabled={!dirty || busy} onClick={() => { setTop(heldTop); setConfig(heldForm); setFailure(null); }} /> : null}
         {saved && !dirty ? <span className="web-note">{t('connectors/form/saved')}</span> : null}
       </div>

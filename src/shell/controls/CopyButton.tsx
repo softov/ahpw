@@ -23,6 +23,12 @@ function copyBySelection(text: string): boolean {
   }
 }
 
+/** Copy `text` to the clipboard, through the hidden text box when the browser has no clipboard or refuses it. Answers whether it was copied. */
+export async function copyText(text: string): Promise<boolean> {
+  if (navigator.clipboard === undefined) return copyBySelection(text);
+  return navigator.clipboard.writeText(text).then(() => true, () => copyBySelection(text));
+}
+
 /** An icon that copies `text` to the clipboard, and shows a check mark for a moment once it has. `icon` tells it apart when two copy buttons sit side by side. */
 export function CopyButton({ text, label, icon = EMOJIcon.copy }: { text: string; label?: string; icon?: string }): ReactElement {
   const { t } = useI18n();
@@ -34,13 +40,7 @@ export function CopyButton({ text, label, icon = EMOJIcon.copy }: { text: string
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setCopied(false), SHOWN_MS);
   };
-  const copy = (): void => {
-    if (navigator.clipboard === undefined) {
-      if (copyBySelection(text)) done();
-      return;
-    }
-    void navigator.clipboard.writeText(text).then(done).catch(() => { if (copyBySelection(text)) done(); });
-  };
+  const copy = (): void => { void copyText(text).then((copied) => { if (copied) done(); }); };
   const title = copied ? t('shell/copy/copied') : label ?? t('shell/copy/copy');
   return (
     <button type="button" className="web-copy" data-copied={copied ? 'true' : 'false'} title={title} aria-label={title} onClick={copy}>

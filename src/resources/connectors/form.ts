@@ -240,3 +240,13 @@ export function configForPut(config: Bag, schema: Bag): Bag {
   }
   return out;
 }
+
+/**
+ * The config a sign-in sends: a put's, without the field the sign-in fills,
+ * since the host fills it from the provider.
+ */
+export function configForSignIn(config: Bag, schema: Bag, field: string): Bag {
+  const out = configForPut(config, schema);
+  delete out[field];
+  return out;
+}

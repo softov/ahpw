@@ -5,11 +5,14 @@ import {
   adaptersReducer,
   CONNECTORS,
   connectorsReducer,
+  finishSignIn,
   isSecretRef,
   putConnector,
+  readConnectorModels,
   removeConnector,
   servesAdapters,
   servesConnectors,
+  startSignIn,
   type AdapterRow,
   type ConnectorRow,
 } from './connectors.js';
@@ -63,5 +66,49 @@ describe('put and remove', () => {
     request.mockResolvedValue({});
     await removeConnector('h', 'ci');
     expect(request).toHaveBeenLastCalledWith(CONNECTORS.remove, { id: 'ci' });
+  });
+});
+
+describe('sign-in', () => {
+  const WANTED = { id: 'or', adapter: 'openrouter', owner: 'user:ana' as const, title: 'Mine', config: { endpoint: 'https://x' } };
+  const CODE = 'the-pasted-code';
+
+  it('start sends what a put sends and answers the url and the state', async () => {
+    request.mockResolvedValue({ url: 'https://idp/auth', state: 's1' });
+    await expect(startSignIn('h', WANTED)).resolves.toEqual({ url: 'https://idp/auth', state: 's1' });
+    expect(request).toHaveBeenLastCalledWith(CONNECTORS.signin, { id: 'or', adapter: 'openrouter', owner: 'user:ana', title: 'Mine', config: { endpoint: 'https://x' } });
+  });
+
+  it('start refuses an answer with no url or no state', async () => {
+    request.mockResolvedValue({ state: 's1' });
+    await expect(startSignIn('h', WANTED)).rejects.toThrow('answered no sign-in');
+    request.mockResolvedValue({ url: 'https://idp/auth', state: '' });
+    await expect(startSignIn('h', WANTED)).rejects.toThrow('answered no sign-in');
+  });
+
+  it('finish sends the state and the code and answers the row', async () => {
+    request.mockResolvedValue(HOOK);
+    await expect(finishSignIn('h', 's1', CODE)).resolves.toEqual(HOOK);
+    expect(request).toHaveBeenLastCalledWith(CONNECTORS.signinFinish, { state: 's1', code: CODE });
+  });
+
+  it('finish says no code when the answer is no connector', async () => {
+    request.mockResolvedValue({ code: CODE });
+    const caught = await finishSignIn('h', 's1', CODE).catch((error: unknown) => error);
+    expect(String((caught as Error).message)).toContain('answered no connector');
+    expect(String((caught as Error).message)).not.toContain(CODE);
+  });
+});
+
+describe('a connector\'s models', () => {
+  it('are asked by id, and an answer keeps only the models it can show', async () => {
+    request.mockResolvedValue({ models: [{ id: 'one', model: 'or/one', callable: true }, { id: 'bad' }], at: '2026-10-28T21:51:00.000Z' });
+    await expect(readConnectorModels('h', 'or')).resolves.toEqual({ models: [{ id: 'one', model: 'or/one', callable: true }], at: '2026-10-28T21:51:00.000Z' });
+    expect(request).toHaveBeenLastCalledWith(CONNECTORS.models, { id: 'or' });
+  });
+
+  it('refuse an answer that holds no list', async () => {
+    request.mockResolvedValue({});
+    await expect(readConnectorModels('h', 'or')).rejects.toThrow('answered no models');
   });
 });

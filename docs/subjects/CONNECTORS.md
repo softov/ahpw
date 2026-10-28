@@ -28,15 +28,19 @@ Right-click a row for **Open** and **Delete**. Delete asks first: the host close
 
 ## The page
 
-The head shows the adapter's icon, the title and the state, with **Delete**. A connector that is not ready says why. The page has two tabs, **Overview** and **Settings**.
+The head shows the adapter's icon, the title and the state, with **Delete**. A connector that is not ready says why. The page has the tabs **Overview** and **Settings**, and **Models** for a ready connector whose adapter serves models.
 
 <Shot id="connectors-page" alt="A connector page with its capabilities" />
 
 ### Overview
 
-The adapter's description comes first. The facts list the **Id**, **State**, **Adapter**, **Owner**, and the **Plugin** that offers the adapter, which opens it in [Plugins](PLUGINS.md).
+The adapter's description comes first. The facts list the **Id**, **State**, **Adapter**, **Owner**, and the **Plugin** that offers the adapter, which opens it in [Plugins](PLUGINS.md). Once the host has checked the connector, **Last check** says what it found and when, and **Last failure** shows the last call that failed.
 
-**Capabilities** lists what the adapter declares, grouped as **Receives**, **Commands**, **Actions** and **Interfaces**. Click one to open it: its description, the URL that outside calls go to with a **Copy** button (for one that receives), and the values it takes, with the required ones marked.
+**Capabilities** lists what the adapter declares, grouped as **Receives**, **Commands**, **Actions**, **Interfaces** and **Models**. Click one to open it: its description, the URL that outside calls go to with a **Copy** button (for one that receives), and the values it takes, with the required ones marked.
+
+### Models
+
+The models the connector serves, as the host last read them from the provider. Each row has the name you send as `model` to the host's model proxy, with a copy button, the provider's name for it, its context and its price in dollars per million tokens, prompt / answer. A model you may not call is dimmed. **Search models** narrows the list by id or name, and **Read again** asks the host again.
 
 ### Settings
 
@@ -54,5 +58,7 @@ The same form as a new connector, with the adapter and id fixed. **Save** sends 
 | **Owner** | **Me**, **The host**, or a team or user you may name. |
 
 Below come the adapter's own settings. **Create** makes the connector and opens its page.
+
+An adapter that signs in with a provider shows a button under its settings, named by the host. The button opens the provider's page in a new tab. Sign in there, paste the code it shows, and **Finish** makes the connector with the token the host gets. **Cancel** ends the step. You can still type the key in its field instead. In the settings of a made connector, the step then says it is signed in and the connector's state, with **Sign in again**. A new connector opens its page, where **Last check** shows the sign-in worked.
 
 If the host lists no adapters to you, or you do not hold the `connector:put` grant, the form says so.

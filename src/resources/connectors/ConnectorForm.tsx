@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, SchemaForm, Spinner, type JsonSchemaObject } from '@softov/scena/ui';
+import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 import { SETTINGS_VIEWS } from '../editor/yamlView.js';
 import { useChannel } from '../../bridges/channel.js';
-import { ADAPTERS, adaptersReducer, CONNECTORS, connectorsReducer, putConnector, type AdapterRow, type ConnectorOwner, type ConnectorRow } from '../../bridges/connectors.js';
+import { ADAPTERS, adaptersReducer, CONNECTORS, connectorsReducer, putConnector, type AdapterRow, type ConnectorOwner, type ConnectorRow, type ConnectorWanted } from '../../bridges/connectors.js';
 import { ahpPaths } from '../../bridges/data.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { PEOPLE, peopleReducer, readOwnUser, servesPeople, type ListedUser, type PeopleState } from '../../bridges/people.js';
@@ -13,7 +14,8 @@ import { HostIcon } from '../../shell/HostIcon.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { meOn } from './actions.js';
 import { AdapterPicker } from './AdapterPicker.js';
-import { adapterSchema, configForForm, configForPut, ID_PATTERN, idFor, ownerChoices, topSchema, type TopValues } from './form.js';
+import { adapterSchema, configForForm, configForPut, configForSignIn, ID_PATTERN, idFor, ownerChoices, topSchema, type TopValues } from './form.js';
+import { SignInStep } from './SignInStep.js';
 import { newConnectorTab } from './state.js';
 
 type Bag = Record<string, unknown>;
@@ -68,6 +70,7 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [jsonValid, setJsonValid] = useState(true);
 
   // What the host holds now, whenever it changes.
   useEffect(() => { setTop(heldTop); setConfig(heldConfig); }, [heldTop, heldConfig]);
@@ -117,23 +120,25 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
 
   const dirty = JSON.stringify(top) !== JSON.stringify(heldTop) || JSON.stringify(config) !== JSON.stringify(heldConfig);
   const ready = adapter !== undefined && ID_PATTERN.test(top.id) && top.owner !== '';
+  const wantedWith = (sent: Bag): ConnectorWanted => ({
+    id: top.id,
+    adapter: top.adapter,
+    owner: top.owner as ConnectorOwner,
+    ...(top.title.trim() === '' ? {} : { title: top.title.trim() }),
+    config: sent,
+  });
+  // What a put or a new connector's sign-in answered: a new form gives way to the connector, a made one says it is saved.
+  const afterPut = (row: ConnectorRow): void => {
+    if (editing) { setSaved(true); return; }
+    scena.surfaces.close(newConnectorTab(host));
+    void scena.commands.execute('ahp.openConnector', { host, id: row.id, title: row.title || row.id });
+  };
   const save = (): void => {
     if (adapter === undefined) return;
     setBusy(true);
     setFailure(null);
-    putConnector(host, {
-      id: top.id,
-      adapter: top.adapter,
-      owner: top.owner as ConnectorOwner,
-      ...(top.title.trim() === '' ? {} : { title: top.title.trim() }),
-      config: configForPut(config, adapter.schema),
-    }).then(
-      (row) => {
-        setBusy(false);
-        if (editing) { setSaved(true); return; }
-        scena.surfaces.close(newConnectorTab(host));
-        void scena.commands.execute('ahp.openConnector', { host, id: row.id, title: row.title || row.id });
-      },
+    putConnector(host, wantedWith(configForPut(config, adapter.schema))).then(
+      (row) => { setBusy(false); afterPut(row); },
       (caught: unknown) => { setBusy(false); setFailure(hostSaid(caught)); },
     );
   };
@@ -154,12 +159,24 @@ export function ConnectorForm({ host, connector }: { host: string; connector?: C
           <h3 className="web-connector-form__heading web-host-label"><HostIcon icons={adapter!.icons} size={16} />{t('connectors/form/settingsOf', { adapter: adapter!.title })}</h3>
           {/* The schema says what the form is when it can; the adapter says it otherwise. */}
           {adapter!.description === '' || typeof adapter!.schema.description === 'string' ? null : <p className="web-note">{adapter!.description}</p>}
-          <SchemaForm key={top.adapter} schema={fields} views={SETTINGS_VIEWS} value={config} baseline={heldConfig} onChange={(next) => { setConfig(next); setSaved(false); }} />
+          <SchemaForm key={top.adapter} schema={fields} views={SETTINGS_VIEWS} value={config} baseline={heldConfig} onChange={(next) => { setConfig(next); setSaved(false); }} jsonEditor={JsonCodeEditor} onJsonValidChange={setJsonValid} fieldActions />
+          {adapter!.signIn === undefined ? null : (
+            <SignInStep
+              key={top.adapter}
+              host={host}
+              signIn={adapter!.signIn}
+              provider={adapter!.title}
+              wanted={wantedWith(configForSignIn(config, adapter!.schema, adapter!.signIn.field))}
+              disabled={!ready || busy}
+              // A made connector's step says it is signed in, so the form does not say "Saved." too.
+              onDone={(row) => { if (!editing) afterPut(row); }}
+            />
+          )}
         </section>
       )}
       {failure === null ? null : <Alert tone="danger" title={t('connectors/form/failed')} message={failure} />}
       <div className="web-page__actions">
-        <Button label={t(editing ? 'connectors/form/save' : 'connectors/form/create')} variant="primary" disabled={!ready || busy || (editing && !dirty)} onClick={save} />
+        <Button label={t(editing ? 'connectors/form/save' : 'connectors/form/create')} variant="primary" disabled={!ready || busy || !jsonValid || (editing && !dirty)} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={save} />
         {editing ? <Button label={t('connectors/form/reset')} disabled={!dirty || busy} onClick={() => { setTop(heldTop); setConfig(heldConfig); setFailure(null); }} /> : null}
         {saved && !dirty ? <span className="web-note">{t('connectors/form/saved')}</span> : null}
       </div>
