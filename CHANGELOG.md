@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-28
+
+### Changed
+
+- **ahpio's mark:** the four dots replace ahpw's mark in the title bar, the loader and the favicon; the page title is `ahpio`.
+- **The accent is ahpio's blue**, from scena 0.5.15.
+
 ### Fixed
 
 - An agent's page header is drawn with the same icons as its row in the list.
@@ -304,7 +311,8 @@ The first release: a web UI for an [Agent Host Protocol](https://microsoft.githu
 - Page components load lazily, one chunk per page.
 - CI, an npm release with provenance, and screenshots.
 
-[Unreleased]: https://github.com/softov/ahpw/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/softov/ahpw/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/softov/ahpw/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/softov/ahpw/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/softov/ahpw/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/softov/ahpw/compare/v0.5.0...v0.6.0
