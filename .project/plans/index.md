@@ -55,7 +55,7 @@ What exists today: [00-plugins.md](plugins/00-plugins.md).
 | [05 - A plugin's and an adapter's own icon](plugins/05-plugin-and-adapter-icons/plan.md) | built | - |
 | [06 - Live plugin commands](plugins/06-live-plugin-commands/plan.md) | built | - |
 | [07 - A working connector shows as ready](plugins/07-a-working-connector-is-ready/plan.md) | active | task 01 implemented; live check against ahpd plugin 62 |
-| [08 - Agents from records, with Add agent and a Settings tab](plugins/08-agents-from-records/plan.md) | active | tasks 01 to 04 implemented 2026-10-24; task 05 implemented 2026-10-25, not committed, wait on Softov |
+| [08 - Agents from records, with Add agent and a Settings tab](plugins/08-agents-from-records/plan.md) | active | tasks 01 to 04 implemented 2026-10-24; task 05 implemented 2026-10-25 and merged in #5; waits for Softov's review |
 | [09 - A connector signs in from its form](plugins/09-a-connector-signs-in-from-its-form/plan.md) | planned | task 01 |
 
 ## sessions

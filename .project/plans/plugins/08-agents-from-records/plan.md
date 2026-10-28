@@ -101,7 +101,7 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 
 ## Resume state
 
-- **Done so far:** tasks 01 to 05 are implemented and wait for review. Task 05 is not committed.
+- **Done so far:** tasks 01 to 05 are implemented and wait for review. Task 05 is merged in #5.
 - **Next action:** review tasks 01 to 05. Check task 05 against an ahpd with host 123 task 03, as `/github/ahpd/.project/pending/host-123-engines-checks.md` says.
 - **Open questions:** none.
 - **Watch out for:** the root list is filtered per caller, and the channel with `agent:all` is not. Do not call a row standby only because the root list lacks it; see the owner answer.
