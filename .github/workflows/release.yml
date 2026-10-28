@@ -21,7 +21,8 @@ jobs:
       # repository and this workflow filename, as registered on the package's
       # trusted publisher; renaming this file breaks publishing.
       id-token: write
-      contents: read
+      # The GitHub Release for the tag.
+      contents: write
     steps:
       - uses: actions/checkout@v7
 
@@ -115,3 +116,30 @@ jobs:
             exit 0
           fi
           exit "$code"
+
+      # The tag's page on GitHub: its CHANGELOG section as the notes, and the
+      # packed tarball. A re-run finds the release there and leaves it alone.
+      - name: Create the GitHub Release
+        if: ${{ inputs.dry_run != true && startsWith(github.ref, 'refs/tags/') }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eu
+          version=${GITHUB_REF_NAME#v}
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "The release $GITHUB_REF_NAME is already there; leaving it alone."
+            exit 0
+          fi
+          notes="${{ runner.temp }}/notes.md"
+          awk -v head="## [$version]" '
+            index($0, head) == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[[^]]+\]: / { exit }
+            on { print }
+          ' CHANGELOG.md > "$notes"
+          if ! grep -q '[^[:space:]]' "$notes"; then
+            echo "::error::CHANGELOG.md has no section for $version."
+            exit 1
+          fi
+          gh release create "$GITHUB_REF_NAME" "${{ runner.temp }}/ahpd-web-$version.tgz" \
+            --verify-tag --title "@ahpd/web $GITHUB_REF_NAME" --notes-file "$notes"
