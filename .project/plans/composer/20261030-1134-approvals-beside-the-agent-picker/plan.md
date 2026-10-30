@@ -1,7 +1,7 @@
 ---
 title: Approvals beside the agent picker
 domain: composer
-status: active
+status: built
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -63,7 +63,7 @@ host config schema -> options -> footerSide 'left'
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - approvals sits after the agent picker](task-01-approvals-sits-after-the-agent-picker.md) | implemented | - |
+| [01 - approvals sits after the agent picker](task-01-approvals-sits-after-the-agent-picker.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -72,8 +72,8 @@ host config schema -> options -> footerSide 'left'
 
 ## Resume state
 
-- **Done so far:** task 01 is implemented, on branch `composer/20261030-1134-approvals-beside-the-agent-picker`.
-- **Next action:** Softov reviews the PR.
+- **Done so far:** task 01 is done, merged in PR #22. See [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** Approvals must not show in both places; the tray filter must skip it.
 

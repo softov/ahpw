@@ -1,6 +1,6 @@
 ---
 title: Approvals sits after the agent picker
-status: implemented
+status: done
 depends: []
 layer: "composer"
 refs:
