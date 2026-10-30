@@ -4,7 +4,7 @@ import { ContextMenu } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { EMOJIcon } from '../../resources/emojis.js';
 import { ahpPaths, type Connection } from '../../bridges/data.js';
-import { fixHost, hostState } from '../../bridges/host-state.js';
+import { fixHost, hostFix, hostState } from '../../bridges/host-state.js';
 import { HOST_FILTER, setHostFilter, useEach } from '../../bridges/hosts.js';
 import { embedMode, type EmbedHost, type EmbedHostStatus, type Embedder } from './index.js';
 
@@ -173,6 +173,7 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
   function optionsOf(id: string): PickerAction[] {
     const at = list.findIndex((host) => host.id === id);
     const state = hostState(connections[at], refusals[at]);
+    const fix = hostFix(state);
     const item = (title: string, icon: string, fn: () => void): PickerAction => ({
       title,
       icon,
@@ -186,7 +187,7 @@ export default function HostSwitcher({ embedder }: { embedder: Embedder }): Reac
     return [
       item(t('shell/embed/info'), EMOJIcon.info, () => void scena.commands.execute('ahp.openHostInfo', { host: id })),
       item(t('shell/embed/settings'), EMOJIcon.settings, () => void scena.commands.execute('ahp.openSettings', { host: id })),
-      ...(state === 'down' || state === 'refused' ? [item(t(state === 'refused' ? 'hosts/signIn' : 'hosts/retry'), EMOJIcon.reload, () => fixHost(id, state))] : []),
+      ...(fix === null ? [] : [item(t(fix), EMOJIcon.reload, () => fixHost(id, state))]),
       item(t('shell/embed/manage'), EMOJIcon.edit, () => void embedder.manageHosts({ edit: id })),
     ];
   }

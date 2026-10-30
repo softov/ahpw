@@ -1539,16 +1539,18 @@
       "start": "Start",
       "startHint": "Enter starts, Shift+Enter breaks the line",
       "notCreated": "Not created",
+      "host": "Host",
+      "hostHint": "The host the session runs on",
       "where": "Folder",
-      "whereHint": "The folder the session works in, and its host",
-      "folders": "{host} Folders",
+      "whereHint": "The folder the session works in",
       "openFolder": "Open folder…",
       "remote": "Remote",
       "manageHost": "Edit host",
       "addHost": "Add host",
       "recent": "Recent folders",
       "browse": "Browse",
-      "hosts": "Hosts"
+      "hosts": "Hosts",
+      "manage": "Manage"
     },
     "pills": {
       "setting": "{name}: {value}",
