@@ -1,6 +1,6 @@
 ---
 title: The editor opens by a setting
-status: todo
+status: implemented
 depends: []
 layer: "agents"
 refs:
@@ -42,3 +42,9 @@ A custom file opens in the text editor, as a new panel or in a modal, by the UI 
 - `pnpm typecheck` and `pnpm test` pass.
 
 ## Resume
+
+Built on the branch `plugins/20261030-1430-a-custom-agent-is-made-and-edited`, not committed.
+`custom-files.test.ts` and `settings.test.ts` cover the default, the values, and where `openCustomFile` sends a file.
+At 1280 light, Edit with the default opens the file as a tab in the text editor.
+With the setting on a modal, Edit and New open the file in `FileModal`, and Mod-s writes it to disk.
+`FileModal` does not use `confirm`; [implemented.md](implemented.md) says why.

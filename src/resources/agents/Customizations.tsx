@@ -7,7 +7,9 @@ import { CopyButton } from '../../shell/controls/CopyButton.js';
 import { linkClicks } from '../files/clicks.js';
 import { useFileText } from '../files/text.js';
 import { extOf } from '../files/viewers.js';
-import { customizationRows, withoutFrontmatter, type ChildRow, type CustomizationRow, type FileSpot, type StateWord } from './words.js';
+import { customizationRows, withoutFrontmatter, type ChildRow, type CustomizationRow, type FileSpot, type NewKind, type StateWord } from './words.js';
+import { customFileTitle, newCustomFile, openCustomFile } from './custom-files.js';
+import { FileModal } from './FileModal.js';
 
 /** What a row without children shows when it is clicked. */
 interface Detail {
@@ -17,6 +19,8 @@ interface Detail {
   description: string;
   flags: string[];
   open?: FileSpot;
+  /** Whether the file may be edited. */
+  editable: boolean;
 }
 
 /** The icon each customization kind draws with. */
@@ -54,13 +58,24 @@ function childNode(parent: string, child: ChildRow): TreeNode<Detail> {
       </span>
     ),
     ...(mark === undefined ? {} : { trailing: mark }),
-    data: { name: child.label, copies: true, description: child.description, flags: child.flags, ...(child.open === undefined ? {} : { open: child.open }) },
+    data: { name: child.label, copies: true, description: child.description, flags: child.flags, editable: child.editable, ...(child.open === undefined ? {} : { open: child.open }) },
   };
 }
 
-/** A customization's row: its name, a short path, what it holds and whether it is on, with its children under it. */
-function rowNode(row: CustomizationRow): TreeNode<Detail> {
+/** A New button at a writable folder's row end; a click on it does not reach the row. */
+function NewButton({ kind, onNew }: { kind: NewKind; onNew: () => void }): ReactElement {
+  const { t } = useI18n();
+  return (
+    <span className="web-custom__new" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+      <Button size="sm" variant="ghost" label={t(kind === 'agent' ? 'agents/customizations/newAgent' : 'agents/customizations/newSkill')} onClick={onNew} />
+    </span>
+  );
+}
+
+/** A customization's row: its name, a short path, what it holds and whether it is on, with its children under it. A writable folder of agents or skills offers New. */
+function rowNode(row: CustomizationRow, onNew: (folder: string, kind: NewKind) => void): TreeNode<Detail> {
   const mark = stateMark(row.state);
+  const kind = row.newKind;
   return {
     key: row.id,
     icon: ICON[row.type] ?? EMOJIcon.dot,
@@ -69,10 +84,11 @@ function rowNode(row: CustomizationRow): TreeNode<Detail> {
         <span className="web-custom__name">{row.name}</span>
         <span className="web-custom__line">{row.path}</span>
         {row.meta.map((bit) => <span key={bit} className="web-custom__flag">{bit}</span>)}
+        {kind === undefined ? null : <NewButton kind={kind} onNew={() => onNew(row.uri, kind)} />}
       </span>
     ),
     ...(mark === undefined ? {} : { trailing: mark }),
-    data: { name: row.name, copies: false, description: row.path, flags: row.meta, ...(row.open === undefined ? {} : { open: row.open }) },
+    data: { name: row.name, copies: false, description: row.path, flags: row.meta, editable: false, ...(row.open === undefined ? {} : { open: row.open }) },
     ...(row.children.length === 0 ? {} : { children: row.children.map((child) => childNode(row.id, child)) }),
   };
 }
@@ -94,8 +110,8 @@ function FileBody({ host, uri }: { host: string; uri: string }): ReactElement {
   );
 }
 
-/** One customization over the agent page: buttons that copy a child's name and description, its flags and description, then its Markdown file, or a button that opens any other file. */
-function DetailModal({ host, detail, onClose }: { host: string; detail: Detail; onClose: () => void }): ReactElement {
+/** One customization over the agent page: buttons that copy a child's name and description, its flags and description, then its Markdown file, or a button that opens any other file. A file that may be edited offers Edit. */
+function DetailModal({ host, detail, onClose, onEdit }: { host: string; detail: Detail; onClose: () => void; onEdit: (spot: FileSpot) => void }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const open = detail.open;
@@ -106,6 +122,7 @@ function DetailModal({ host, detail, onClose }: { host: string; detail: Detail; 
         {detail.copies ? <Copies name={detail.name} description={detail.description} className="web-custom-detail__copies" /> : null}
         {detail.flags.length === 0 ? null : <p className="web-custom-detail__flags">{detail.flags.join(' · ')}</p>}
         {detail.description === '' ? null : <p>{detail.description}</p>}
+        {open !== undefined && detail.editable ? <div className="web-custom-detail__actions"><Button label={t('agents/customizations/edit')} onClick={() => { onClose(); onEdit(open); }} /></div> : null}
         {open === undefined ? null : markdown
           ? <FileBody host={host} uri={open.uri} />
           : <Button label={t('agents/customizations/openFile')} onClick={() => { onClose(); void scena.commands.execute('ahp.openFile', { host, uri: open.uri, line: open.line }); }} />}
@@ -121,11 +138,17 @@ export function CustomizationTrees({ host, items }: { host: string; items: reado
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
+  const [editing, setEditing] = useState<{ spot: FileSpot; title: string } | null>(null);
+  const scena = useScena();
+  const edit = (spot: FileSpot, title: string): void => openCustomFile(scena, host, spot, (shown) => setEditing({ spot: shown, title }));
+  const make = (folder: string, kind: NewKind): void => {
+    void newCustomFile(scena, host, folder, kind, (shown) => setEditing({ spot: shown, title: customFileTitle(shown.uri) }));
+  };
   return (
     <>
       <Tree<Detail>
         className="web-customs"
-        nodes={customizationRows(items).map(rowNode)}
+        nodes={customizationRows(items).map((row) => rowNode(row, make))}
         selectedKey={selected}
         expanded={expanded}
         onExpandedChange={setExpanded}
@@ -140,7 +163,8 @@ export function CustomizationTrees({ host, items }: { host: string; items: reado
           }
         }}
       />
-      {detail === null ? null : <DetailModal host={host} detail={detail} onClose={() => setDetail(null)} />}
+      {detail === null ? null : <DetailModal host={host} detail={detail} onClose={() => setDetail(null)} onEdit={(spot) => edit(spot, detail.name)} />}
+      {editing === null ? null : <FileModal host={host} spot={editing.spot} title={editing.title} onClose={() => setEditing(null)} />}
     </>
   );
 }

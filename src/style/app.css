@@ -3013,6 +3013,25 @@
   max-width: 100%;
 }
 
+.web-file-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oo-spacing-sm);
+  width: min(100ch, calc(90vw - 2 * var(--oo-spacing-md)));
+  max-width: 100%;
+  height: min(70vh, 48rem);
+}
+
+.web-custom__new {
+  flex: none;
+  margin-left: auto;
+}
+
+.web-custom-detail__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .web-custom-detail__flags {
   color: var(--oo-color-muted);
   font-size: var(--oo-font-size-xs);

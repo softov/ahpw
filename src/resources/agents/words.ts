@@ -87,6 +87,8 @@ export interface ChildRow {
   state?: StateWord;
   /** The file the customization is; absent when it is not a file. */
   open?: FileSpot;
+  /** Whether its file may be edited: an agent or skill in a folder the host lets clients write into. */
+  editable: boolean;
 }
 
 /** A file, and the line its declaration starts at when it is one part of the file. */
@@ -107,8 +109,18 @@ export interface CustomizationRow {
   state?: StateWord;
   /** The file the customization is, or is declared in; absent for a plugin, a folder and what is not a file. */
   open?: FileSpot;
+  /** The customization's own URI: a folder's is where a new file goes. */
+  uri: string;
+  /** What a new file in this folder is: set only on a folder the host lets clients write agents or skills into. */
+  newKind?: NewKind;
   children: ChildRow[];
 }
+
+/** The kinds of file a client makes in a writable folder. */
+export type NewKind = 'agent' | 'skill';
+
+/** The child kinds a client makes and edits. */
+const NEW_KINDS: ReadonlySet<string> = new Set<NewKind>(['agent', 'skill']);
 
 /** Whether a customization is on: a folder's own flag, or the most specific enablement decision. */
 export function enabledOf(item: Customization | ChildCustomization): boolean {
@@ -206,8 +218,11 @@ export function fileSpotOf(item: Customization | ChildCustomization): FileSpot |
   return { uri: item.uri, line: item.range === undefined ? null : item.range.start.line + 1 };
 }
 
-/** One child as its row reads it. */
-export function childRow(child: ChildCustomization): ChildRow {
+/** Whether a customization is a folder the host lets clients write into. */
+const writableFolder = (item: Customization): boolean => String(item.type) === 'directory' && (item as { writable?: boolean }).writable === true;
+
+/** One child as its row reads it; `writable` is whether its folder takes writes. */
+export function childRow(child: ChildCustomization, writable = false): ChildRow {
   const state = String(child.type) === 'mcpServer' ? stateOf(child) : undefined;
   const open = fileSpotOf(child);
   return {
@@ -220,6 +235,7 @@ export function childRow(child: ChildCustomization): ChildRow {
     enabled: enabledOf(child),
     ...(state === undefined ? {} : { state }),
     ...(open === undefined ? {} : { open }),
+    editable: writable && open !== undefined && NEW_KINDS.has(String(child.type)),
   };
 }
 
@@ -244,6 +260,8 @@ export function customizationRows(items: readonly Customization[] | undefined): 
     const state = stateOf(item);
     const type = String(item.type);
     const open = fileSpotOf(item);
+    const writable = writableFolder(item);
+    const contents = String((item as { contents?: string }).contents);
     return {
       id: item.id,
       type,
@@ -254,7 +272,9 @@ export function customizationRows(items: readonly Customization[] | undefined): 
       enabled,
       ...(state === undefined ? {} : { state }),
       ...(open === undefined ? {} : { open }),
-      children: ((item as { children?: ChildCustomization[] }).children ?? []).map(childRow),
+      uri: item.uri,
+      ...(writable && NEW_KINDS.has(contents) ? { newKind: contents as NewKind } : {}),
+      children: ((item as { children?: ChildCustomization[] }).children ?? []).map((child) => childRow(child, writable)),
     };
   });
 }

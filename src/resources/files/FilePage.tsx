@@ -15,7 +15,7 @@ interface SaveFailure {
 }
 
 /** A file the daemon can read, in an editor that saves with Mod-s, scrolled to the lines a link named. */
-export default function FilePage({ host, uri, line, end }: { host: string; uri?: string; line?: number | null; end?: number | null }): ReactElement {
+export default function FilePage({ host, uri, line, end, onDirty }: { host: string; uri?: string; line?: number | null; end?: number | null; onDirty?: (dirty: boolean) => void }): ReactElement {
   const { t } = useI18n();
   const state = useFileText(host, uri);
   const [dirty, setDirty] = useState(false);
@@ -29,6 +29,8 @@ export default function FilePage({ host, uri, line, end }: { host: string; uri?:
   const version = useRef<string | undefined>(undefined);
 
   useCloseGuard(() => (dirty ? t('files/unsaved') : null));
+  // A holder with no tab of its own, as a modal, learns of unsaved text here.
+  useEffect(() => { onDirty?.(dirty); }, [dirty, onDirty]);
 
   const loaded = state !== null && 'text' in state && state.text !== null ? shownText(state.text) : null;
 

@@ -137,7 +137,7 @@ describe('customizationRows', () => {
   it('words a row: path, count, read-only, version and on or off', () => {
     const [row] = customizationRows([plugin({ version: '1.2.0', enablement: [{ kind: 'session', enabled: false } as CustomizationEnablement], children: [skill({ enabled: false })] })]);
     expect(row).toMatchObject({ name: 'tidy', kind: 'Plugin', path: '~/.plugins/tidy', meta: ['1 skill', 'v1.2.0', 'off'], enabled: false });
-    expect(row?.children).toEqual([{ id: 's', name: 'lint', label: '/lint', line: '', description: '', flags: [], enabled: false, open: { uri: 'file:///x/SKILL.md', line: null } }]);
+    expect(row?.children).toEqual([{ id: 's', name: 'lint', label: '/lint', line: '', description: '', flags: [], enabled: false, open: { uri: 'file:///x/SKILL.md', line: null }, editable: false }]);
     expect(row?.open).toBeUndefined();
     const [read] = customizationRows([folder({ writable: false, children: [] })]);
     expect(read?.meta).toEqual(['0 skills', 'read-only', 'on']);
@@ -152,6 +152,40 @@ describe('customizationRows', () => {
     expect(customizationRows([mcp(state({ kind: 'ready' }), { uri: 'builtin:agents-md' })])[0]?.open).toBeUndefined();
     const [skills] = customizationRows([folder({ children: [skill({ uri: 'file:///x/skills/advisor/' })] })]);
     expect(skills?.children[0]?.open).toEqual({ uri: 'file:///x/skills/advisor/SKILL.md', line: null });
+  });
+
+  it('offers New on a writable folder of agents or skills, and on an empty one', () => {
+    const [skills, agents, empty] = customizationRows([
+      folder({ children: [skill({})] }),
+      folder({ id: 'a', uri: 'file:///home/ana/.claude/agents', contents: 'agent' as DirectoryCustomization['contents'], children: [] }),
+      folder({ id: 'e' }),
+    ]);
+    expect(skills).toMatchObject({ newKind: 'skill', uri: 'file:///home/ana/work/.agents/skills' });
+    expect(agents?.newKind).toBe('agent');
+    expect(empty).toMatchObject({ id: 'e', newKind: 'skill', children: [] });
+  });
+
+  it('offers no New on a read-only folder, a folder of commands, or a plugin', () => {
+    const [read, commands, tidy] = customizationRows([
+      folder({ writable: false }),
+      folder({ id: 'c', contents: 'prompt' as DirectoryCustomization['contents'] }),
+      plugin({ children: [skill({})] }),
+    ]);
+    expect(read?.newKind).toBeUndefined();
+    expect(commands?.newKind).toBeUndefined();
+    expect(tidy?.newKind).toBeUndefined();
+  });
+
+  it('lets an agent or skill in a writable folder be edited, and nothing else', () => {
+    const prompt = { type: 'prompt', id: 'c', uri: 'file:///x/c.md', name: 'ship' } as unknown as ChildCustomization;
+    const [open] = customizationRows([folder({ children: [subagent({}), skill({}), prompt] })]);
+    expect(open?.children.map((child) => child.editable)).toEqual([true, true, false]);
+    const [read] = customizationRows([folder({ writable: false, children: [subagent({})] })]);
+    expect(read?.children[0]?.editable).toBe(false);
+    const [tidy] = customizationRows([plugin({ children: [skill({})] })]);
+    expect(tidy?.children[0]?.editable).toBe(false);
+    const [internal] = customizationRows([folder({ children: [subagent({ uri: 'claude-internal:/agent/review' })] })]);
+    expect(internal?.children[0]?.editable).toBe(false);
   });
 
   it('writes a skill or command name with a slash, and other names as they are', () => {

@@ -19,7 +19,7 @@ describe('settingsGroups', () => {
 
   it('keeps the UI settings out of the host groups, for the Interface tab', () => {
     expect(settingsGroups(schema([])).flatMap((group) => group.sections.flatMap((section) => section.keys)).some((key) => key.startsWith('ui.'))).toBe(false);
-    expect(interfaceGroups().flatMap((group) => group.sections.flatMap((section) => section.keys))).toEqual(['ui.theme', 'ui.themeMode', 'ui.language', 'ui.layout', 'ui.settingsPlace', 'ui.confirmStyle', 'ui.sessionViewsPlace', 'ui.toolsExpanded', 'ui.sessionMarkdown', 'ui.botChatOpens']);
+    expect(interfaceGroups().flatMap((group) => group.sections.flatMap((section) => section.keys))).toEqual(['ui.theme', 'ui.themeMode', 'ui.language', 'ui.layout', 'ui.settingsPlace', 'ui.confirmStyle', 'ui.sessionViewsPlace', 'ui.toolsExpanded', 'ui.sessionMarkdown', 'ui.botChatOpens', 'ui.customFileOpens']);
   });
 
   it('leaves a key it does not know to the view, which lists it under Other', () => {

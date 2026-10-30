@@ -90,6 +90,14 @@ describe('UI settings', () => {
     expect(readUi(scenaWithOwners())['ui.botChatOpens']).toBe('right');
   });
 
+  it('opens an agent file in a new panel until a modal is kept', () => {
+    const scena = scenaWithOwners();
+    expect(readUi(scena)['ui.customFileOpens']).toBe('panel');
+    expect(uiFields(scena)['ui.customFileOpens']).toMatchObject({ enum: ['panel', 'modal'], default: 'panel', title: 'Agent files' });
+    writeUi(scena, 'ui.customFileOpens', 'modal');
+    expect(held.get('ahpw.customFileOpens')).toBe('modal');
+  });
+
   it('sees a change made from a menu, not only from the form', async () => {
     const scena = scenaWithOwners();
     const changed = vi.fn();

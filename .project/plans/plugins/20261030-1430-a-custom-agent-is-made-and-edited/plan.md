@@ -1,7 +1,7 @@
 ---
 title: A custom agent is made and edited
 domain: plugins
-status: planned
+status: active
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -84,9 +84,9 @@ host sends a new root state -> the tree shows the new file
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the editor opens by a setting](task-01-the-editor-opens-by-a-setting.md) | todo | - |
-| [02 - a written file gets edit](task-02-a-written-file-gets-edit.md) | todo | 01 |
-| [03 - a writable folder gets new](task-03-a-writable-folder-gets-new.md) | todo | 01 |
+| [01 - the editor opens by a setting](task-01-the-editor-opens-by-a-setting.md) | implemented | - |
+| [02 - a written file gets edit](task-02-a-written-file-gets-edit.md) | implemented | 01 |
+| [03 - a writable folder gets new](task-03-a-writable-folder-gets-new.md) | implemented | 01 |
 
 ## Risks and tradeoffs
 
@@ -98,16 +98,16 @@ host sends a new root state -> the tree shows the new file
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-the-editor-opens-by-a-setting.md](task-01-the-editor-opens-by-a-setting.md).
+- **Done so far:** tasks 01 to 03 are implemented on the branch, not committed. See [implemented.md](implemented.md).
+- **Next action:** Softov reviews the branch; then the commit and the PR.
 - **Open questions:** none.
-- **Watch out for:** a `.md` file opened without `viewer: TEXT_VIEWER` opens in the Markdown view, which cannot edit.
+- **Watch out for:** an agent shows Edit only when ahpd sends its `file:` URI, which waits on the ahpd brief.
 
 ## Final verification checklist
 
-- [ ] A writable agents directory row shows New agent; a writable skills directory row shows New skill; a commands directory shows none.
-- [ ] New agent writes `<name>.md` from the template and opens it in the editor; New skill writes `<name>/SKILL.md`.
-- [ ] A name that exists is refused, and the existing file is unchanged.
-- [ ] Edit shows on an agent or skill in a writable directory, and not on a plugin's.
-- [ ] With the setting on a new panel the file opens as a tab; on a modal it opens over the page, and saves with Mod-s.
-- [ ] Checked at 1280 light and 420 dark; `pnpm typecheck` and `pnpm test` pass.
+- [x] A writable agents directory row shows New agent; a writable skills directory row shows New skill; a commands directory shows none.
+- [x] New agent writes `<name>.md` from the template and opens it in the editor; New skill writes `<name>/SKILL.md`.
+- [x] A name that exists is refused, and the existing file is unchanged.
+- [ ] Edit shows on an agent or skill in a writable directory, and not on a plugin's. A skill was checked; an agent waits on ahpd.
+- [x] With the setting on a new panel the file opens as a tab; on a modal it opens over the page, and saves with Mod-s.
+- [x] Checked at 1280 light and 420 dark; `pnpm typecheck` and `pnpm test` pass.
