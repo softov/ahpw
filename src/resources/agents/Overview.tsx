@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 import { useI18n, useStore } from '@softov/scena/react';
 import { DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
@@ -9,6 +9,7 @@ import { embedMode } from '../../shell/embed/index.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { meOn, ownerWord } from '../connectors/actions.js';
 import { CustomizationTrees } from './Customizations.js';
+import { AGENT_SECTION, type SectionAsk } from './state.js';
 import { capabilitiesOf, limitsOf, modelsLine, signInOf } from './words.js';
 
 /** The policy states a person reads, under `agents/page/policy/<state>`; an enabled model says nothing. */
@@ -66,6 +67,13 @@ export function Overview({ host, info, record, engine }: { host: string; info?: 
 /** What the host serves of an agent: its models, its customizations and its sign-in. */
 function Served({ host, agent, signIn }: { host: string; agent: AgentInfo; signIn: ReturnType<typeof signInOf> }): ReactElement {
   const { t } = useI18n();
+  // An ask for the customizations scrolls them into view once they are drawn.
+  const ask = useStore<SectionAsk>(AGENT_SECTION);
+  const customizations = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ask?.section !== 'customizations' || ask.host !== host || ask.provider !== agent.provider) return;
+    customizations.current?.scrollIntoView({ block: 'start' });
+  }, [ask, host, agent.provider]);
   return (
     <>
       <Text variant="h3" text={t('agents/page/models')} />
@@ -95,7 +103,7 @@ function Served({ host, agent, signIn }: { host: string; agent: AgentInfo; signI
 
       {(agent.customizations ?? []).length === 0 ? null : (
         <>
-          <Text variant="h3" text={t('agents/page/customizations')} />
+          <div ref={customizations}><Text variant="h3" text={t('agents/page/customizations')} /></div>
           <CustomizationTrees host={host} items={agent.customizations} />
         </>
       )}

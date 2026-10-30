@@ -6,6 +6,7 @@ import { ahpPaths } from '../../bridges/data.js';
 import { plural } from '../../i18n/locales.js';
 import { chatAttachment, clipboardImage, fromFiles } from './attachments.js';
 import { EMOJIcon } from '../emojis.js';
+import type { CustomAgent } from './custom-agents.js';
 
 /** The slot the composer's `/` commands are offered in. */
 export const COMPOSER_SLOT = 'ahp:input/';
@@ -31,6 +32,13 @@ export interface ComposerApi {
   models(): ModelChoice[];
   model(): string | undefined;
   setModel(id: string | undefined): void;
+  /** The harness's custom agents, which the Agent picker lists. */
+  customAgents(): CustomAgent[];
+  /** The custom agent the next message names; none is the harness's default. */
+  customAgent(): string | undefined;
+  setCustomAgent(uri: string | undefined): void;
+  /** The harness this composer's session runs on. */
+  provider(): string;
   options(): Option[];
   setOption(key: string, value: unknown): void;
   running(): boolean;
@@ -223,7 +231,10 @@ export function registerOptionCommands(scena: Scena, options: readonly Option[])
   return combineDisposables(...options.filter((option) => pickable(option.schema)).map((option) => share(scena, optionCommand(option.key, option.schema))));
 }
 
-/** The commands every composer has: the model, stopping a turn, and a new session. */
+/** The command behind the Agent pill and `/agent`: the custom agent the next message names. */
+export const CUSTOM_AGENT_COMMAND = 'ahp.composer.agent';
+
+/** The commands every composer has: the model, the custom agent, stopping a turn, and a new session. */
 export function registerComposerCommands(scena: Scena): Disposable {
   return combineDisposables(
     share(scena, {
@@ -248,6 +259,40 @@ export function registerComposerCommands(scena: Scena): Disposable {
           items: [
             { title: translate('sessions/commands/agentDefault'), active: current === undefined, onSelect: pick(undefined) },
             ...api.models().map((model) => ({ title: model.name, description: model.id, active: model.id === current, onSelect: pick(model.id) })),
+          ],
+        });
+      },
+    }),
+    share(scena, {
+      id: CUSTOM_AGENT_COMMAND,
+      title: () => translate('sessions/commands/agent'),
+      description: () => translate('sessions/commands/agentHint'),
+      category: 'Settings',
+      shortcut: '/agent',
+      slots: [COMPOSER_SLOT, NEW_SLOT],
+      disabled: (ctx) => (apiOf(ctx)?.customAgents().length ?? 0) === 0,
+      run: (ctx) => {
+        const api = apiOf(ctx);
+        if (api === undefined) return;
+        const current = api.customAgent();
+        const pick = (uri: string | undefined) => (host: { closeMenu(): void }) => {
+          api.setCustomAgent(uri);
+          host.closeMenu();
+        };
+        ctx.host?.pushList({
+          title: translate('sessions/commands/agent'),
+          sentinel: '/agent',
+          items: [
+            { title: translate('sessions/commands/agent'), description: translate('sessions/commands/agentDefaultHint'), active: current === undefined, onSelect: pick(undefined) },
+            ...api.customAgents().map((one) => ({ title: one.name, ...(one.description === undefined ? {} : { description: one.description }), active: one.uri === current, onSelect: pick(one.uri) })),
+            {
+              title: translate('sessions/commands/configureAgents'),
+              group: 'configure',
+              onSelect: (host: { closeMenu(): void }) => {
+                host.closeMenu();
+                void ctx.scena.commands.execute('ahp.openAgent', { host: api.host(), provider: api.provider(), section: 'customizations' });
+              },
+            },
           ],
         });
       },

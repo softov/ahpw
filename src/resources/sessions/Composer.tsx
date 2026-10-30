@@ -5,6 +5,7 @@ import type { HostCtx, PickerAction } from '@softov/scena/types';
 import type {
   AgentInfo,
   Changeset,
+  Customization,
   Message,
   MessageAttachment,
   PendingMessage,
@@ -18,9 +19,12 @@ import { folderLabel, newId } from '../../bridges/words.js';
 import type { Send } from './Parts.js';
 import { Pill } from './pills.js';
 import { ringOf } from './status.js';
+import { AgentPicker } from './AgentPicker.js';
+import { customAgents } from './custom-agents.js';
 import {
   attachComposer,
   COMPOSER_SLOT,
+  CUSTOM_AGENT_COMMAND,
   composerPath,
   optionCommandId,
   pickable,
@@ -60,18 +64,19 @@ export function fitToText(area: HTMLTextAreaElement | null): void {
   area.style.height = `${Math.min(area.scrollHeight, COMPOSER_MAX)}px`;
 }
 
-/** A user message, with the model and attachments when there are any. */
-export function messageOf(text: string, model: string | undefined, attachments: MessageAttachment[]): Message {
+/** A user message, with the model, the custom agent and attachments when there are any. */
+export function messageOf(text: string, model: string | undefined, attachments: MessageAttachment[], agent?: string): Message {
   return {
     text,
     origin: { kind: 'user' },
     ...(model === undefined ? {} : { model: { id: model } }),
+    ...(agent === undefined ? {} : { agent: { uri: agent } }),
     ...(attachments.length === 0 ? {} : { attachments: withRanges(text, attachments) }),
   } as Message;
 }
 
 /** The composer of one chat: the box, its `/` and `@` picker, the settings row, and send, queue, steer and stop. */
-export const Composer = memo(function Composer({ host, chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, summary, send, placeholder, steers = false }: {
+export const Composer = memo(function Composer({ host, chatUri, activeId, activeStart, queued: held, steering, draft, lastModel, lastUsage, config, changesets, customizations, summary, send, placeholder, steers = false }: {
   /** The session's host. */
   host: string;
   chatUri: string;
@@ -86,6 +91,8 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   config: SessionConfigState | undefined;
   /** The session's changesets: Add context lists the files of the first, the one the Changes pane opens on. */
   changesets: readonly Changeset[] | undefined;
+  /** The session's customizations, whose custom agents the Agent picker lists. */
+  customizations?: readonly Customization[] | undefined;
   summary: SessionSummary;
   send: Send;
   /** The box's prompt, in place of the agent's; a chat with a bot names the bot. */
@@ -105,6 +112,8 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   const [text, setText] = useState(() => draft?.text ?? '');
   const [caret, setCaret] = useState<number | null>(null);
   const [model, setModel] = useState<string | undefined>(() => draft?.model?.id ?? lastModel);
+  const [customAgent, setCustomAgent] = useState<string | undefined>(() => draft?.agent?.uri);
+  const agentsOfSession = useMemo(() => customAgents(customizations), [customizations]);
   const [attachments, setAttachments] = useState<MessageAttachment[]>(() => draft?.attachments ?? []);
   const area = useRef<HTMLTextAreaElement>(null);
 
@@ -118,11 +127,11 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   useEffect(() => {
     if (!typed.current) return;
     const timer = window.setTimeout(() => {
-      const next = text.trim() === '' && attachments.length === 0 ? undefined : messageOf(text, model, attachments);
+      const next = text.trim() === '' && attachments.length === 0 ? undefined : messageOf(text, model, attachments, customAgent);
       hostBridge(host).dispatch(chatUri, { type: 'chat/draftChanged', draft: next } as StateAction);
     }, DRAFT_DELAY);
     return () => window.clearTimeout(timer);
-  }, [text, model, attachments, chatUri]);
+  }, [text, model, attachments, customAgent, chatUri]);
 
   const focusCaret = useCallback((position: number) => {
     setCaret(position);
@@ -239,6 +248,13 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
       typed.current = true;
       setModel(id);
     },
+    customAgents: () => agentsOfSession,
+    customAgent: () => customAgent,
+    setCustomAgent: (uri) => {
+      typed.current = true;
+      setCustomAgent(uri);
+    },
+    provider: () => summary.provider,
     options: () => options,
     setOption: (key, value) => {
       hostBridge(host).dispatch(summary.resource, { type: 'session/configChanged', config: { [key]: value } } as StateAction);
@@ -261,6 +277,10 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
     models: () => api.current?.models() ?? [],
     model: () => api.current?.model(),
     setModel: (id) => api.current?.setModel(id),
+    customAgents: () => api.current?.customAgents() ?? [],
+    customAgent: () => api.current?.customAgent(),
+    setCustomAgent: (uri) => api.current?.setCustomAgent(uri),
+    provider: () => api.current?.provider() ?? summary.provider,
     options: () => api.current?.options() ?? [],
     setOption: (key, value) => api.current?.setOption(key, value),
     running: () => api.current?.running() ?? false,
@@ -297,7 +317,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   function submit(kind: 'send' | 'steer'): void {
     const said = text.trim();
     if (said === '') return;
-    const message = messageOf(said, model, attachments);
+    const message = messageOf(said, model, attachments, customAgent);
     if (active === undefined) {
       send({ type: 'chat/turnStarted', turnId: newId(), startedAt: new Date().toISOString(), message } as StateAction);
     } else if (kind === 'steer' || steers) {
@@ -407,6 +427,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
           <AddButton host={host} path={path} onOpenChange={setAdding} />
           <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
           <div className="web-composer__chips web-composer__chips--left">
+            <AgentPicker agents={agentsOfSession} chosen={customAgent} open={() => openCommand(CUSTOM_AGENT_COMMAND)} />
             {pills.filter((option) => footerSide(option) === 'left').map(settingPill)}
           </div>
           <div className="web-composer__chips web-composer__chips--right">

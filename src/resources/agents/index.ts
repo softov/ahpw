@@ -9,7 +9,7 @@ import { trackServed } from '../../bridges/served.js';
 import { readLastHost, startHost } from '../sessions/last-host.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
-import { ACTIVE_AGENT, agentTab, ENGINES_SERVED, newAgentTab } from './state.js';
+import { ACTIVE_AGENT, AGENT_SECTION, agentTab, ENGINES_SERVED, keepAgentTabKey, newAgentTab, type AgentSection, type SectionAsk } from './state.js';
 import { EMOJIcon } from '../emojis.js';
 import { bound, english } from '../../i18n/locales.js';
 import { HOST_FILTER_ACTION, shownHosts } from '../../bridges/hosts.js';
@@ -80,10 +80,15 @@ export function registerAgents(scena: Scena): Disposable {
       id: 'ahp.openAgent',
       title: () => translate('agents/commands/open'),
       run: (ctx, args) => {
-        const target = args as { provider?: string; host?: string; title?: string } | undefined;
+        const target = args as { provider?: string; host?: string; title?: string; section?: AgentSection } | undefined;
         if (target?.provider === undefined) return;
         const { provider, host = windowHost() } = target;
         ctx.store.set(ACTIVE_AGENT, { host, provider });
+        // A part to show: the page opens on its tab and scrolls to it, open already or not.
+        if (target.section !== undefined) {
+          keepAgentTabKey('overview');
+          ctx.store.set(AGENT_SECTION, { host, provider, section: target.section, at: Date.now() } satisfies SectionAsk);
+        }
         // A record the host does not serve is in its channel only, so its title comes from there.
         const agent = ctx.store.get<AgentInfo[]>(ahpPaths(host).agents)?.find((one) => one.provider === provider);
         ctx.surfaces.open({

@@ -6,6 +6,15 @@ export const ENGINES_SERVED = '$/ahp/agents/enginesServed' as BindingPath;
 /** The agent whose page is open, as `{ host, provider }`. */
 export const ACTIVE_AGENT = '$/ahp/activeAgent' as BindingPath;
 
+/** A part of an agent's page to scroll to, as `{ host, provider, section, at }`; `at` tells two asks for the same part apart. */
+export const AGENT_SECTION = '$/ahp/agentSection' as BindingPath;
+
+/** The parts of an agent's page that `ahp.openAgent` can scroll to. */
+export type AgentSection = 'customizations';
+
+/** An ask to show a part of an agent's page. */
+export interface SectionAsk { host: string; provider: string; section: AgentSection; at: number }
+
 /** An agent's tab key: one tab each. */
 export const agentTab = (host: string, provider: string): string => `agent:${host}:${provider}`;
 

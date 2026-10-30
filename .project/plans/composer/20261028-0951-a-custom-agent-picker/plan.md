@@ -56,12 +56,15 @@ Agent pill -> menu: Agent | custom agents | Configure Custom Agents
 | The pill hides when the harness has no custom agents | `(defaulted: a menu with one item chooses nothing)` | 02 |
 | A disabled agent is not listed | `(defaulted: the host would not run it)` | 01 |
 | The choice stays for the next message in the same composer | `(defaulted: VS Code keeps it)` | 02 |
+| The custom agent list is `/agent`; the harness list moves to `/harness`, titled Harness | Softov, 2026-10-30: "/agent custom, /harness" | 02 |
+| The pill opens the shared `/agent` list, not a `ContextMenu` | `(defaulted: the sibling pills open their slash command lists)` | 02 |
+| An ask for the customizations also opens the Overview tab | `(defaulted: the customizations are on that tab)` | 03 |
 | No ahpd or protocol change | ahpd reads `message.agent` in `packages/sdk/src/host/lifecycle.ts` | - |
 
 ## Proposed architecture
 
 - **Data flow** - the customization tree in, a list of `{ uri, name, description }` out.
-- **Event flow** - the pill opens a scena `ContextMenu`; a choice sets the composer's agent.
+- **Event flow** - the pill opens the `/agent` list; a choice sets the composer's agent.
 - **State flow** - each composer holds its chosen `uri` in React state.
 - **Layer responsibilities** - `src/resources/sessions/custom-agents.ts`: the list. The pill: `src/resources/sessions/AgentPicker.tsx`. `src/resources/agents/`: open at the customizations.
 - **Source-of-truth files** - [`code://src/resources/sessions/Composer.tsx`](../../../../src/resources/sessions/Composer.tsx)
@@ -70,9 +73,9 @@ Agent pill -> menu: Agent | custom agents | Configure Custom Agents
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the custom agents of a tree](task-01-the-custom-agents-of-a-tree.md) | todo | - |
-| [02 - the picker sends the agent](task-02-the-picker-sends-the-agent.md) | todo | 01 |
-| [03 - configure opens the customizations](task-03-configure-opens-the-customizations.md) | todo | 02 |
+| [01 - the custom agents of a tree](task-01-the-custom-agents-of-a-tree.md) | implemented | - |
+| [02 - the picker sends the agent](task-02-the-picker-sends-the-agent.md) | implemented | 01 |
+| [03 - configure opens the customizations](task-03-configure-opens-the-customizations.md) | implemented | 02 |
 
 ## Risks and tradeoffs
 
@@ -81,14 +84,14 @@ Agent pill -> menu: Agent | custom agents | Configure Custom Agents
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-the-custom-agents-of-a-tree.md](task-01-the-custom-agents-of-a-tree.md).
+- **Done so far:** tasks 01 to 03 are implemented and checked by hand on the test ahpd, except a send.
+- **Next action:** Softov does the send check in [composer-agent-send-check.md](../../../pending/composer-agent-send-check.md), then reviews.
 - **Open questions:** none.
 - **Watch out for:** the place of the pill comes from the mockup of plan `the-line-above-the-new-session-box`.
 
 ## Final verification checklist
 
-- [ ] With an agent in `~/.claude/agents` on the test ahpd, the menu lists it in both composers.
+- [x] On the test ahpd, the menu lists the Claude Code custom agents in both composers.
 - [ ] A message with that agent chosen carries `agent.uri`, and the reply comes from it.
-- [ ] Configure Custom Agents opens the agent page at its customizations.
-- [ ] Checked at 1280 and 760 wide, in both themes; `pnpm typecheck` and `pnpm test` pass.
+- [x] Configure Custom Agents opens the agent page at its customizations.
+- [x] Checked at 1280 and 760 wide, in both themes; `pnpm typecheck` and `pnpm test` pass.

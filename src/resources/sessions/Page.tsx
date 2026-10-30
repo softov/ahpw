@@ -320,6 +320,7 @@ export default function SessionPage({ host, resource }: { host: string; resource
           lastModel={chat.state.turns.at(-1)?.message.model?.id}
           lastUsage={chat.state.turns.at(-1)?.usage}
           config={session.state?.config}
+          customizations={session.state?.customizations}
           changesets={session.state?.changesets}
           summary={summary}
           send={send}
