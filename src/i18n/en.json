@@ -1714,7 +1714,10 @@
       "subagentN": "Subagent {n}",
       "subagentRunning": "running",
       "backToChat": "Back to the chat",
-      "view": "How the chat reads",
+      "view": "Views and how the chat reads",
+      "views": "Views",
+      "newTerminal": "New terminal",
+      "reads": "How the chat reads",
       "hideCalls": "Hide calls",
       "showCalls": "Show the calls"
     }
