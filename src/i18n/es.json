@@ -1714,7 +1714,10 @@
       "subagentN": "Subagente {n}",
       "subagentRunning": "en curso",
       "backToChat": "Volver al chat",
-      "view": "Cómo se lee el chat",
+      "view": "Vistas y cómo se lee el chat",
+      "views": "Vistas",
+      "newTerminal": "Nueva terminal",
+      "reads": "Cómo se lee el chat",
       "hideCalls": "Ocultar llamadas",
       "showCalls": "Mostrar las llamadas"
     }

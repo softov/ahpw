@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createScena } from '@softov/scena/core';
 import type { TabPanelNode } from '@softov/scena/types';
 import { ACTIVE_SESSION } from '../resources/sessions/state.js';
-import { RIGHT_SIDEBAR, SESSION_VIEWS, besideSession, mountRight, showView } from './right-sidebar.js';
+import { RIGHT_SIDEBAR, SESSION_VIEWS, besideSession, mountRight, showView, viewEntries } from './right-sidebar.js';
 
 describe('showView', () => {
   const setup = () => {
@@ -30,6 +30,17 @@ describe('showView', () => {
     expect(open(scena)).toContain('a');
     expect(scena.layout.get().surfaces[RIGHT_SIDEBAR]?.activeContainerKey).toBe('a');
     dispose();
+  });
+
+  it('lists each view with its title and icon, and drops a disposed one', () => {
+    const scena = createScena();
+    const tab = (key: string) => ({ key, resource: { component: 'Page' }, props: { title: key.toUpperCase() } });
+    const a = mountRight(scena, tab('a'), '1');
+    const b = mountRight(scena, tab('b'), '2');
+    expect(viewEntries(scena)).toEqual([{ key: 'a', title: 'A', icon: '1' }, { key: 'b', title: 'B', icon: '2' }]);
+    a.dispose();
+    expect(viewEntries(scena).map((one) => one.key)).toEqual(['b']);
+    b.dispose();
   });
 
   it('puts each tab in the palette, with its keys', () => {

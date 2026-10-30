@@ -8,6 +8,7 @@ import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
 import { inFolder } from '../terminals/terminal.js';
 import type { BotMark } from '../bots/chat/mark.js';
+import { viewEntries } from '../../shell/right-sidebar.js';
 import { claimedTerminals, subagentChats, subagentsOf } from './header.js';
 
 /**
@@ -42,8 +43,9 @@ function useSessionTerminals(host: string, session: string, folder: string | und
  * The header's buttons, each shown only when it has something to count:
  * changed files, terminals, the subagents (one per chat its calls hand work
  * to, each opened from its menu), the session's own chats, a way back from a
- * subagent's chat, and a menu: the bot a chat is with, and how the chat
- * reads: the Raw view, and the calls hidden. Each of those, while on, shows
+ * subagent's chat, and a menu: the views that show the session, a new
+ * terminal in its folder, the bot a chat is with, and how the chat reads:
+ * the Raw view, and the calls hidden. Each of those, while on, shows
  * its icon, which turns it off.
  */
 export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw, calls, bot }: {
@@ -66,7 +68,8 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
   const { t } = useI18n();
   const [menu, setMenu] = useState<{ x: number; y: number; items: PickerAction[] } | null>(null);
   const changes = summary.changes;
-  const terminals = useSessionTerminals(host, summary.resource, summary.workingDirectories?.[0]);
+  const folder = summary.workingDirectories?.[0];
+  const terminals = useSessionTerminals(host, summary.resource, folder);
   const chats = session?.chats ?? [];
   const subagents = subagentsOf(chat?.turns ?? [], chat?.activeTurn, chats);
   const running = subagents.filter((one) => one.running).length;
@@ -93,10 +96,14 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     active: one.chat === chatUri,
     onSelect: (picked) => { picked.closeMenu(); onSubagent(one.chat); },
   })));
+  const views = t('sessions/header/views');
+  const reads = t('sessions/header/reads');
   const viewMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, [
-    ...(bot === undefined ? [] : [{ title: t('bots/commands/open'), icon: EMOJIcon.bots, onSelect: (picked) => { picked.closeMenu(); run('ahp.openBot', { host, slug: bot.bot, name: bot.name }); } } satisfies PickerAction]),
-    { title: t('sessions/raw/button'), icon: EMOJIcon.data, active: raw, onSelect: () => onRaw(!raw) },
-    ...(calls === undefined ? [] : [{ title: t('sessions/header/hideCalls'), icon: EMOJIcon.callsHidden, active: calls.hidden, onSelect: () => calls.onHidden(!calls.hidden) }]),
+    ...viewEntries(scena).map((one): PickerAction => ({ title: one.title, icon: one.icon, group: views, onSelect: (picked) => { picked.closeMenu(); run(`ahp.view.${one.key}`); } })),
+    ...(folder === undefined ? [] : [{ title: t('sessions/header/newTerminal'), icon: EMOJIcon.terminal, group: views, onSelect: (picked) => { picked.closeMenu(); run('ahp.newTerminal', { host, cwd: folder }); } } satisfies PickerAction]),
+    ...(bot === undefined ? [] : [{ title: t('bots/commands/open'), icon: EMOJIcon.bots, group: reads, onSelect: (picked) => { picked.closeMenu(); run('ahp.openBot', { host, slug: bot.bot, name: bot.name }); } } satisfies PickerAction]),
+    { title: t('sessions/raw/button'), icon: EMOJIcon.data, group: reads, active: raw, onSelect: () => onRaw(!raw) },
+    ...(calls === undefined ? [] : [{ title: t('sessions/header/hideCalls'), icon: EMOJIcon.callsHidden, group: reads, active: calls.hidden, onSelect: () => calls.onHidden(!calls.hidden) }]),
   ]);
 
   return (

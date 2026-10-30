@@ -62,6 +62,7 @@ interface View {
   /** Takes it out of the sidebar. */
   fromSidebar: () => void;
   open: { resource: ComponentNode; props: MountDisplay & { title: Label } };
+  icon: string;
 }
 
 const views = new Map<string, View>();
@@ -117,6 +118,22 @@ function showInSidebar(scena: Scena, key: string, view: View): void {
   if (!isOpenAt(scena, RIGHT_SIDEBAR, key)) view.toSidebar();
   const current = scena.layout.get().surfaces[RIGHT_SIDEBAR];
   scena.layout.setSurface(RIGHT_SIDEBAR, { ...current, visible: true, activeContainerKey: key });
+}
+
+/** A view as a menu lists it: its key, its tab's title and its icon. */
+export interface ViewEntry {
+  key: string;
+  title: string;
+  icon: string;
+}
+
+/** The views `mountRight` holds, in the order they were mounted; each opens with `ahp.view.<key>`. */
+export function viewEntries(scena: Scena): ViewEntry[] {
+  return [...views].map(([key, view]) => ({
+    key,
+    title: resolveLabel(view.open.props.title, { get: (path) => scena.store.get(path as BindingPath), translate }),
+    icon: view.icon,
+  }));
 }
 
 /**
@@ -175,6 +192,7 @@ export function mountRight(
       mounted = null;
     },
     open: { resource: tab.resource, props: tab.props },
+    icon,
   };
   views.set(tab.key, view);
   // In `tab` place the view starts closed; the main panel's kept tabs bring it back.
