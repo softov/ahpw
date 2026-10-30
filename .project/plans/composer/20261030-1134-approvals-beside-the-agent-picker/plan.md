@@ -1,7 +1,7 @@
 ---
 title: Approvals beside the agent picker
 domain: composer
-status: planned
+status: active
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -63,7 +63,7 @@ host config schema -> options -> footerSide 'left'
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - approvals sits after the agent picker](task-01-approvals-sits-after-the-agent-picker.md) | todo | - |
+| [01 - approvals sits after the agent picker](task-01-approvals-sits-after-the-agent-picker.md) | implemented | - |
 
 ## Risks and tradeoffs
 
@@ -72,14 +72,14 @@ host config schema -> options -> footerSide 'left'
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-approvals-sits-after-the-agent-picker.md](task-01-approvals-sits-after-the-agent-picker.md).
+- **Done so far:** task 01 is implemented, on branch `composer/20261030-1134-approvals-beside-the-agent-picker`.
+- **Next action:** Softov reviews the PR.
 - **Open questions:** none.
 - **Watch out for:** Approvals must not show in both places; the tray filter must skip it.
 
 ## Final verification checklist
 
-- [ ] The new session box footer reads `+`, agent picker, Approvals, then the right side.
-- [ ] The line above no longer shows Approvals, and keeps the other session settings in host order.
-- [ ] The session composer is unchanged.
-- [ ] Checked at 1280 light and 420 dark; `pnpm typecheck` and `pnpm test` pass.
+- [x] The new session box footer reads `+`, agent picker, Approvals, then the right side.
+- [x] The line above no longer shows Approvals, and keeps the other session settings in host order.
+- [x] The session composer is unchanged.
+- [x] Checked at 1280 light and 420 dark; `pnpm typecheck` and `pnpm test` pass.
