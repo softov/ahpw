@@ -1539,16 +1539,18 @@
       "start": "Iniciar",
       "startHint": "Enter inicia, Shift+Enter hace un salto de línea",
       "notCreated": "No se creó",
+      "host": "Host",
+      "hostHint": "El host en el que corre la sesión",
       "where": "Carpeta",
-      "whereHint": "La carpeta en la que trabaja la sesión, y su host",
-      "folders": "Carpetas de {host}",
+      "whereHint": "La carpeta en la que trabaja la sesión",
       "openFolder": "Abrir carpeta…",
       "remote": "Remoto",
       "manageHost": "Editar host",
       "addHost": "Añadir host",
       "recent": "Carpetas recientes",
       "browse": "Explorar",
-      "hosts": "Hosts"
+      "hosts": "Hosts",
+      "manage": "Administrar"
     },
     "pills": {
       "setting": "{name}: {value}",

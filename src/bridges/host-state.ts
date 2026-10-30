@@ -12,6 +12,12 @@ export function hostState(connection: Connection | undefined, refused: boolean |
   return status === 'connecting' ? 'connecting' : 'down';
 }
 
+/** The string key of what a host offers in its state: sign in again when refused, retry when down, nothing otherwise. */
+export function hostFix(state: HostState): 'hosts/signIn' | 'hosts/retry' | null {
+  if (state === 'refused') return 'hosts/signIn';
+  return state === 'down' ? 'hosts/retry' : null;
+}
+
 /** What a host that is not connected offers: sign in again, or retry now. */
 export function fixHost(host: string, state: HostState): void {
   if (state === 'refused') void embedder?.manageHosts({ edit: host });

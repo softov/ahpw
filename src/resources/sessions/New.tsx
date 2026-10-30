@@ -5,9 +5,9 @@ import { Alert, Button, Text, useChatPicker } from '@softov/scena/ui';
 import type { ListSpec, PickerAction } from '@softov/scena/types';
 import type { AgentInfo, MessageAttachment, SessionConfigPropertySchema, SessionState, StateAction } from '@microsoft/agent-host-protocol';
 import { ahpPaths, hostBridge, ROOT, windowHost, type Connection } from '../../bridges/data.js';
-import { hostState } from '../../bridges/host-state.js';
+import { fixHost, hostFix, hostState } from '../../bridges/host-state.js';
 import { askTrust } from '../../bridges/trust-ask.js';
-import { HOST_LIST, hostLabel, useHostNames, type HostName } from '../../bridges/hosts.js';
+import { HOST_LIST, hostLabel, useEach, useHostNames, type HostName } from '../../bridges/hosts.js';
 import { embedder, embedMode } from '../../shell/embed/index.js';
 import { readLastHost, startHost, writeLastHost } from './last-host.js';
 import { folderLabel, folderUri, newId } from '../../bridges/words.js';
@@ -58,6 +58,7 @@ const RESOLVE_DELAY = 300;
 /** The command behind the Agent pill and `/agent`: the new session box is the only place an agent is chosen. */
 const AGENT_COMMAND = 'ahp.new.agent';
 const WHERE_COMMAND = 'ahp.new.where';
+const HOST_COMMAND = 'ahp.new.host';
 
 /** The settings the host offers for a session not yet created, and their values. */
 interface Resolved {
@@ -109,6 +110,8 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
   const [picked, setPicked] = useState<string | null>(() => given ?? readLastHost());
   const host = multi ? startHost((hostList ?? []).map((one) => one.id), picked) ?? '' : windowHost();
   const hostName = useHostNames();
+  const [hostConnection, hostRefused] = useEach<unknown>(multi ? [ahpPaths(host).connection, ahpPaths(host).refused] : []);
+  const hostNow = hostState(hostConnection as Connection | undefined, hostRefused as boolean | undefined);
   const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
   const iconSrcOf = useAgentIconSrc(useMemo(() => [host], [host]));
   const home = useStore<string | null>(ahpPaths(host).defaultDirectory);
@@ -298,20 +301,20 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
     setDynamic({});
   }, []);
 
-  // A folder on a host: another host has its own agents, so its agent starts again from its default.
-  const pickWhere = useCallback((next: string, path: string): void => {
-    if (next !== api.current.host) {
-      setPicked(next);
-      writeLastHost(next);
-      pickAgent('');
-    }
-    setFolder(path);
+  // Another host has its own agents and folders: its agent starts again from its default, and its folder from its home.
+  const pickHost = useCallback((next: string): void => {
+    if (next === api.current.host) return;
+    setPicked(next);
+    writeLastHost(next);
+    pickAgent('');
+    setFolder('');
   }, [pickAgent]);
+  const pickFolder = useCallback((path: string): void => setFolder(path), []);
 
   // What the box's commands read and do: the agent, the model, the settings, Add context. A session not yet made has no turn to stop.
-  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, iconSrcOf, provider, pickWhere, host, folder, hostList, hostName });
-  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, iconSrcOf, provider, pickWhere, host, folder, hostList, hostName };
-  // The folder and its host, in one list: the folders used, a host's folder picker, and with every host the hosts to manage.
+  const api = useRef({ attach, upload, focusCaret, models, model, options, pickAgent, agents, iconSrcOf, provider, pickHost, pickFolder, host, folder, hostList, hostName });
+  api.current = { attach, upload, focusCaret, models, model, options, pickAgent, agents, iconSrcOf, provider, pickHost, pickFolder, host, folder, hostList, hostName };
+  // The host's folders: the ones used, and its folder picker.
   useEffect(() => scena.commands.register({
     id: WHERE_COMMAND,
     title: () => translate('sessions/new/where'),
@@ -320,43 +323,75 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
     slots: [NEW_SLOT],
     run: (ctx) => {
       const now = api.current;
-      const multi = embedMode() === 'multi';
-      const hosts = multi ? (now.hostList ?? []).map((one) => one.id) : [now.host];
-      // A host that is not connected has no folders to offer; Remote still lists it, to fix it.
-      const up = hosts.filter((host) => hostState(ctx.store.get<Connection>(ahpPaths(host).connection), ctx.store.get<boolean>(ahpPaths(host).refused)) === 'connected');
-      const browse = (host: string): void => {
-        const home = ctx.store.get<string | null>(ahpPaths(host).defaultDirectory) ?? null;
+      // A host that is not connected has no folders to offer; the Host list fixes it.
+      const up = hostState(ctx.store.get<Connection>(ahpPaths(now.host).connection), ctx.store.get<boolean>(ahpPaths(now.host).refused)) === 'connected';
+      const browse = (): void => {
+        const home = ctx.store.get<string | null>(ahpPaths(now.host).defaultDirectory) ?? null;
         const homePath = home === null ? null : folderLabel(home).replace(/\/+$/, '');
-        void askFolder({ host, title: translate('sessions/new/where'), start: homePath === null ? '/' : `${homePath}/`, home: homePath })
-          .then((path) => { if (path !== null) api.current.pickWhere(host, path.replace(/[\\/]+$/, '') || path); });
+        void askFolder({ host: now.host, title: translate('sessions/new/where'), start: homePath === null ? '/' : `${homePath}/`, home: homePath })
+          .then((path) => { if (path !== null) api.current.pickFolder(path.replace(/[\\/]+$/, '') || path); });
       };
       ctx.host?.pushList({
         title: translate('sessions/new/where'),
-        items: [
-          ...wheresOf(ctx.store, up).map((one) => ({
-            title: whereLabel(one.path, multi ? now.hostName(one.host) : null),
+        items: up ? [
+          ...wheresOf(ctx.store, [now.host]).map((one) => ({
+            title: whereLabel(one.path, null),
             description: one.path,
             icon: EMOJIcon.folder,
             group: translate('sessions/new/recent'),
-            active: one.host === now.host && one.path === now.folder.replace(/[\\/]+$/, ''),
+            active: one.path === now.folder.replace(/[\\/]+$/, ''),
             onSelect: (menu: { closeMenu(): void }) => {
               menu.closeMenu();
-              now.pickWhere(one.host, one.path);
+              now.pickFolder(one.path);
             },
           })),
-          ...up.map((host) => ({
-            title: multi ? translate('sessions/new/folders', { host: now.hostName(host) }) : translate('sessions/new/openFolder'),
-            icon: multi ? EMOJIcon.host : EMOJIcon.open,
+          {
+            title: translate('sessions/new/openFolder'),
+            icon: EMOJIcon.open,
             group: translate('sessions/new/browse'),
             onSelect: (menu: { closeMenu(): void }) => {
               menu.closeMenu();
-              browse(host);
+              browse();
             },
-          })),
-          ...(multi && embedder !== undefined ? [{
+          },
+        ] : [],
+      });
+    },
+  }).dispose, [scena]);
+  // With every host: each host with its state, and the hosts to manage. A host that is not connected offers to sign in or retry.
+  useEffect(() => scena.commands.register({
+    id: HOST_COMMAND,
+    title: () => translate('sessions/new/host'),
+    description: () => translate('sessions/new/hostHint'),
+    category: 'Session',
+    slots: [NEW_SLOT],
+    when: () => embedMode() === 'multi',
+    run: (ctx) => {
+      const now = api.current;
+      const hosts = (now.hostList ?? []).map((one) => one.id);
+      ctx.host?.pushList({
+        title: translate('sessions/new/host'),
+        items: [
+          ...hosts.map((host) => {
+            const state = hostState(ctx.store.get<Connection>(ahpPaths(host).connection), ctx.store.get<boolean>(ahpPaths(host).refused));
+            const fix = hostFix(state);
+            return {
+              title: now.hostName(host),
+              description: fix === null ? translate(`hosts/state/${state}`) : `${translate(`hosts/state/${state}`)} · ${translate(fix)}`,
+              icon: EMOJIcon.host,
+              group: translate('sessions/new/hosts'),
+              active: host === now.host,
+              onSelect: (menu: { closeMenu(): void }) => {
+                menu.closeMenu();
+                if (state === 'connected') now.pickHost(host);
+                else if (fix !== null) fixHost(host, state);
+              },
+            };
+          }),
+          ...(embedder !== undefined ? [{
             title: translate('sessions/new/remote'),
             icon: EMOJIcon.host,
-            group: translate('sessions/new/hosts'),
+            group: translate('sessions/new/manage'),
             onSelect: (menu: { pushList(list: ListSpec): void }) => {
               menu.pushList({
                 title: translate('sessions/new/remote'),
@@ -472,10 +507,11 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
     }
   };
 
-  // The folder and its host in one pill, first: `ahpd [dev1]` with every host.
-  const wherePill = <Pill label={folder.trim() === '' ? t('sessions/new/where') : whereLabel(folder, multi ? hostName(host) : null)} title={t('sessions/new/whereHint')} onOpen={() => openCommand(WHERE_COMMAND)} />;
-  // With every host, a host with no agent still offers the pill, so another can be picked.
-  if (agents.length === 0) return <div className="web-new">{multi ? wherePill : null}<Alert tone="warning" message={t('sessions/new/noAgent')} /></div>;
+  // With every host, the host comes first, with its state while it is not connected.
+  const hostPill = multi ? <Pill label={hostNow === 'connected' ? hostName(host) : t('hosts/named', { host: hostName(host), state: t(`hosts/state/${hostNow}`) })} title={t('sessions/new/hostHint')} onOpen={() => openCommand(HOST_COMMAND)} /> : null;
+  const wherePill = <Pill label={folder.trim() === '' ? t('sessions/new/where') : whereLabel(folder, null)} title={t('sessions/new/whereHint')} onOpen={() => openCommand(WHERE_COMMAND)} />;
+  // With every host, a host with no agent still offers the Host pill, so another can be picked.
+  if (agents.length === 0) return <div className="web-new">{hostPill}<Alert tone="warning" message={t('sessions/new/noAgent')} /></div>;
 
   const agentLabel = t('sessions/new/agentPill', { name: agent?.displayName ?? provider });
 
@@ -488,6 +524,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
         {picker.pickerNode === null || adding ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
         {trayOpen ? (
           <div className="web-composer__where web-new__tray">
+            {hostPill}
             {wherePill}
             <Pill label={agentLabel} image={iconSrcOf(host, provider)} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
             <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label={t('sessions/new/fold')} title={t('sessions/new/fold')} onClick={() => foldTray(false)}>
@@ -498,6 +535,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
           <div className="web-composer__where web-new__tray">
             <button type="button" className="web-chip web-new__tray-head" aria-expanded={false} title={t('sessions/new/unfold')} onClick={() => foldTray(true)}>
               <span aria-hidden="true">{EMOJIcon.caretRight}</span>
+              {multi ? `${hostName(host)} · ` : null}
               {agentLabel}
               {folderName === '' ? null : ` · ${folderName}`}
             </button>

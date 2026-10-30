@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { Button } from '@softov/scena/ui';
 import { ahpPaths, type Connection } from '../../bridges/data.js';
-import { fixHost, hostState } from '../../bridges/host-state.js';
+import { fixHost, hostFix, hostState } from '../../bridges/host-state.js';
 import { useEach, useHostNames, useShownHosts } from '../../bridges/hosts.js';
 
 /** A host's dot and name, as the panels show the host they are on. */
@@ -32,18 +32,17 @@ export function HostLines(): ReactElement | null {
   const refusals = useEach<boolean>(hosts.map((host) => ahpPaths(host).refused));
   const lines = hosts
     .map((host, at) => ({ host, state: hostState(connections[at], refusals[at]) }))
-    .filter((one) => one.state !== 'connected');
+    .filter((one) => one.state !== 'connected')
+    .map((one) => ({ ...one, fix: hostFix(one.state) }));
   if (lines.length === 0) return null;
   return (
     <ul className="web-host-lines">
-      {lines.map(({ host, state }) => (
+      {lines.map(({ host, state, fix }) => (
         <li key={host} className="web-host-line" data-state={state}>
           <span className="web-host-line__dot" aria-hidden="true" />
           <span className="web-host-line__name">{hostName(host)}</span>
           <span className="web-host-line__state">{t(`hosts/state/${state}`)}</span>
-          {state === 'connecting' ? null : (
-            <Button size="sm" variant="ghost" label={t(state === 'refused' ? 'hosts/signIn' : 'hosts/retry')} onClick={() => fixHost(host, state)} />
-          )}
+          {fix === null ? null : <Button size="sm" variant="ghost" label={t(fix)} onClick={() => fixHost(host, state)} />}
         </li>
       ))}
     </ul>

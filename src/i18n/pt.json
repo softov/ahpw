@@ -1539,16 +1539,18 @@
       "start": "Iniciar",
       "startHint": "Enter inicia, Shift+Enter quebra a linha",
       "notCreated": "Não criada",
+      "host": "Host",
+      "hostHint": "O host em que a sessão roda",
       "where": "Pasta",
-      "whereHint": "A pasta em que a sessão trabalha, e o seu host",
-      "folders": "Pastas de {host}",
+      "whereHint": "A pasta em que a sessão trabalha",
       "openFolder": "Abrir pasta…",
       "remote": "Remoto",
       "manageHost": "Editar host",
       "addHost": "Adicionar host",
       "recent": "Pastas recentes",
       "browse": "Navegar",
-      "hosts": "Hosts"
+      "hosts": "Hosts",
+      "manage": "Gerenciar"
     },
     "pills": {
       "setting": "{name}: {value}",
