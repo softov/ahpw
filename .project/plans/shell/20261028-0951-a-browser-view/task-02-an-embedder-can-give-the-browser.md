@@ -1,6 +1,6 @@
 ---
 title: An embedder can give the Browser view a full browser
-status: todo
+status: implemented
 depends: [task-01-a-browser-view-with-an-iframe.md]
 layer: "shell embed"
 refs:
@@ -13,7 +13,7 @@ The embed contract has an optional `browser`; when the embedder gives one, the B
 
 ## Files
 
-- `UPDATE: src/shell/embed/index.ts` - an `EmbedBrowser` with `show(bounds)`, `hide()`, `open(url)`, `back()`, `forward()`, `reload()` and `onNavigated(handler)`.
+- `UPDATE: src/shell/embed/index.ts` - an `EmbedBrowser` with `show(bounds)`, `hide()`, `open(url)`, `back()`, `forward()`, `reload()` and `onNavigated(handler)`, and `EmbedBounds` and `EmbedNavigation`.
 - `UPDATE: src/shell/embed/index.test.ts` - the contract reads a browser, and reads none.
 - `UPDATE: src/shell/browser/BrowserView.tsx` - use the embedder's browser when present.
 
@@ -33,3 +33,7 @@ The embed contract has an optional `browser`; when the embedder gives one, the B
 - By hand: a fake `browser` in the page's console gets `show`, `open` and `hide`.
 
 ## Resume
+
+Built and checked with a fake browser set before ahpw loads.
+It got `show`, `open`, `back`, `reload`, new bounds on a resize, and `hide` behind another tab.
+The ahp-desk brief is `.project/briefs/a-browser-for-ahpw-browser-view.md` in ahp-desk, not committed.

@@ -161,6 +161,20 @@
       "theme": "Tema",
       "settings": "Configuración",
       "signOut": "Cerrar sesión"
+    },
+    "browser": {
+      "tab": "Navegador",
+      "back": "Atrás",
+      "forward": "Adelante",
+      "address": "Dirección",
+      "addressHint": "Escribe una dirección",
+      "history": "Historial",
+      "share": "Compartir",
+      "copied": "Dirección copiada",
+      "openOutside": "Abrir en una pestaña nueva",
+      "refused": "Aquí solo se abren direcciones http y https.",
+      "empty": "Abre una página web",
+      "emptyBody": "Escribe una dirección y pulsa Enter. Muchos sitios con inicio de sesión no se muestran aquí; Abrir en una pestaña nueva los abre."
     }
   },
   "close": {

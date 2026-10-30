@@ -35,6 +35,7 @@ import { registerView } from './view/index.js';
 import { registerProfile } from './ui-settings/profile.js';
 import { registerFiles } from '../resources/files/index.js';
 import { registerChanges } from '../resources/changes/index.js';
+import { registerBrowser } from './browser/index.js';
 import { registerNotifications } from './notify/index.js';
 import { registerPanel, registerPanelHide } from './panel/index.js';
 import { registerTerminals } from '../resources/terminals/index.js';
@@ -322,6 +323,7 @@ export function registerShell(scena: Scena): Disposable {
     registerSessions(scena),
     registerAgents(scena),
     registerChanges(scena),
+    registerBrowser(scena),
     registerSessionFiles(scena),
     registerAutomations(scena),
     registerComputers(scena),

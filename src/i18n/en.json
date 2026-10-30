@@ -161,6 +161,20 @@
       "theme": "Theme",
       "settings": "Settings",
       "signOut": "Sign out"
+    },
+    "browser": {
+      "tab": "Browser",
+      "back": "Back",
+      "forward": "Forward",
+      "address": "Address",
+      "addressHint": "Type an address",
+      "history": "History",
+      "share": "Share",
+      "copied": "Address copied",
+      "openOutside": "Open in a new tab",
+      "refused": "Only http and https addresses open here.",
+      "empty": "Open a web page",
+      "emptyBody": "Type an address and press Enter. Many sites with a sign-in do not show here; Open in a new tab opens them."
     }
   },
   "close": {

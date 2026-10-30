@@ -29,3 +29,18 @@ describe('embedder', () => {
     expect((await import('./index.js')).embedMode()).toBe('multi');
   });
 });
+
+describe('embedder browser', () => {
+  it('is absent in a browser and for an embedder that gives none', async () => {
+    expect((await import('./index.js')).embedder?.browser).toBeUndefined();
+    vi.resetModules();
+    (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder = { hostUrl: 'ws://127.0.0.1:9187' } as Embedder;
+    expect((await import('./index.js')).embedder?.browser).toBeUndefined();
+  });
+
+  it('is the browser the embedder gives', async () => {
+    const browser = { show: vi.fn(), hide: vi.fn(), open: vi.fn(), back: vi.fn(), forward: vi.fn(), reload: vi.fn(), onNavigated: vi.fn() };
+    (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder = { hostUrl: 'ws://127.0.0.1:9187', browser } as unknown as Embedder;
+    expect((await import('./index.js')).embedder?.browser).toBe(browser);
+  });
+});
