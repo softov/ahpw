@@ -1,6 +1,6 @@
 ---
 title: Configure Custom Agents opens the agent page at its customizations
-status: todo
+status: implemented
 depends: [task-02-the-picker-sends-the-agent.md]
 layer: "agents"
 refs:
@@ -15,8 +15,10 @@ refs:
 ## Files
 
 - `UPDATE: src/resources/agents/index.ts:80-96` - pass `section` to the page.
-- `UPDATE: src/resources/agents/Overview.tsx:96-101` - give the heading an id and scroll to it when `section` is set.
-- `UPDATE: src/resources/sessions/AgentPicker.tsx` - Configure Custom Agents runs `ahp.openAgent` with `section`.
+- `UPDATE: src/resources/agents/state.ts` - `AGENT_SECTION`, the ask to show a part of the page.
+- `UPDATE: src/resources/agents/Page.tsx` - an ask opens the Overview tab.
+- `UPDATE: src/resources/agents/Overview.tsx:96-101` - scroll to the customizations heading on an ask.
+- `UPDATE: src/resources/sessions/composer-commands.ts` - Configure Custom Agents runs `ahp.openAgent` with `section`.
 
 ## Steps
 

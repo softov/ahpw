@@ -28,6 +28,7 @@ describe('contextItems', () => {
     models: () => [], model: () => undefined, setModel: () => undefined, options: () => [], setOption: () => undefined,
     running: () => false, stop: () => undefined, session: () => 'claude:/one', host: () => 'daemon', attach: () => undefined,
     type: () => undefined, upload: () => undefined, changed: () => changed,
+    customAgents: () => [], customAgent: () => undefined, setCustomAgent: () => undefined, provider: () => 'claude',
   });
   // Every item is a row of its own, not a command.
   const rows = (items: PickerAction[]) => items as Extract<PickerAction, { title: string }>[];

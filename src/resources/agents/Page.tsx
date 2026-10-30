@@ -16,7 +16,7 @@ import { AgentForm } from './AgentForm.js';
 import { agentTitle, mergeAgents, type MergedAgent } from './merge.js';
 import { agentIcons } from './icons.js';
 import { healthLine, Overview } from './Overview.js';
-import { agentTab, agentTabKey, keepAgentTabKey } from './state.js';
+import { AGENT_SECTION, agentTab, agentTabKey, keepAgentTabKey, type SectionAsk } from './state.js';
 import { signInOf } from './words.js';
 
 /** A status badge's tone: a served record as a ready connector, a standby one by its state. */
@@ -56,6 +56,7 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
   const { t } = useI18n();
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const infos = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
+  const ask = useStore<SectionAsk>(AGENT_SECTION);
   const records = useChannel<PeopleState<AgentRow>>(host, servesAgents(offers) ? AGENTS.channel : undefined, agentsReducer).state;
   const engines = useChannel<PeopleState<EngineRow>>(host, servesEngines(offers) ? ENGINES.channel : undefined, enginesReducer).state;
   const agent = useMemo(
@@ -101,6 +102,7 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
       )}
       {record === undefined ? overview : (
         <Tabs
+          key={ask?.host === host && ask.provider === provider ? ask.at : 0}
           tabs={[
             { key: 'overview', title: t('agents/page/overview'), child: overview },
             {
