@@ -57,6 +57,14 @@ export function shows(status: number, show: SessionShow): boolean {
   }
 }
 
+/** What a session's composer draws on its border: a moving ring while a turn runs, a steady one while it waits for a person. */
+export type Ring = 'running' | 'input';
+
+export function ringOf(status: number): Ring | undefined {
+  const activity = activityOf(status);
+  return activity === 'running' || activity === 'input' ? activity : undefined;
+}
+
 /** The words a session's activity is shown with. */
 export const activityLabel = (activity: Activity): string => translate(`sessions/status/${activity}`);
 
