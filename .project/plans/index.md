@@ -28,6 +28,7 @@ What exists today: [00-hosts.md](hosts/00-hosts.md).
 | [04 - Trusted folders](hosts/04-trusted-folders/plan.md) | built | what waits is in its [deferred.md](hosts/04-trusted-folders/deferred.md) |
 | [05 - Settings in a window, with a sections view](hosts/05-settings-in-a-window-with-a-sections-view/plan.md) | built | what waits is in its [deferred.md](hosts/05-settings-in-a-window-with-a-sections-view/deferred.md) |
 | [06 - UI settings](hosts/06-ui-settings/plan.md) | built | what waits is in its [deferred.md](hosts/06-ui-settings/deferred.md) |
+| [The host restarts from ahpw](hosts/20261030-0650-the-host-restarts-from-ahpw/plan.md) | planned | build ahpd's daemon plan 20261030-0635 first |
 
 ## organization
 
