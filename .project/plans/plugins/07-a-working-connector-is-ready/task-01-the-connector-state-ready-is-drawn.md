@@ -1,6 +1,6 @@
 ---
 title: The connector state ready is read and drawn
-status: implemented
+status: done
 depends: []
 layer: "ahpw connectors"
 refs:

@@ -1,7 +1,7 @@
 ---
 title: A bot chat beside the session
 domain: sessions
-status: active
+status: built
 priority: medium
 created: 2026-10-29
 revalidated: 2026-10-29
@@ -84,7 +84,7 @@ menu (place) or chat icon, send, Open chat (ui.botChatOpens, asks when ask)
 | --- | --- | --- |
 | [01 - The right sidebar shows the host's bot](task-01-the-sidebar-shows-the-hosts-bot.md) | dropped | - |
 | [02 - The settings pick the bot and its place](task-02-settings-pick-the-bot-and-its-place.md) | dropped | 01 |
-| [03 - A bot chat opens on main or on the right](task-03-a-bot-chat-opens-on-main-or-right.md) | implemented | - |
+| [03 - A bot chat opens on main or on the right](task-03-a-bot-chat-opens-on-main-or-right.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -94,8 +94,8 @@ menu (place) or chat icon, send, Open chat (ui.botChatOpens, asks when ask)
 
 ## Resume state
 
-- **Done so far:** task 03 is implemented and waits for review. Tasks 01 and 02 are dropped; task 03 replaces them.
-- **Next action:** review by Softov, then `implemented.md` and `status: built`.
+- **Done so far:** task 03 is done, merged in PR #19. Tasks 01 and 02 are dropped; task 03 replaces them. The plan is built; see [implemented.md](implemented.md).
+- **Next action:** the drag across surfaces waits on scena, as [deferred.md](deferred.md) says.
 - **Open questions:** none.
 - **Watch out for:** the drag across surfaces waits on scena.
 

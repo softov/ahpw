@@ -1,6 +1,6 @@
 ---
 title: A click inside a session page makes it the focused tab
-status: implemented
+status: done
 depends: [task-01-the-focused-tab-sets-the-session.md]
 layer: "sessions"
 refs:

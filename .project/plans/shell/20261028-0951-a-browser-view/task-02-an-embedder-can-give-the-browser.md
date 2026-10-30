@@ -1,6 +1,6 @@
 ---
 title: An embedder can give the Browser view a full browser
-status: implemented
+status: done
 depends: [task-01-a-browser-view-with-an-iframe.md]
 layer: "shell embed"
 refs:

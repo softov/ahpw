@@ -1,6 +1,6 @@
 ---
 title: The composer rings while a turn runs
-status: implemented
+status: done
 depends: []
 layer: "composer"
 refs:

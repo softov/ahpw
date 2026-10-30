@@ -1,7 +1,7 @@
 ---
 title: Session Info, Changes and Files open from commands and keys
 domain: sessions
-status: active
+status: built
 priority: high
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -70,9 +70,9 @@ ui.sessionViewsPlace = tab -> the same command mounts on main, in a group beside
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - a files tab for the session](task-01-a-files-tab-for-the-session.md) | implemented | - |
-| [02 - commands open the session views](task-02-commands-open-the-session-views.md) | implemented | 01 |
-| [03 - a setting places the views](task-03-a-setting-places-the-views.md) | implemented | 02 |
+| [01 - a files tab for the session](task-01-a-files-tab-for-the-session.md) | done | - |
+| [02 - commands open the session views](task-02-commands-open-the-session-views.md) | done | 01 |
+| [03 - a setting places the views](task-03-a-setting-places-the-views.md) | done | 02 |
 
 ## Risks and tradeoffs
 
@@ -81,16 +81,16 @@ ui.sessionViewsPlace = tab -> the same command mounts on main, in a group beside
 
 ## Resume state
 
-- **Done so far:** tasks 01, 02 and 03 are implemented and wait for review; the key check in Edge and Firefox waits for Softov.
-- **Next action:** review by Softov, then `implemented.md` and `status: built`.
+- **Done so far:** tasks 01, 02 and 03 are done, merged in PR #19. The plan is built; see [implemented.md](implemented.md).
+- **Next action:** the key check in Edge and Firefox waits, as [deferred.md](deferred.md) says.
 - **Open questions:** none.
 - **Watch out for:** a closed tab is offered in the sidebar's "..." menu; keep that path on `showView`.
 
 ## Final verification checklist
 
-- [ ] With the right sidebar hidden, each command shows it with its tab active.
-- [ ] With a tab closed, its command mounts it again.
-- [ ] Files shows the focused session's folder and follows the focus.
-- [ ] With the setting on As a panel, Session Info and Changes open beside the session.
+- [x] With the right sidebar hidden, each command shows it with its tab active.
+- [x] With a tab closed, its command mounts it again.
+- [x] Files shows the focused session's folder and follows the focus.
+- [x] With the setting on As a panel, Session Info and Changes open beside the session.
 - [ ] Each key works in Edge, Chrome and Firefox, or Softov picked another.
-- [ ] Checked at 1280 and 760 wide; `pnpm typecheck` and `pnpm test` pass.
+- [x] Checked at 1280 and 760 wide; `pnpm typecheck` and `pnpm test` pass.

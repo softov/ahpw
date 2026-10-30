@@ -1,6 +1,6 @@
 ---
 title: A UI setting places Session Info and Changes
-status: implemented
+status: done
 depends: [task-02-commands-open-the-session-views.md]
 layer: "shell ui-settings, host settings"
 refs:

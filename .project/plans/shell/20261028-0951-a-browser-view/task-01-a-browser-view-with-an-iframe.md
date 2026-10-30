@@ -1,6 +1,6 @@
 ---
 title: A Browser view shows a page in an iframe
-status: implemented
+status: done
 depends: []
 layer: "shell"
 refs:

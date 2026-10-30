@@ -1,6 +1,6 @@
 ---
 title: The focused session tab sets the active session
-status: implemented
+status: done
 depends: []
 layer: "sessions"
 refs:

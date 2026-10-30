@@ -1,6 +1,6 @@
 ---
 title: Tool rows start collapsed or expanded, as a UI setting says
-status: implemented
+status: done
 depends: []
 layer: "shell ui-settings, sessions"
 refs:

@@ -1,7 +1,7 @@
 ---
 title: Agents from records, with Add agent and a Settings tab
 domain: plugins
-status: active
+status: built
 priority: high
 created: 2026-10-24
 revalidated: 2026-10-24
@@ -88,11 +88,11 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - An agents bridge](task-01-an-agents-bridge.md) | implemented | - |
-| [02 - One merged agents list](task-02-one-merged-agents-list.md) | implemented | 01 |
-| [03 - The agent page in two tabs](task-03-the-agent-page-in-two-tabs.md) | implemented | 02 |
-| [04 - Add agent](task-04-add-agent.md) | implemented | 03 |
-| [05 - Agents come from engines](task-05-agents-come-from-engines.md) | implemented | 04 |
+| [01 - An agents bridge](task-01-an-agents-bridge.md) | done | - |
+| [02 - One merged agents list](task-02-one-merged-agents-list.md) | done | 01 |
+| [03 - The agent page in two tabs](task-03-the-agent-page-in-two-tabs.md) | done | 02 |
+| [04 - Add agent](task-04-add-agent.md) | done | 03 |
+| [05 - Agents come from engines](task-05-agents-come-from-engines.md) | done | 04 |
 
 ## Risks and tradeoffs
 
@@ -101,8 +101,8 @@ AgentPage -> Overview (root AgentInfo, record facts) | Settings (AgentForm, Chec
 
 ## Resume state
 
-- **Done so far:** tasks 01 to 05 are implemented and wait for review. Task 05 is merged in #5.
-- **Next action:** review tasks 01 to 05. Check task 05 against an ahpd with host 123 task 03, as `/github/ahpd/.project/pending/host-123-engines-checks.md` says.
+- **Done so far:** the plan is built. Tasks 01 to 04 are merged in #5, and task 05 is on main as `23b26f4`. See [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** the root list is filtered per caller, and the channel with `agent:all` is not. Do not call a row standby only because the root list lacks it; see the owner answer.
 

@@ -1,13 +1,13 @@
 ---
 title: A host pill before the folder
 domain: composer
-status: active
+status: built
 priority: low
 created: 2026-10-30
 revalidated: 2026-10-30
 refs:
-  - "[code://src/resources/sessions/New.tsx#L305-L313](../../../../src/resources/sessions/New.tsx#L305-L313) - `pickHost` and `pickFolder`"
-  - "[code://src/resources/sessions/New.tsx#L363](../../../../src/resources/sessions/New.tsx#L363) - the Host list"
+  - "[code://src/resources/sessions/New.tsx#L313-L320](../../../../src/resources/sessions/New.tsx#L313-L320) - `pickHost` and `pickFolder`"
+  - "[code://src/resources/sessions/New.tsx#L371](../../../../src/resources/sessions/New.tsx#L371) - the Host list"
   - "[code://src/bridges/host-state.ts#L16-L25](../../../../src/bridges/host-state.ts#L16-L25) - `hostFix` and `fixHost`, shared with the host switcher and the explorer's host lines"
   - file:///github/ahpapp/app/new.tsx - ahpapp picks a connected host first, at lines 196-199
 ---
@@ -60,17 +60,16 @@ Folder pill -> ahp.new.where -> the picked host's folders -> pickFolder
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the box picks the host first](task-01-the-box-picks-the-host-first.md) | implemented | - |
+| [01 - the box picks the host first](task-01-the-box-picks-the-host-first.md) | done | - |
 
 ## Risks and tradeoffs
 
-- Branch `composer/20261028-0951-a-custom-agent-picker` also changes `New.tsx`, and one hunk conflicts: the head of the folded tray.
-- To resolve it, keep the host name from this branch, then `{agentName}` from the agent picker.
+- The Host pill shows only with every host, so a window with one host cannot test it.
 
 ## Resume state
 
-- **Done so far:** task 01 is implemented, on branch `composer/20261030-0718-a-host-pill-before-the-folder`, in a PR.
-- **Next action:** Softov reviews.
+- **Done so far:** task 01 is done, merged in PR #17. See [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** the Host pill shows only when the embedder gives `mode: 'multi'`; a browser alone is a window with one host.
 

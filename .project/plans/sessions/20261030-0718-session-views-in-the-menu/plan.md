@@ -1,7 +1,7 @@
 ---
 title: The session's views open from its "..." menu
 domain: sessions
-status: active
+status: built
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -60,7 +60,7 @@ VS Code draws the same actions in a small bar on the focused session; ahpw puts 
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the menu lists the session views](task-01-the-menu-lists-the-session-views.md) | implemented | - |
+| [01 - the menu lists the session views](task-01-the-menu-lists-the-session-views.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -68,8 +68,8 @@ VS Code draws the same actions in a small bar on the focused session; ahpw puts 
 
 ## Resume state
 
-- **Done so far:** task 01 is implemented, on branch `sessions/20261030-0718-session-views-in-the-menu`, on main, not committed.
-- **Next action:** Softov reviews.
+- **Done so far:** task 01 is done, merged in PR #20. The plan is built; see [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** Browser shows in the menu only after its branch merges.
 

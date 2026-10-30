@@ -1,7 +1,7 @@
 ---
 title: A working session rings its composer
 domain: composer
-status: active
+status: built
 priority: low
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -56,7 +56,7 @@ summary.status -> ringOf -> data-ring on .web-composer__box -> CSS ring
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the composer rings while a turn runs](task-01-the-composer-rings-while-a-turn-runs.md) | implemented | - |
+| [01 - the composer rings while a turn runs](task-01-the-composer-rings-while-a-turn-runs.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -64,8 +64,8 @@ summary.status -> ringOf -> data-ring on .web-composer__box -> CSS ring
 
 ## Resume state
 
-- **Done so far:** task 01 is implemented, on branch `composer/20261030-0718-a-working-session-rings-its-composer`, in a PR.
-- **Next action:** Softov reviews.
+- **Done so far:** task 01 is done, merged in PR #16. See [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** `@property` animates the angle; without it the ring stays still.
 

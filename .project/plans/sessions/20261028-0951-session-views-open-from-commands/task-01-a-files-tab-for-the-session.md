@@ -1,6 +1,6 @@
 ---
 title: A Files tab shows the focused session's folder
-status: implemented
+status: done
 depends: []
 layer: "sessions, folders"
 refs:

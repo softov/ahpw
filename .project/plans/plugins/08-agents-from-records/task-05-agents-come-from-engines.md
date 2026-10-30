@@ -1,6 +1,6 @@
 ---
 title: Agents come from engines
-status: implemented
+status: done
 depends: [task-04-add-agent.md]
 layer: "bridges, resources/agents, i18n"
 refs:

@@ -1,6 +1,6 @@
 ---
 title: Commands with keys open Session Info, Changes and Files
-status: implemented
+status: done
 depends: [task-01-a-files-tab-for-the-session.md]
 layer: "shell, sessions, changes"
 refs:

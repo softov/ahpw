@@ -1,6 +1,6 @@
 ---
 title: The menu lists the session views
-status: implemented
+status: done
 depends: []
 layer: "sessions, shell"
 refs:

@@ -81,8 +81,8 @@ Models tab -> readConnectorModels(host, id) -> x-ahpd/connectors/models { id } -
 
 ## Resume state
 
-- **Done so far:** task 01, built on 2026-10-28 in `/github/ahpw`, not committed. A test host showed the Overview and the Models tab at two widths. The done sign-in step and a dimmed row were not seen.
-- **Next action:** Softov checks the page with the ahpd half running. Then a commit with plugins 09.
+- **Done so far:** task 01 is implemented and merged in #15 with plugins 09. See [implemented.md](implemented.md).
+- **Next action:** Softov runs steps 10 to 12 in [`plugins-09-sign-in-checks.md`](../../../pending/plugins-09-sign-in-checks.md).
 - **Open questions:** none.
 - **Watch out for:** the ahpd answer's shape. A change there changes the bridge.
 

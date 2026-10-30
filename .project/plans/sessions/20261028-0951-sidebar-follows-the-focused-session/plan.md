@@ -1,7 +1,7 @@
 ---
 title: The right sidebar follows the focused session
 domain: sessions
-status: active
+status: built
 priority: high
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -59,8 +59,8 @@ list click -> ahp.openSession -> ACTIVE_SESSION -> Details, Changes
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the focused tab sets the session](task-01-the-focused-tab-sets-the-session.md) | implemented | - |
-| [02 - a click in the page focuses it](task-02-a-click-in-the-page-focuses-it.md) | implemented | 01 |
+| [01 - the focused tab sets the session](task-01-the-focused-tab-sets-the-session.md) | done | - |
+| [02 - a click in the page focuses it](task-02-a-click-in-the-page-focuses-it.md) | done | 01 |
 
 ## Risks and tradeoffs
 
@@ -69,8 +69,8 @@ list click -> ahp.openSession -> ACTIVE_SESSION -> Details, Changes
 
 ## Resume state
 
-- **Done so far:** tasks 01 and 02 are implemented and wait for review.
-- **Next action:** review by Softov, then write `implemented.md`.
+- **Done so far:** tasks 01 and 02 are done, merged in PR #19. The plan is built; see [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** the host id can hold no `:`, but the resource is a URI and does.
 

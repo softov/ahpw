@@ -1,10 +1,10 @@
 ---
 title: The box picks the host first
-status: implemented
+status: done
 depends: []
 layer: "composer"
 refs:
-  - "[code://src/resources/sessions/New.tsx#L363](../../../../src/resources/sessions/New.tsx#L363) - the Host list"
+  - "[code://src/resources/sessions/New.tsx#L371](../../../../src/resources/sessions/New.tsx#L371) - the Host list"
 ---
 
 ## Objective

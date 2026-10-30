@@ -1,6 +1,6 @@
 ---
 title: One merged agents list
-status: implemented
+status: done
 depends: [task-01-an-agents-bridge.md]
 layer: "resources/agents"
 refs:
@@ -37,4 +37,4 @@ The explorer lists every agent of the root list and every record on the agents c
 
 ## Resume
 
-Implemented 2026-10-24. The merge has 3 tests. A row with no icon now draws the resource emoji through a new `Row.emoji` in `src/shell/explorer/ExplorerList.tsx`. `agents/explorer/offered` is removed. It waits for review.
+Implemented 2026-10-24. The merge has 3 tests. A row with no icon now draws the resource emoji through a new `Row.emoji` in `src/shell/explorer/ExplorerList.tsx`. `agents/explorer/offered` is removed. Merged in #5.

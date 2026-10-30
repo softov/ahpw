@@ -1,6 +1,6 @@
 ---
 title: Add agent
-status: implemented
+status: done
 depends: [task-03-the-agent-page-in-two-tabs.md]
 layer: "resources/agents"
 refs:
@@ -40,4 +40,4 @@ A `+` on the agents explorer opens a page that makes a record from a kind, or fr
 
 ## Resume
 
-Implemented 2026-10-24. `KindPicker` uses the connector `AdapterPicker`, which is now generic and takes its own words, instead of a copy. The `+` shows while a host lists its agent kinds (`AGENT_KINDS_SERVED`). Checked by hand on a test ahpd with host 123: a cofold record was made from its template, checked, and removed. It waits for review.
+Implemented 2026-10-24. `KindPicker` uses the connector `AdapterPicker`, which is now generic and takes its own words, instead of a copy. The `+` shows while a host lists its agent kinds (`AGENT_KINDS_SERVED`). Checked by hand on a test ahpd with host 123: a cofold record was made from its template, checked, and removed. Merged in #5.

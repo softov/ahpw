@@ -1,6 +1,6 @@
 ---
 title: The agent's text shows as plain text when Markdown is off
-status: implemented
+status: done
 depends: []
 layer: "shell ui-settings, sessions"
 refs:

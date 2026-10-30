@@ -1,6 +1,6 @@
 ---
 title: A bot chat opens on main or on the right
-status: implemented
+status: done
 depends: []
 layer: "bots, sessions, shell ui-settings, host settings"
 refs:

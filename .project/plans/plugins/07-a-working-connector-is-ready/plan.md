@@ -1,7 +1,7 @@
 ---
 title: A working connector shows as ready
 domain: plugins
-status: active
+status: built
 priority: medium
 created: 2026-10-24
 revalidated: 2026-10-24
@@ -62,7 +62,7 @@ x-ahpd/connectors row { state: 'ready' } -> ConnectorRow -> DOT, TONE, connector
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - The connector state ready is read and drawn](task-01-the-connector-state-ready-is-drawn.md) | implemented | - |
+| [01 - The connector state ready is read and drawn](task-01-the-connector-state-ready-is-drawn.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -70,8 +70,8 @@ x-ahpd/connectors row { state: 'ready' } -> ConnectorRow -> DOT, TONE, connector
 
 ## Resume state
 
-- **Done so far:** task 01 implemented on 2026-10-24: the state is `ready` in the bridge, the screen, the catalogs and the tests.
-- **Next action:** Check a working connector against an ahpd with plugin 62, then close the plan.
+- **Done so far:** the plan is built. Task 01 is done and merged in #5. See [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** `connectors.actions.open` is the verb "Open connector", and stays.
 

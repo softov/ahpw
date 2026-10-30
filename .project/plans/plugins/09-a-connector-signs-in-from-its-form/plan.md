@@ -157,7 +157,7 @@ When the host refuses, the step closes and the form shows the alert.
 
 ## Resume state
 
-- **Done so far:** tasks 01 and 02 are implemented on branch `plugins/09-a-connector-signs-in-from-its-form`.
+- **Done so far:** tasks 01 and 02 are implemented and merged in #15. See [implemented.md](implemented.md).
 - **Next action:** Softov runs the checks by hand in [`plugins-09-sign-in-checks.md`](../../../pending/plugins-09-sign-in-checks.md).
 - **Open questions:** none.
 - **Watch out for:** the code is never in the scena store, a `console` call, or a thrown message that ahpw writes.

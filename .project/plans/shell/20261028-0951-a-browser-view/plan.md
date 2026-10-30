@@ -1,7 +1,7 @@
 ---
 title: A Browser view in the right sidebar
 domain: shell
-status: active
+status: built
 priority: low
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -68,8 +68,8 @@ Show Browser -> showView('shell:browser') -> BrowserView
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - a browser view with an iframe](task-01-a-browser-view-with-an-iframe.md) | implemented | - |
-| [02 - an embedder can give the browser](task-02-an-embedder-can-give-the-browser.md) | implemented | 01 |
+| [01 - a browser view with an iframe](task-01-a-browser-view-with-an-iframe.md) | done | - |
+| [02 - an embedder can give the browser](task-02-an-embedder-can-give-the-browser.md) | done | 01 |
 
 ## Risks and tradeoffs
 
@@ -78,8 +78,8 @@ Show Browser -> showView('shell:browser') -> BrowserView
 
 ## Resume state
 
-- **Done so far:** tasks 01 and 02 are implemented, on branch `shell/20261028-0951-a-browser-view`, not committed.
-- **Next action:** Softov reviews.
+- **Done so far:** tasks 01 and 02 are done, merged in PR #21. The plan is built; see [implemented.md](implemented.md).
+- **Next action:** the work in ahp-desk waits, as [deferred.md](deferred.md) says.
 - **Open questions:** none.
 - **Watch out for:** the iframe reports `load` when a site refuses it too.
 

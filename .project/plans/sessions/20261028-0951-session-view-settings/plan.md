@@ -1,7 +1,7 @@
 ---
 title: UI settings for tools expanded and Markdown in a session
 domain: sessions
-status: active
+status: built
 priority: medium
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -63,8 +63,8 @@ ui.sessionMarkdown -> the markdown part: <Markdown> or plain text
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - tools start expanded](task-01-tools-start-expanded.md) | implemented | - |
-| [02 - markdown can be turned off](task-02-markdown-can-be-turned-off.md) | implemented | - |
+| [01 - tools start expanded](task-01-tools-start-expanded.md) | done | - |
+| [02 - markdown can be turned off](task-02-markdown-can-be-turned-off.md) | done | - |
 
 ## Risks and tradeoffs
 
@@ -72,8 +72,8 @@ ui.sessionMarkdown -> the markdown part: <Markdown> or plain text
 
 ## Resume state
 
-- **Done so far:** tasks 01 and 02 are implemented and wait for review.
-- **Next action:** review by Softov; then `implemented.md`.
+- **Done so far:** tasks 01 and 02 are done, merged in PR #19. The plan is built; see [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** the Session section comes from plan `session-views-open-from-commands` task 03.
 
@@ -82,4 +82,4 @@ ui.sessionMarkdown -> the markdown part: <Markdown> or plain text
 - [x] A new session shows its tool rows closed; with Expanded, open.
 - [x] With Disable Markdown, the agent's text shows as plain text with its line breaks.
 - [x] Both settings reset to their defaults.
-- [ ] `pnpm typecheck` and `pnpm test` pass.
+- [x] `pnpm typecheck` and `pnpm test` pass.

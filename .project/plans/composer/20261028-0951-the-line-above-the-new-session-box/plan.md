@@ -1,7 +1,7 @@
 ---
 title: The settings move to a line above the new session box
 domain: composer
-status: planned
+status: active
 priority: medium
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -75,8 +75,8 @@ NewSessionPage -> tray (wherePill, harness pill, fold) -> box -> footer (+, left
 
 ## Resume state
 
-- **Done so far:** tasks 01 and 02 are built and checked at 1280 light and 760 dark, with no horizontal scroll.
-- **Next action:** Softov reviews the build; [the pending file](../../../pending/composer-line-start-check.md) holds the start check.
+- **Done so far:** tasks 01 and 02 are implemented and merged in PR #18. See [implemented.md](implemented.md).
+- **Next action:** Softov does the start check in [composer-line-start-check.md](../../../pending/composer-line-start-check.md), then the plan closes.
 - **Open questions:** none.
 - **Watch out for:** the folded line shows the harness and the folder in one chip.
 

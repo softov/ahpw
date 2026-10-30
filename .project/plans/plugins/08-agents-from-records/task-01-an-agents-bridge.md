@@ -1,6 +1,6 @@
 ---
 title: An agents bridge
-status: implemented
+status: done
 depends: []
 layer: "bridges"
 refs:
@@ -33,4 +33,4 @@ ahpw reads `x-ahpd-agents` and `x-ahpd-agent-kinds`, and calls `put`, `remove` a
 
 ## Resume
 
-Implemented 2026-10-24. The bridge and its 7 tests pass. It waits for review.
+Implemented 2026-10-24. The bridge and its 7 tests pass. Merged in #5.

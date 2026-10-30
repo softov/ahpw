@@ -1,7 +1,7 @@
 ---
 title: A custom agent picker in both composers
 domain: composer
-status: planned
+status: active
 priority: medium
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -84,8 +84,8 @@ Agent pill -> menu: Agent | custom agents | Configure Custom Agents
 
 ## Resume state
 
-- **Done so far:** tasks 01 to 03 are implemented and checked by hand on the test ahpd, except a send.
-- **Next action:** Softov does the send check in [composer-agent-send-check.md](../../../pending/composer-agent-send-check.md), then reviews.
+- **Done so far:** tasks 01 to 03 are implemented and merged in PR #18. See [implemented.md](implemented.md).
+- **Next action:** Softov does the send check in [composer-agent-send-check.md](../../../pending/composer-agent-send-check.md), then the plan closes.
 - **Open questions:** none.
 - **Watch out for:** the place of the pill comes from the mockup of plan `the-line-above-the-new-session-box`.
 
