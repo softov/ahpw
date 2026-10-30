@@ -108,12 +108,6 @@ export function BotChat({ host, mark, summary, session, chat, chatUri, send, too
 
   return (
     <div className="web-chat web-botchat">
-      <header className="web-botchat__head">
-        <Bood body={mark.body} color={mark.color} width={36} />
-        <h2 className="web-botchat__title">{mark.name}</h2>
-        {tools}
-      </header>
-
       <div
         ref={box}
         className="web-botchat__turns"
@@ -122,6 +116,12 @@ export function BotChat({ host, mark, summary, session, chat, chatUri, send, too
           following.current = box.scrollHeight - box.scrollTop - box.clientHeight < 48;
         }}
       >
+        {/* Inside the scroll, so the turns pass under its faded bottom edge. */}
+        <header className="web-botchat__head">
+          <Bood body={mark.body} color={mark.color} width={36} />
+          <h2 className="web-botchat__title">{mark.name}</h2>
+          {tools}
+        </header>
         {session.error === null ? null : <Alert tone="danger" message={session.error} />}
         {chat.error === null ? null : <Alert tone="danger" message={chat.error} />}
         {chatUri !== undefined && chat.state === undefined && chat.error === null ? <Spinner label={t('bots/chat/reading')} /> : null}

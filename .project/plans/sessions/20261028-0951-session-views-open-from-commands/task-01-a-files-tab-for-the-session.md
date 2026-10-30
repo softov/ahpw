@@ -1,6 +1,6 @@
 ---
 title: A Files tab shows the focused session's folder
-status: todo
+status: implemented
 depends: []
 layer: "sessions, folders"
 refs:
@@ -35,3 +35,7 @@ The right sidebar has a Files tab with the tree of the focused session's folder.
 - By hand: the Files tab follows a click on another session.
 
 ## Resume
+
+- `HostFolders` in `src/resources/folders/Explorer.tsx` is exported and takes `rooted`; with it, the tree shows only those folders and keeps its open folders in local state.
+- `SessionFiles` mounts from `registerSessionFiles`, which `src/shell/register-shell.tsx` calls after `registerChanges`, so the tab comes after Changes.
+- Checked by hand at 1280 light and 760 dark: the left explorer works as before, and Files shows `work` or `work2` for the focused session.

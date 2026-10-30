@@ -1,6 +1,6 @@
 ---
 title: A click inside a session page makes it the focused tab
-status: todo
+status: implemented
 depends: [task-01-the-focused-tab-sets-the-session.md]
 layer: "sessions"
 refs:
@@ -30,3 +30,10 @@ A pointer down anywhere in a session page makes its tab the main surface's activ
 - By hand: a reload restores the focused tab and Session Info shows it.
 
 ## Resume
+
+- Built on 2026-10-29. The handler sits on a `display: contents` wrapper, `.web-session-page` in `src/style/app.css`, so the page layout does not change.
+- The handler activates the tab only when the page's key is a tab in `main`.
+- A reload gave the focus to the last tab, because `keepTabs` in `src/shell/tabs.ts` opens each kept tab and each open focuses it. `keepTabs` now gives the focus back to the tab that had it. `src/shell/tabs.test.ts` covers this.
+- Checked by hand on a test host at 1280 light and 760 dark.
+- A click in the text and a click in the composer change Session Info.
+- The composer keeps the caret, and a reload restores the focused tab.

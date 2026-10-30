@@ -1,7 +1,7 @@
 ---
 title: UI settings for tools expanded and Markdown in a session
 domain: sessions
-status: planned
+status: active
 priority: medium
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -18,8 +18,8 @@ refs:
 ## Goal
 
 Two settings in the Session section of the Interface settings set how a session's chat draws.
-Show tools expanded opens the tool rows.
-Show session formatted draws the agent's text as Markdown, or as plain text.
+Tool calls sets whether the tool rows start open or closed.
+Markdown draws the agent's text as Markdown, or as plain text.
 
 ## Reconnaissance
 
@@ -43,12 +43,13 @@ ui.sessionMarkdown -> the markdown part: <Markdown> or plain text
 
 | What | Source | Task |
 | --- | --- | --- |
-| Show tools expanded: Expanded or Collapsed, default Expanded | Softov, 2026-10-28 | 01 |
+| Tool calls: Expanded or Collapsed, default Collapsed | Softov, 2026-10-29: "tool collapsed. default yes" | 01 |
 | The setting opens tool rows only; thinking rows keep starting closed | Softov, 2026-10-28, question answer | 01 |
-| Show session formatted: Enabled or Disable Markdown, default Enabled | Softov, 2026-10-28 | 02 |
+| Markdown: Enabled or Disable Markdown, default Enabled | Softov, 2026-10-29: "Markdown formatter. enabled by default user can disable" | 02 |
 | Plain text keeps line breaks and wraps | `(defaulted: text without Markdown must still read)` | 02 |
 | The setting covers the agent's markdown parts; a question title stays Markdown | `(defaulted: the setting names the session's text)` | 02 |
 | A row a person opened or closed keeps that state when the setting changes | `(defaulted: the setting is the start state only)` | 01 |
+| Each value is kept in localStorage, one per browser, as `placing` keeps a place | `(defaulted: the other UI settings that the chat reads keep theirs so)` | 01, 02 |
 
 ## Proposed architecture
 
@@ -62,23 +63,23 @@ ui.sessionMarkdown -> the markdown part: <Markdown> or plain text
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - tools start expanded](task-01-tools-start-expanded.md) | todo | - |
-| [02 - markdown can be turned off](task-02-markdown-can-be-turned-off.md) | todo | - |
+| [01 - tools start expanded](task-01-tools-start-expanded.md) | implemented | - |
+| [02 - markdown can be turned off](task-02-markdown-can-be-turned-off.md) | implemented | - |
 
 ## Risks and tradeoffs
 
-- Expanded by default makes a long turn taller. The Activity fold that groups steps stays, so a finished run still reads as one line.
+- Expanded makes a long turn taller. The Activity fold that groups steps stays, so a finished run still reads as one line.
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-tools-start-expanded.md](task-01-tools-start-expanded.md).
+- **Done so far:** tasks 01 and 02 are implemented and wait for review.
+- **Next action:** review by Softov; then `implemented.md`.
 - **Open questions:** none.
 - **Watch out for:** the Session section comes from plan `session-views-open-from-commands` task 03.
 
 ## Final verification checklist
 
-- [ ] A new session shows its tool rows open; with Collapsed, closed.
-- [ ] With Disable Markdown, the agent's text shows as plain text with its line breaks.
-- [ ] Both settings reset to their defaults.
+- [x] A new session shows its tool rows closed; with Expanded, open.
+- [x] With Disable Markdown, the agent's text shows as plain text with its line breaks.
+- [x] Both settings reset to their defaults.
 - [ ] `pnpm typecheck` and `pnpm test` pass.

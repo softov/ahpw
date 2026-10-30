@@ -14,7 +14,7 @@ import { hideOverlaidSidebar } from '../sessions/index.js';
 import type { BindingPath, PickerAction } from '@softov/scena/types';
 import type { ModusClass } from '@softov/scena';
 import { setHostFile, type DraggedHostFile } from './drag.js';
-import { chainTo, childUri, orderEntries, rootsOf } from './roots.js';
+import { bare, chainTo, childUri, orderEntries, rootsOf, type Root } from './roots.js';
 import { RELOAD_FOLDERS, REVEAL_FOLDER, type RevealFolderArgs } from './index.js';
 import { addedPath } from './added.js';
 import { HOST_NODE, expandedPath, setExpanded } from './expanded.js';
@@ -102,12 +102,16 @@ async function addAndOpen(scena: ReturnType<typeof useScena>, host: string): Pro
 /**
  * One host's tree. With every host, `named` is the host's name, and its roots
  * sit under a branch with that name; in mono they are the tree's top.
+ * With `rooted`, the tree shows only those folders, open at the start; its
+ * open folders last as long as it is drawn, and a folder a link names does not
+ * open in it.
  */
-function HostFolders({ host, named, selected, onSelected }: {
+export function HostFolders({ host, named, selected, onSelected, rooted }: {
   host: string;
   named: string | null;
   selected: string | null;
   onSelected: (key: string | null) => void;
+  rooted?: readonly string[];
 }): ReactElement | null {
   const scena = useScena();
   const { t } = useI18n();
@@ -118,10 +122,14 @@ function HostFolders({ host, named, selected, onSelected }: {
   const added = useStore<string[]>(addedPath(host));
   const stale = useStore<StaleFolders | null>(STALE_FOLDERS);
   const [revealed, setRevealed] = useState<string[]>([]);
-  const roots = useMemo(() => rootsOf(defaultDirectory, sessions ?? [], revealed, added ?? []), [defaultDirectory, sessions, revealed, added]);
+  const roots = useMemo((): Root[] => (rooted === undefined
+    ? rootsOf(defaultDirectory, sessions ?? [], revealed, added ?? [])
+    : rooted.map((uri) => ({ uri: bare(uri), isDefault: false, added: false }))), [rooted, defaultDirectory, sessions, revealed, added]);
   const [branches, setBranches] = useState<ReadonlyMap<string, Branch>>(new Map());
   // In the store, so the tree opens as it was left when the explorer is drawn again.
-  const held = useStore<string[] | null>(expandedPath(host));
+  const kept = useStore<string[] | null>(expandedPath(host));
+  const [own, setOwn] = useState<string[]>(() => rooted?.map(bare) ?? []);
+  const held = rooted === undefined ? kept : own;
   const expanded = useMemo(() => new Set(held ?? []), [held]);
 
   /** Read a folder; `quiet` keeps what it shows until the answer comes. */
@@ -137,7 +145,8 @@ function HostFolders({ host, named, selected, onSelected }: {
     for (const uri of expanded) if (uri !== HOST_NODE && !branches.has(uri)) load(uri);
   }, [expanded]);
 
-  const expand = useCallback((next: Set<string>): void => setExpanded(scena.store, host, [...next]), [scena, host]);
+  const fixed = rooted !== undefined;
+  const expand = useCallback((next: Set<string>): void => (fixed ? setOwn([...next]) : setExpanded(scena.store, host, [...next])), [scena, host, fixed]);
 
   // The host's own folder opens by itself, once it is known, until a folder was opened or closed here.
   const first = roots[0]?.uri;
@@ -148,7 +157,7 @@ function HostFolders({ host, named, selected, onSelected }: {
   // A folder a link named on this host: its root and every folder down to it open, and it is selected.
   const scrollTo = useRef<string | null>(null);
   useEffect(() => {
-    if (reveal === null || reveal === undefined || reveal.host !== host) return;
+    if (fixed || reveal === null || reveal === undefined || reveal.host !== host) return;
     scena.store.set(REVEAL_FOLDER, null);
     const chain = chainTo(roots.map((root) => root.uri), reveal.uri);
     const [root] = chain;

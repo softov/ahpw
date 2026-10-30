@@ -1,6 +1,6 @@
 ---
 title: A UI setting places Session Info and Changes
-status: todo
+status: implemented
 depends: [task-02-commands-open-the-session-views.md]
 layer: "shell ui-settings, host settings"
 refs:
@@ -38,3 +38,12 @@ Its first setting puts Session Info and Changes in the right sidebar, or as tabs
 - By hand: Files stays in the right sidebar with either value.
 
 ## Resume
+
+- `ui.sessionViewsPlace` is kept in localStorage under `ahpw.sessionViewsPlace`, so each browser has its own value.
+- `mountRight` takes `placed: SESSION_VIEWS` for Session Info and Changes; Files has no flag and stays in the right sidebar.
+- `besideSession` in `src/shell/right-sidebar.ts` puts the view in the first group without the session, or splits the session's group to the right.
+- In the plain `tab` layout, with no groups, the view opens as a main tab.
+- A view closed in `main` comes back in the sidebar when the setting returns to `sidebar`.
+- In `tab` place the main panel's kept tabs reopen the views after a reload.
+- `right-sidebar.test.ts` covers `besideSession` and a move to `main` and back; `settings.test.ts` and `sections.test.ts` cover the key.
+- Checked by hand in Chromium at 1280 light and 760 dark: the move, the move back, Files, Ctrl+Shift+G, the × and a reload.

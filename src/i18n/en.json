@@ -803,6 +803,8 @@
     "actions": {
       "open": "Open",
       "chat": "Open chat",
+      "openMain": "Open on main",
+      "openRight": "Open on right",
       "edit": "Edit",
       "delete": "Delete",
       "deleteTitle": "Delete {name}?",
@@ -870,7 +872,9 @@
       "noReply": "{name} finished without a reply",
       "empty": "Say something to {name}.",
       "download": "Save {name}",
-      "message": "Message {name}"
+      "message": "Message {name}",
+      "where": "Where should bot chats open?",
+      "whereBody": "Your answer is kept. Change it in Settings, Interface, Bot."
     }
   },
   "users": {
@@ -1432,8 +1436,14 @@
       "sendHint": "Enter sends, Shift+Enter breaks the line",
       "stopHint": "Esc stops"
     },
+    "files": {
+      "tab": "Files",
+      "noSession": "Open a session to see its files.",
+      "noFolder": "This session has no folder."
+    },
     "details": {
       "tab": "Session",
+      "command": "Show Session Info",
       "empty": "Open a session to see its details.",
       "openTerminal": "Open the terminal",
       "terminal": "Terminal",
@@ -1812,7 +1822,9 @@
           "appearance": "Appearance",
           "language": "Language",
           "layout": "Layout",
-          "dialogs": "Dialogs"
+          "dialogs": "Dialogs",
+          "session": "Session",
+          "bot": "Bot"
         },
         "theme": {
           "title": "Theme",
@@ -1837,6 +1849,24 @@
           "title": "Settings open in",
           "description": "Where the settings open; Open in moves them and changes this too."
         },
+        "sessionViewsPlace": {
+          "title": "Session Info and Changes",
+          "description": "Where Session Info and Changes open.",
+          "sidebar": "Right sidebar",
+          "tab": "As a panel"
+        },
+        "toolsExpanded": {
+          "title": "Tool calls",
+          "description": "Whether a tool call starts open in the chat.",
+          "expanded": "Expanded",
+          "collapsed": "Collapsed"
+        },
+        "sessionMarkdown": {
+          "title": "Markdown",
+          "description": "Whether the agent's text shows as Markdown or as plain text.",
+          "enabled": "Enabled",
+          "disabled": "Disable Markdown"
+        },
         "confirmStyle": {
           "title": "Questions",
           "description": "How the page asks before it does something that cannot be undone.",
@@ -1845,7 +1875,14 @@
         },
         "profileUnread": "The saved interface settings could not be read",
         "profileUnsaved": "The interface settings could not be saved",
-        "atOnce": "Interface settings apply as you change them."
+        "atOnce": "Interface settings apply as you change them.",
+        "botChatOpens": {
+          "title": "Bot chat",
+          "description": "Where a bot chat opens.",
+          "ask": "Ask",
+          "main": "Main",
+          "right": "Right sidebar"
+        }
       },
       "tabs": {
         "host": "Host",

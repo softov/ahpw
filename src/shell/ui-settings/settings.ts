@@ -16,6 +16,9 @@ import { initialLocale, LOCALES } from '../../i18n/locales.js';
 import { CONFIRM_STYLE, confirmStyle, DEFAULT_CONFIRM_STYLE, setConfirmStyle } from '../notify/confirm.js';
 import { MAIN_LAYOUTS } from '../view/layouts.js';
 import { keepSettingsPlace, PLACES, placeName, SETTINGS_PLACE, settingsPlace } from '../../resources/host/place.js';
+import { SESSION_VIEWS, VIEWS_PLACES, type Placing } from '../right-sidebar.js';
+import { BOT_CHAT_OPENS } from '../../resources/bots/sidebar.js';
+import { SESSION_MARKDOWN, TOOLS_EXPANDED, type ChatChoice } from '../../resources/sessions/view-settings.js';
 
 /** A UI setting's key: `ui.<name>`, flat, as the host's keys are. */
 export type UiKey = `ui.${string}`;
@@ -23,10 +26,10 @@ export type UiKey = `ui.${string}`;
 export interface UiSetting {
   key: UiKey;
   /** The values it takes, in the order the form offers them, and the one a reset goes back to. */
-  values: () => readonly string[];
+  values: (scena: Scena) => readonly string[];
   usual: () => string;
   /** What the form calls each value. */
-  label: (value: string) => string;
+  label: (value: string, scena: Scena) => string;
   read: (scena: Scena) => string;
   /** Applies and keeps a value the setting takes. */
   apply: (scena: Scena, value: string) => void;
@@ -35,6 +38,28 @@ export interface UiSetting {
 }
 
 const onPath = (path: BindingPath) => (scena: Scena, changed: () => void): Disposable => scena.store.subscribe(path, changed);
+
+/** A setting that places views: Right sidebar or As a panel. */
+const placeSetting = (key: UiKey, place: Placing): UiSetting => ({
+  key,
+  values: () => VIEWS_PLACES,
+  usual: () => 'sidebar',
+  label: (value) => translate(`host/settings/ui/${key.slice('ui.'.length)}/${value}`),
+  read: (scena) => place.read(scena),
+  apply: (scena, value) => place.set(scena, value === 'tab' ? 'tab' : 'sidebar'),
+  watch: onPath(place.path),
+});
+
+/** A setting for how the chat draws, labelled `host/settings/ui/<name>/<value>`. */
+const chatSetting = (key: UiKey, choice: ChatChoice): UiSetting => ({
+  key,
+  values: () => choice.values,
+  usual: () => choice.usual,
+  label: (value) => translate(`host/settings/ui/${key.slice('ui.'.length)}/${value}`),
+  read: (scena) => choice.read(scena.store),
+  apply: (scena, value) => choice.set(scena.store, value),
+  watch: onPath(choice.path),
+});
 
 /** The main area's layout, as scena mirrors it into the store. */
 const MAIN_LAYOUT = '$/layout/surfaces/main/layout' as BindingPath;
@@ -95,21 +120,25 @@ export const UI_SETTINGS: readonly UiSetting[] = [
     apply: (_scena, value) => setConfirmStyle(value === 'native' ? 'native' : 'modal'),
     watch: onPath(CONFIRM_STYLE),
   },
+  placeSetting('ui.sessionViewsPlace', SESSION_VIEWS),
+  chatSetting('ui.toolsExpanded', TOOLS_EXPANDED),
+  chatSetting('ui.sessionMarkdown', SESSION_MARKDOWN),
+  chatSetting('ui.botChatOpens', BOT_CHAT_OPENS),
 ];
 
 export const isUiKey = (key: string): key is UiKey => key.startsWith('ui.');
 
 /** Each setting as a form field: a title, a description and its values, translated now. */
-export function uiFields(): Record<UiKey, JsonSchemaField> {
+export function uiFields(scena: Scena): Record<UiKey, JsonSchemaField> {
   return Object.fromEntries(UI_SETTINGS.map((one) => {
-    const values = one.values();
+    const values = one.values(scena);
     const name = one.key.slice('ui.'.length);
     return [one.key, {
       type: 'string',
       title: translate(`host/settings/ui/${name}/title`),
       description: translate(`host/settings/ui/${name}/description`),
       enum: [...values],
-      'x-enumOptions': values.map((value) => ({ value, label: one.label(value) })),
+      'x-enumOptions': values.map((value) => ({ value, label: one.label(value, scena) })),
       default: one.usual(),
     } satisfies JsonSchemaField];
   }));
@@ -128,7 +157,7 @@ export function readUi(scena: Scena): Record<UiKey, string> {
 export function writeUi(scena: Scena, key: UiKey, value: unknown): void {
   const setting = UI_SETTINGS.find((one) => one.key === key);
   if (setting === undefined) return;
-  const next = typeof value === 'string' && setting.values().includes(value) ? value : setting.usual();
+  const next = typeof value === 'string' && setting.values(scena).includes(value) ? value : setting.usual();
   if (next !== setting.read(scena)) setting.apply(scena, next);
 }
 

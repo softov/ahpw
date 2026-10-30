@@ -7,7 +7,7 @@ import { registerThemeController } from '@softov/scena/styles';
 // import { registerCommands } from '../resources/commands/index.js';
 import { registerConnection } from '../bridges/index.js';
 import { registerHosts, sessionCountPaths } from '../bridges/hosts.js';
-import { SESSIONS_SECTION, hideOverlaidSidebar, registerSessions } from '../resources/sessions/index.js';
+import { SESSIONS_SECTION, hideOverlaidSidebar, registerSessionFiles, registerSessions } from '../resources/sessions/index.js';
 import { AGENTS_SECTION, registerAgents } from '../resources/agents/index.js';
 import { AUTOMATIONS_SECTION, registerAutomations } from '../resources/automations/index.js';
 import { COMPUTERS_SECTION, registerComputers } from '../resources/computers/index.js';
@@ -322,6 +322,7 @@ export function registerShell(scena: Scena): Disposable {
     registerSessions(scena),
     registerAgents(scena),
     registerChanges(scena),
+    registerSessionFiles(scena),
     registerAutomations(scena),
     registerComputers(scena),
     registerBots(scena),

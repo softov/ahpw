@@ -83,6 +83,6 @@ export function registerNotifications(scena: Scena): Disposable {
   );
 }
 
-export { confirm } from './confirm.js';
+export { choose, confirm } from './confirm.js';
 export { done, failed, warn } from './say.js';
 export { getNotifications, tryNotify } from './context.js';

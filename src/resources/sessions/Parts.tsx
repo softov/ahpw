@@ -1,5 +1,5 @@
 import { memo, useContext, useState, type MouseEvent, type ReactElement } from 'react';
-import { useI18n, useScena } from '@softov/scena/react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Button, Markdown } from '@softov/scena/ui';
 import type {
   ResponsePart,
@@ -14,6 +14,7 @@ import { CopyButton } from '../../shell/controls/CopyButton.js';
 import { InputRequest } from './Question.js';
 import { durationOf, fileOf, inputText, kindOf, lineOf, outcomeOf, outputOf, segmentsOf, type Outcome, type Output, type ToolKind } from './tool.js';
 import { EMOJIcon } from '../emojis.js';
+import { SESSION_MARKDOWN, TOOLS_EXPANDED } from './view-settings.js';
 
 /** Sends one action on the chat this transcript shows. */
 export type Send = (action: StateAction) => void;
@@ -137,7 +138,9 @@ export function OutputView({ out }: { out: Output }): ReactElement {
 export function ToolCall({ call, send, live, turnId }: { call: ToolCallState; send: Send; live: boolean; turnId: string }): ReactElement {
   const outcome = outcomeOf(call);
   const waiting = live && (outcome === 'approval' || outcome === 'review' || outcome === 'sign-in');
-  const [open, setOpen] = useState(false);
+  const scena = useScena();
+  // The setting is the row's first state only; a row a person opened or closed stays so.
+  const [open, setOpen] = useState(() => TOOLS_EXPANDED.read(scena.store) === 'expanded');
   const shown = open || waiting;
   const duration = durationOf(call);
   const input = inputText(call);
@@ -145,7 +148,6 @@ export function ToolCall({ call, send, live, turnId }: { call: ToolCallState; se
   const name = call.displayName || call.toolName;
   const risk = call.status === PENDING_CONFIRMATION ? call.riskAssessment : undefined;
   const file = fileOf(call);
-  const scena = useScena();
   const { t } = useI18n();
   const mark = t(MARK[outcome].label);
   return (
@@ -246,9 +248,14 @@ export const Part = memo(function Part({ part, send, live, turnId }: { part: Res
   const clicks = useLinkClicks();
   const scena = useScena();
   const { t } = useI18n();
+  useStore<string>(SESSION_MARKDOWN.path);
+  const markdown = SESSION_MARKDOWN.read(scena.store) === 'enabled';
   switch (String(part.kind)) {
     case 'markdown':
-      return 'content' in part ? <div className="web-md" onClick={clicks}><Markdown text={part.content as string} /></div> : null;
+      if (!('content' in part)) return null;
+      return markdown
+        ? <div className="web-md" onClick={clicks}><Markdown text={part.content as string} /></div>
+        : <div className="web-md web-md--plain">{part.content as string}</div>;
     case 'contentRef': {
       const uri = 'uri' in part ? String(part.uri) : '';
       return (

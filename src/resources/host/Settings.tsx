@@ -112,10 +112,11 @@ function InterfaceSettings(): ReactElement {
   const scena = useScena();
   const { t, locale } = useI18n();
   const ui = useUi();
+  // The bot setting's values are the focused host's bots, so a change of any setting builds the fields again.
   const schema = useMemo<JsonSchemaObject>(
-    () => ({ type: 'object', properties: uiFields() }),
+    () => ({ type: 'object', properties: uiFields(scena) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [locale],
+    [locale, ui, scena],
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const views = useMemo(() => [fieldsView, jsonView, sectionsView(interfaceGroups())], [locale]);
