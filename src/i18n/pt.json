@@ -161,6 +161,20 @@
       "theme": "Tema",
       "settings": "Configurações",
       "signOut": "Sair"
+    },
+    "browser": {
+      "tab": "Navegador",
+      "back": "Voltar",
+      "forward": "Avançar",
+      "address": "Endereço",
+      "addressHint": "Digite um endereço",
+      "history": "Histórico",
+      "share": "Compartilhar",
+      "copied": "Endereço copiado",
+      "openOutside": "Abrir em uma nova aba",
+      "refused": "Aqui só abrem endereços http e https.",
+      "empty": "Abra uma página da web",
+      "emptyBody": "Digite um endereço e pressione Enter. Muitos sites com login não aparecem aqui; Abrir em uma nova aba os abre."
     }
   },
   "close": {

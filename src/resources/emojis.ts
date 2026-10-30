@@ -87,6 +87,10 @@ export const EMOJIcon = {
   upload: mono('⬆'),
   download: mono('⬇'),
   link: mono('🔗'),
+  back: '←',
+  forward: '→',
+  share: '⤴',
+  external: '↗',
 
   // status and feedback
   check: '✓',

@@ -48,6 +48,39 @@ export interface EmbedProfile {
   write(values: Record<string, unknown>): Promise<void>;
 }
 
+/** Where the embedder places its browser, in CSS pixels from the top left of ahpw's page. */
+export interface EmbedBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** A page the embedder's browser reached, and whether it can go back and forward from it. */
+export interface EmbedNavigation {
+  url: string;
+  canGoBack: boolean;
+  canGoForward: boolean;
+}
+
+/**
+ * A full browser the embedder draws over ahpw's Browser view, in place of the
+ * iframe, which many sites refuse. ahpw sends the view's box on each change
+ * and drives it from the view's toolbar.
+ */
+export interface EmbedBrowser {
+  /** Shows the browser over `bounds`, again with new bounds on each move or resize. */
+  show(bounds: EmbedBounds): void;
+  /** Hides the browser; its page stays loaded for the next `show`. */
+  hide(): void;
+  open(url: string): void;
+  back(): void;
+  forward(): void;
+  reload(): void;
+  /** Calls `handler` each time the browser reaches a page, a link or a redirect among them. */
+  onNavigated(handler: (navigation: EmbedNavigation) => void): Unsubscribe;
+}
+
 export interface Embedder {
   /**
    * Whether the window shows one host, `mono`, or every host the embedder
@@ -84,6 +117,8 @@ export interface Embedder {
   window?: EmbedWindow;
   /** Present when the embedder keeps the UI settings; without it, the browser alone keeps them. */
   profile?: EmbedProfile;
+  /** Present when the embedder gives the Browser view a full browser; without it, the view shows an iframe. */
+  browser?: EmbedBrowser;
 }
 
 /** The embedder, or undefined in a browser. Read once: a page never moves between the two. */
