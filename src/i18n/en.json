@@ -1527,7 +1527,6 @@
       "unsent": "The message is not sent.",
       "agent": "Agent",
       "agentHint": "The agent the session runs on",
-      "agentPill": "Agent: {name}",
       "noAgent": "This server offers no agent.",
       "fold": "Fold the options",
       "unfold": "Show the options",

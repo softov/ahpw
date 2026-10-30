@@ -1527,7 +1527,6 @@
       "unsent": "El mensaje no se envió.",
       "agent": "Agente",
       "agentHint": "El agente con el que corre la sesión",
-      "agentPill": "Agente: {name}",
       "noAgent": "Este servidor no ofrece ningún agente.",
       "fold": "Ocultar las opciones",
       "unfold": "Mostrar las opciones",

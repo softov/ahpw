@@ -162,6 +162,8 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   const textRef = useRef(text);
   textRef.current = text;
   const caretRef = useRef(caret);
+  // Whether the open list came from a pill, until the person types.
+  const fromPill = useRef(false);
   caretRef.current = caret;
   const mentions = useCallback(async (): Promise<PickerAction[]> => {
     const said = textRef.current;
@@ -280,6 +282,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
   }, [scena, shape]);
 
   function openCommand(id: string): void {
+    fromPill.current = true;
     const position = picker.openCommand(id);
     focusCaret(position ?? area.current?.value.length ?? text.length);
   }
@@ -370,6 +373,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
             aria-label={t('sessions/composer/message')}
             placeholder={placeholder ?? (active === undefined ? t('sessions/composer/placeholder') : t('sessions/composer/placeholderRunning'))}
             onChange={(event) => {
+              fromPill.current = false;
               typed.current = true;
               setText(event.currentTarget.value);
               setCaret(event.currentTarget.selectionStart);
@@ -378,6 +382,13 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
             onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
             onClick={(event) => setCaret(event.currentTarget.selectionStart)}
             onKeyDown={(event) => {
+              // Esc on a list a pill opened takes back the command the pill typed.
+              if (event.key === 'Escape' && fromPill.current && picker.menuVisible) {
+                event.preventDefault();
+                fromPill.current = false;
+                picker.closeMenu();
+                return;
+              }
               if (picker.handleMenuKeyDown(event)) return;
               if (event.key === 'Escape' && active !== undefined) {
                 event.preventDefault();

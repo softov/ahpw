@@ -220,6 +220,8 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
   const textRef = useRef(text);
   textRef.current = text;
   const caretRef = useRef(caret);
+  // Whether the open list came from a pill, until the person types.
+  const fromPill = useRef(false);
   caretRef.current = caret;
 
   // A drop: a host file attaches, or with Shift goes in as `@path` text; this computer's files attach as content.
@@ -469,6 +471,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
   }), []);
 
   function openCommand(id: string): void {
+    fromPill.current = true;
     const position = picker.openCommand(id);
     focusCaret(position ?? area.current?.value.length ?? text.length);
   }
@@ -513,7 +516,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
   // With every host, a host with no agent still offers the Host pill, so another can be picked.
   if (agents.length === 0) return <div className="web-new">{hostPill}<Alert tone="warning" message={t('sessions/new/noAgent')} /></div>;
 
-  const agentLabel = t('sessions/new/agentPill', { name: agent?.displayName ?? provider });
+  const agentName = agent?.displayName ?? provider;
 
   return (
     <div className="web-new">
@@ -522,22 +525,27 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
       <div className="web-composer web-new__composer">
         {/* Over the box, as in an open session: the box sits at the end of the page. */}
         {picker.pickerNode === null || adding ? null : <div className="web-composer__picker">{picker.pickerNode}</div>}
+        {/* The session's settings on a line over the box, as VS Code draws them; `<` folds the line. */}
         {trayOpen ? (
           <div className="web-composer__where web-new__tray">
             {hostPill}
             {wherePill}
-            <Pill label={agentLabel} image={iconSrcOf(host, provider)} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
+            {options.filter((option) => footerSide(option) === 'left').map(settingPill)}
+            {resolved === null && provider !== '' ? <Pill label={t('sessions/new/readingSettings')} /> : null}
+            <Pill label={agentName} image={iconSrcOf(host, provider)} title={t('sessions/new/agentHint')} onOpen={() => openCommand(AGENT_COMMAND)} />
             <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label={t('sessions/new/fold')} title={t('sessions/new/fold')} onClick={() => foldTray(false)}>
-              {EMOJIcon.caretDown}
+              {'<'}
             </button>
           </div>
         ) : (
           <div className="web-composer__where web-new__tray">
             <button type="button" className="web-chip web-new__tray-head" aria-expanded={false} title={t('sessions/new/unfold')} onClick={() => foldTray(true)}>
-              <span aria-hidden="true">{EMOJIcon.caretRight}</span>
               {multi ? `${hostName(host)} · ` : null}
-              {agentLabel}
+              {agentName}
               {folderName === '' ? null : ` · ${folderName}`}
+            </button>
+            <button type="button" className="web-new__tray-fold" aria-expanded={false} aria-label={t('sessions/new/unfold')} title={t('sessions/new/unfold')} onClick={() => foldTray(true)}>
+              {'>'}
             </button>
           </div>
         )}
@@ -552,6 +560,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
               aria-label={t('sessions/new/firstMessage')}
               placeholder={t('sessions/composer/placeholder')}
               onChange={(event) => {
+                fromPill.current = false;
                 setText(event.currentTarget.value);
                 setCaret(event.currentTarget.selectionStart);
               }}
@@ -559,6 +568,13 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
               onKeyUp={(event) => setCaret(event.currentTarget.selectionStart)}
               onClick={(event) => setCaret(event.currentTarget.selectionStart)}
               onKeyDown={(event) => {
+                // Esc on a list a pill opened takes back the command the pill typed.
+                if (event.key === 'Escape' && fromPill.current && picker.menuVisible) {
+                  event.preventDefault();
+                  fromPill.current = false;
+                  picker.closeMenu();
+                  return;
+                }
                 if (picker.handleMenuKeyDown(event)) return;
                 if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
                   event.preventDefault();
@@ -570,10 +586,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
           <div className="web-composer__foot">
             <AddButton host={host} path={NEW_PATH} onOpenChange={setAdding} />
             <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
-            <div className="web-composer__chips web-composer__chips--left">
-              {options.filter((option) => footerSide(option) === 'left').map(settingPill)}
-              {resolved === null && provider !== '' ? <Pill label={t('sessions/new/readingSettings')} /> : null}
-            </div>
+            <div className="web-composer__chips web-composer__chips--left" />
             <div className="web-composer__chips web-composer__chips--right">
               {models.length === 0 ? null : (
                 <Pill {...modelLabels(modelName === '' ? t('sessions/values/default') : modelName)} title={t('sessions/new/modelHint')} onOpen={() => openCommand('ahp.composer.model')} />

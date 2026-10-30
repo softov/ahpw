@@ -1,6 +1,6 @@
 ---
 title: The session settings move to the line above the box
-status: todo
+status: implemented
 depends: [task-01-a-mockup-of-the-line-and-box.md]
 layer: "composer"
 refs:
@@ -14,8 +14,9 @@ The new session page matches the approved mockup.
 ## Files
 
 - `UPDATE: src/resources/sessions/New.tsx:490-545` - draw the session settings on the line, the model and the chat settings in the box.
-- `UPDATE: src/style/app.css` - the line, its wrap and the fold button.
-- `UPDATE: src/i18n/en.json` - `sessions/new/agentPill` without "Agent"; the same keys in `es.json` and `pt.json`.
+- `UPDATE: src/i18n/en.json` - remove `sessions/new/agentPill`, because the harness pill shows the name only.
+- `UPDATE: src/i18n/es.json` - the same key removed.
+- `UPDATE: src/i18n/pt.json` - the same key removed.
 
 ## Steps
 
@@ -32,3 +33,6 @@ The new session page matches the approved mockup.
 - By hand: the page matches the mockup; any difference means stop and ask.
 
 ## Resume
+
+Built without a change to `app.css`, because the line wraps with the existing `.web-composer__where` style.
+Checked at 1280 light and 760 dark: each pill opens its list, `<` folds, `>` unfolds, and the page does not scroll sideways.

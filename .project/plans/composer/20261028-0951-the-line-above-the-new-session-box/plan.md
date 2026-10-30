@@ -48,6 +48,9 @@ NewSessionPage -> tray (wherePill, harness pill, fold) -> box -> footer (+, left
 | A mockup comes first, and the build is compared to it | `(defaulted: a UI change starts from a mockup Softov approves)` | 01 |
 | The harness pill shows the harness's name only | `(defaulted: "Agent" names the custom agent picker of plan a-custom-agent-picker)` | 02 |
 | A session-scope setting goes on the line, a chat-scope setting stays in the box | `(defaulted: VS Code's line holds what is fixed for the session; footerSide already splits by scope)` | 02 |
+| The mockup is approved; the folded line puts `>` at its right end | Softov, 2026-10-29: "Approve it", "> at the right end" | 01 |
+| The line keeps the order the host sends; Isolation comes after Approvals for Claude Code | Softov, 2026-10-29: "Host order" | 02 |
+| The harness pill shows the harness icon before its name | Softov, 2026-10-29: "Keep the icon" | 02 |
 | The session composer keeps its layout | `(defaulted: Softov named the new session box only)` | - |
 
 ## Proposed architecture
@@ -62,8 +65,8 @@ NewSessionPage -> tray (wherePill, harness pill, fold) -> box -> footer (+, left
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - a mockup of the line and the box](task-01-a-mockup-of-the-line-and-box.md) | todo | - |
-| [02 - the settings move to the line](task-02-the-settings-move-to-the-line.md) | todo | 01 |
+| [01 - a mockup of the line and the box](task-01-a-mockup-of-the-line-and-box.md) | implemented | - |
+| [02 - the settings move to the line](task-02-the-settings-move-to-the-line.md) | implemented | 01 |
 
 ## Risks and tradeoffs
 
@@ -72,14 +75,14 @@ NewSessionPage -> tray (wherePill, harness pill, fold) -> box -> footer (+, left
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-a-mockup-of-the-line-and-box.md](task-01-a-mockup-of-the-line-and-box.md).
+- **Done so far:** tasks 01 and 02 are built and checked at 1280 light and 760 dark, with no horizontal scroll.
+- **Next action:** Softov reviews the build; [the pending file](../../../pending/composer-line-start-check.md) holds the start check.
 - **Open questions:** none.
 - **Watch out for:** the folded line shows the harness and the folder in one chip.
 
 ## Final verification checklist
 
-- [ ] The page matches the approved mockup at 1280 and 760 wide, in both themes.
-- [ ] Each pill on the line and in the box opens its list.
+- [x] The page matches the approved mockup at 1280 and 760 wide, in both themes.
+- [x] Each pill on the line and in the box opens its list.
 - [ ] A session starts with the chosen settings.
-- [ ] `pnpm typecheck` and `pnpm test` pass.
+- [x] `pnpm typecheck` and `pnpm test` pass.
