@@ -17,6 +17,7 @@ import { ahpPaths, hostBridge } from '../../bridges/data.js';
 import { folderLabel, newId } from '../../bridges/words.js';
 import type { Send } from './Parts.js';
 import { Pill } from './pills.js';
+import { ringOf } from './status.js';
 import {
   attachComposer,
   COMPOSER_SLOT,
@@ -348,6 +349,7 @@ export const Composer = memo(function Composer({ host, chatUri, activeId, active
       <div
         className="web-composer__box"
         data-drop={drop.dropping ?? undefined}
+        data-ring={ringOf(summary.status)}
         onDragOver={drop.onDragOver}
         onDragLeave={drop.onDragLeave}
         onDrop={drop.onDrop}

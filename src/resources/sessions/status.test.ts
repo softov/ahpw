@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activityOf, countsOf, isArchived, shows } from './status.js';
+import { activityOf, countsOf, isArchived, ringOf, shows } from './status.js';
 
 describe('activityOf', () => {
   it('reads input needed before running, since it carries the running bit', () => {
@@ -17,6 +17,16 @@ describe('activityOf', () => {
   it('reads archived on its own', () => {
     expect(isArchived(1 | 64)).toBe(true);
     expect(isArchived(1)).toBe(false);
+  });
+});
+
+describe('ringOf', () => {
+  it('rings a running turn and a turn that waits, and nothing else', () => {
+    expect(ringOf(8)).toBe('running');
+    expect(ringOf(24)).toBe('input');
+    expect(ringOf(1)).toBeUndefined();
+    expect(ringOf(2)).toBeUndefined();
+    expect(ringOf(1 | 32)).toBeUndefined();
   });
 });
 

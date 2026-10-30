@@ -532,6 +532,51 @@
   border-color: var(--oo-color-accent);
 }
 
+@property --web-ring-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* A turn runs: a light goes around the border. */
+.web-composer__box[data-ring='running'] {
+  position: relative;
+}
+
+.web-composer__box[data-ring='running']::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--web-ring-angle), transparent 0deg 245deg, color-mix(in srgb, var(--oo-color-accent) 15%, transparent) 285deg, var(--oo-color-accent) 330deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: web-ring 2.4s linear infinite;
+}
+
+@keyframes web-ring {
+  to {
+    --web-ring-angle: 360deg;
+  }
+}
+
+/* The turn waits for the person: the ring stops, in the warning colour. */
+.web-composer__box[data-ring='input'] {
+  border-color: var(--oo-color-warning);
+  box-shadow: 0 0 0 1px var(--oo-color-warning);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web-composer__box[data-ring='running']::before {
+    animation: none;
+    background: var(--oo-color-accent);
+  }
+}
+
 .web-composer__picker {
   position: absolute;
   bottom: 100%;
