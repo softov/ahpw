@@ -9,9 +9,15 @@ export interface PillLabels {
   icon: string;
 }
 
+/** The key ahpd's backends send Approvals under. */
+export const APPROVALS_KEY = 'permissionMode';
+
+/** Whether a setting is Approvals, which the new session box draws after the agent picker. */
+export const isApprovals = (option: Option): boolean => option.key === APPROVALS_KEY;
+
 /** The icon a setting's pill keeps in a narrow box. */
 export function settingIcon(key: string): string {
-  if (key === 'permissionMode') return EMOJIcon.approvals;
+  if (key === APPROVALS_KEY) return EMOJIcon.approvals;
   if (key === 'effortLevel') return EMOJIcon.thinking;
   return EMOJIcon.settings;
 }

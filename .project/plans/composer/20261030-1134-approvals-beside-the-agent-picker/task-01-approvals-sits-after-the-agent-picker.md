@@ -1,6 +1,6 @@
 ---
 title: Approvals sits after the agent picker
-status: todo
+status: implemented
 depends: []
 layer: "composer"
 refs:
@@ -34,3 +34,9 @@ In the new session box, the Approvals pill shows in the footer after the agent p
 - By hand, check that the Approvals pill opens its list and that a pick shows on the pill.
 
 ## Resume
+
+Checked on Vite against the host on 37537, with the Claude (DeepSeek) build harness, which sends Approvals.
+At 1280 light the footer reads `+`, Agent, Approvals: Ask Before Edits, and the line above has no Approvals.
+At 420 dark the pill shows its icon alone.
+A pick of Edit Automatically shows on the pill.
+`pnpm typecheck`, `pnpm test` (645 passed) and `pnpm build` pass.

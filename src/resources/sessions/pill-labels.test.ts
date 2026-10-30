@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EMOJIcon } from '../emojis.js';
-import { modelLabels, settingIcon, settingLabels } from './pill-labels.js';
+import { isApprovals, modelLabels, settingIcon, settingLabels } from './pill-labels.js';
 
 describe('settingLabels', () => {
   it('reads a choice wide, narrower, and as its icon', () => {
@@ -21,6 +21,13 @@ describe('settingIcon', () => {
   it('gives effort its glyph and any other setting the settings glyph', () => {
     expect(settingIcon('effortLevel')).toBe(EMOJIcon.thinking);
     expect(settingIcon('isolation')).toBe(EMOJIcon.settings);
+  });
+});
+
+describe('isApprovals', () => {
+  it('knows Approvals by its key', () => {
+    expect(isApprovals({ key: 'permissionMode', schema: { type: 'string', title: 'Approvals' }, value: 'default' })).toBe(true);
+    expect(isApprovals({ key: 'isolation', schema: { type: 'string', title: 'Isolation' }, value: 'none' })).toBe(false);
   });
 });
 

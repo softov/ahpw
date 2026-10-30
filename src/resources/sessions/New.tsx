@@ -34,7 +34,7 @@ import { askFolder } from '../folders/pick.js';
 import { whereLabel, wheresOf } from './where.js';
 import { readTipCount, tipAt, tipsFor, writeTipCount } from './tips.js';
 import { readTrayOpen, writeTrayOpen } from './new-tray.js';
-import { modelLabels, settingLabels } from './pill-labels.js';
+import { isApprovals, modelLabels, settingLabels } from './pill-labels.js';
 import { contextReadout, footerSide } from './footer.js';
 import { EMOJIcon } from '../emojis.js';
 import { Pill, TextPill } from './pills.js';
@@ -540,7 +540,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
           <div className="web-composer__where web-new__tray">
             {hostPill}
             {wherePill}
-            {options.filter((option) => footerSide(option) === 'left').map(settingPill)}
+            {options.filter((option) => footerSide(option) === 'left' && !isApprovals(option)).map(settingPill)}
             {resolved === null && provider !== '' ? <Pill label={t('sessions/new/readingSettings')} /> : null}
             <Pill label={agentName} image={iconSrcOf(host, provider)} title={t('sessions/new/harnessHint')} onOpen={() => openCommand(HARNESS_COMMAND)} />
             <button type="button" className="web-new__tray-fold" aria-expanded={true} aria-label={t('sessions/new/fold')} title={t('sessions/new/fold')} onClick={() => foldTray(false)}>
@@ -598,6 +598,7 @@ export default function NewSessionPage({ provider: offered, host: given }: { pro
             <input ref={files} type="file" multiple hidden onChange={(event) => { void upload(event.currentTarget.files); event.currentTarget.value = ''; }} />
             <div className="web-composer__chips web-composer__chips--left">
               <AgentPicker agents={agentsOfHarness} chosen={customAgent} open={() => openCommand(CUSTOM_AGENT_COMMAND)} />
+              {options.filter((option) => footerSide(option) === 'left' && isApprovals(option)).map(settingPill)}
             </div>
             <div className="web-composer__chips web-composer__chips--right">
               {models.length === 0 ? null : (
