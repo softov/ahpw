@@ -25,7 +25,13 @@ describe('shownMountKeys', () => {
         'sidebar:left': { visible: false, activeContainerKey: 'f' },
       },
     } as unknown as ScenaLayout;
-    expect(shownMountKeys(layout)).toEqual(['b', 'c', 'e']);
+    expect(shownMountKeys(layout, () => ['e', 'f'])).toEqual(['b', 'c', 'e']);
+  });
+
+  it('takes the newest open mount when the active key names a closed one', () => {
+    const layout = { surfaces: { 'sidebar:right': { visible: true, activeContainerKey: 'closed' } } } as unknown as ScenaLayout;
+    expect(shownMountKeys(layout, () => ['details', 'files'])).toEqual(['files']);
+    expect(shownMountKeys(layout, () => [])).toEqual([]);
   });
 });
 

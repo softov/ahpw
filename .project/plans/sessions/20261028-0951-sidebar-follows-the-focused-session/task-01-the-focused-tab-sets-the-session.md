@@ -1,6 +1,6 @@
 ---
 title: The focused session tab sets the active session
-status: todo
+status: implemented
 depends: []
 layer: "sessions"
 refs:
@@ -35,3 +35,7 @@ When the main surface's active tab is a session, `ACTIVE_SESSION` names that ses
 - By hand: open two sessions in two groups, click each tab, and watch Session Info change.
 
 ## Resume
+
+- Built on 2026-10-29. `sessionKey` in `focus.ts` also builds the key, and `ahp.openSession` uses it.
+- `focus.test.ts` also has a `followFocus` case: a session tab, a second session tab, then a tab that is not a session.
+- Checked by hand on a test host at 1280 light and 760 dark: a tab click in either group changes Session Info and Changes.

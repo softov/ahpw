@@ -10,12 +10,18 @@ function activeTabs(node: TabPanelNode): string[] {
   return active === undefined ? [] : [active];
 }
 
-/** The mounts on screen: each visible surface's active one, and in a tab-panel, every group's. */
-export function shownMountKeys(layout: ScenaLayout): string[] {
-  return Object.values(layout.surfaces).flatMap((surface) => {
+/**
+ * The mounts on screen: each visible surface's active one, and in a tab-panel,
+ * every group's. `open` lists a surface's open mounts, oldest first; an active
+ * key that names none of them falls back to the newest, as scena's layouts draw it.
+ */
+export function shownMountKeys(layout: ScenaLayout, open: (surface: string) => readonly string[]): string[] {
+  return Object.entries(layout.surfaces).flatMap(([name, surface]) => {
     if (surface === undefined || surface.visible === false) return [];
     if (surface.layout === 'tab-panel' && surface.tabPanel !== undefined) return activeTabs(surface.tabPanel.tree);
-    return surface.activeContainerKey === undefined ? [] : [surface.activeContainerKey];
+    const keys = open(name);
+    const active = surface.activeContainerKey !== undefined && keys.includes(surface.activeContainerKey) ? surface.activeContainerKey : keys.at(-1);
+    return active === undefined ? [] : [active];
   });
 }
 

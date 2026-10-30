@@ -30,10 +30,13 @@ function keeper(scena: Scena): SessionStorage {
 export async function keepTabs(scena: Scena, live: () => boolean): Promise<Disposable | null> {
   const snapshot = await stored.load();
   if (!live()) return null;
+  // Each open focuses its tab, so the tab that had the focus gets it back after the last one.
+  const focused = scena.layout.get().surfaces.main?.activeContainerKey;
   for (const mount of (snapshot?.mounts ?? []) as KeptMount[]) {
     if (mount.surface !== 'main' || scena.components.get(mount.component.component) === undefined) continue;
     scena.surfaces.open({ surface: 'main', key: mount.key, resource: mount.component, ...(mount.title === undefined ? {} : { props: { title: mount.title } }) } as never);
   }
+  if (focused !== undefined && scena.surfaces.listAt('main').some((mount) => mount.key === focused)) scena.surfaces.focus(focused);
   scena.setSessionStorage(keeper(scena));
   return scena.session.enableAutoPersist();
 }

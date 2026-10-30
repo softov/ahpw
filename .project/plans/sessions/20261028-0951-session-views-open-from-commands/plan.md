@@ -1,7 +1,7 @@
 ---
 title: Session Info, Changes and Files open from commands and keys
 domain: sessions
-status: planned
+status: active
 priority: high
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -55,6 +55,8 @@ ui.sessionViewsPlace = tab -> the same command mounts on main, in a group beside
 | As a panel means a tab in the main area, in a group beside the session | Softov, 2026-10-28, question answer: "A tab beside the session" | 03 |
 | The setting moves Session Info and Changes; Files stays in the right sidebar | `(defaulted: the setting names session and changes info only)` | 03 |
 | Session Info has no key | `(defaulted: none was given)` | 02 |
+| Without tab groups, As a panel opens the view as a main tab | `(defaulted: the plain tab layout has no group to split)` | 03 |
+| A view closed in `main` comes back in the sidebar when the setting returns to Right sidebar | `(defaulted: the sidebar shows every view it holds)` | 03 |
 
 ## Proposed architecture
 
@@ -68,9 +70,9 @@ ui.sessionViewsPlace = tab -> the same command mounts on main, in a group beside
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - a files tab for the session](task-01-a-files-tab-for-the-session.md) | todo | - |
-| [02 - commands open the session views](task-02-commands-open-the-session-views.md) | todo | 01 |
-| [03 - a setting places the views](task-03-a-setting-places-the-views.md) | todo | 02 |
+| [01 - a files tab for the session](task-01-a-files-tab-for-the-session.md) | implemented | - |
+| [02 - commands open the session views](task-02-commands-open-the-session-views.md) | implemented | 01 |
+| [03 - a setting places the views](task-03-a-setting-places-the-views.md) | implemented | 02 |
 
 ## Risks and tradeoffs
 
@@ -79,8 +81,8 @@ ui.sessionViewsPlace = tab -> the same command mounts on main, in a group beside
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-a-files-tab-for-the-session.md](task-01-a-files-tab-for-the-session.md).
+- **Done so far:** tasks 01, 02 and 03 are implemented and wait for review; the key check in Edge and Firefox waits for Softov.
+- **Next action:** review by Softov, then `implemented.md` and `status: built`.
 - **Open questions:** none.
 - **Watch out for:** a closed tab is offered in the sidebar's "..." menu; keep that path on `showView`.
 

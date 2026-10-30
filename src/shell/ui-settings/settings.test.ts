@@ -36,9 +36,11 @@ describe('UI settings', () => {
   it('reads each setting from its owner, and offers each as a field with its values', () => {
     const scena = scenaWithOwners();
     expect(readUi(scena)).toMatchObject({ 'ui.themeMode': 'system', 'ui.layout': 'tab', 'ui.settingsPlace': 'overlay', 'ui.confirmStyle': 'modal' });
-    const fields = uiFields();
+    const fields = uiFields(scena);
     expect(fields['ui.confirmStyle']).toMatchObject({ enum: ['modal', 'native'], default: 'modal', title: 'Questions' });
     expect(fields['ui.layout']?.enum).toContain('split');
+    expect(readUi(scena)['ui.sessionViewsPlace']).toBe('sidebar');
+    expect(fields['ui.sessionViewsPlace']).toMatchObject({ enum: ['sidebar', 'tab'], default: 'sidebar', title: 'Session Info and Changes' });
   });
 
   it('writes through the owner, which keeps it; a value it does not take goes back to the usual one', async () => {
@@ -57,6 +59,35 @@ describe('UI settings', () => {
     expect(scena.store.get(THEME_MODE_PATH)).toBe('system');
     writeUi(scena, 'ui.confirmStyle', undefined);
     expect(readUi(scena)['ui.confirmStyle']).toBe('modal');
+    writeUi(scena, 'ui.sessionViewsPlace', 'tab');
+    expect(held.get('ahpw.sessionViewsPlace')).toBe('tab');
+    expect(readUi(scena)['ui.sessionViewsPlace']).toBe('tab');
+    writeUi(scena, 'ui.sessionViewsPlace', 'floor');
+    expect(readUi(scena)['ui.sessionViewsPlace']).toBe('sidebar');
+  });
+
+  it('starts tool calls collapsed and the text as Markdown, and keeps a change in the browser', () => {
+    const scena = scenaWithOwners();
+    const fields = uiFields(scena);
+    expect(readUi(scena)).toMatchObject({ 'ui.toolsExpanded': 'collapsed', 'ui.sessionMarkdown': 'enabled' });
+    expect(fields['ui.toolsExpanded']).toMatchObject({ enum: ['expanded', 'collapsed'], default: 'collapsed', title: 'Tool calls' });
+    expect(fields['ui.sessionMarkdown']?.['x-enumOptions']).toEqual([{ value: 'enabled', label: 'Enabled' }, { value: 'disabled', label: 'Disable Markdown' }]);
+    writeUi(scena, 'ui.toolsExpanded', 'expanded');
+    writeUi(scena, 'ui.sessionMarkdown', 'disabled');
+    expect(held.get('ahpw.toolsExpanded')).toBe('expanded');
+    expect(held.get('ahpw.sessionMarkdown')).toBe('disabled');
+    expect(readUi(scenaWithOwners())).toMatchObject({ 'ui.toolsExpanded': 'expanded', 'ui.sessionMarkdown': 'disabled' });
+    writeUi(scena, 'ui.sessionMarkdown', 'loud');
+    expect(readUi(scena)['ui.sessionMarkdown']).toBe('enabled');
+  });
+
+  it('asks where a bot chat opens until a place is kept', () => {
+    const scena = scenaWithOwners();
+    expect(readUi(scena)['ui.botChatOpens']).toBe('ask');
+    expect(uiFields(scena)['ui.botChatOpens']).toMatchObject({ enum: ['ask', 'main', 'right'], default: 'ask', title: 'Bot chat', 'x-enumOptions': [{ value: 'ask', label: 'Ask' }, { value: 'main', label: 'Main' }, { value: 'right', label: 'Right sidebar' }] });
+    writeUi(scena, 'ui.botChatOpens', 'right');
+    expect(held.get('ahpw.botChatOpens')).toBe('right');
+    expect(readUi(scenaWithOwners())['ui.botChatOpens']).toBe('right');
   });
 
   it('sees a change made from a menu, not only from the form', async () => {

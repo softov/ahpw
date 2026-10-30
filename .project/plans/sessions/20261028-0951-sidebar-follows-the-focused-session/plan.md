@@ -1,7 +1,7 @@
 ---
 title: The right sidebar follows the focused session
 domain: sessions
-status: planned
+status: active
 priority: high
 created: 2026-10-28
 revalidated: 2026-10-28
@@ -59,8 +59,8 @@ list click -> ahp.openSession -> ACTIVE_SESSION -> Details, Changes
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the focused tab sets the session](task-01-the-focused-tab-sets-the-session.md) | todo | - |
-| [02 - a click in the page focuses it](task-02-a-click-in-the-page-focuses-it.md) | todo | 01 |
+| [01 - the focused tab sets the session](task-01-the-focused-tab-sets-the-session.md) | implemented | - |
+| [02 - a click in the page focuses it](task-02-a-click-in-the-page-focuses-it.md) | implemented | 01 |
 
 ## Risks and tradeoffs
 
@@ -69,14 +69,14 @@ list click -> ahp.openSession -> ACTIVE_SESSION -> Details, Changes
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-the-focused-tab-sets-the-session.md](task-01-the-focused-tab-sets-the-session.md).
+- **Done so far:** tasks 01 and 02 are implemented and wait for review.
+- **Next action:** review by Softov, then write `implemented.md`.
 - **Open questions:** none.
 - **Watch out for:** the host id can hold no `:`, but the resource is a URI and does.
 
 ## Final verification checklist
 
-- [ ] Two sessions in two tab groups: a click on either tab changes Session Info and Changes.
-- [ ] A click inside either page changes them too.
-- [ ] Checked at 1280 and 760 wide.
-- [ ] `pnpm typecheck` and `pnpm test` pass.
+- [x] Two sessions in two tab groups: a click on either tab changes Session Info and Changes.
+- [x] A click inside either page changes them too.
+- [x] Checked at 1280 and 760 wide.
+- [x] `pnpm typecheck` and `pnpm test` pass.

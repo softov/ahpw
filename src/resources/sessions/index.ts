@@ -16,7 +16,8 @@ import { readPins, SESSIONS_PINS } from './pins.js';
 import { GROUPINGS, groupingLabel, readGrouping, readThenBy, writeGrouping, writeThenBy, type Grouping } from './grouping.js';
 import { PALETTE_SLOT, openPalette } from '../../shell/CommandPalette.js';
 import { EMOJIcon } from '../emojis.js';
-import { mountRight } from '../../shell/right-sidebar.js';
+import { mountRight, RIGHT_SIDEBAR, SESSION_VIEWS } from '../../shell/right-sidebar.js';
+import { followFocus, sessionKey } from './focus.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -37,6 +38,8 @@ export interface OpenSessionArgs {
   resource: string;
   /** The session's host; the window's host by default. */
   host?: string;
+  /** `right` opens it in the right sidebar, beside the focused session; `main` by default. */
+  place?: 'main' | 'right';
 }
 
 /** The groupings, one command each: the header's Group menu and the palette's list; the current one is ticked. */
@@ -73,6 +76,7 @@ export function registerSessions(scena: Scena): Disposable {
     registerChoice(scena, { resource: 'sessions', name: 'show', slot: SHOW_SLOT, path: SESSIONS_SHOW, values: SESSION_SHOWS, usual: 'all', key: 'ahpd-web.session-show' }),
     registerComposerCommands(scena),
     watchSessions(scena),
+    followFocus(scena),
     scena.components.register({
       component: 'SessionExplorer',
       category: 'page',
@@ -237,26 +241,46 @@ export function registerSessions(scena: Scena): Disposable {
       run: (ctx, args) => {
         const target = args as OpenSessionArgs | undefined;
         if (target?.resource === undefined) return;
-        const { resource, host = windowHost() } = target;
+        const { resource, host = windowHost(), place = 'main' } = target;
+        const key = sessionKey(host, resource);
+        const props = { title: { path: titlePath(host, resource) } };
+        // One tab per session: opening it in one place takes it from the other.
+        const other = place === 'main' ? RIGHT_SIDEBAR : 'main';
+        if (ctx.surfaces.listAt(other).some((mount) => mount.key === key)) ctx.surfaces.close(key);
+        if (place === 'right') {
+          // Drawn beside the focused session, it does not become the focused session.
+          ctx.surfaces.open({ surface: RIGHT_SIDEBAR, key, resource: { component: 'SessionPage', host, resource, beside: true }, props });
+          const right = ctx.scena.layout.get().surfaces[RIGHT_SIDEBAR];
+          ctx.scena.layout.setSurface(RIGHT_SIDEBAR, { ...right, visible: true, activeContainerKey: key });
+          hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+          return;
+        }
         ctx.store.set(ACTIVE_SESSION, { host, resource } satisfies ActiveSession);
-        ctx.surfaces.open({
-          surface: 'main',
-          key: `session:${host}:${resource}`,
-          resource: { component: 'SessionPage', host, resource },
-          props: { title: { path: titlePath(host, resource) } },
-        });
+        ctx.surfaces.open({ surface: 'main', key, resource: { component: 'SessionPage', host, resource }, props });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large', 'sidebar:right');
       },
     }),
 
     // mountRight takes the title as text, so the tab is named in the language the page opened in.
-    mountRight(scena, { key: 'session:details', resource: { component: 'SessionDetails' }, props: { title: { t: 'sessions/details/tab' } } }, EMOJIcon.info),
+    mountRight(scena, { key: 'session:details', resource: { component: 'SessionDetails' }, props: { title: { t: 'sessions/details/tab' } } }, EMOJIcon.info, { title: { t: 'sessions/details/command' }, placed: SESSION_VIEWS }),
     scena.surfaces.mount({
       surface: 'sidebar:left',
       key: 'sessions:explorer',
       when: `$/layout/surfaces/sidebar:left/section == "${SESSIONS_SECTION}"`,
       resource: { component: 'SessionExplorer' },
     }),
+  );
+}
+
+/** The focused session's folder, a tab in the right sidebar after Changes. */
+export function registerSessionFiles(scena: Scena): Disposable {
+  return combineDisposables(
+    scena.components.register({
+      component: 'SessionFiles',
+      category: 'page',
+      renderer: { kind: 'react', load: () => import('./Files.js') },
+    }),
+    mountRight(scena, { key: 'session:files', resource: { component: 'SessionFiles' }, props: { title: { t: 'sessions/files/tab' } } }, EMOJIcon.folder, { keys: 'ctrl+shift+e' }),
   );
 }

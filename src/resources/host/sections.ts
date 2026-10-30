@@ -39,6 +39,8 @@ const UI: readonly Named[] = [
   ['language', ['ui.language']],
   ['layout', ['ui.layout', 'ui.settingsPlace']],
   ['dialogs', ['ui.confirmStyle']],
+  ['session', ['ui.sessionViewsPlace', 'ui.toolsExpanded', 'ui.sessionMarkdown']],
+  ['bot', ['ui.botChatOpens']],
 ];
 
 /** A plugin's key: one per plugin, `plugins.<name>`. */

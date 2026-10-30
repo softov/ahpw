@@ -27,7 +27,6 @@ import { Activity } from './Activity.js';
 import { groupParts, stepWaits } from './activity-parts.js';
 import { Composer } from './Composer.js';
 import { SessionHostContext, WorkspaceContext } from './workspace.js';
-import { ACTIVE_SESSION, type ActiveSession } from './state.js';
 import { ACTIVITY_TONE, activityLabel, activityOf, isRead } from './status.js';
 import { plural } from '../../i18n/locales.js';
 import { factsOf, replyText, tokens, when, type TurnFacts } from './turn.js';
@@ -37,6 +36,7 @@ import { EMOJIcon } from '../emojis.js';
 import { CopyButton } from '../../shell/controls/CopyButton.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { BotChat } from '../bots/chat/BotChat.js';
+import { sessionKey } from './focus.js';
 import { botMarkOf } from '../bots/chat/mark.js';
 
 /** How a turn ended, as the key of its words, when it did not end well. */
@@ -175,8 +175,32 @@ function useOpenQuestions(host: string, needed: SessionState['inputNeeded'], cha
   return out.length === 0 ? NONE : out;
 }
 
-/** One session: what it is, its chat, and a composer to talk to it. */
-export default function SessionPage({ host, resource }: { host: string; resource?: string }): ReactElement {
+/**
+ * One session: what it is, its chat, and a composer to talk to it. A pointer
+ * down anywhere in it gives its tab the focus in
+ * `main`, so the right sidebar follows the session a person works in. With
+ * `beside`, the page is drawn in the right sidebar, beside that session, and
+ * leaves the session's unread mark alone.
+ */
+export default function SessionPage({ host, resource, beside = false }: { host: string; resource?: string; beside?: boolean }): ReactElement {
+  const scena = useScena();
+  const focus = (): void => {
+    if (resource === undefined) return;
+    const key = sessionKey(host, resource);
+    const main = scena.layout.get().surfaces.main;
+    if (main?.activeContainerKey === key) return;
+    // Only the page's own tab in `main`; the same session drawn elsewhere leaves the focus where it is.
+    if (!scena.surfaces.listAt('main').some((mount) => mount.key === key)) return;
+    scena.layout.setSurface('main', { ...main, visible: main?.visible ?? true, activeContainerKey: key });
+  };
+  return (
+    <div className="web-session-page" onPointerDownCapture={focus}>
+      <SessionView host={host} beside={beside} {...(resource === undefined ? {} : { resource })} />
+    </div>
+  );
+}
+
+function SessionView({ host, resource, beside }: { host: string; resource?: string; beside: boolean }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const sessions = useStore<SessionSummary[]>(ahpPaths(host).sessions);
@@ -206,13 +230,8 @@ export default function SessionPage({ host, resource }: { host: string; resource
     if (following.current) end.current?.scrollIntoView({ block: 'end' });
   }, [turns, streamed]);
 
-  // A tab the layout restored is the session the details show, until another opens.
-  useEffect(() => {
-    if (resource !== undefined && scena.store.get(ACTIVE_SESSION) === undefined) scena.store.set(ACTIVE_SESSION, { host, resource } satisfies ActiveSession);
-  }, [scena, host, resource]);
-
   // Opening a session is reading it, as far as the unread dot is concerned.
-  const unread = summary !== undefined && !isRead(summary.status);
+  const unread = !beside && summary !== undefined && !isRead(summary.status);
   useEffect(() => {
     if (unread && resource !== undefined) hostBridge(host).dispatch(resource, { type: 'session/isReadChanged', isRead: true } as StateAction);
   }, [unread, resource, turns]);
@@ -270,17 +289,6 @@ export default function SessionPage({ host, resource }: { host: string; resource
 
   return (
     <div className="web-chat">
-      <header className="web-chat__head">
-        <div className="web-chat__head-row">
-          <div className="web-chat__title">
-            <Text variant="h2" text={summary.title === '' ? t('sessions/untitled') : summary.title} />
-            <Badge tone={ACTIVITY_TONE[activity]} text={activityLabel(activity)} />
-          </div>
-          {tools}
-        </div>
-        {doing === undefined || doing === '' ? null : <span className="web-note web-chat__doing">{doing}</span>}
-      </header>
-
       <div
         className="web-chat__turns"
         onScroll={(event) => {
@@ -288,6 +296,17 @@ export default function SessionPage({ host, resource }: { host: string; resource
           following.current = box.scrollHeight - box.scrollTop - box.clientHeight < 48;
         }}
       >
+        {/* Inside the scroll, so the turns pass under its faded bottom edge. */}
+        <header className="web-chat__head">
+          <div className="web-chat__head-row">
+            <div className="web-chat__title">
+              <Text variant="h2" text={summary.title === '' ? t('sessions/untitled') : summary.title} />
+              <Badge tone={ACTIVITY_TONE[activity]} text={activityLabel(activity)} />
+            </div>
+            {tools}
+          </div>
+          {doing === undefined || doing === '' ? null : <span className="web-note web-chat__doing">{doing}</span>}
+        </header>
         {lifecycle === 'creating' ? <Spinner label={t('sessions/chat/starting')} /> : null}
         {lifecycle === 'failed' ? <Alert tone="danger" title={t('sessions/chat/notStarted')} message={session.state?.creationError?.message ?? t('sessions/chat/noReason')} /> : null}
         {session.error === null ? null : <Alert tone="danger" title={t('sessions/chat/sessionUnreadable')} message={session.error} />}

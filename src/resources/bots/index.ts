@@ -1,5 +1,5 @@
 import type { AgentInfo } from '@microsoft/agent-host-protocol';
-import type { BindingPath, Disposable, Scena } from '@softov/scena/types';
+import type { BindingPath, Disposable, ReactiveStore, Scena } from '@softov/scena/types';
 import { combineDisposables, translate, type ModusClass } from '@softov/scena';
 import { PALETTE_SLOT } from '../../shell/CommandPalette.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
@@ -7,12 +7,13 @@ import { ahpPaths, channelPath, hostBridge } from '../../bridges/data.js';
 import { HOST_FILTER_ACTION, refKey, shownHosts } from '../../bridges/hosts.js';
 import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { trackServed } from '../../bridges/served.js';
-import { confirm, failed, warn } from '../../shell/notify/index.js';
+import { choose, confirm, failed, warn } from '../../shell/notify/index.js';
 import { readLastHost, startHost } from '../sessions/last-host.js';
 import { EMOJIcon } from '../emojis.js';
 import { bound, english } from '../../i18n/locales.js';
 import { BOTS, BOTS_SCHEME, deleteBot, readBotChat, servesBotChats, type BotsState } from './catalogue.js';
 import { ACTIVE_BOT, BOT_CHAT_OPENING, BOTS_SERVED } from './state.js';
+import { BOT_CHAT_OPENS, type ChatPlace } from './sidebar.js';
 
 /** The display size class the modus backend publishes. */
 const MODUS_CLASS = '$/modus/class' as BindingPath;
@@ -26,6 +27,27 @@ interface BotArgs {
   slug: string;
   /** Its name, for a bot the catalogue has not brought yet. */
   name?: string;
+  /** Where its chat opens; `ui.botChatOpens` decides without one. */
+  place?: ChatPlace;
+}
+
+/**
+ * Where a bot chat opens: the setting, or with `ask`, the answer to a question
+ * that the setting then keeps. Null when the question is closed unanswered.
+ */
+async function chatPlace(store: ReactiveStore): Promise<ChatPlace | null> {
+  const set = BOT_CHAT_OPENS.read(store);
+  if (set === 'main' || set === 'right') return set;
+  const answer = await choose({
+    title: translate('bots/chat/where'),
+    body: translate('bots/chat/whereBody'),
+    confirmLabel: translate('bots/actions/openRight'),
+    cancelLabel: translate('bots/actions/openMain'),
+  });
+  if (answer === null) return null;
+  const place = answer ? 'right' : 'main';
+  BOT_CHAT_OPENS.set(store, place);
+  return place;
 }
 
 const serving = (offers: Offers | undefined): boolean => offers?.channels.includes(BOTS_SCHEME) ?? false;
@@ -115,6 +137,8 @@ export function registerBots(scena: Scena): Disposable {
       run: async (ctx, args) => {
         const target = args as BotArgs | undefined;
         if (target?.slug === undefined) return;
+        const place = target.place ?? await chatPlace(ctx.store);
+        if (place === null) return;
         const key = refKey(target.host, target.slug);
         if (ctx.store.get<string | null>(BOT_CHAT_OPENING) === key) return;
         ctx.store.set(BOT_CHAT_OPENING, key);
@@ -125,7 +149,7 @@ export function registerBots(scena: Scena): Disposable {
           const chats = servesBotChats(ctx.store.get<AgentInfo[]>(ahpPaths(target.host).agents));
           const chat = await readBotChat(target.host, offers, bot, chats);
           if (chat === null) warn(translate(chats ? 'bots/chat/cannot' : 'bots/chat/noHost'));
-          else await ctx.commands.execute('ahp.openSession', { host: target.host, resource: chat });
+          else await ctx.commands.execute('ahp.openSession', { host: target.host, resource: chat, place });
         } catch (error) {
           failed(translate('bots/chat/failed'), error);
         } finally {

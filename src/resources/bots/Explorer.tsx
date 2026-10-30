@@ -20,9 +20,9 @@ export default function BotExplorer(): ReactElement {
   const multi = embedMode() === 'multi';
   const { states, errors } = useChannelOnEach<BotsState>(hosts, BOTS, botsReducer);
   const active = useStore<{ host: string; slug: string }>(ACTIVE_BOT);
-  const run = (command: string, key: string): void => {
+  const run = (command: string, key: string, extra: Record<string, string> = {}): void => {
     const { host, id } = refOf(key);
-    void scena.commands.execute(command, { host, slug: id });
+    void scena.commands.execute(command, { host, slug: id, ...extra });
   };
 
   const rows = useMemo<Row[]>(() => hosts
@@ -30,7 +30,7 @@ export default function BotExplorer(): ReactElement {
     .sort((a, b) => a.bot.name.localeCompare(b.bot.name))
     .map(({ host, bot }) => {
       const key = refKey(host, bot.id);
-      const item = (title: string, command: string, extra: Partial<PickerAction> = {}): PickerAction => ({ title, onSelect: (menu) => { menu.closeMenu(); run(command, key); }, ...extra });
+      const item = (title: string, command: string, extra: Partial<PickerAction> = {}, args: Record<string, string> = {}): PickerAction => ({ title, onSelect: (menu) => { menu.closeMenu(); run(command, key, args); }, ...extra });
       return {
         key,
         dot: 'quiet',
@@ -43,7 +43,8 @@ export default function BotExplorer(): ReactElement {
         ].filter((line) => line !== ''),
         menu: [
           item(t('bots/actions/open'), 'ahp.openBot'),
-          item(t('bots/actions/chat'), 'ahp.chatWithBot'),
+          item(t('bots/actions/openMain'), 'ahp.chatWithBot', {}, { place: 'main' }),
+          item(t('bots/actions/openRight'), 'ahp.chatWithBot', {}, { place: 'right' }),
           item(t('bots/actions/edit'), 'ahp.editBot'),
           item(t('bots/actions/delete'), 'ahp.deleteBot', { group: 'more', color: 'red' }),
         ],

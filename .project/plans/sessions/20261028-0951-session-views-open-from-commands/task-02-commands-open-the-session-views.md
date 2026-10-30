@@ -1,6 +1,6 @@
 ---
 title: Commands with keys open Session Info, Changes and Files
-status: todo
+status: implemented
 depends: [task-01-a-files-tab-for-the-session.md]
 layer: "shell, sessions, changes"
 refs:
@@ -37,3 +37,11 @@ Session Info, Changes (Ctrl+Shift+G) and Files (Ctrl+Shift+E) each have a palett
 - Ask Softov for another key when a browser keeps one.
 
 ## Resume
+
+- `showView(scena, key)` in `src/shell/right-sidebar.ts` mounts a closed tab again, shows the sidebar and activates the tab; the "..." entry and the palette command both call it.
+- The palette command is `ahp.view.<key>` in the View category; its title is "Show <title>", and Session Info passes "Show Session Info".
+- `src/shell/view/keys.ts` already calls `preventDefault` when a key fires a command, so step 5 needed no new code.
+- `src/shell/right-sidebar.test.ts` covers a hidden sidebar, a closed tab and the key binding.
+- Checked by hand in Chromium at 1280 light and 760 dark.
+- Each key shows its tab from a hidden sidebar, from a closed tab and from the composer.
+- Open: the key check in Edge and Firefox, which needs Softov's browsers.

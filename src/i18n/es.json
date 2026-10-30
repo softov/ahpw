@@ -803,6 +803,8 @@
     "actions": {
       "open": "Abrir",
       "chat": "Abrir chat",
+      "openMain": "Abrir en el principal",
+      "openRight": "Abrir a la derecha",
       "edit": "Editar",
       "delete": "Eliminar",
       "deleteTitle": "¿Eliminar {name}?",
@@ -870,7 +872,9 @@
       "noReply": "{name} terminó sin responder",
       "empty": "Dile algo a {name}.",
       "download": "Guardar {name}",
-      "message": "Escribe a {name}"
+      "message": "Escribe a {name}",
+      "where": "¿Dónde se abren los chats de bots?",
+      "whereBody": "Tu respuesta se guarda. Cámbiala en Ajustes, Interfaz, Bot."
     }
   },
   "users": {
@@ -1432,8 +1436,14 @@
       "sendHint": "Enter envía, Shift+Enter hace un salto de línea",
       "stopHint": "Esc detiene"
     },
+    "files": {
+      "tab": "Archivos",
+      "noSession": "Abre una sesión para ver sus archivos.",
+      "noFolder": "Esta sesión no tiene carpeta."
+    },
     "details": {
       "tab": "Sesión",
+      "command": "Mostrar información de la sesión",
       "empty": "Abre una sesión para ver sus detalles.",
       "openTerminal": "Abrir la terminal",
       "terminal": "Terminal",
@@ -1812,7 +1822,9 @@
           "appearance": "Apariencia",
           "language": "Idioma",
           "layout": "Disposición",
-          "dialogs": "Diálogos"
+          "dialogs": "Diálogos",
+          "session": "Sesión",
+          "bot": "Bot"
         },
         "theme": {
           "title": "Tema",
@@ -1837,6 +1849,24 @@
           "title": "La configuración se abre en",
           "description": "Dónde se abre la configuración; Abrir en la mueve y también cambia esto."
         },
+        "sessionViewsPlace": {
+          "title": "Información de la sesión y Cambios",
+          "description": "Dónde se abren la información de la sesión y los cambios.",
+          "sidebar": "Barra lateral derecha",
+          "tab": "Como panel"
+        },
+        "toolsExpanded": {
+          "title": "Llamadas a herramientas",
+          "description": "Si una llamada a herramienta empieza abierta en el chat.",
+          "expanded": "Expandidas",
+          "collapsed": "Contraídas"
+        },
+        "sessionMarkdown": {
+          "title": "Markdown",
+          "description": "Si el texto del agente se muestra como Markdown o como texto plano.",
+          "enabled": "Activado",
+          "disabled": "Desactivar Markdown"
+        },
         "confirmStyle": {
           "title": "Preguntas",
           "description": "Cómo pregunta la página antes de hacer algo que no se puede deshacer.",
@@ -1845,7 +1875,14 @@
         },
         "profileUnread": "No se pudo leer la configuración de la interfaz guardada",
         "profileUnsaved": "No se pudo guardar la configuración de la interfaz",
-        "atOnce": "La configuración de la interfaz se aplica al cambiarla."
+        "atOnce": "La configuración de la interfaz se aplica al cambiarla.",
+        "botChatOpens": {
+          "title": "Chat del bot",
+          "description": "Dónde se abre un chat de bot.",
+          "ask": "Preguntar",
+          "main": "Principal",
+          "right": "Barra lateral derecha"
+        }
       },
       "tabs": {
         "host": "Host",

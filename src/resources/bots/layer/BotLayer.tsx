@@ -94,8 +94,24 @@ export default function BotLayer(): ReactElement | null {
     const watch = scena.layout.subscribe(setLayout);
     return () => watch.dispose();
   }, [scena]);
+  // A closed tab can leave the layout as it was, so a mount's open and close count too.
+  const [mounted, setMounted] = useState(0);
+  useEffect(() => {
+    const bump = (): void => setMounted((count) => count + 1);
+    const opened = scena.events.on('scena:mount:opened', bump);
+    const closed = scena.events.on('scena:mount:closed', bump);
+    return () => {
+      opened.dispose();
+      closed.dispose();
+    };
+  }, [scena]);
   const sessionLists = useEach<SessionSummary[]>(hosts.map((host) => ahpPaths(host).sessions));
-  const away = useMemo(() => botsInShownChats(shownMountKeys(layout), hosts, sessionLists), [layout, hosts, sessionLists]);
+  const away = useMemo(
+    () => botsInShownChats(shownMountKeys(layout, (surface) => scena.surfaces.listAt(surface).map((mount) => mount.key)), hosts, sessionLists),
+    // `mounted` changes as `scena.surfaces` does, which the memo reads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scena, layout, mounted, hosts, sessionLists],
+  );
   const press = useRef<Press | null>(null);
   const puckBoxes = useRef(new Map<string, HTMLDivElement>());
 
@@ -253,18 +269,19 @@ export default function BotLayer(): ReactElement | null {
         <ContextMenu
           spec={{
             items: ([
-              ['ahp.chatWithBot', 'bots/actions/chat'],
+              ['ahp.chatWithBot', 'bots/actions/openMain', 'main'],
+              ['ahp.chatWithBot', 'bots/actions/openRight', 'right'],
               ['ahp.openBot', 'bots/commands/open'],
               ['ahp.editBot', 'bots/actions/edit'],
               ['ahp.deleteBot', 'bots/actions/delete'],
-            ] as const).map(([command, word]) => ({
+            ] as const).map(([command, word, place]) => ({
               title: t(word),
               // The group's label heads the menu, so it says which bot it is for.
               group: menuBot.name,
               onSelect: (picked) => {
                 picked.closeMenu();
                 const { host, id } = refOf(menu.key);
-                void scena.commands.execute(command, { host, slug: id, name: menuBot.name });
+                void scena.commands.execute(command, { host, slug: id, name: menuBot.name, ...(place === undefined ? {} : { place }) });
               },
             })),
           }}

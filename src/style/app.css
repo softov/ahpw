@@ -143,6 +143,11 @@
 
 /* A session: the transcript scrolls, the composer stays at the bottom. */
 
+/* A session page's root, which only catches the pointer that gives its tab the focus. */
+.web-session-page {
+  display: contents;
+}
+
 .web-chat {
   /* The content keeps a readable width; the scroll and the composer span the page. */
   --web-chat-gutter: max(var(--oo-spacing-lg), calc((100% - 72rem) / 2));
@@ -155,13 +160,24 @@
   width: 100%;
 }
 
+/*
+ * The head sticks to the top of the scroll and fades out at its bottom, so the
+ * turns pass under it. Its bottom padding leaves room for the fade, and the
+ * negative margin takes back the scroll's gap.
+ */
 .web-chat__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-sm);
-  padding: var(--oo-spacing-lg) var(--web-chat-gutter) var(--oo-spacing-sm);
+  padding: var(--oo-spacing-lg) var(--web-chat-gutter) 32px;
+  margin-bottom: calc(-1 * var(--oo-spacing-lg));
+  background: linear-gradient(to bottom, var(--oo-color-surface) 0%, var(--oo-color-surface) 70%, transparent 90%);
 }
 
+/* The scroll spans the page, so the head's fade does too; the turns keep the gutter. */
 .web-chat__turns {
   flex: 1;
   min-height: 0;
@@ -169,7 +185,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-lg);
-  padding: var(--oo-spacing-sm) var(--web-chat-gutter);
+}
+
+.web-chat__turns > :not(.web-chat__head) {
+  margin-inline: var(--web-chat-gutter);
 }
 
 .web-turn {
@@ -1456,6 +1475,12 @@
 .web-md__image {
   color: var(--oo-color-muted);
   font-style: italic;
+}
+
+/* The agent's text with Markdown off: its line breaks kept, a long word wrapped. */
+.web-md--plain {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .web-md :not(pre) > code {
@@ -3404,12 +3429,17 @@
  * A chat with a bot: the person on the right, the bot on the left with its
  * figure and name, notices as grey lines, and the bot's state over the composer.
  */
+/* Sticks and fades as a session's head does. */
 .web-botchat__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--oo-spacing-sm);
-  padding: var(--oo-spacing-md) var(--web-chat-gutter) var(--oo-spacing-sm);
-  border-bottom: 1px solid var(--oo-color-border);
+  padding: var(--oo-spacing-md) var(--web-chat-gutter) 32px;
+  margin-bottom: calc(-1 * var(--oo-spacing-sm));
+  background: linear-gradient(to bottom, var(--oo-color-surface) 0%, var(--oo-color-surface) 70%, transparent 90%);
 }
 
 .web-botchat__title {
@@ -3429,7 +3459,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--oo-spacing-sm);
-  padding: var(--oo-spacing-md) var(--web-chat-gutter);
+}
+
+.web-botchat__turns > :not(.web-botchat__head) {
+  margin-inline: var(--web-chat-gutter);
 }
 
 .web-botchat__said {
