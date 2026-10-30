@@ -29,6 +29,7 @@ What exists today: [00-hosts.md](hosts/00-hosts.md).
 | [05 - Settings in a window, with a sections view](hosts/05-settings-in-a-window-with-a-sections-view/plan.md) | built | what waits is in its [deferred.md](hosts/05-settings-in-a-window-with-a-sections-view/deferred.md) |
 | [06 - UI settings](hosts/06-ui-settings/plan.md) | built | what waits is in its [deferred.md](hosts/06-ui-settings/deferred.md) |
 | [The host restarts from ahpw](hosts/20261030-0650-the-host-restarts-from-ahpw/plan.md) | planned | build ahpd's daemon plan 20261030-0635 first |
+| [The host is told the language](hosts/20261030-1037-the-host-is-told-the-language/plan.md) | planned | build ahpd's host plan 20261030-1037 first |
 
 ## organization
 
