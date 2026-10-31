@@ -43,7 +43,7 @@
 
 .web-page {
   /* The width of a page's content, and the space each side of it on a wider surface. */
-  --web-page-width: 72rem;
+  --web-page-width: 64rem;
   --web-page-gutter: max(var(--oo-spacing-lg), calc((100% - var(--web-page-width)) / 2));
   display: flex;
   flex-direction: column;
@@ -2979,6 +2979,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding-inline: 0;
   padding-bottom: 0;
 }
 
@@ -2993,7 +2994,7 @@
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  padding: 0 0 var(--oo-spacing-lg);
+  padding: 0 var(--web-page-gutter) var(--oo-spacing-lg);
 }
 
 .web-custom-kinds[data-view='item'] .web-custom-kinds__list {
