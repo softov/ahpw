@@ -5536,3 +5536,16 @@
 .web-browser__emptyTitle {
   font-weight: 600;
 }
+
+/* A canvas: its name and status in the Browser view's bar, the buttons at the end. */
+.web-canvas__name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.web-canvas__actions {
+  margin-left: auto;
+}

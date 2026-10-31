@@ -385,6 +385,11 @@
       "staging": "Preparados y no preparados",
       "none": "Sin agrupar"
     },
+    "sort": {
+      "name": "Ordenar por nombre",
+      "path": "Ordenar por ruta",
+      "status": "Ordenar por estado"
+    },
     "status": {
       "added": "Agregado",
       "modified": "Modificado",
@@ -905,6 +910,24 @@
       "message": "Escribe a {name}",
       "where": "¿Dónde se abren los chats de bots?",
       "whereBody": "Recordaremos tu elección. Puedes cambiarla en Configuración > Interfaz > Bot."
+    }
+  },
+  "canvases": {
+    "tab": "Lienzo",
+    "canvasN": "Lienzo {n}",
+    "unavailable": "no disponible",
+    "where": "¿Dónde se abren los lienzos?",
+    "whereBody": "Recordaremos tu elección. Puedes cambiarla en Configuración > Interfaz > Lienzo.",
+    "actions": {
+      "openMain": "Abrir en el área principal",
+      "openRight": "Abrir a la derecha"
+    },
+    "commands": {
+      "open": "Abrir lienzo"
+    },
+    "view": {
+      "unavailable": "Este lienzo no está disponible ahora",
+      "unavailableBody": "La extensión que lo muestra no está en ejecución. El lienzo vuelve cuando vuelva la extensión."
     }
   },
   "users": {
@@ -1762,6 +1785,10 @@
         "other": "{count} subagentes"
       },
       "subagentsRunning": "{running} de {total} subagentes en curso",
+      "canvases": {
+        "one": "{count} lienzo",
+        "other": "{count} lienzos"
+      },
       "chats": "Chats",
       "chatN": "Chat {n}",
       "subagentTag": "subagente",
@@ -1890,6 +1917,7 @@
           "dialogs": "Diálogos",
           "session": "Sesión",
           "bot": "Bot",
+          "canvas": "Lienzo",
           "agents": "Agentes"
         },
         "theme": {
@@ -1948,6 +1976,19 @@
           "ask": "Preguntar",
           "main": "Área principal",
           "right": "Barra lateral derecha"
+        },
+        "canvasOpens": {
+          "title": "Lienzo",
+          "description": "Dónde se abre un lienzo.",
+          "ask": "Preguntar",
+          "main": "Área principal",
+          "right": "Barra lateral derecha"
+        },
+        "canvasAutoOpen": {
+          "title": "Abrir lienzos automáticamente",
+          "description": "Abre un lienzo en cuanto el agente lo añade al chat que estás viendo.",
+          "enabled": "Activado",
+          "disabled": "Desactivado"
         },
         "customFileOpens": {
           "title": "Archivos de agente",

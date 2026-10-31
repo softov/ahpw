@@ -111,6 +111,28 @@ export function groupChanges(changes: readonly Change[], grouping: ChangeGroupin
   return groups.filter((group) => group.changes.length > 0);
 }
 
+/** The order of the files: by file name, by path from the session's folder, or by status and then path. */
+export type ChangeSort = 'name' | 'path' | 'status';
+
+const NAMES = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
+/** A change's path from the session's folder. */
+function pathOf(change: Change, workspace: string | null): string {
+  const dir = relativeDir(change.dir, workspace);
+  return dir === '.' ? change.name : `${dir}/${change.name}`;
+}
+
+/** The changes in the order `sort` names; ties fall back to the path. */
+export function sortChanges(changes: readonly Change[], sort: ChangeSort, workspace: string | null): Change[] {
+  const path = (one: Change, other: Change): number => NAMES.compare(pathOf(one, workspace), pathOf(other, workspace));
+  const by = sort === 'name'
+    ? (one: Change, other: Change): number => NAMES.compare(one.name, other.name) || path(one, other)
+    : sort === 'status'
+      ? (one: Change, other: Change): number => letterOf(one).localeCompare(letterOf(other)) || path(one, other)
+      : path;
+  return [...changes].sort(by);
+}
+
 /** A folder of changed files; `name` holds several segments when a folder had only one folder in it. */
 export interface ChangeFolder {
   path: string;
@@ -119,7 +141,11 @@ export interface ChangeFolder {
   changes: Change[];
 }
 
-/** The changes as folders, from the session's folder down, chains of lone folders joined into one. */
+/**
+ * The changes as folders, from the session's folder down, chains of lone
+ * folders joined into one. Folders are in name order; the files in each keep
+ * the order they came in.
+ */
 export function folderTree(changes: readonly Change[], workspace: string | null): ChangeFolder {
   const root: ChangeFolder = { path: '', name: '', folders: [], changes: [] };
   for (const change of changes) {
@@ -142,7 +168,7 @@ export function folderTree(changes: readonly Change[], workspace: string | null)
       const only: ChangeFolder = at.folders[0];
       at = { ...only, name: `${at.name}/${only.name}` };
     }
-    return { ...at, folders: at.folders.map(join) };
+    return { ...at, folders: at.folders.map(join).sort((one, other) => NAMES.compare(one.name, other.name)) };
   };
-  return { ...root, folders: root.folders.map(join) };
+  return { ...root, folders: root.folders.map(join).sort((one, other) => NAMES.compare(one.name, other.name)) };
 }

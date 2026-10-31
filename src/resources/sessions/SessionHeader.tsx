@@ -10,6 +10,7 @@ import { inFolder } from '../terminals/terminal.js';
 import type { BotMark } from '../bots/chat/mark.js';
 import { viewEntries } from '../../shell/right-sidebar.js';
 import { claimedTerminals, subagentChats, subagentsOf } from './header.js';
+import { canvasName, useCanvasAutoOpen, useChatCanvases } from '../canvases/canvases.js';
 
 /**
  * The session's terminals: the ones it holds by claim, and the others whose
@@ -42,11 +43,12 @@ function useSessionTerminals(host: string, session: string, folder: string | und
 /**
  * The header's buttons, each shown only when it has something to count:
  * changed files, terminals, the subagents (one per chat its calls hand work
- * to, each opened from its menu), the session's own chats, a way back from a
- * subagent's chat, and a menu: the views that show the session, a new
- * terminal in its folder, the bot a chat is with, and how the chat reads:
- * the Raw view, and the calls hidden. Each of those, while on, shows
- * its icon, which turns it off.
+ * to, each opened from its menu), the canvases of the chat (each opened from
+ * its menu, or by itself as `ui.canvasAutoOpen` says), the session's own
+ * chats, a way back from a subagent's chat, and a menu: the views that show
+ * the session, a new terminal in its folder, the bot a chat is with, and how
+ * the chat reads: the Raw view, and the calls hidden. Each of those, while
+ * on, shows its icon, which turns it off.
  */
 export function SessionHeaderTools({ host, summary, session, chat, chatUri, onChat, onSubagent, raw, onRaw, calls, bot }: {
   host: string;
@@ -79,6 +81,10 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
   const ownAt = own.findIndex((one) => one.resource === chatUri);
   const inSubagent = spawned.some((one) => one.resource === chatUri);
   const run = (command: string, args?: unknown): void => { void scena.commands.execute(command, args); };
+  const canvasRefs = chat === undefined ? undefined : chat.canvases ?? [];
+  const canvases = useChatCanvases(host, canvasRefs);
+  const openCanvas = (resource: string): void => { if (chatUri !== undefined) run('ahp.openCanvas', { host, chat: chatUri, resource }); };
+  useCanvasAutoOpen(chatUri, canvasRefs, openCanvas);
 
   /** A menu under the button that clicked it. */
   const show = (event: MouseEvent<HTMLButtonElement>, items: PickerAction[]): void => {
@@ -96,6 +102,14 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     active: one.chat === chatUri,
     onSelect: (picked) => { picked.closeMenu(); onSubagent(one.chat); },
   })));
+  const canvasMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, canvases.map((one, at) => {
+    const about = [one.state?.status, one.state !== undefined && one.state.url === undefined ? t('canvases/unavailable') : undefined].filter((part) => part !== undefined && part !== '');
+    return {
+      title: canvasName(one.state) ?? t('canvases/canvasN', { n: at + 1 }),
+      ...(about.length === 0 ? {} : { description: about.join(' \u{00B7} ') }),
+      onSelect: (picked) => { picked.closeMenu(); openCanvas(one.resource); },
+    };
+  }));
   const views = t('sessions/header/views');
   const reads = t('sessions/header/reads');
   const viewMenu = (event: MouseEvent<HTMLButtonElement>): void => show(event, [
@@ -110,6 +124,7 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     <div className="web-chat__tools">
       {changes?.files === undefined || changes.files === 0 ? null : (
         <button type="button" className="web-chat__tool" title={plural('sessions/header/files', changes.files)} onClick={() => run('ahp.showRight.changes:explorer')}>
+          <span>{`${EMOJIcon.file} ${String(changes.files)}`}</span>
           <span className="web-diff--add">+{changes.additions ?? 0}</span>
           <span className="web-diff--remove">{'\u{2212}'}{changes.deletions ?? 0}</span>
         </button>
@@ -135,6 +150,11 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
           onClick={subagentMenu}
         >
           {`${EMOJIcon.subagent} ${running > 0 ? `${String(running)}/${String(subagents.length)}` : String(subagents.length)}`}
+        </button>
+      )}
+      {canvases.length === 0 ? null : (
+        <button type="button" className="web-chat__tool" title={plural('sessions/header/canvases', canvases.length)} aria-haspopup="menu" onClick={canvasMenu}>
+          {`${EMOJIcon.canvas} ${String(canvases.length)}`}
         </button>
       )}
       {inSubagent && own[0] !== undefined ? (

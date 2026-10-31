@@ -385,6 +385,11 @@
       "staging": "Staged and unstaged",
       "none": "Not grouped"
     },
+    "sort": {
+      "name": "Sort by name",
+      "path": "Sort by path",
+      "status": "Sort by status"
+    },
     "status": {
       "added": "Added",
       "modified": "Modified",
@@ -905,6 +910,24 @@
       "message": "Message {name}",
       "where": "Where should bot chats open?",
       "whereBody": "We'll remember your choice. You can change it in Settings > Interface > Bot."
+    }
+  },
+  "canvases": {
+    "tab": "Canvas",
+    "canvasN": "Canvas {n}",
+    "unavailable": "not available",
+    "where": "Where should canvases open?",
+    "whereBody": "We'll remember your choice. You can change it in Settings > Interface > Canvas.",
+    "actions": {
+      "openMain": "Open in the main area",
+      "openRight": "Open on the right"
+    },
+    "commands": {
+      "open": "Open canvas"
+    },
+    "view": {
+      "unavailable": "This canvas isn't available right now",
+      "unavailableBody": "The extension that shows it isn't running. The canvas comes back when the extension does."
     }
   },
   "users": {
@@ -1762,6 +1785,10 @@
         "other": "{count} subagents"
       },
       "subagentsRunning": "{running} of {total} subagents running",
+      "canvases": {
+        "one": "{count} canvas",
+        "other": "{count} canvases"
+      },
       "chats": "Chats",
       "chatN": "Chat {n}",
       "subagentTag": "subagent",
@@ -1890,6 +1917,7 @@
           "dialogs": "Dialogs",
           "session": "Session",
           "bot": "Bot",
+          "canvas": "Canvas",
           "agents": "Agents"
         },
         "theme": {
@@ -1948,6 +1976,19 @@
           "ask": "Ask",
           "main": "Main area",
           "right": "Right sidebar"
+        },
+        "canvasOpens": {
+          "title": "Canvas",
+          "description": "Where a canvas opens.",
+          "ask": "Ask",
+          "main": "Main area",
+          "right": "Right sidebar"
+        },
+        "canvasAutoOpen": {
+          "title": "Open canvases automatically",
+          "description": "Open a canvas as soon as the agent adds it to the chat you're looking at.",
+          "enabled": "Enabled",
+          "disabled": "Disabled"
         },
         "customFileOpens": {
           "title": "Agent files",

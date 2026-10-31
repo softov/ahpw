@@ -41,6 +41,7 @@ const UI: readonly Named[] = [
   ['dialogs', ['ui.confirmStyle']],
   ['session', ['ui.sessionViewsPlace', 'ui.toolsExpanded', 'ui.sessionMarkdown']],
   ['bot', ['ui.botChatOpens']],
+  ['canvas', ['ui.canvasOpens', 'ui.canvasAutoOpen']],
   ['agents', ['ui.customFileOpens']],
 ];
 

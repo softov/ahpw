@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Changeset, ChangesetFile } from '@microsoft/agent-host-protocol';
-import { changeOf, firstScope, folderTree, groupChanges, letterOf, relativeDir, scopesOf, type Change } from './words.js';
+import { changeOf, firstScope, folderTree, groupChanges, letterOf, relativeDir, scopesOf, sortChanges, type Change } from './words.js';
 
 const set = (fields: Record<string, unknown>): Changeset => ({ label: 'x', uriTemplate: 'u', changeKind: 'session', ...fields }) as unknown as Changeset;
 
@@ -79,5 +79,33 @@ describe('folderTree', () => {
     expect(tree.folders.map((one) => one.name)).toEqual(['packages/sdk/src']);
     expect(tree.folders[0]?.changes.map((one) => one.name)).toEqual(['a.ts']);
     expect(tree.folders[0]?.folders.map((one) => [one.name, one.path])).toEqual([['t', 'packages/sdk/src/t']]);
+  });
+});
+
+describe('sortChanges', () => {
+  // The order a host sent them in.
+  const sent = [
+    change('/w/.project/plans/plan.md'),
+    change('/w/packages/agent-cofold/src/turns.ts'),
+    change('/w/packages/agent-cofold/README.md', { status: 'added', staged: true, unstaged: false }),
+    change('/w/docs/sdk/AHP.md'),
+  ];
+  const names = (list: Change[]): string[] => list.map((one) => one.name);
+
+  it('sorts by path from the session folder', () => {
+    expect(names(sortChanges(sent, 'path', 'file:///w'))).toEqual(['plan.md', 'AHP.md', 'README.md', 'turns.ts']);
+  });
+
+  it('sorts by file name, ignoring case', () => {
+    expect(names(sortChanges(sent, 'name', 'file:///w'))).toEqual(['AHP.md', 'plan.md', 'README.md', 'turns.ts']);
+  });
+
+  it('sorts by status, then path', () => {
+    expect(names(sortChanges(sent, 'status', 'file:///w'))).toEqual(['README.md', 'plan.md', 'AHP.md', 'turns.ts']);
+  });
+
+  it('leaves the tree with its folders in name order', () => {
+    const tree = folderTree(sent, 'file:///w');
+    expect(tree.folders.map((one) => one.name)).toEqual(['.project/plans', 'docs/sdk', 'packages/agent-cofold']);
   });
 });

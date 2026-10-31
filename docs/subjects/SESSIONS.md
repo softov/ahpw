@@ -75,11 +75,20 @@ The header has tools for the session:
 
 | Tool | |
 | --- | --- |
-| Changes | The lines added and removed; opens [Changes](CHANGES.md) in the right sidebar |
+| Changes | How many files changed, and the lines added and removed; opens [Changes](CHANGES.md) in the right sidebar |
 | Terminals | How many terminals it has; opens one, or the session details |
 | Subagents | A menu of the subagents it started |
+| Canvases | A menu of the chat's canvases; see [Canvases](#canvases) |
 | Chats | Switches between the session's chats, when it has more than one |
 | **Display** | Picks the view (formatted, raw or JSON), which steps to show, and **Hide calls** |
+
+### Canvases
+
+An agent can make a canvas, a web page that an extension on the host serves. The canvases button counts the chat's canvases, and its menu lists each with its title and status. Pick one to open it as a tab in the main area, or to show it again. **Canvas** in the [interface settings](../use/INTERFACE.md#settings) opens it on the right instead, or asks each time.
+
+With **Open canvases automatically** on, a canvas opens as soon as the agent adds it to the chat you are looking at. A canvas you close stays closed until you pick it again. When its extension stops, the canvas stays in the menu and its tab says it is not available, then loads again when the extension is back. The tab closes when the canvas leaves the chat.
+
+The extension serves the page on the host's own machine, at `127.0.0.1`, so only a browser on that machine can load it. Chrome may ask to let the page reach devices on your local network first.
 
 Tool calls that wait on you show **Approve** and **Deny**, or **Accept result** and **Reject**. A question from the agent shows its choices, with **Back**, **Next**, **Answer** and **Decline**.
 
