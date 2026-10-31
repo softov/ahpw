@@ -62,7 +62,7 @@ export function limitsOf(model: SessionModelInfo): Limit[] {
 const KINDS = new Set(['plugin', 'directory', 'mcpServer']);
 
 /** The child types counted by name, under `agents/counts/<type>`; any other is counted as items. */
-const NOUNS = new Set(['agent', 'skill', 'prompt', 'rule', 'hook', 'mcpServer']);
+const NOUNS = new Set(['agent', 'skill', 'prompt', 'rule', 'hook', 'mcpServer', 'plugin']);
 
 /** The reasons an MCP server waits on sign-in that a person has words for, under `agents/auth/<reason>`. */
 const AUTH = new Set(['required', 'expired', 'insufficientScope']);
@@ -76,6 +76,8 @@ export interface StateWord {
 /** One child of a plugin or folder, as its row reads it. */
 export interface ChildRow {
   id: string;
+  /** Its kind: `agent`, `skill`, `prompt`, `rule`, `hook`, `mcpServer`, or another the host sends. */
+  type: string;
   name: string;
   /** The name as the row shows it: `/name` for a skill or command, which a message calls that way. */
   label: string;
@@ -129,7 +131,7 @@ export function enabledOf(item: Customization | ChildCustomization): boolean {
 }
 
 /** `count` things of one child type, in words: "1 agent", "12 skills". */
-function counted(count: number, type: string): string {
+export function counted(count: number, type: string): string {
   return plural(`agents/counts/${NOUNS.has(type) ? type : 'item'}`, count);
 }
 
@@ -200,6 +202,11 @@ export function childLine(child: ChildCustomization): string {
   return brief((child as { description?: string }).description);
 }
 
+/** The frontmatter at the top of a Markdown file, without its `---` lines; empty when it has none. */
+export function frontmatterOf(text: string): string {
+  return /^---\r?\n([\s\S]*?)\r?\n---[ \t]*(\r?\n|$)/.exec(text)?.[1]?.trim() ?? '';
+}
+
 /** A Markdown file's text without the frontmatter at its top, which the row already shows. */
 export function withoutFrontmatter(text: string): string {
   return text.replace(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(\r?\n|$)/, '').trimStart();
@@ -227,6 +234,7 @@ export function childRow(child: ChildCustomization, writable = false): ChildRow 
   const open = fileSpotOf(child);
   return {
     id: child.id,
+    type: String(child.type),
     name: child.name,
     label: SLASH_KINDS.has(String(child.type)) ? `/${child.name}` : child.name,
     line: childLine(child),

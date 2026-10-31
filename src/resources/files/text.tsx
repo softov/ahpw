@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement, type ReactNode } from 'react';
 import { useI18n } from '@softov/scena/react';
 import { hostBridge } from '../../bridges/data.js';
 import { readFailure } from './save.js';
@@ -24,7 +24,7 @@ export function useFileText(host: string, uri: string | undefined): FileText {
 }
 
 /** The bar above a file: its path, whether it has changes not saved, and a button that copies the path. */
-export function FileHead({ uri, dirty = false }: { uri: string; dirty?: boolean }): ReactElement {
+export function FileHead({ uri, dirty = false, children }: { uri: string; dirty?: boolean; children?: ReactNode }): ReactElement {
   const { t } = useI18n();
   const path = folderLabel(uri);
   return (
@@ -32,6 +32,7 @@ export function FileHead({ uri, dirty = false }: { uri: string; dirty?: boolean 
       <code>{path}</code>
       {dirty ? <span className="web-file__dirty" title={t('files/notSaved')}>{t('files/edited')}</span> : null}
       <CopyButton text={path} label={t('files/copyPath')} />
+      {children}
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import { useEffect, useRef, type ReactElement } from 'react';
-import { useI18n, useStore } from '@softov/scena/react';
-import { DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
+import type { ReactElement } from 'react';
+import { useI18n, useScena, useStore } from '@softov/scena/react';
+import { Button, DetailList, Markdown, Text, type DetailItem } from '@softov/scena/ui';
 import type { AgentInfo, SessionSummary } from '@microsoft/agent-host-protocol';
 import type { EngineRow, AgentRow } from '../../bridges/agents.js';
 import { ahpPaths } from '../../bridges/data.js';
@@ -8,8 +8,7 @@ import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { HostTag } from '../../shell/explorer/HostLines.js';
 import { meOn, ownerWord } from '../connectors/actions.js';
-import { CustomizationTrees } from './Customizations.js';
-import { AGENT_SECTION, type SectionAsk } from './state.js';
+import { customizationKinds, emptyKinds, kindCount, kindTabKey } from './kinds.js';
 import { capabilitiesOf, limitsOf, modelsLine, signInOf } from './words.js';
 
 /** The policy states a person reads, under `agents/page/policy/<state>`; an enabled model says nothing. */
@@ -67,13 +66,9 @@ export function Overview({ host, info, record, engine }: { host: string; info?: 
 /** What the host serves of an agent: its models, its customizations and its sign-in. */
 function Served({ host, agent, signIn }: { host: string; agent: AgentInfo; signIn: ReturnType<typeof signInOf> }): ReactElement {
   const { t } = useI18n();
-  // An ask for the customizations scrolls them into view once they are drawn.
-  const ask = useStore<SectionAsk>(AGENT_SECTION);
-  const customizations = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (ask?.section !== 'customizations' || ask.host !== host || ask.provider !== agent.provider) return;
-    customizations.current?.scrollIntoView({ block: 'start' });
-  }, [ask, host, agent.provider]);
+  const scena = useScena();
+  const kinds = customizationKinds(agent.customizations).filter((tab) => tab.count > 0);
+  const empty = emptyKinds(kinds);
   return (
     <>
       <Text variant="h3" text={t('agents/page/models')} />
@@ -103,8 +98,19 @@ function Served({ host, agent, signIn }: { host: string; agent: AgentInfo; signI
 
       {(agent.customizations ?? []).length === 0 ? null : (
         <>
-          <div ref={customizations}><Text variant="h3" text={t('agents/page/customizations')} /></div>
-          <CustomizationTrees host={host} items={agent.customizations} />
+          <Text variant="h3" text={t('agents/page/customizations')} />
+          <div className="web-agent__kinds">
+            {kinds.length === 0 ? <span>{t('agents/customizations/none')}</span> : kinds.map((tab) => (
+              <Button
+                key={tab.kind}
+                size="sm"
+                variant="ghost"
+                label={kindCount(tab)}
+                onClick={() => void scena.commands.execute('ahp.openAgent', { host, provider: agent.provider, section: kindTabKey(tab.kind) })}
+              />
+            ))}
+            {empty.length === 0 ? null : <span className="web-note">{t('agents/customizations/noneOf', { kinds: empty.join(', ') })}</span>}
+          </div>
         </>
       )}
 

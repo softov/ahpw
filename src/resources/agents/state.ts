@@ -6,11 +6,11 @@ export const ENGINES_SERVED = '$/ahp/agents/enginesServed' as BindingPath;
 /** The agent whose page is open, as `{ host, provider }`. */
 export const ACTIVE_AGENT = '$/ahp/activeAgent' as BindingPath;
 
-/** A part of an agent's page to scroll to, as `{ host, provider, section, at }`; `at` tells two asks for the same part apart. */
+/** A part of an agent's page to show, as `{ host, provider, section, at }`; `at` tells two asks for the same part apart. */
 export const AGENT_SECTION = '$/ahp/agentSection' as BindingPath;
 
-/** The parts of an agent's page that `ahp.openAgent` can scroll to. */
-export type AgentSection = 'customizations';
+/** The parts of an agent's page that `ahp.openAgent` can show: its first kind of customizations, or one kind's tab as `kind:<kind>`. */
+export type AgentSection = 'customizations' | `kind:${string}`;
 
 /** An ask to show a part of an agent's page. */
 export interface SectionAsk { host: string; provider: string; section: AgentSection; at: number }
@@ -21,12 +21,9 @@ export const agentTab = (host: string, provider: string): string => `agent:${hos
 /** The new-agent form's tab key: one for each host. */
 export const newAgentTab = (host: string): string => `agents:new:${host}`;
 
-/** An agent page's tabs. */
-export type AgentTabKey = 'overview' | 'settings';
-
-/** The tab an agent's page opens on: the one chosen last, kept while the page lives. */
-let chosenTab: AgentTabKey = 'overview';
-export const agentTabKey = (): AgentTabKey => chosenTab;
+/** The tab an agent's page opens on: the one chosen last, kept while the page lives; a page without that tab opens on its first kind, or its Overview. */
+let chosenTab = 'overview';
+export const agentTabKey = (): string => chosenTab;
 export function keepAgentTabKey(key: string): void {
-  if (key === 'overview' || key === 'settings') chosenTab = key;
+  chosenTab = key;
 }

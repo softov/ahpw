@@ -18,6 +18,8 @@ import { agentIcons } from './icons.js';
 import { healthLine, Overview } from './Overview.js';
 import { AGENT_SECTION, agentTab, agentTabKey, keepAgentTabKey, type SectionAsk } from './state.js';
 import { signInOf } from './words.js';
+import { KindPanel } from './Customizations.js';
+import { customizationKinds, kindTabKey, kindTabTitle } from './kinds.js';
 
 /** A status badge's tone: a served record as a ready connector, a standby one by its state. */
 const toneOf = (agent: MergedAgent): BadgeTone => {
@@ -47,9 +49,9 @@ function Health({ host, record }: { host: string; record: AgentRow }): ReactElem
 }
 
 /**
- * One agent: its head with its status, over Overview and Settings. An agent
- * the host serves with no record has nothing to set, so it shows its Overview
- * alone.
+ * One agent: its head with its status, over Overview, a tab for each kind of
+ * its customizations, and Settings. Settings shows for an agent with a record;
+ * an agent with neither shows its Overview alone.
  */
 export default function AgentPage({ host, provider }: { host: string; provider?: string }): ReactElement {
   const scena = useScena();
@@ -78,6 +80,25 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
     />
   );
 
+  const kinds = customizationKinds(info?.customizations);
+  const tabs = [
+    { key: 'overview', title: t('agents/page/overview'), child: overview },
+    ...kinds.map((kind) => ({ key: kindTabKey(kind.kind), title: kindTabTitle(kind), child: <KindPanel host={host} tab={kind} /> })),
+    ...(record === undefined ? [] : [{
+      key: 'settings',
+      title: t('agents/page/settings'),
+      child: (
+        <div className="web-agent__settings">
+          <Health host={host} record={record} />
+          <AgentForm host={host} record={record} {...(remove === null ? {} : { actions: remove })} />
+        </div>
+      ),
+    }]),
+  ];
+  const chosen = agentTabKey();
+  const first = kinds[0];
+  const opens = chosen === 'customizations' && first !== undefined ? kindTabKey(first.kind) : chosen;
+
   return (
     <div className="web-page web-agent">
       <div className="web-page__head">
@@ -100,23 +121,11 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
       {agent.status !== 'standby' || record === undefined ? null : (
         <Alert tone={record.state === 'unavailable' ? 'danger' : 'warning'} message={t(`agents/page/standby/${record.state}`, { engine: record.engine })} />
       )}
-      {record === undefined ? overview : (
+      {tabs.length === 1 ? overview : (
         <Tabs
           key={ask?.host === host && ask.provider === provider ? ask.at : 0}
-          tabs={[
-            { key: 'overview', title: t('agents/page/overview'), child: overview },
-            {
-              key: 'settings',
-              title: t('agents/page/settings'),
-              child: (
-                <div className="web-agent__settings">
-                  <Health host={host} record={record} />
-                  <AgentForm host={host} record={record} {...(remove === null ? {} : { actions: remove })} />
-                </div>
-              ),
-            },
-          ]}
-          defaultValue={agentTabKey()}
+          tabs={tabs}
+          defaultValue={opens}
           onChange={keepAgentTabKey}
         />
       )}
