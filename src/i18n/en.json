@@ -2435,6 +2435,7 @@
       "disableFailed": "{id} could not be disabled",
       "reimport": "Import again",
       "reimportFailed": "{id} could not be imported again",
+      "viewFailed": "{id} could not do that",
       "apply": "Apply the configuration",
       "applyFailed": "The configuration could not be applied"
     },

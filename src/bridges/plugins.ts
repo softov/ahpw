@@ -69,6 +69,26 @@ export interface PluginAlert {
   ref?: string;
 }
 
+/**
+ * One component of a plugin's view, in A2UI v0.10's shape: its kind, the ids
+ * below it, a Button's `action`, and the kind's own literal properties.
+ */
+export interface PluginViewComponent {
+  id: string;
+  component: string;
+  child?: string;
+  children?: string[];
+  /** What a Button asks the host for: `name` is an `x-` method of the plugin, `context` its params. */
+  action?: { event: { name: string; context?: Record<string, unknown> } };
+  [prop: string]: unknown;
+}
+
+/** A view a plugin draws on one of its surfaces: the component drawn first, and every component by its id. */
+export interface PluginView {
+  root: string;
+  components: Record<string, PluginViewComponent>;
+}
+
 /** One configured plugin, as the channel lists it; a secret option reads `<set>`. */
 export interface PluginRow {
   spec: PluginSpec;
@@ -91,6 +111,8 @@ export interface PluginRow {
   alerts?: PluginAlert[];
   /** The JSON Schema of its options; absent for a plugin switched off, which is never imported. */
   optionsSchema?: Record<string, unknown>;
+  /** What a loaded plugin draws, by surface; `main` is its page. Its words come in the reader's locale. */
+  views?: Record<string, PluginView>;
 }
 
 export const pluginsReducer = recordsReducer<PluginRow>(PLUGINS.scheme);
@@ -132,6 +154,11 @@ export async function setPluginOption(host: string, id: string, key: string, val
 /** Imports a plugin's code again; its closers run first. */
 export async function reloadPlugin(host: string, id: string): Promise<void> {
   await hostBridge(host).request(PLUGINS.reload as never, { id } as never);
+}
+
+/** Calls a method a plugin registered, as a Button of its view names it. */
+export async function callPluginMethod(host: string, method: string, params: Record<string, unknown>): Promise<void> {
+  await hostBridge(host).request(method as never, params as never);
 }
 
 /** Loads, unloads or reconfigures the host's plugins to match its configuration file. */
