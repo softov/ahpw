@@ -11,13 +11,15 @@ import { plural } from '../../i18n/locales.js';
 import { EMOJIcon } from '../emojis.js';
 import { iconOf, openChange, scoped, toneOf, useChangeset } from './changeset.js';
 import { ChangesetForms } from './Forms.js';
-import { firstScope, folderTree, groupChanges, letterOf, relativeDir, scopesOf, type Change, type ChangeFolder, type ChangeGrouping } from './words.js';
+import { firstScope, folderTree, groupChanges, letterOf, relativeDir, scopesOf, sortChanges, type Change, type ChangeFolder, type ChangeGrouping, type ChangeSort } from './words.js';
 
 /** How the files are drawn: one row each with its folder beside it, or under their folders. */
 type View = 'list' | 'tree';
 
 const VIEW_KEY = 'ahpd-web.changes-view';
 const GROUPING_KEY = 'ahpd-web.changes-grouping';
+const SORT_KEY = 'ahpd-web.changes-sort';
+const SORTS: readonly ChangeSort[] = ['name', 'path', 'status'];
 
 
 function readKept<T extends string>(key: string, allowed: readonly T[]): T | null {
@@ -64,6 +66,7 @@ export default function ChangesExplorer(): ReactElement {
   const staging = files.some((one) => one.staged || one.unstaged);
   const groupings: ChangeGrouping[] = [...(review ? ['review' as const] : []), ...(staging ? ['staging' as const] : []), 'none'];
   const grouping = picked !== null && groupings.includes(picked) ? picked : groupings[0] ?? 'none';
+  const [sort, setSort] = useState<ChangeSort>(() => readKept<ChangeSort>(SORT_KEY, SORTS) ?? 'path');
 
   const [filter, setFilter] = useState('');
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
@@ -133,7 +136,7 @@ export default function ChangesExplorer(): ReactElement {
 
   const needle = filter.trim().toLowerCase();
   const shown = needle === '' ? files : files.filter((one) => `${relativeDir(one.dir, workspace)}/${one.name}`.toLowerCase().includes(needle));
-  const groups = groupChanges(shown, grouping);
+  const groups = groupChanges(sortChanges(shown, sort, workspace), grouping);
 
   // The rows, and which change each file row stands for, for its menu.
   const byKey = new Map<string, Change>();
@@ -267,6 +270,9 @@ export default function ChangesExplorer(): ReactElement {
       for (const one of groupings) {
         items.push({ title: t(`changes/grouping/${one}`), group: 'group', ...mark(one === grouping), onSelect: (host) => { host.closeMenu(); setPicked(one); keep(GROUPING_KEY, one); } });
       }
+    }
+    for (const one of SORTS) {
+      items.push({ title: t(`changes/sort/${one}`), group: 'sort', ...mark(one === sort), onSelect: (host) => { host.closeMenu(); setSort(one); keep(SORT_KEY, one); } });
     }
     if (branches.length > 0) {
       items.push({ title: t('changes/expandAll'), group: 'folders', icon: '', onSelect: (host) => { host.closeMenu(); setCollapsed(new Set()); } });
