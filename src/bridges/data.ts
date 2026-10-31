@@ -1,4 +1,4 @@
-import { translate } from '@softov/scena';
+import { getLocale, subscribeI18n, translate } from '@softov/scena';
 import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov/scena/types';
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
@@ -705,6 +705,25 @@ async function reconnectHost(id: string): Promise<void> {
   await multi.reconnectHost(id).catch(() => undefined);
 }
 
+/** Calls `changed` with each new language: not with the one the page loaded in, and not with a repeat. */
+export function onLanguageChange(changed: (locale: string) => void): () => void {
+  let last = getLocale();
+  return subscribeI18n(() => {
+    const now = getLocale();
+    if (now === last) return;
+    last = now;
+    changed(now);
+  });
+}
+
+/** Connects each connected host again, so its `reconnect` carries the new language. */
+function retellLanguage(): void {
+  for (const host of client?.hostsSnapshot() ?? []) if (host.state.status === 'connected') void reconnectHost(host.id);
+}
+
+/** Stops following the page's language. */
+let stopFollowingLanguage: (() => void) | undefined;
+
 /** Stops following the embedder's host list. */
 let stopFollowingHosts: (() => void) | undefined;
 
@@ -770,6 +789,7 @@ export const ahpProvider: DataProviderDefinition = {
       window.addEventListener('online', wake);
       document.addEventListener('visibilitychange', wake);
       if (embedder !== undefined) stopFollowingHosts = embedder.onHosts((list) => void followHosts(list));
+      stopFollowingLanguage = onLanguageChange(retellLanguage);
       await connect(store, multi);
     },
     async unload(store) {
@@ -777,6 +797,8 @@ export const ahpProvider: DataProviderDefinition = {
       document.removeEventListener('visibilitychange', wake);
       stopFollowingHosts?.();
       stopFollowingHosts = undefined;
+      stopFollowingLanguage?.();
+      stopFollowingLanguage = undefined;
       addresses.clear();
       joined.clear();
       const multi = client;

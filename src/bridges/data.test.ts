@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { registerMessages, setLocale } from '@softov/scena';
 
 /** An async queue a test pushes events into, as the SDK's event streams. */
 class Queue<T> implements AsyncIterableIterator<T> {
@@ -25,6 +26,8 @@ const subscribed: [string, string][] = [];
 const removed: string[] = [];
 /** The hosts each `addHost` named, in order. */
 const added: string[] = [];
+/** The hosts each `reconnectHost` named, in order. */
+const reconnected: string[] = [];
 let hostEvents: Queue<unknown>;
 let channelEvents: Queue<unknown>;
 
@@ -64,6 +67,9 @@ class FakeMultiHostClient {
   aggregatedSessions() {
     return [];
   }
+  async reconnectHost(id: string): Promise<void> {
+    reconnected.push(id);
+  }
   async removeHost(id: string): Promise<void> {
     status.delete(id);
     removed.push(id);
@@ -89,6 +95,7 @@ beforeEach(async () => {
   subscribed.length = 0;
   removed.length = 0;
   added.length = 0;
+  reconnected.length = 0;
   await data.ahpProvider.provider.load(store as never, undefined as never);
 });
 
@@ -145,6 +152,24 @@ describe('hostBridge', () => {
     status.set('b', 'connected');
     hostEvents.push({ type: 'connected', hostId: 'b', generation: 1 });
     await expect(onB).resolves.toEqual({ host: 'b', method: 'listSessions' });
+  });
+});
+
+describe('the page\'s language', () => {
+  it('connects each connected host again when it changes, and not on a repeat', async () => {
+    registerMessages('pt-BR', {});
+    status.set('a', 'connected');
+    status.set('b', 'failed');
+    try {
+      setLocale('pt-BR');
+      await settle();
+      expect(reconnected).toEqual(['a']);
+      setLocale('pt-BR');
+      await settle();
+      expect(reconnected).toEqual(['a']);
+    } finally {
+      setLocale('en');
+    }
   });
 });
 

@@ -1,7 +1,7 @@
 ---
 title: The host is told the language
 domain: hosts
-status: planned
+status: active
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -61,7 +61,7 @@ subscribeI18n -> the language changed -> reconnectHost for each connected host
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - ahpw sends its language](task-01-ahpw-sends-its-language.md) | todo | - |
+| [01 - ahpw sends its language](task-01-ahpw-sends-its-language.md) | implemented | - |
 
 ## Risks and tradeoffs
 
@@ -70,8 +70,8 @@ subscribeI18n -> the language changed -> reconnectHost for each connected host
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** [task-01-ahpw-sends-its-language.md](task-01-ahpw-sends-its-language.md).
+- **Done so far:** task 01 is implemented. See [implemented.md](implemented.md).
+- **Next action:** Softov does the checks in [hosts-locale-checks.md](../../../pending/hosts-locale-checks.md), then the plan closes.
 - **Open questions:** none.
 - **Watch out for:** the first `subscribeI18n` call at load is not a change, and must not reconnect.
 
