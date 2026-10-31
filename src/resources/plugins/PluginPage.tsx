@@ -13,6 +13,8 @@ import { mayReload, mayToggle, reloadOne, saidOf, toggleMethod, togglePlugin } f
 import { Options } from './Options.js';
 import { Overview } from './Overview.js';
 import { keepPluginTabKey, pluginTabKey } from './state.js';
+import { mayRestart } from '../../bridges/restart.js';
+import { RESTART_HOST } from '../host/restart.js';
 import { PageTitle } from '../../shell/HostIcon.js';
 
 const TONE: Record<PluginState, BadgeTone> = {
@@ -68,7 +70,12 @@ export default function PluginPage({ host, plugin: id }: { host: string; plugin:
           </div>
         ) : null}
       </div>
-      {restartNeeded(root.state) ? <Alert tone="warning" message={t('plugins/restart')} /> : null}
+      {restartNeeded(root.state) ? (
+        <Alert tone="warning">
+          {t('plugins/restart')}
+          {mayRestart(offers) ? <> <Button size="sm" label={t('host/restart/button')} onClick={() => void scena.commands.execute(RESTART_HOST, { host })} /></> : null}
+        </Alert>
+      ) : null}
       <Tabs
         tabs={[
           { key: 'overview', title: t('plugins/page/overview'), child: <Overview host={host} id={id} row={row} /> },

@@ -4,8 +4,12 @@ import { combineDisposables, translate, type ModusClass } from '@softov/scena';
 import { bound, english } from '../../i18n/locales.js';
 import { hideOverlaidSidebar } from '../sessions/index.js';
 import { EMOJIcon } from '../emojis.js';
-import { windowHost } from '../../bridges/data.js';
+import { ahpPaths, windowHost } from '../../bridges/data.js';
 import { hostNameOf, shownHosts } from '../../bridges/hosts.js';
+import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
+import { mayRestart } from '../../bridges/restart.js';
+import { trackServed } from '../../bridges/served.js';
+import { RESTART_HOST, restartWithNotice, type RestartArgs } from './restart.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { keepSettingsTab, openSettingsAt, PLACES, placeItems, settingsHostOf, settingsPlace, type SettingsPlace } from './place.js';
 import { openPalette } from '../../shell/CommandPalette.js';
@@ -26,9 +30,14 @@ const MODUS_CLASS = '$/modus/class' as BindingPath;
 const SURFACE_NAME = '$/surface/name' as BindingPath;
 const TAB_KEY = '$/tab/key' as BindingPath;
 
+/** True while a host this page connects to offers its restart. */
+const HOST_RESTART = '$/ahp/host/restart' as BindingPath;
+
 /** The host's information and settings, opened from the Manage menu. */
 export function registerHost(scena: Scena): Disposable {
+  const offersOf = (host: string): Offers => scena.store.get<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   return combineDisposables(
+    trackServed(scena, mayRestart, HOST_RESTART),
     scena.components.register({
       component: 'HostSettingsPage',
       category: 'page',
@@ -58,6 +67,20 @@ export function registerHost(scena: Scena): Disposable {
         const title = embedMode() === 'multi' ? translate('hosts/infoTab', { host: hostNameOf(ctx.store, host) }) : bound('host/title');
         ctx.surfaces.open({ surface: 'main', key: `host:info:${host}`, resource: { component: 'HostInfoPage', host }, props: { title } });
         hideOverlaidSidebar(ctx.scena, ctx.store.get<ModusClass>(MODUS_CLASS) ?? 'large');
+      },
+    }),
+    scena.commands.register({
+      id: RESTART_HOST,
+      title: () => translate('host/commands/restart'),
+      keywords: [english('host/commands/restart')],
+      category: 'Host',
+      slots: [PALETTE_SLOT],
+      when: () => scena.store.get<boolean>(HOST_RESTART) === true,
+      run: (ctx, args) => {
+        const asked = (args ?? {}) as RestartArgs;
+        const host = asked.host ?? (embedMode() === 'multi' ? shownHosts(ctx.store).find((one) => mayRestart(offersOf(one))) : windowHost());
+        if (host === undefined || !mayRestart(offersOf(host))) return;
+        return restartWithNotice(host, asked.force === true);
       },
     }),
     // A settings tab's *Open in*: the places, in the palette, from the tab's strip.
