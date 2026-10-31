@@ -1,6 +1,7 @@
 import { translate } from '@softov/scena';
 import type { BindingPath, DataProviderDefinition, ReactiveStore } from '@softov/scena/types';
 import { MultiHostClient, ROOT_RESOURCE_URI, type HostState } from '@microsoft/agent-host-protocol/hosts';
+import { localClientIds } from './client-ids.js';
 import { WebSocketTransport } from '@microsoft/agent-host-protocol/ws';
 import { RpcError } from '@microsoft/agent-host-protocol/client';
 import { hostSaid } from './said.js';
@@ -762,7 +763,7 @@ export const ahpProvider: DataProviderDefinition = {
   load: 'eager',
   provider: {
     async load(store) {
-      const multi = new MultiHostClient();
+      const multi = new MultiHostClient({ clientIdStore: localClientIds });
       client = multi;
       held = store;
       void watchHost(store, multi);

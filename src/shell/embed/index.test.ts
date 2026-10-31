@@ -44,3 +44,18 @@ describe('embedder browser', () => {
     expect((await import('./index.js')).embedder?.browser).toBe(browser);
   });
 });
+
+describe('embedder notifications', () => {
+  it('is absent in a browser and for an embedder that gives none', async () => {
+    expect((await import('./index.js')).embedder?.notifications).toBeUndefined();
+    vi.resetModules();
+    (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder = { hostUrl: 'ws://127.0.0.1:9187' } as Embedder;
+    expect((await import('./index.js')).embedder?.notifications).toBeUndefined();
+  });
+
+  it('is the notifications the embedder gives', async () => {
+    const notifications = { show: vi.fn() };
+    (globalThis as { ahpwEmbedder?: Embedder }).ahpwEmbedder = { hostUrl: 'ws://127.0.0.1:9187', notifications } as unknown as Embedder;
+    expect((await import('./index.js')).embedder?.notifications).toBe(notifications);
+  });
+});

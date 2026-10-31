@@ -52,6 +52,9 @@ See [Window](WINDOW.md) for what each layout mode shows.
 | Command | |
 | --- | --- |
 | **Notify me when this tab is in the background** | Asks the browser to allow background notifications |
+| **Notify me when this tab is closed** | Asks the host to notify this browser with no tab open |
+| **Stop notifications when this tab is closed** | Removes this browser from the host |
+| **Notify me only about sessions this device opened** or **Notify me about all my sessions** | Switches which sessions notify this browser; the title names the other choice |
 | **Ask in the page's own dialog** or **Ask in the browser's dialog** | Switches where questions are asked; the title names the other choice |
 | **Dismiss all notifications** | |
 

@@ -107,7 +107,11 @@
         "enableAlerts": "Notificar-me quando esta aba estiver em segundo plano",
         "confirmModal": "Perguntar no diálogo da página",
         "confirmNative": "Perguntar no diálogo do navegador",
-        "dismissAll": "Dispensar todas as notificações"
+        "dismissAll": "Dispensar todas as notificações",
+        "enablePush": "Notificar quando esta aba estiver fechada",
+        "disablePush": "Parar notificações com esta aba fechada",
+        "pushDevice": "Notificar só sobre sessões abertas neste dispositivo",
+        "pushPerson": "Notificar sobre todas as minhas sessões"
       },
       "alerts": {
         "alreadyOn": "As notificações em segundo plano já estão ativadas",
@@ -115,6 +119,15 @@
         "blockedHelp": "O navegador não vai perguntar de novo. Ative-as nas configurações do site, ao lado da barra de endereços.",
         "on": "As notificações em segundo plano estão ativadas",
         "notAllowed": "As notificações em segundo plano não foram permitidas"
+      },
+      "push": {
+        "on": "Notificações com a aba fechada estão ligadas",
+        "off": "Notificações com a aba fechada estão desligadas",
+        "notOn": "As notificações com a aba fechada não ligaram",
+        "notOff": "O host não removeu este dispositivo",
+        "person": "Este dispositivo ouve sobre todas as suas sessões",
+        "device": "Este dispositivo ouve só sobre as sessões que abriu",
+        "notSwitched": "O host não aceitou a mudança"
       }
     },
     "panel": {

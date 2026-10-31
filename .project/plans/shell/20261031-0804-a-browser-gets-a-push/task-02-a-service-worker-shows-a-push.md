@@ -1,6 +1,6 @@
 ---
 title: A service worker shows a push
-status: todo
+status: implemented
 depends: []
 layer: shell
 refs:
