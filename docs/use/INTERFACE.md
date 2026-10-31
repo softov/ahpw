@@ -36,6 +36,8 @@ The settings have two tabs, **Host** and **Interface**. **Interface settings** i
 | **Main area** | How the main area shows its tabs: **Tabs** (the default), **Tab groups**, **Split**, **Spatial**, **Stack** or **Single** |
 | **Settings open in** | **Floating window** (the default), **Editor tab**, **Right sidebar** or **Bottom panel** |
 | **Confirmations** | **In the app** (the default) or **In a browser dialog** |
+| **Canvas** | Where a canvas opens: **Main area** (the default), **Right sidebar**, or **Ask** |
+| **Open canvases automatically** | Opens a canvas as soon as the agent adds it to the chat on screen; off by default |
 
 A choice made from a menu or the palette is the same setting as the one in this form.
 

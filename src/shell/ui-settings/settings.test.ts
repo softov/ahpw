@@ -90,6 +90,17 @@ describe('UI settings', () => {
     expect(readUi(scenaWithOwners())['ui.botChatOpens']).toBe('right');
   });
 
+  it('opens a canvas in the main area and only on a click, until another choice is kept', () => {
+    const scena = scenaWithOwners();
+    expect(readUi(scena)).toMatchObject({ 'ui.canvasOpens': 'main', 'ui.canvasAutoOpen': 'disabled' });
+    expect(uiFields(scena)['ui.canvasOpens']).toMatchObject({ enum: ['ask', 'main', 'right'], default: 'main', title: 'Canvas', 'x-enumOptions': [{ value: 'ask', label: 'Ask' }, { value: 'main', label: 'Main area' }, { value: 'right', label: 'Right sidebar' }] });
+    expect(uiFields(scena)['ui.canvasAutoOpen']).toMatchObject({ enum: ['enabled', 'disabled'], default: 'disabled' });
+    writeUi(scena, 'ui.canvasOpens', 'right');
+    writeUi(scena, 'ui.canvasAutoOpen', 'enabled');
+    expect(held.get('ahpw.canvasOpens')).toBe('right');
+    expect(readUi(scenaWithOwners())).toMatchObject({ 'ui.canvasOpens': 'right', 'ui.canvasAutoOpen': 'enabled' });
+  });
+
   it('opens an agent file in a new panel until a modal is kept', () => {
     const scena = scenaWithOwners();
     expect(readUi(scena)['ui.customFileOpens']).toBe('panel');

@@ -6,13 +6,11 @@ import { EMOJIcon } from '../../resources/emojis.js';
 import { copyText } from '../controls/CopyButton.js';
 import { embedder, type EmbedBounds, type EmbedNavigation } from '../embed/index.js';
 import { addressOf } from './address.js';
+import { SANDBOX } from './sandbox.js';
 import { back, canBack, canForward, current, follow, forward, go, NO_VISITS, visit, type Visits } from './history.js';
 
 /** Where the last address is kept, so the view opens on it the next time. */
 const LAST_KEY = 'ahpw.browser.last';
-
-/** What the iframe may do: run its scripts, send forms, open pop-ups and keep its own origin, but not move ahpw's page. */
-const SANDBOX = 'allow-scripts allow-forms allow-popups allow-same-origin';
 
 /** How long the share button shows a check mark after a copy, in milliseconds. */
 const COPIED_MS = 1200;

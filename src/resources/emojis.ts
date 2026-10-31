@@ -115,6 +115,7 @@ export const EMOJIcon = {
   search: '⌕',
   edit: '✎',
   subagent: '◈',
+  canvas: '▣',
   web: '⊕',
   dot: '•',
   thinking: '∴',

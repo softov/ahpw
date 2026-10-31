@@ -912,6 +912,24 @@
       "whereBody": "Vamos lembrar sua escolha. Você pode mudar isso em Configurações > Interface > Bot."
     }
   },
+  "canvases": {
+    "tab": "Canvas",
+    "canvasN": "Canvas {n}",
+    "unavailable": "indisponível",
+    "where": "Onde os canvas devem abrir?",
+    "whereBody": "Vamos lembrar sua escolha. Você pode mudar isso em Configurações > Interface > Canvas.",
+    "actions": {
+      "openMain": "Abrir na área principal",
+      "openRight": "Abrir à direita"
+    },
+    "commands": {
+      "open": "Abrir canvas"
+    },
+    "view": {
+      "unavailable": "Este canvas não está disponível agora",
+      "unavailableBody": "A extensão que o mostra não está rodando. O canvas volta quando a extensão voltar."
+    }
+  },
   "users": {
     "explorer": {
       "title": "Usuários",
@@ -1767,6 +1785,10 @@
         "other": "{count} subagentes"
       },
       "subagentsRunning": "{running} de {total} subagentes em andamento",
+      "canvases": {
+        "one": "{count} canvas",
+        "other": "{count} canvas"
+      },
       "chats": "Chats",
       "chatN": "Chat {n}",
       "subagentTag": "subagente",
@@ -1895,6 +1917,7 @@
           "dialogs": "Diálogos",
           "session": "Sessão",
           "bot": "Bot",
+          "canvas": "Canvas",
           "agents": "Agentes"
         },
         "theme": {
@@ -1953,6 +1976,19 @@
           "ask": "Perguntar",
           "main": "Área principal",
           "right": "Barra lateral direita"
+        },
+        "canvasOpens": {
+          "title": "Canvas",
+          "description": "Onde um canvas abre.",
+          "ask": "Perguntar",
+          "main": "Área principal",
+          "right": "Barra lateral direita"
+        },
+        "canvasAutoOpen": {
+          "title": "Abrir canvas automaticamente",
+          "description": "Abre um canvas assim que o agente o adiciona ao chat que você está vendo.",
+          "enabled": "Ativado",
+          "disabled": "Desativado"
         },
         "customFileOpens": {
           "title": "Arquivos de agente",
