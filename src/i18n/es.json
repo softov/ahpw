@@ -7,7 +7,9 @@
     "dismiss": "Descartar",
     "moreActions": "Más acciones",
     "breadcrumb": "Ruta de navegación",
-    "host": "Host"
+    "host": "Host",
+    "dangerZone": "Zona de peligro",
+    "cannotUndo": "Esto no se puede deshacer."
   },
   "auth": {
     "subtitle": "Inicia sesión con un token.",

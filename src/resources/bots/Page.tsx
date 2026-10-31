@@ -10,6 +10,7 @@ import { Bood } from './Bood.js';
 import { BOTS, botsReducer, type BotsState } from './catalogue.js';
 import { refKey } from '../../bridges/hosts.js';
 import { BOT_CHAT_OPENING } from './state.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 /** One bot: its figure, what it is for, whose it is, and its chat. */
 export default function BotPage({ host, slug }: { host: string; slug?: string }): ReactElement {
@@ -45,7 +46,6 @@ export default function BotPage({ host, slug }: { host: string; slug?: string })
           <div className="web-page__actions">
             <Button label={t(opening ? 'bots/chat/opening' : 'bots/actions/chat')} variant="primary" disabled={opening} onClick={() => run('ahp.chatWithBot')} />
             <Button label={t('bots/actions/edit')} onClick={() => run('ahp.editBot')} />
-            <Button label={t('bots/actions/delete')} onClick={() => run('ahp.deleteBot')} />
           </div>
         </div>
       </div>
@@ -56,6 +56,7 @@ export default function BotPage({ host, slug }: { host: string; slug?: string })
           <p className="web-bot__instructions">{bot.instructions}</p>
         </>
       )}
+      <DangerZone label={t('bots/actions/delete')} onClick={() => run('ahp.deleteBot')} />
     </div>
   );
 }

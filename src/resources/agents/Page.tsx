@@ -20,6 +20,7 @@ import { AGENT_SECTION, agentTab, agentTabKey, keepAgentTabKey, type SectionAsk 
 import { signInOf } from './words.js';
 import { KindPanel } from './Customizations.js';
 import { customizationKinds, kindTabKey, kindTabTitle } from './kinds.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 /** A status badge's tone: a served record as a ready connector, a standby one by its state. */
 const toneOf = (agent: MergedAgent): BadgeTone => {
@@ -72,13 +73,6 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
   const signIn = info === undefined ? [] : signInOf(info);
   const icons = agentIcons(record, engines?.records ?? []);
   const overview = <Overview host={host} {...(info === undefined ? {} : { info })} {...(record === undefined ? {} : { record })} {...(engine === undefined ? {} : { engine })} />;
-  const remove = record === undefined ? null : (
-    <Button
-      variant="danger"
-      label={t('agents/actions/remove')}
-      onClick={() => void deleteAgent(host, record).then((gone) => { if (gone) scena.surfaces.close(agentTab(host, provider)); })}
-    />
-  );
 
   const kinds = customizationKinds(info?.customizations);
   const tabs = [
@@ -90,7 +84,11 @@ export default function AgentPage({ host, provider }: { host: string; provider?:
       child: (
         <div className="web-agent__settings">
           <Health host={host} record={record} />
-          <AgentForm host={host} record={record} {...(remove === null ? {} : { actions: remove })} />
+          <AgentForm host={host} record={record} />
+          <DangerZone
+            label={t('agents/actions/remove')}
+            onClick={() => void deleteAgent(host, record).then((gone) => { if (gone) scena.surfaces.close(agentTab(host, provider)); })}
+          />
         </div>
       ),
     }]),

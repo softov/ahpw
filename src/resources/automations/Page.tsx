@@ -13,6 +13,7 @@ import { cancelRun, remove, runNow, setEnabled } from './actions.js';
 import { cronWords, runFacts, runsByTime, stateOf, timeOf, titleOf, type AutomationState } from './words.js';
 import { PageAlert } from '../../shell/view/PageAlert.js';
 import { plural } from '../../i18n/locales.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info';
 
@@ -98,7 +99,6 @@ export default function AutomationPage({ host, resource }: { host: string; resou
           {can('run') ? <Button label={t('automations/actions/runNow')} variant="primary" onClick={() => void runNow(host, entry).catch(say)} /> : null}
           {can('update') ? <Button label={t(entry.definition.enabled ? 'automations/actions/turnOff' : 'automations/actions/turnOn')} onClick={() => setEnabled(host, entry, !entry.definition.enabled)} /> : null}
           {can('update') ? <Button label={t('automations/actions/edit')} onClick={() => void scena.commands.execute('ahp.editAutomation', { host, resource: entry.resource })} /> : null}
-          {can('remove') ? <Button label={t('automations/actions/delete')} onClick={() => void remove(host, entry)} /> : null}
         </div>
       </div>
       {failure === null ? null : <Alert tone="danger" message={failure} />}
@@ -152,6 +152,8 @@ export default function AutomationPage({ host, resource }: { host: string; resou
           onClick={() => void hostBridge(host).request('fetchAutomationRuns', { channel: AUTOMATIONS, automation: entry.resource, cursor: entry.runsNextCursor } as never).catch(say)}
         />
       )}
+
+      {can('remove') ? <DangerZone label={t('automations/actions/delete')} onClick={() => void remove(host, entry)} /> : null}
     </div>
   );
 }

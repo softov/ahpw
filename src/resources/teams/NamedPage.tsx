@@ -19,6 +19,7 @@ import { PickTwo } from '../users/PickTwo.js';
 import { teamTab } from './state.js';
 import { EMOJIcon } from '../emojis.js';
 import { PageTitle } from '../../shell/HostIcon.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 type Kind = 'teams' | 'projects';
 const reducers = { teams: peopleReducer('teams'), projects: peopleReducer('projects') };
@@ -127,12 +128,8 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? `teams/${word}/create` : 'teams/named/save')} variant="primary" disabled={!ready} onClick={() => void save()} />
-          {fresh ? <Button label={t('teams/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : (
-            <>
-              {dirty ? <Button label={t('teams/actions/discard')} onClick={() => setDraft(null)} /> : null}
-              <Button label={t('teams/actions/delete')} variant="danger" onClick={() => void scena.commands.execute(domain === 'teams' ? 'ahp.deleteTeam' : 'ahp.deleteProject', { host, id })} />
-            </>
-          )}
+          {fresh ? <Button label={t('teams/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : null}
+          {!fresh && dirty ? <Button label={t('teams/actions/discard')} onClick={() => setDraft(null)} /> : null}
         </div>
       ) : null}
 
@@ -181,6 +178,8 @@ export default function NamedPage({ host, domain, person: id }: { host: string; 
           ) : null}
         </section>
       )}
+
+      {fresh || !writes ? null : <DangerZone label={t('teams/actions/delete')} onClick={() => void scena.commands.execute(domain === 'teams' ? 'ahp.deleteTeam' : 'ahp.deleteProject', { host, id })} />}
     </div>
   );
 }

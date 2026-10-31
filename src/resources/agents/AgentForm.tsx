@@ -32,7 +32,7 @@ const teamsReducer = peopleReducer('teams');
  * follows its name until a person types one; a made one's engine and id are
  * fixed.
  */
-export function AgentForm({ host, record, actions }: { host: string; record?: AgentRow; actions?: ReactElement }): ReactElement {
+export function AgentForm({ host, record }: { host: string; record?: AgentRow }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
   const offers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
@@ -186,7 +186,6 @@ export function AgentForm({ host, record, actions }: { host: string; record?: Ag
       )}
       {failure === null ? null : <Alert tone="danger" title={t('agents/form/failed')} message={failure} />}
       <div className="web-page__actions">
-        {actions ?? null}
         <Button label={t(editing ? 'connectors/form/save' : 'agents/form/create')} variant="primary" disabled={!ready || busy || !jsonValid || (editing && !dirty)} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={save} />
         {editing ? <Button label={t('connectors/form/reset')} disabled={!dirty || busy} onClick={() => { setTop(heldTop); setConfig(heldForm); setFailure(null); }} /> : null}
         {saved && !dirty ? <span className="web-note">{t('connectors/form/saved')}</span> : null}
