@@ -26,6 +26,6 @@ describe('contextReadout', () => {
   it('gives the last turn\'s input and cache over the window, with the exact counts in the title', () => {
     const got = contextReadout(model(200000), { inputTokens: 9000, cacheReadTokens: 3000 });
     expect(got?.text).toBe('12k / 200k');
-    expect(got?.title).toBe('12,000 of 200,000 tokens, as of the last turn');
+    expect(got?.title).toBe('12,000 of 200,000 tokens used, as of the last turn');
   });
 });

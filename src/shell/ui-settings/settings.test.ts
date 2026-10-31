@@ -37,7 +37,7 @@ describe('UI settings', () => {
     const scena = scenaWithOwners();
     expect(readUi(scena)).toMatchObject({ 'ui.themeMode': 'system', 'ui.layout': 'tab', 'ui.settingsPlace': 'overlay', 'ui.confirmStyle': 'modal' });
     const fields = uiFields(scena);
-    expect(fields['ui.confirmStyle']).toMatchObject({ enum: ['modal', 'native'], default: 'modal', title: 'Questions' });
+    expect(fields['ui.confirmStyle']).toMatchObject({ enum: ['modal', 'native'], default: 'modal', title: 'Confirmations' });
     expect(fields['ui.layout']?.enum).toContain('split');
     expect(readUi(scena)['ui.sessionViewsPlace']).toBe('sidebar');
     expect(fields['ui.sessionViewsPlace']).toMatchObject({ enum: ['sidebar', 'tab'], default: 'sidebar', title: 'Session Info and Changes' });
@@ -71,7 +71,7 @@ describe('UI settings', () => {
     const fields = uiFields(scena);
     expect(readUi(scena)).toMatchObject({ 'ui.toolsExpanded': 'collapsed', 'ui.sessionMarkdown': 'enabled' });
     expect(fields['ui.toolsExpanded']).toMatchObject({ enum: ['expanded', 'collapsed'], default: 'collapsed', title: 'Tool calls' });
-    expect(fields['ui.sessionMarkdown']?.['x-enumOptions']).toEqual([{ value: 'enabled', label: 'Enabled' }, { value: 'disabled', label: 'Disable Markdown' }]);
+    expect(fields['ui.sessionMarkdown']?.['x-enumOptions']).toEqual([{ value: 'enabled', label: 'Enabled' }, { value: 'disabled', label: 'Disabled' }]);
     writeUi(scena, 'ui.toolsExpanded', 'expanded');
     writeUi(scena, 'ui.sessionMarkdown', 'disabled');
     expect(held.get('ahpw.toolsExpanded')).toBe('expanded');
@@ -84,7 +84,7 @@ describe('UI settings', () => {
   it('asks where a bot chat opens until a place is kept', () => {
     const scena = scenaWithOwners();
     expect(readUi(scena)['ui.botChatOpens']).toBe('ask');
-    expect(uiFields(scena)['ui.botChatOpens']).toMatchObject({ enum: ['ask', 'main', 'right'], default: 'ask', title: 'Bot chat', 'x-enumOptions': [{ value: 'ask', label: 'Ask' }, { value: 'main', label: 'Main' }, { value: 'right', label: 'Right sidebar' }] });
+    expect(uiFields(scena)['ui.botChatOpens']).toMatchObject({ enum: ['ask', 'main', 'right'], default: 'ask', title: 'Bot chat', 'x-enumOptions': [{ value: 'ask', label: 'Ask' }, { value: 'main', label: 'Main area' }, { value: 'right', label: 'Right sidebar' }] });
     writeUi(scena, 'ui.botChatOpens', 'right');
     expect(held.get('ahpw.botChatOpens')).toBe('right');
     expect(readUi(scenaWithOwners())['ui.botChatOpens']).toBe('right');

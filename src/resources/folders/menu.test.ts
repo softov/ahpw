@@ -30,10 +30,10 @@ test('a URI splits into its folder and its decoded name', () => {
 
 test('a name is one segment that is not a dot', () => {
   expect(nameProblem('a.ts')).toBeNull();
-  expect(nameProblem('  ')).toBe('Give a name.');
-  expect(nameProblem('a/b')).toBe('A name has no slash.');
-  expect(nameProblem('a\\b')).toBe('A name has no slash.');
-  expect(nameProblem('..')).toBe('Give a name other than a dot.');
+  expect(nameProblem('  ')).toBe('Enter a name.');
+  expect(nameProblem('a/b')).toBe("Names can't contain a slash.");
+  expect(nameProblem('a\\b')).toBe("Names can't contain a slash.");
+  expect(nameProblem('..')).toBe('Enter a name other than a dot.');
 });
 
 test('a copy keeps its extension', () => {

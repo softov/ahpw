@@ -12,7 +12,7 @@ Both live in the bottom panel. **Toggle panel** (Ctrl+J) shows it, and **Show lo
 
 Every terminal the host lists gets a tab after the **Log** tab, opened in the background. Closing a tab only hides it: the terminal keeps running on the host. Open it again from the [command palette](../use/PALETTE.md), from a session's header or from its details.
 
-The palette lists every terminal by its title, with who holds it on the second line: **Yours**, **Held by a session** or **Held by another client**, and its exit when it has exited.
+The palette lists every terminal by its title, with who holds it on the second line: **Yours**, **In use by a session** or **In use by another client**, and its exit when it has exited.
 
 | Action | |
 | --- | --- |

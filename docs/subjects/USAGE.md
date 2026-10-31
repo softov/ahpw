@@ -8,7 +8,7 @@ The **Usage** icon in the lower part of the activity bar opens the **Usage** lis
 
 <Shot id="usage-pool" alt="The Usage list with limits and pools" />
 
-The list starts with **Limits**, your limits as meters, red when one is full. Then come the pools, grouped by kind and sorted by cost. Each line reads cost, tokens, calls and hours, or "Nothing charged". A host that refuses shows under **Not read**.
+The list starts with **Limits**, your limits as meters, red when one is full. Then come the pools, grouped by kind and sorted by cost. Each line reads cost, tokens, calls and hours, or "No usage". A host that refuses shows under **Couldn't load**.
 
 Type in "Filter usage" to narrow the list. Usage and limits are read when shown and on **Reload**, not as they change.
 
