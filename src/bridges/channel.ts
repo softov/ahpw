@@ -24,3 +24,15 @@ export function useChannelOnEach<S>(hosts: readonly string[], uri: string, reduc
   const errors = useEach<string | null>(hosts.map((host) => channelErrorPath(host, uri)));
   return { states, errors: errors.map((one) => one ?? null) };
 }
+
+/** The channels `uris` on the host `host`, followed while the calling component is on screen; one state per channel. */
+export function useChannels<S>(host: string, uris: readonly string[], reducer: Reducer): (S | undefined)[] {
+  const key = uris.join('\n');
+  useEffect(() => {
+    const stops = key === '' ? [] : key.split('\n').map((uri) => hostBridge(host).follow(uri, reducer));
+    return () => {
+      for (const stop of stops) stop();
+    };
+  }, [host, key, reducer]);
+  return useEach<S>(uris.map((uri) => channelPath(host, uri)));
+}

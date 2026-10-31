@@ -13,6 +13,7 @@ import { AUTOMATIONS_SECTION, registerAutomations } from '../resources/automatio
 import { COMPUTERS_SECTION, registerComputers } from '../resources/computers/index.js';
 import { COMPUTERS_SERVED } from '../resources/computers/state.js';
 import { BOTS_SECTION, registerBots } from '../resources/bots/index.js';
+import { registerCanvases } from '../resources/canvases/index.js';
 import { BOTS_SERVED } from '../resources/bots/state.js';
 import { registerUsers, USERS_SECTION } from '../resources/users/index.js';
 import { registerProfilePage } from '../resources/profile/index.js';
@@ -328,6 +329,7 @@ export function registerShell(scena: Scena): Disposable {
     registerAutomations(scena),
     registerComputers(scena),
     registerBots(scena),
+    registerCanvases(scena),
     registerUsers(scena),
     registerProfilePage(scena),
     registerTeams(scena),
