@@ -2434,6 +2434,7 @@
       "disableFailed": "No se pudo desactivar {id}",
       "reimport": "Reimportar",
       "reimportFailed": "No se pudo reimportar {id}",
+      "viewFailed": "{id} no pudo hacer eso",
       "apply": "Aplicar configuración",
       "applyFailed": "No se pudo aplicar la configuración"
     },

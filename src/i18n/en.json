@@ -2434,6 +2434,7 @@
       "disableFailed": "Couldn't disable {id}",
       "reimport": "Reimport",
       "reimportFailed": "Couldn't reimport {id}",
+      "viewFailed": "{id} couldn't do that",
       "apply": "Apply configuration",
       "applyFailed": "Couldn't apply the configuration"
     },

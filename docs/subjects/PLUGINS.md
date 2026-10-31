@@ -37,7 +37,7 @@ The head shows the state, with **Reimport** and **Enable** or **Disable**. A cha
 
 ### Overview
 
-The plugin's description, and what is wrong with it if anything, come first. The facts list its **Id**, **State**, **Version**, whether it is **Running**, and its **Module**, **Path** and **URL**, with the links its manifest gives. Its categories follow.
+The plugin's description, and what is wrong with it if anything, come first. A plugin that shows its own state, such as the Dev Tunnel plugin with its tunnel address and relay, draws it next; a button there asks the plugin to act, and a refusal says why. The facts list its **Id**, **State**, **Version**, whether it is **Running**, and its **Module**, **Path** and **URL**, with the links its manifest gives. Its categories follow.
 
 | Section | |
 |---|---|

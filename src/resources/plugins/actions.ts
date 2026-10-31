@@ -1,7 +1,7 @@
 import { translate } from '@softov/scena';
 import { hostBridge, ROOT } from '../../bridges/data.js';
 import type { Offers } from '../../bridges/offers.js';
-import { applyPlugins, disablePlugin, enablePlugin, PLUGINS, reloadPlugin, specEnabled, type PluginRow } from '../../bridges/plugins.js';
+import { applyPlugins, callPluginMethod, disablePlugin, enablePlugin, PLUGINS, reloadPlugin, specEnabled, type PluginRow } from '../../bridges/plugins.js';
 import { failed } from '../../shell/notify/index.js';
 
 /** Whether the host offers the command that turns this plugin the other way. */
@@ -40,6 +40,15 @@ export async function reloadOne(host: string, id: string): Promise<void> {
     await rereadAfterChange(host);
   } catch (error) {
     failed(translate('plugins/actions/reimportFailed', { id }), error);
+  }
+}
+
+/** Calls the method a Button of a plugin's view names; the host sends the row again when the view changes. */
+export async function callViewMethod(host: string, id: string, method: string, params: Record<string, unknown>): Promise<void> {
+  try {
+    await callPluginMethod(host, method, params);
+  } catch (error) {
+    failed(translate('plugins/actions/viewFailed', { id }), error);
   }
 }
 
