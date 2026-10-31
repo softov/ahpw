@@ -1154,7 +1154,14 @@
       "copyDescription": "Copiar a descrição",
       "readingFile": "Lendo o arquivo",
       "unreadable": "Não é possível ler o arquivo daqui.",
-      "openFile": "Abrir arquivo"
+      "openFile": "Abrir arquivo",
+      "edit": "Editar",
+      "discard": "Fechar sem salvar",
+      "keepEditing": "Continuar editando",
+      "newAgent": "Novo agente",
+      "newSkill": "Nova skill",
+      "create": "Criar",
+      "failed": "Não foi possível criar o arquivo"
     },
     "explorer": {
       "title": "Agentes",
@@ -1841,7 +1848,8 @@
           "layout": "Disposição",
           "dialogs": "Diálogos",
           "session": "Sessão",
-          "bot": "Bot"
+          "bot": "Bot",
+          "agents": "Agentes"
         },
         "theme": {
           "title": "Tema",
@@ -1899,6 +1907,12 @@
           "ask": "Perguntar",
           "main": "Principal",
           "right": "Barra lateral direita"
+        },
+        "customFileOpens": {
+          "title": "Arquivos de agente",
+          "description": "Onde o arquivo de um agente ou skill abre para editar.",
+          "panel": "Novo painel",
+          "modal": "Modal"
         }
       },
       "tabs": {

@@ -1154,7 +1154,14 @@
       "copyDescription": "Copy the description",
       "readingFile": "Reading the file",
       "unreadable": "The file is not readable from here.",
-      "openFile": "Open file"
+      "openFile": "Open file",
+      "edit": "Edit",
+      "discard": "Close without saving",
+      "keepEditing": "Keep editing",
+      "newAgent": "New agent",
+      "newSkill": "New skill",
+      "create": "Create",
+      "failed": "The file could not be created"
     },
     "explorer": {
       "title": "Agents",
@@ -1841,7 +1848,8 @@
           "layout": "Layout",
           "dialogs": "Dialogs",
           "session": "Session",
-          "bot": "Bot"
+          "bot": "Bot",
+          "agents": "Agents"
         },
         "theme": {
           "title": "Theme",
@@ -1899,6 +1907,12 @@
           "ask": "Ask",
           "main": "Main",
           "right": "Right sidebar"
+        },
+        "customFileOpens": {
+          "title": "Agent files",
+          "description": "Where an agent's or skill's file opens to edit.",
+          "panel": "New panel",
+          "modal": "Modal"
         }
       },
       "tabs": {

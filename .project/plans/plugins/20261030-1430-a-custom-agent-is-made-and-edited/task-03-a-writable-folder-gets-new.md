@@ -1,6 +1,6 @@
 ---
 title: A writable folder gets New
-status: todo
+status: implemented
 depends:
   - task-01-the-editor-opens-by-a-setting.md
 layer: "agents"
@@ -53,3 +53,10 @@ A directory with `writable: true` and `contents` `agent` shows New agent on its 
 - By hand: New skill writes `<name>/SKILL.md`.
 
 ## Resume
+
+Built on the same branch, not committed.
+`words.test.ts` and `custom-files.test.ts` cover `newKind`, an empty writable folder, the URIs and the templates.
+At 1280 light and 420 dark, skills shows New skill, agents shows New agent, and commands shows none.
+New agent wrote `ahpw-check-agent.md` from the template and opened it.
+A second New agent with the same name showed "already exists" in a toast, and the file stayed as it was.
+New skill wrote `ahpw-check-skill/SKILL.md`. The check files were deleted after.

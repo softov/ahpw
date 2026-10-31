@@ -18,6 +18,7 @@ import { MAIN_LAYOUTS } from '../view/layouts.js';
 import { keepSettingsPlace, PLACES, placeName, SETTINGS_PLACE, settingsPlace } from '../../resources/host/place.js';
 import { SESSION_VIEWS, VIEWS_PLACES, type Placing } from '../right-sidebar.js';
 import { BOT_CHAT_OPENS } from '../../resources/bots/sidebar.js';
+import { CUSTOM_FILE_OPENS } from '../../resources/agents/custom-files.js';
 import { SESSION_MARKDOWN, TOOLS_EXPANDED, type ChatChoice } from '../../resources/sessions/view-settings.js';
 
 /** A UI setting's key: `ui.<name>`, flat, as the host's keys are. */
@@ -124,6 +125,7 @@ export const UI_SETTINGS: readonly UiSetting[] = [
   chatSetting('ui.toolsExpanded', TOOLS_EXPANDED),
   chatSetting('ui.sessionMarkdown', SESSION_MARKDOWN),
   chatSetting('ui.botChatOpens', BOT_CHAT_OPENS),
+  chatSetting('ui.customFileOpens', CUSTOM_FILE_OPENS),
 ];
 
 export const isUiKey = (key: string): key is UiKey => key.startsWith('ui.');

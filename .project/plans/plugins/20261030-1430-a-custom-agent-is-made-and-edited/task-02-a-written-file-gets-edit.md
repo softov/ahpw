@@ -1,6 +1,6 @@
 ---
 title: A written file gets Edit
-status: todo
+status: implemented
 depends:
   - task-01-the-editor-opens-by-a-setting.md
 layer: "agents"
@@ -44,3 +44,8 @@ An agent or skill file in a directory with `writable: true` shows an Edit button
 - By hand: the same with the setting on a modal.
 
 ## Resume
+
+Built on the same branch, not committed.
+`words.test.ts` covers an editable agent and skill, and a read-only folder, a plugin's skill, a command and an internal URI that are not.
+At 1280 light and 420 dark, `/advisor` in `~/.claude/skills` shows Edit, and Edit opens the editor.
+The agents in `~/.claude/agents` show no Edit, because ahpd sends them as `claude-internal:` URIs; [implemented.md](implemented.md) says why.
