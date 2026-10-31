@@ -1,7 +1,7 @@
 ---
 title: A browser gets a push
 domain: shell
-status: draft
+status: active
 priority: medium
 created: 2026-10-31
 revalidated: 2026-10-31
@@ -10,7 +10,8 @@ changes: []
 creates: []
 refs:
   - git://3c5bc7e - the commit of ahpw this plan was checked at
-  - file:///github/ahpd.worktrees/web-push/.project/plans/plugin/20261031-0804-a-browser-gets-a-push/plan.md - the ahpd plan this one needs: the `web` device, `push://vapid` and `audience`
+  - file:///github/ahpd/.project/plans/plugin/20261031-0804-a-browser-gets-a-push/plan.md - the ahpd plan this one needs: the `web` device, `push://vapid` and `audience`
+  - git://a20915fb - the ahpd main commit that built that plan
   - "[code://src/shell/notify/index.ts#L13-L64](../../../../src/shell/notify/index.ts#L13-L64) - `registerNotifications`, its channels and `notifications.enableAlerts`, the command to copy"
   - "[code://src/shell/notify/browser-channel.ts](../../../../src/shell/notify/browser-channel.ts) - the browser channel: `ALERT_TYPES`, the away rule, and `present`"
   - "[code://src/shell/embed/index.ts#L84-L120](../../../../src/shell/embed/index.ts#L84-L120) - `Embedder`, with its optional members"
@@ -87,11 +88,11 @@ embedder: alert -> embedder channel -> embedder.notifications.show
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - A host keeps this browser's client id](task-01-a-host-keeps-the-client-id.md) | todo | - |
-| [02 - A service worker shows a push](task-02-a-service-worker-shows-a-push.md) | todo | - |
-| [03 - A browser subscribes to a host's push](task-03-a-browser-subscribes.md) | todo | 01, 02 |
-| [04 - An embedder shows ahpw's alerts](task-04-an-embedder-shows-alerts.md) | todo | - |
-| [05 - The docs say how to turn push on](task-05-docs.md) | todo | 03, 04 |
+| [01 - A host keeps this browser's client id](task-01-a-host-keeps-the-client-id.md) | implemented | - |
+| [02 - A service worker shows a push](task-02-a-service-worker-shows-a-push.md) | implemented | - |
+| [03 - A browser subscribes to a host's push](task-03-a-browser-subscribes.md) | implemented | 01, 02 |
+| [04 - An embedder shows ahpw's alerts](task-04-an-embedder-shows-alerts.md) | implemented | - |
+| [05 - The docs say how to turn push on](task-05-docs.md) | implemented | 03, 04 |
 
 ## Risks and tradeoffs
 
@@ -102,12 +103,10 @@ embedder: alert -> embedder channel -> embedder.notifications.show
 
 ## Resume state
 
-- **Done so far:** drafted 2026-10-31.
-- **Next action:** Softov reviews the plan. Build after the ahpd plan's task 02, which serves `push://vapid`.
+- **Done so far:** tasks 01 to 05 are implemented. See [implemented.md](implemented.md).
+- **Next action:** Softov does the checks in [push-browser-checks.md](../../../pending/push-browser-checks.md), then the plan closes.
 - **Open questions:** none.
 - **Watch out for:**
-  - Not checked: what a host does with two connections that give the same client id.
-  - Not checked: whether a host id in ahpw is the same after a reload, which the scope and the click address need.
   - Not checked: whether Safari accepts `subscribe()` after an `await` in a command, or only inside the gesture's own handler.
   - Not checked: whether iOS needs more manifest members than the Chromium list.
 

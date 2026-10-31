@@ -107,7 +107,11 @@
         "enableAlerts": "Notificarme cuando esta pestaña esté en segundo plano",
         "confirmModal": "Preguntar en el diálogo de la página",
         "confirmNative": "Preguntar en el diálogo del navegador",
-        "dismissAll": "Descartar todas las notificaciones"
+        "dismissAll": "Descartar todas las notificaciones",
+        "enablePush": "Notificarme cuando esta pestaña esté cerrada",
+        "disablePush": "Dejar de notificar con esta pestaña cerrada",
+        "pushDevice": "Notificarme solo de sesiones abiertas en este dispositivo",
+        "pushPerson": "Notificarme de todas mis sesiones"
       },
       "alerts": {
         "alreadyOn": "Las notificaciones en segundo plano ya están activadas",
@@ -115,6 +119,15 @@
         "blockedHelp": "El navegador no volverá a preguntar. Actívalas en la configuración del sitio, junto a la barra de direcciones.",
         "on": "Las notificaciones en segundo plano están activadas",
         "notAllowed": "No se permitieron las notificaciones en segundo plano"
+      },
+      "push": {
+        "on": "Las notificaciones con la pestaña cerrada están activadas",
+        "off": "Las notificaciones con la pestaña cerrada están desactivadas",
+        "notOn": "Las notificaciones con la pestaña cerrada no se activaron",
+        "notOff": "El host no quitó este dispositivo",
+        "person": "Este dispositivo oye de todas tus sesiones",
+        "device": "Este dispositivo oye solo de las sesiones que abrió",
+        "notSwitched": "El host no aceptó el cambio"
       }
     },
     "panel": {

@@ -1,6 +1,6 @@
 ---
 title: A host keeps this browser's client id
-status: todo
+status: implemented
 depends: []
 layer: bridges
 refs:

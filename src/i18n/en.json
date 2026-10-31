@@ -107,7 +107,11 @@
         "enableAlerts": "Notify me when this tab is in the background",
         "confirmModal": "Ask in the page's own dialog",
         "confirmNative": "Ask in the browser's dialog",
-        "dismissAll": "Dismiss all notifications"
+        "dismissAll": "Dismiss all notifications",
+        "enablePush": "Notify me when this tab is closed",
+        "disablePush": "Stop notifications when this tab is closed",
+        "pushDevice": "Notify me only about sessions this device opened",
+        "pushPerson": "Notify me about all my sessions"
       },
       "alerts": {
         "alreadyOn": "Background notifications are already on",
@@ -115,6 +119,15 @@
         "blockedHelp": "The browser will not ask again. Turn them on in the site settings beside the address bar.",
         "on": "Background notifications are on",
         "notAllowed": "Background notifications were not allowed"
+      },
+      "push": {
+        "on": "Notifications with the tab closed are on",
+        "off": "Notifications with the tab closed are off",
+        "notOn": "Notifications with the tab closed did not turn on",
+        "notOff": "The host did not remove this device",
+        "person": "This device hears about all your sessions",
+        "device": "This device hears only about sessions it opened",
+        "notSwitched": "The host did not take the change"
       }
     },
     "panel": {

@@ -81,6 +81,19 @@ export interface EmbedBrowser {
   onNavigated(handler: (navigation: EmbedNavigation) => void): Unsubscribe;
 }
 
+/** An alert the embedder shows as a native notification. */
+export interface EmbedAlert {
+  title: string;
+  body?: string;
+  /** A repeat with the same tag replaces the alert shown. */
+  tag: string;
+}
+
+/** The embedder's native notifications, which take ahpw's alerts in place of the browser's. */
+export interface EmbedNotifications {
+  show(alert: EmbedAlert): void;
+}
+
 export interface Embedder {
   /**
    * Whether the window shows one host, `mono`, or every host the embedder
@@ -119,6 +132,8 @@ export interface Embedder {
   profile?: EmbedProfile;
   /** Present when the embedder gives the Browser view a full browser; without it, the view shows an iframe. */
   browser?: EmbedBrowser;
+  /** Present when the embedder shows ahpw's alerts itself; without it, they are the browser's notifications. */
+  notifications?: EmbedNotifications;
 }
 
 /** The embedder, or undefined in a browser. Read once: a page never moves between the two. */

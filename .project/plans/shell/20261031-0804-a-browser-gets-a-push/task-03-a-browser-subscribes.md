@@ -1,6 +1,6 @@
 ---
 title: A browser subscribes to a host's push
-status: todo
+status: implemented
 depends: [task-01-a-host-keeps-the-client-id.md, task-02-a-service-worker-shows-a-push.md]
 layer: shell
 refs:
