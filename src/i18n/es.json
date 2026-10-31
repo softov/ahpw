@@ -12,9 +12,9 @@
     "cannotUndo": "Esto no se puede deshacer."
   },
   "auth": {
-    "subtitle": "Inicia sesión con un token.",
+    "subtitle": "Inicia sesión con tu token de acceso.",
     "token": "Token",
-    "tokenRequired": "Se necesita un token.",
+    "tokenRequired": "Ingresa tu token.",
     "signIn": "Iniciar sesión",
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "createAccount": "Crear cuenta",
@@ -24,7 +24,7 @@
     "sendCode": "Enviar código",
     "sendLink": "Enviar enlace",
     "verifyCode": "Verificar código",
-    "verifyFailed": "No se pudo verificar"
+    "verifyFailed": "No se pudo verificar el código"
   },
   "shell": {
     "toggleLeft": "Mostrar u ocultar la barra lateral izquierda (Ctrl+B)",
@@ -95,8 +95,8 @@
       "region": "Notificaciones",
       "more": "{count} más",
       "raised": {
-        "one": "Mostrada {count} vez",
-        "other": "Mostrada {count} veces"
+        "one": "Ocurrió {count} vez",
+        "other": "Ocurrió {count} veces"
       },
       "dismiss": "Descartar",
       "showDetails": "Mostrar detalles",
@@ -105,29 +105,29 @@
       "cancel": "Cancelar",
       "commands": {
         "enableAlerts": "Notificarme cuando esta pestaña esté en segundo plano",
-        "confirmModal": "Preguntar en el diálogo de la página",
-        "confirmNative": "Preguntar en el diálogo del navegador",
+        "confirmModal": "Pedir confirmación en la app",
+        "confirmNative": "Pedir confirmación en el navegador",
         "dismissAll": "Descartar todas las notificaciones",
         "enablePush": "Notificarme cuando esta pestaña esté cerrada",
         "disablePush": "Dejar de notificar con esta pestaña cerrada",
-        "pushDevice": "Notificarme solo de sesiones abiertas en este dispositivo",
+        "pushDevice": "Notificarme solo de las sesiones iniciadas en este dispositivo",
         "pushPerson": "Notificarme de todas mis sesiones"
       },
       "alerts": {
         "alreadyOn": "Las notificaciones en segundo plano ya están activadas",
         "blocked": "Las notificaciones en segundo plano están bloqueadas",
-        "blockedHelp": "El navegador no volverá a preguntar. Actívalas en la configuración del sitio, junto a la barra de direcciones.",
+        "blockedHelp": "Tu navegador no volverá a preguntar. Para activarlas, abre la configuración del sitio junto a la barra de direcciones.",
         "on": "Las notificaciones en segundo plano están activadas",
         "notAllowed": "No se permitieron las notificaciones en segundo plano"
       },
       "push": {
-        "on": "Las notificaciones con la pestaña cerrada están activadas",
-        "off": "Las notificaciones con la pestaña cerrada están desactivadas",
-        "notOn": "Las notificaciones con la pestaña cerrada no se activaron",
-        "notOff": "El host no quitó este dispositivo",
-        "person": "Este dispositivo oye de todas tus sesiones",
-        "device": "Este dispositivo oye solo de las sesiones que abrió",
-        "notSwitched": "El host no aceptó el cambio"
+        "on": "Recibirás notificaciones aunque esta pestaña esté cerrada",
+        "off": "No recibirás notificaciones cuando esta pestaña esté cerrada",
+        "notOn": "No se pudieron activar las notificaciones con la pestaña cerrada",
+        "notOff": "No se pudo quitar este dispositivo del host",
+        "person": "Recibirás notificaciones de todas tus sesiones",
+        "device": "Recibirás notificaciones solo de las sesiones iniciadas en este dispositivo",
+        "notSwitched": "El host no pudo guardar este cambio"
       }
     },
     "panel": {
@@ -145,7 +145,7 @@
       "status": {
         "connected": "Conectado",
         "connecting": "Conectando",
-        "down": "Sin respuesta"
+        "down": "Sin conexión"
       },
       "minimize": "Minimizar",
       "maximize": "Maximizar",
@@ -187,9 +187,9 @@
       "share": "Compartir",
       "copied": "Dirección copiada",
       "openOutside": "Abrir en una pestaña nueva",
-      "refused": "Aquí solo se abren direcciones http y https.",
+      "refused": "Aquí solo se pueden abrir direcciones web (http y https).",
       "empty": "Abre una página web",
-      "emptyBody": "Escribe una dirección y pulsa Enter. Muchos sitios con inicio de sesión no se muestran aquí; Abrir en una pestaña nueva los abre."
+      "emptyBody": "Escribe una dirección y presiona Enter. Muchos sitios que requieren iniciar sesión no se pueden mostrar aquí; ábrelos en una pestaña nueva."
     }
   },
   "close": {
@@ -280,11 +280,11 @@
     "pathCopied": "Ruta copiada",
     "delete": {
       "title": "¿Eliminar \"{name}\"?",
-      "body": "Todo lo que contiene se elimina también."
+      "body": "Todo lo que contiene también se eliminará."
     },
     "name": {
       "empty": "Escribe un nombre.",
-      "slash": "Un nombre no lleva barras.",
+      "slash": "Los nombres no pueden contener barras.",
       "dot": "Escribe un nombre que no sea un punto."
     },
     "copyName": "{name} copia{ext}",
@@ -294,12 +294,12 @@
       "open": "Abrir",
       "openWith": "Abrir con {viewer}",
       "loading": "Cargando",
-      "notReadable": "No se puede leer",
+      "notReadable": "No se pudo abrir",
       "default": "predeterminada",
       "notConnected": "Sin conexión",
-      "refused": "El servidor rechazó la conexión.",
-      "connecting": "Conectando con el servidor",
-      "empty": "El servidor aún no indica ninguna carpeta. Inicia una sesión en una.",
+      "refused": "El host rechazó la conexión.",
+      "connecting": "Conectando con el host",
+      "empty": "Aún no hay carpetas. Inicia una sesión en una carpeta y aparecerá aquí.",
       "folders": "Carpetas"
     },
     "pick": {
@@ -335,21 +335,21 @@
       "openDiff": "Abrir diferencias"
     },
     "openFile": "Abrir archivo",
-    "noFile": "No se indicó ningún archivo.",
-    "reading": "Leyendo el archivo",
-    "notReadable": "No se puede leer",
+    "noFile": "No hay ningún archivo seleccionado.",
+    "reading": "Cargando el archivo",
+    "notReadable": "No se pudo leer este archivo",
     "notText": "Este archivo no es texto.",
-    "unsaved": "Los cambios de este archivo no están guardados.",
-    "changedOnHost": "El archivo cambió en el servidor desde que lo abriste. Copia tu edición y vuelve a abrir el archivo.",
+    "unsaved": "Tienes cambios sin guardar en este archivo.",
+    "changedOnHost": "Este archivo cambió en el host después de que lo abriste. Copia tus cambios y vuelve a abrir el archivo.",
     "readOnly": "Solo lectura",
     "notSaved": "Sin guardar",
-    "cut": "Este archivo supera los 5 MB. Se muestra el inicio, en solo lectura.",
+    "cut": "Este archivo supera los 5 MB, así que solo se muestra el inicio, en modo de solo lectura.",
     "edited": "Editado",
     "copyPath": "Copiar ruta",
     "save": "Guardar",
-    "tooLarge": "Este archivo pesa {size}. Los archivos de más de {max} no se muestran.",
+    "tooLarge": "Este archivo es demasiado grande para mostrarlo ({size}). El límite es {max}.",
     "audio": {
-      "cannotPlay": "Este navegador no puede reproducir este archivo.",
+      "cannotPlay": "Tu navegador no puede reproducir este archivo.",
       "play": "Reproducir",
       "pause": "Pausar",
       "speed": "Velocidad"
@@ -358,7 +358,7 @@
       "newFile": "archivo nuevo",
       "deleted": "eliminado",
       "viewed": "Visto",
-      "reading": "Leyendo ambas versiones",
+      "reading": "Cargando los cambios",
       "none": "Sin cambios."
     },
     "image": {
@@ -367,8 +367,8 @@
       "fit": "Ajustar",
       "zoomIn": "Acercar"
     },
-    "gone": "Este archivo ya no está.",
-    "readRefused": "El servidor no te deja leer este archivo."
+    "gone": "Este archivo ya no existe.",
+    "readRefused": "No tienes permiso para leer este archivo."
   },
   "changes": {
     "title": "Cambios",
@@ -397,8 +397,8 @@
     "markNotReviewed": "Marcar como no revisado",
     "noSession": "Abre una sesión para ver qué cambió.",
     "untracked": "Esta sesión no registra cambios.",
-    "notReadable": "No se pueden leer los cambios",
-    "computing": "Calculando los cambios",
+    "notReadable": "No se pudieron cargar los cambios",
+    "computing": "Buscando los cambios",
     "none": "Sin cambios.",
     "viewOptions": "Opciones de vista",
     "view": {
@@ -417,26 +417,26 @@
     "cancel": "Cancelar",
     "commit": {
       "staged": {
-        "one": "Se confirma el {count} archivo preparado. El resto queda como está.",
-        "other": "Se confirman los {count} archivos preparados. El resto queda como está."
+        "one": "Se confirmará el archivo preparado. Los demás cambios quedan como están.",
+        "other": "Se confirmarán los {count} archivos preparados. Los demás cambios quedan como están."
       },
       "all": {
-        "one": "No hay nada preparado, así que se confirma el {count} archivo modificado.",
-        "other": "No hay nada preparado, así que se confirman los {count} archivos modificados."
+        "one": "No hay nada preparado, así que se confirmará el archivo modificado.",
+        "other": "No hay nada preparado, así que se confirmarán los {count} archivos modificados."
       },
       "message": "Mensaje del commit",
       "placeholder": "¿Qué hace este cambio?"
     },
     "pr": {
       "title": "Crear una pull request",
-      "preparing": "Pidiendo al servidor un título y una descripción",
+      "preparing": "Sugiriendo un título y una descripción",
       "titleLabel": "Título",
-      "titlePlaceholder": "¿De qué trata esta solicitud?",
+      "titlePlaceholder": "Resume el cambio",
       "description": "Descripción",
       "descriptionPlaceholder": "¿Qué cambió y por qué?",
       "draft": "Abrir como borrador",
-      "cannotCreate": "Este servidor no ofrece una forma de crear la solicitud.",
-      "explain": "El servidor confirma lo pendiente, sube la rama y abre la solicitud solo cuando presionas el botón."
+      "cannotCreate": "Este host no puede crear pull requests.",
+      "explain": "Cuando confirmes, el host hará commit de los cambios pendientes, subirá la rama y abrirá la pull request."
     }
   },
   "log": {
@@ -457,16 +457,16 @@
     },
     "copyLine": "Copiar la línea",
     "all": "Todo",
-    "levelTip": "Nivel menos grave que se muestra",
+    "levelTip": "Nivel mínimo para mostrar",
     "minLevel": "{level} y superiores",
-    "filter": "Filtrar (!palabra excluye)",
+    "filter": "Filtrar (usa !palabra para excluir)",
     "copyShown": "Copiar las líneas visibles",
     "empty": "Aún no hay nada registrado.",
-    "noMatch": "Nada de lo registrado coincide con el filtro."
+    "noMatch": "Ninguna línea del registro coincide con el filtro."
   },
   "terminals": {
     "terminal": "Terminal",
-    "notConnected": "Sin conexión con el servidor.",
+    "notConnected": "Sin conexión con el host.",
     "commands": {
       "open": "Abrir terminal",
       "disconnect": "Desconectar terminal",
@@ -476,7 +476,7 @@
     },
     "kill": {
       "title": "¿Terminar \"{title}\"?",
-      "body": "Su proceso termina en el host.",
+      "body": "Esto detiene su proceso en el host.",
       "confirm": "Terminar"
     },
     "failed": {
@@ -494,15 +494,15 @@
       "title": "Terminal: {title}",
       "group": "Terminales"
     },
-    "noTerminal": "No se indicó ninguna terminal.",
-    "notReadable": "No se puede leer",
+    "noTerminal": "No hay ninguna terminal seleccionada.",
+    "notReadable": "No se pudo abrir esta terminal",
     "disconnected": "Desconectada. La terminal sigue ejecutándose en el host.",
     "connect": "Conectar",
     "note": {
       "exited": "Finalizada.",
       "exitedWith": "Finalizada con {code}.",
-      "session": "Una sesión está usando esta terminal. No se puede escribir.",
-      "another": "Otro cliente tiene esta terminal. No se puede escribir."
+      "session": "Una sesión está usando esta terminal, así que no puedes escribir aquí.",
+      "another": "Otro cliente está usando esta terminal, así que no puedes escribir aquí."
     },
     "takeOver": "Tomar el control",
     "newOn": "Nueva terminal en"
@@ -517,7 +517,7 @@
     "automation": "Automatización",
     "editTitle": "Editar {title}",
     "untitled": "Sin título",
-    "byHand": "Se ejecuta a mano",
+    "byHand": "Ejecución manual",
     "cron": {
       "everyMinutes": {
         "one": "Cada minuto",
@@ -542,10 +542,10 @@
       }
     },
     "problems": {
-      "title": "Ponle un título.",
-      "message": "Indica qué envía.",
-      "schedule": "Una programación tiene cinco campos: minuto, hora, día, mes, día de la semana.",
-      "runs": "Detén después de un número entero de ejecuciones."
+      "title": "Agrega un título.",
+      "message": "Agrega un mensaje.",
+      "schedule": "Usa cinco campos para la programación: minuto, hora, día, mes y día de la semana.",
+      "runs": "Ingresa un número entero de ejecuciones."
     },
     "state": {
       "running": "En ejecución",
@@ -562,12 +562,12 @@
     },
     "notices": {
       "none": "No hay automatizaciones",
-      "reading": "Leyendo las automatizaciones",
+      "reading": "Cargando automatizaciones",
       "gone": "Esta automatización ya no existe."
     },
     "defaults": {
-      "host": "La predeterminada del host",
-      "agent": "La predeterminada del agente"
+      "host": "Predeterminado del host",
+      "agent": "Predeterminado del agente"
     },
     "actions": {
       "deleteTitle": "¿Eliminar \"{title}\"?",
@@ -603,7 +603,7 @@
       "sort": "Ordenar automatizaciones"
     },
     "origin": {
-      "byHand": "A mano",
+      "byHand": "Manual",
       "scheduled": "Programada",
       "scheduledFor": "Programada para {time}",
       "catchUp": "De recuperación",
@@ -621,9 +621,9 @@
       "settings": "Configuración",
       "schedule": "Programación",
       "missedRuns": "Ejecuciones perdidas",
-      "runOnce": "Ejecutar una vez al volver",
+      "runOnce": "Ejecutar una vez cuando el host vuelva",
       "skipped": "Se omiten",
-      "byHandOnly": "Solo se ejecuta a mano",
+      "byHandOnly": "Solo ejecuciones manuales",
       "event": "Evento",
       "turnsOff": "Se desactiva",
       "nextRun": "Próxima ejecución",
@@ -648,7 +648,7 @@
       "loadOlder": "Cargar ejecuciones anteriores"
     },
     "edit": {
-      "noCreate": "Este host no permite que los clientes creen automatizaciones.",
+      "noCreate": "Este host no permite crear automatizaciones.",
       "host": "Host",
       "examples": {
         "open": "Ejemplos",
@@ -661,14 +661,14 @@
       },
       "title": "Título",
       "message": "Mensaje",
-      "messageHint": "Lo que se le dice al agente cada vez que se ejecuta.",
+      "messageHint": "El mensaje que recibe el agente cada vez que se ejecuta.",
       "agent": "Agente",
       "model": "Modelo",
       "folder": "Carpeta",
-      "folderHint": "Una carpeta en la máquina del daemon.",
+      "folderHint": "Una carpeta en la computadora del host.",
       "schedule": "Programación",
       "presets": {
-        "byHand": "Solo a mano",
+        "byHand": "Solo manual",
         "every10Minutes": "Cada 10 minutos",
         "everyHour": "Cada hora",
         "every6Hours": "Cada 6 horas",
@@ -679,19 +679,19 @@
       "custom": "Personalizada",
       "cron": "Expresión cron",
       "cronPlaceholder": "minuto hora día mes día-de-la-semana",
-      "byHandHint": "Solo se ejecuta cuando se inicia a mano.",
+      "byHandHint": "Solo se ejecuta cuando tú la inicias.",
       "minimum": {
         "one": "Como máximo cada minuto.",
         "other": "Como máximo cada {count} minutos."
       },
       "timeZone": "Zona horaria",
       "missedRuns": "Ejecuciones perdidas",
-      "missedHint": "Qué pasa con una ejecución pendiente mientras el daemon estaba detenido.",
+      "missedHint": "Qué hacer con las ejecuciones pendientes mientras el host estaba sin conexión.",
       "skip": "Omitirlas",
-      "runOnce": "Ejecutar una vez al volver",
+      "runOnce": "Ejecutar una vez cuando el host vuelva",
       "afterRuns": "Desactivar tras ejecuciones",
       "afterDate": "Desactivar después del",
-      "keepsOn": "Vacío la mantiene activada.",
+      "keepsOn": "Déjalo vacío para mantenerla activada.",
       "on": "Activada",
       "create": "Crear",
       "save": "Guardar",
@@ -736,7 +736,7 @@
       "status": "Mostrar por estado",
       "group": "Agrupar computadoras",
       "empty": "Todavía no hay computadoras.",
-      "notServed": "Ningún host aquí ofrece computadoras."
+      "notServed": "Ninguno de tus hosts ofrece computadoras."
     },
     "group": {
       "none": "Sin grupos",
@@ -757,9 +757,9 @@
     },
     "notices": {
       "none": "No hay computadoras",
-      "reading": "Leyendo las computadoras",
+      "reading": "Cargando computadoras",
       "gone": "Esta computadora ya no existe.",
-      "oom": "La máquina se detuvo porque se quedó sin memoria."
+      "oom": "Esta computadora se detuvo porque se quedó sin memoria."
     },
     "actions": {
       "open": "Abrir",
@@ -768,9 +768,9 @@
       "restart": "Reiniciar",
       "remove": "Eliminar",
       "removeTitle": "¿Eliminar {name}?",
-      "removeBody": "Se borran la máquina y lo que contiene. Las carpetas del host montadas se quedan.",
+      "removeBody": "Se eliminarán la computadora y todo su contenido. Las carpetas del host montadas se conservan.",
       "copyName": "Copiar nombre",
-      "failed": "El host no lo hizo"
+      "failed": "El host no pudo hacerlo"
     },
     "facts": {
       "image": "Imagen",
@@ -798,15 +798,15 @@
       "usage": "Uso",
       "mounts": "Montajes",
       "readOnly": "solo lectura",
-      "record": "Lo que dice el runtime"
+      "record": "Detalles del runtime"
     },
     "new": {
       "host": "Host",
       "name": "Nombre",
-      "nameHint": "La máquina se conoce por este nombre; no puede cambiar después.",
-      "nameSlash": "Un nombre no lleva / \\ ni ?.",
-      "nameDots": "Un nombre no es . ni ..",
-      "noCreate": "Este host no te deja crear computadoras.",
+      "nameHint": "No podrás cambiar el nombre después.",
+      "nameSlash": "Los nombres no pueden contener / \\ ni ?.",
+      "nameDots": "Los nombres no pueden ser . ni ..",
+      "noCreate": "Este host no permite crear computadoras.",
       "create": "Crear",
       "cancel": "Cancelar"
     }
@@ -823,23 +823,23 @@
       "title": "Bots",
       "filter": "Filtrar bots",
       "empty": "Todavía no hay bots.",
-      "notServed": "Ningún host aquí ofrece bots."
+      "notServed": "Ninguno de tus hosts ofrece bots."
     },
     "notices": {
       "none": "No hay bots",
-      "reading": "Leyendo los bots",
+      "reading": "Cargando bots",
       "gone": "Este bot ya no existe."
     },
     "actions": {
       "open": "Abrir",
       "chat": "Abrir chat",
-      "openMain": "Abrir en el principal",
+      "openMain": "Abrir en el área principal",
       "openRight": "Abrir a la derecha",
       "edit": "Editar",
       "delete": "Eliminar",
       "deleteTitle": "¿Eliminar {name}?",
-      "deleteBody": "El bot se elimina, y su nombre no se puede dar a otro bot en este host.",
-      "failed": "El host no lo hizo"
+      "deleteBody": "El bot se eliminará y su nombre no se podrá usar para otro bot en este host.",
+      "failed": "El host no pudo hacerlo"
     },
     "facts": {
       "labels": "Etiquetas",
@@ -861,18 +861,18 @@
       "ownerHint": "De quién es el bot.",
       "ownerMe": "Yo",
       "ownerHost": "Este host",
-      "ownerKept": "Un bot mantiene su dueño.",
+      "ownerKept": "No se puede cambiar el dueño de un bot.",
       "labels": "Etiquetas",
-      "labelsHint": "Separadas por comas.",
+      "labelsHint": "Separa las etiquetas con comas.",
       "description": "Descripción",
       "instructions": "Instrucciones",
-      "instructionsHint": "Lo que se le dice al bot en su primer chat.",
-      "instructionsLater": "Un cambio llega a los próximos chats, no al primero ya enviado.",
+      "instructionsHint": "Lo que se le dice al bot al inicio de cada chat.",
+      "instructionsLater": "Los cambios se aplican a los chats nuevos, no a los que ya empezaron.",
       "create": "Crear",
       "save": "Guardar",
       "cancel": "Cancelar",
       "bodyName": "Nombre del cuerpo",
-      "bodyUnknown": "bood aún no tiene un cuerpo con ese nombre, así que se dibuja como un cuadrado."
+      "bodyUnknown": "Todavía no hay un cuerpo con este nombre, así que el bot se muestra como un cuadrado."
     },
     "colors": {
       "red": "Rojo",
@@ -894,17 +894,17 @@
     },
     "chat": {
       "cannot": "No puedes chatear con este bot.",
-      "noHost": "Este host aún no tiene chat con bots.",
+      "noHost": "Este host todavía no admite chats con bots.",
       "opening": "Abriendo el chat…",
       "failed": "No se pudo abrir el chat",
-      "reading": "Leyendo el chat",
+      "reading": "Cargando el chat",
       "working": "{name} está trabajando",
       "noReply": "{name} terminó sin responder",
       "empty": "Dile algo a {name}.",
       "download": "Guardar {name}",
       "message": "Escribe a {name}",
       "where": "¿Dónde se abren los chats de bots?",
-      "whereBody": "Tu respuesta se guarda. Cámbiala en Ajustes, Interfaz, Bot."
+      "whereBody": "Recordaremos tu elección. Puedes cambiarla en Configuración > Interfaz > Bot."
     }
   },
   "users": {
@@ -914,12 +914,12 @@
       "roles": "Roles",
       "filter": "Filtrar usuarios y roles",
       "empty": "Aún no hay usuarios.",
-      "notServed": "Ningún host aquí lista sus usuarios."
+      "notServed": "Ninguno de tus hosts muestra usuarios."
     },
     "notices": {
       "none": "Sin usuarios",
-      "reading": "Leyendo los usuarios",
-      "readOnly": "Este host no te deja cambiar esto."
+      "reading": "Cargando usuarios",
+      "readOnly": "Este host no permite hacer cambios aquí."
     },
     "commands": {
       "new": "Nuevo",
@@ -932,7 +932,7 @@
     "actions": {
       "open": "Abrir",
       "delete": "Eliminar",
-      "failed": "El host no lo hizo",
+      "failed": "El host no pudo hacerlo",
       "cancel": "Cancelar",
       "discard": "Descartar cambios"
     },
@@ -940,23 +940,23 @@
       "deleteTitle": "¿Eliminar a {id}?",
       "deleteBody": "Ya no podrá iniciar sesión en este host.",
       "gone": "Este usuario ya no existe.",
-      "id": "Id",
-      "idHint": "Con qué inicia sesión y cómo lo nombra el host. No se puede cambiar después.",
+      "id": "ID",
+      "idHint": "El nombre con el que inicia sesión. No podrás cambiarlo después.",
       "roles": "Roles",
       "noRoles": "Este host no define roles.",
       "addRole": "Añadir un rol",
       "dropRole": "Quitar {role}",
       "noRolesHeld": "Aún sin roles.",
-      "dropMembership": "Sacarlo de {name}",
+      "dropMembership": "Quitar de {name}",
       "issuer": "Emisor",
-      "issuerHint": "Dónde inicia sesión, si no es en este host: github o la URL de un emisor. Vacío lo quita.",
+      "issuerHint": "Dónde inicia sesión, si no es en este host: github o la URL de un emisor. Déjalo vacío para quitarlo.",
       "rolesFrom": "Roles desde",
-      "rolesFromHint": "Roles extra del emisor: el claim de su respuesta de inicio de sesión que los nombra, como groups. Solo cuentan los roles que este host define, y se suman a los de arriba. Vacío no agrega ninguno.",
-      "token": "Aquí nunca se muestra un token. Créalo en el host con: ahpd user token {id}",
+      "rolesFromHint": "Roles extra del emisor, leídos de un claim en su respuesta de inicio de sesión, como groups. Solo cuentan los roles definidos en este host, y se suman a los de arriba. Déjalo vacío para no agregar ninguno.",
+      "token": "Los tokens nunca se muestran aquí. Crea uno en el host con: ahpd user token {id}",
       "create": "Crear usuario",
       "save": "Guardar",
-      "dropAdminTitle": "¿Quitarte admin a ti mismo?",
-      "dropAdminBody": "Puede que ya no puedas cambiar usuarios ni roles en este host.",
+      "dropAdminTitle": "¿Quitarte tu propio rol de admin?",
+      "dropAdminBody": "Es posible que ya no puedas administrar usuarios ni roles en este host.",
       "addTeam": "Agregar a un equipo",
       "everyProject": "todos los proyectos",
       "signIn": "Inicio de sesión",
@@ -965,32 +965,32 @@
       "noProject": "el equipo, sin proyecto",
       "whichProjects": "Qué proyectos",
       "primaryMark": "principal",
-      "makePrimary": "Hacer este el principal",
-      "unmakePrimary": "Quitar el principal",
-      "primaryNote": "El principal es a lo que se cobra el trabajo que no nombra equipo ni proyecto.",
+      "makePrimary": "Hacer principal",
+      "unmakePrimary": "Quitar como principal",
+      "primaryNote": "El trabajo que no indica un equipo o proyecto se cobra al principal.",
       "keys": "Claves",
-      "keysHint": "Claves extra de {id}, cada una limitada y revocable por separado. Su secreto principal se crea en el host: ahpd user token {id}"
+      "keysHint": "Claves extra para {id}. Cada una tiene sus propios límites y se puede revocar por separado. Su secreto principal se crea en el host: ahpd user token {id}"
     },
     "role": {
       "deleteTitle": "¿Eliminar el rol {id}?",
-      "deleteBody": "Quienes lo tienen pierden lo que concede.",
+      "deleteBody": "Todos los que tienen este rol pierden lo que concede.",
       "gone": "Este rol ya no existe.",
-      "id": "Id",
-      "idHint": "El nombre con que los usuarios lo tienen. No se puede cambiar después.",
+      "id": "ID",
+      "idHint": "El nombre con el que los usuarios reciben este rol. No podrás cambiarlo después.",
       "grants": "Permisos",
-      "grantsHint": "Uno por línea, cada uno sujeto:operación, como session:write; read, write o * para todas las operaciones.",
-      "badGrant": "La línea {line}, {text}, no es sujeto:operación.",
+      "grantsHint": "Uno por línea, como sujeto:operación, por ejemplo session:write. La operación es read, write o * para todas.",
+      "badGrant": "La línea {line} ({text}) no tiene el formato sujeto:operación.",
       "grantCount": "Permisos: {count}",
       "create": "Crear rol",
       "save": "Guardar",
       "builtIn": "incorporado",
-      "builtInNote": "Incorporado en ahpd. Al guardar se escribe en el host un rol con este nombre, que reemplaza al incorporado.",
-      "replacesNote": "Este rol reemplaza al incorporado de ahpd con el mismo nombre. Al eliminarlo vuelve el incorporado.",
+      "builtInNote": "Incorporado en ahpd. Al guardar se crea en el host un rol con este nombre, que reemplaza al incorporado.",
+      "replacesNote": "Este rol reemplaza al rol incorporado de ahpd con el mismo nombre. Si lo eliminas, se restaura el incorporado.",
       "views": {
         "controls": "controles",
         "text": "texto"
       },
-      "fixText": "Primero corrija las líneas que no son permisos.",
+      "fixText": "Primero corrige las líneas que no son permisos válidos.",
       "groups": {
         "read": "Lectura",
         "write": "Escritura",
@@ -999,15 +999,15 @@
       "reached": "{n} de {of}",
       "legend": {
         "on": "concedido",
-        "implied": "cubierto por un grupo",
+        "implied": "incluido en un grupo",
         "off": "no concedido"
       },
       "chip": {
-        "granted": "Concedido: {grant}. Clic para quitarlo.",
+        "granted": "Concedido: {grant}. Haz clic para quitarlo.",
         "grant": "No concedido. Clic para conceder {grant}.",
-        "split": "Cubierto por {grant}. Clic para dividirlo en el resto de sus operaciones.",
-        "wildcard": "Cubierto por {grant}, que alcanza a todos los sujetos y no se puede reducir para uno.",
-        "coveredBy": "Cubierto por {grant}."
+        "split": "Incluido en {grant}. Haz clic para dividirlo en sus otras operaciones.",
+        "wildcard": "Incluido en {grant}, que abarca todos los sujetos y no se puede limitar a uno.",
+        "coveredBy": "Incluido en {grant}."
       },
       "switch": {
         "read": "Toda lectura: {grant}",
@@ -1015,11 +1015,11 @@
         "all": "Todo: {grant}"
       },
       "everySubject": "Todos los sujetos",
-      "everySubjectHint": "Un permiso aquí alcanza a todos los sujetos del host, ahora y después.",
+      "everySubjectHint": "Un permiso aquí abarca todos los sujetos del host, ahora y en el futuro.",
       "dropSubject": "Quitar {subject} del rol",
       "addSubject": "Agregar sujeto",
       "noGrants": "Este rol todavía no concede nada.",
-      "unknownSubject": "Este host no lo sirve ahora"
+      "unknownSubject": "Este host no lo ofrece en este momento"
     }
   },
   "teams": {
@@ -1029,13 +1029,13 @@
       "projects": "Proyectos",
       "filter": "Filtrar equipos y proyectos",
       "empty": "Aún no hay equipos.",
-      "notServed": "Ningún host aquí lista sus equipos.",
+      "notServed": "Ninguno de tus hosts muestra equipos.",
       "members": "Miembros: {count}"
     },
     "notices": {
       "none": "Sin equipos",
-      "reading": "Leyendo los equipos",
-      "readOnly": "Este host no te deja cambiar esto."
+      "reading": "Cargando equipos",
+      "readOnly": "Este host no permite hacer cambios aquí."
     },
     "commands": {
       "new": "Nuevo",
@@ -1048,37 +1048,37 @@
     "actions": {
       "open": "Abrir",
       "delete": "Eliminar",
-      "failed": "El host no lo hizo",
+      "failed": "El host no pudo hacerlo",
       "cancel": "Cancelar",
       "discard": "Descartar cambios"
     },
     "named": {
-      "id": "Id",
+      "id": "ID",
       "title": "Título",
-      "titleHint": "Lo que se muestra en lugar del id. Vacío muestra el id.",
+      "titleHint": "Se muestra en lugar del ID. Déjalo vacío para mostrar el ID.",
       "save": "Guardar",
       "members": "Miembros",
-      "noMembers": "Nadie aún.",
+      "noMembers": "Aún no hay miembros.",
       "primary": "Su principal",
-      "addWho": "Añadir a alguien",
+      "addWho": "Agregar un miembro",
       "through": "Qué equipo",
       "add": "Añadir"
     },
     "team": {
-      "idHint": "El nombre con que se escriben las membresías. No se puede cambiar después.",
+      "idHint": "El nombre que se usa en las membresías. No podrás cambiarlo después.",
       "create": "Crear equipo",
       "gone": "Este equipo ya no existe.",
       "deleteTitle": "¿Eliminar el equipo {id}?",
-      "deleteBody": "El host lo rechaza mientras alguien pertenezca a él.",
-      "membersHint": "Todos cuyas membresías nombran este equipo: el equipo, todos sus proyectos o un proyecto a través de él."
+      "deleteBody": "El host no elimina un equipo que todavía tiene miembros.",
+      "membersHint": "Todos los que pertenecen a este equipo, a todos sus proyectos o a uno de sus proyectos."
     },
     "project": {
-      "idHint": "El nombre con que se escriben las membresías, tras un equipo. No se puede cambiar después.",
+      "idHint": "El nombre que se usa en las membresías, después del equipo. No podrás cambiarlo después.",
       "create": "Crear proyecto",
       "gone": "Este proyecto ya no existe.",
       "deleteTitle": "¿Eliminar el proyecto {id}?",
-      "deleteBody": "El host lo rechaza mientras alguien trabaje en él.",
-      "membersHint": "Todos los que trabajan en él a través de un equipo, o de todos los proyectos de un equipo."
+      "deleteBody": "El host no elimina un proyecto que todavía tiene miembros.",
+      "membersHint": "Todos los que trabajan en él a través de un equipo o de todos los proyectos de un equipo."
     }
   },
   "agents": {
@@ -1096,9 +1096,9 @@
       }
     },
     "capabilities": {
-      "chatsAndForks": "Varios chats por sesión, y bifurcaciones",
+      "chatsAndForks": "Varios chats por sesión, con bifurcaciones",
       "chats": "Varios chats por sesión",
-      "foldersFirstFixed": "Varias carpetas, la primera fija",
+      "foldersFirstFixed": "Varias carpetas; la primera no se puede cambiar",
       "folders": "Varias carpetas"
     },
     "limits": {
@@ -1154,7 +1154,7 @@
     "states": {
       "ready": "Listo",
       "starting": "Iniciando",
-      "startingBlocking": "Iniciando; bloquea el próximo turno",
+      "startingBlocking": "Iniciando; el próximo turno lo espera",
       "stopped": "Detenido",
       "loading": "Cargando"
     },
@@ -1172,8 +1172,8 @@
     "customizations": {
       "copyName": "Copiar el nombre",
       "copyDescription": "Copiar la descripción",
-      "readingFile": "Leyendo el archivo",
-      "unreadable": "El archivo no se puede leer desde aquí.",
+      "readingFile": "Cargando el archivo",
+      "unreadable": "Este archivo no se puede abrir desde aquí.",
       "openFile": "Abrir archivo",
       "edit": "Editar",
       "discard": "Cerrar sin guardar",
@@ -1204,7 +1204,7 @@
       },
       "needsSignIn": "requiere iniciar sesión",
       "open": "Abrir",
-      "empty": "Este servidor no ofrece ningún agente.",
+      "empty": "Este host no ofrece ningún agente.",
       "filter": "Filtrar agentes",
       "status": {
         "configured": "configurado",
@@ -1213,11 +1213,11 @@
       },
       "standby": {
         "unavailable": "el motor {engine} no está cargado",
-        "invalid": "la configuración no encaja con el motor"
+        "invalid": "la configuración no coincide con el motor"
       }
     },
     "page": {
-      "gone": "Este servidor ya no ofrece este agente.",
+      "gone": "Este host ya no ofrece este agente.",
       "facts": {
         "provider": "Proveedor",
         "models": "Modelos",
@@ -1231,7 +1231,7 @@
       "oneChat": "Un chat en una carpeta por sesión",
       "needsSignIn": "Requiere iniciar sesión",
       "models": "Modelos",
-      "noModels": "Este agente no lista modelos; elige el suyo.",
+      "noModels": "Este agente no muestra una lista de modelos; elige el suyo.",
       "columns": {
         "name": "Nombre",
         "id": "ID",
@@ -1240,7 +1240,7 @@
         "scopes": "Alcances"
       },
       "policy": {
-        "disabled": "Desactivado por política",
+        "disabled": "Desactivado por una política",
         "unconfigured": "Sin configurar"
       },
       "customizations": "Personalizaciones",
@@ -1250,8 +1250,8 @@
       "overview": "Resumen",
       "settings": "Ajustes",
       "standby": {
-        "unavailable": "El motor {engine} no está cargado, así que el host no sirve este agente.",
-        "invalid": "Estos ajustes no encajan con el motor {engine}, así que el host no sirve este agente."
+        "unavailable": "El motor {engine} no está cargado, así que este agente no está disponible.",
+        "invalid": "Estos ajustes no coinciden con el motor {engine}, así que este agente no está disponible."
       }
     },
     "actions": {
@@ -1259,28 +1259,28 @@
       "checkFailed": "No se pudo comprobar {name}",
       "remove": "Quitar",
       "removeTitle": "¿Quitar {name}?",
-      "removeBody": "El host deja de servirlo y olvida sus secretos. No se puede deshacer.",
+      "removeBody": "El host deja de ofrecerlo y elimina sus secretos. Esto no se puede deshacer.",
       "removeFailed": "No se pudo quitar {name}"
     },
     "form": {
       "newTitle": "Nuevo agente",
       "name": "Nombre",
-      "id": "Id",
-      "idHint": "Letras minúsculas, dígitos y guiones. No puede cambiar después.",
+      "id": "ID",
+      "idHint": "Letras minúsculas, números y guiones. No podrás cambiarlo después.",
       "owner": "Dueño",
       "description": "Descripción",
       "model": "Modelo",
-      "modelHint": "Déjelo vacío y el agente elige el suyo.",
-      "modelDefault": "El del agente",
+      "modelHint": "Déjalo vacío para que el agente elija.",
+      "modelDefault": "Lo elige el agente",
       "engine": "Motor",
       "startFrom": "Empezar desde",
       "blank": "En blanco",
-      "noEngines": "Este servidor no lista motores.",
-      "reading": "Leyendo",
-      "noPut": "No puede añadir un agente en este servidor.",
+      "noEngines": "Este host no muestra ningún motor.",
+      "reading": "Cargando",
+      "noPut": "No tienes permiso para agregar agentes en este host.",
       "unknownEngine": "El motor {engine} no está cargado, así que sus ajustes no se pueden mostrar.",
       "settingsOf": "Ajustes de {engine}",
-      "failed": "El agente no se guardó",
+      "failed": "No se pudo guardar el agente",
       "create": "Crear",
       "searchEngines": "Buscar motores",
       "noEngineMatch": "Ningún motor coincide."
@@ -1301,26 +1301,26 @@
       "run": "Ejecutar comando"
     },
     "noManifest": "No hay manifiesto",
-    "readingManifest": "Leyendo el manifiesto",
-    "readingList": "Leyendo la lista",
+    "readingManifest": "Cargando el manifiesto",
+    "readingList": "Cargando la lista",
     "remove": "Eliminar",
     "cancel": "Cancelar",
     "explorer": {
-      "noGroup": "Este daemon no tiene comandos de {group}."
+      "noGroup": "Este host no tiene comandos de {group}."
     },
     "item": {
-      "gone": "La lista ya no tiene {kind} {title}.",
-      "reading": "Leyendo"
+      "gone": "{kind} {title} ya no está en la lista.",
+      "reading": "Cargando"
     },
     "items": {
-      "badShape": "Esta lista llegó con una forma que no se puede listar.",
+      "badShape": "Esta lista llegó en un formato que no se puede mostrar.",
       "empty": "Aún no hay nada.",
       "reloading": "Recargando",
       "commands": "Comandos",
       "search": "Buscar en {title}"
     },
     "page": {
-      "noCommand": "Este daemon no tiene el comando {id}.",
+      "noCommand": "Este host no tiene el comando {id}.",
       "run": "Ejecutar",
       "lastRun": "Última ejecución {time}",
       "running": "Ejecutando",
@@ -1423,25 +1423,25 @@
       "unnamed": "Adjunto"
     },
     "clipboard": {
-      "insecure": "Requiere https o localhost",
-      "refused": "El navegador lo rechazó",
+      "insecure": "Requiere HTTPS o localhost",
+      "refused": "El navegador bloqueó el acceso al portapapeles",
       "tooBig": "Más de 5 MB",
       "empty": "No hay imagen en el portapapeles"
     },
     "context": {
       "title": "Agregar contexto",
-      "hint": "Adjunta un archivo, una sesión o un archivo de esta computadora",
+      "hint": "Adjunta archivos, imágenes u otras sesiones",
       "files": "Archivos y carpetas",
-      "filesHint": "En la máquina del servidor",
+      "filesHint": "En el host",
       "upload": "Subir",
       "uploadHint": "Desde esta computadora, hasta 5 MB cada uno",
       "image": "Imagen del portapapeles",
       "imageHint": "La imagen que copiaste",
       "sessions": "Sesiones",
-      "sessionsHint": "El chat de otra sesión",
+      "sessionsHint": "Incluye el chat de otra sesión",
       "noSessions": "No hay otras sesiones",
       "commands": "Comandos",
-      "commandsHint": "Lo que pueden hacer el agente y esta página"
+      "commandsHint": "Comandos para el agente y esta página"
     },
     "values": {
       "default": "predeterminado",
@@ -1455,14 +1455,14 @@
     },
     "commands": {
       "model": "Modelo",
-      "modelHint": "El modelo al que se envía el próximo mensaje",
+      "modelHint": "El modelo para el próximo mensaje",
       "agentDefault": "Predeterminado del agente",
       "agent": "Agente",
-      "agentHint": "El agente personalizado que nombra el próximo mensaje",
-      "agentDefaultHint": "El harness responde por sí mismo",
+      "agentHint": "El agente personalizado para el próximo mensaje",
+      "agentDefaultHint": "Sin agente personalizado",
       "configureAgents": "Configurar agentes personalizados",
       "stop": "Detener",
-      "stopHint": "Detiene el turno en curso",
+      "stopHint": "Detener el turno actual",
       "newSession": "Nueva sesión",
       "newSessionHint": "Inicia otra sesión",
       "showSessions": "Mostrar sesiones",
@@ -1470,7 +1470,7 @@
     },
     "upload": {
       "notAttached": "No se adjuntó",
-      "refused": "Más de 5 MB o ilegible: {names}"
+      "refused": "No se pudo adjuntar (más de 5 MB o ilegible): {names}"
     },
     "composer": {
       "steering": "Redirigiendo",
@@ -1480,15 +1480,15 @@
       "agentHint": "El agente que ejecuta esta sesión",
       "message": "Mensaje",
       "placeholder": "¿Qué debe hacer?",
-      "placeholderRunning": "Pon un mensaje en cola para después de este turno, o redirígelo",
-      "modelHint": "El modelo que recibe el próximo mensaje",
+      "placeholderRunning": "Pon un mensaje en cola para después o redirige el turno actual",
+      "modelHint": "El modelo para el próximo mensaje",
       "steer": "Redirigir",
-      "steerHint": "Alt+Enter redirige",
+      "steerHint": "Alt+Enter para redirigir",
       "queue": "Poner en cola",
-      "queueHint": "Enter pone en cola",
+      "queueHint": "Enter para poner en cola",
       "send": "Enviar",
-      "sendHint": "Enter envía, Shift+Enter hace un salto de línea",
-      "stopHint": "Esc detiene"
+      "sendHint": "Enter para enviar, Shift+Enter para un salto de línea",
+      "stopHint": "Esc para detener"
     },
     "files": {
       "tab": "Archivos",
@@ -1502,15 +1502,15 @@
       "openTerminal": "Abrir la terminal",
       "terminal": "Terminal",
       "session": "Sesión",
-      "sessionId": "Id de la sesión",
-      "chatId": "Id del chat",
+      "sessionId": "ID de la sesión",
+      "chatId": "ID del chat",
       "agent": "Agente",
       "model": "Modelo",
       "folder": "Carpeta",
       "revealFolder": "Mostrar la carpeta en el explorador",
       "newTerminal": "+ Nueva terminal",
-      "newTerminalHint": "Una terminal nueva",
-      "newTerminalInFolder": "Una terminal nueva en la carpeta de la sesión",
+      "newTerminalHint": "Abrir una terminal nueva",
+      "newTerminalInFolder": "Abrir una terminal nueva en la carpeta de la sesión",
       "project": "Proyecto",
       "started": "Inicio",
       "changed": "Último cambio",
@@ -1544,7 +1544,7 @@
       "weekOf": "Semana del {date}",
       "pinned": "Fijadas",
       "others": "Otras sesiones",
-      "thenNone": "Nada más"
+      "thenNone": "Ninguno"
     },
     "explorer": {
       "title": "Sesiones",
@@ -1558,15 +1558,15 @@
       "copyLink": "Copiar enlace",
       "delete": "Eliminar",
       "deleteTitle": "¿Eliminar \"{title}\"?",
-      "deleteBody": "Su historial se elimina con ella.",
+      "deleteBody": "Todo su historial también se eliminará.",
       "deleteFailed": "No se pudo eliminar la sesión",
       "files": {
         "one": "{count} archivo",
         "other": "{count} archivos"
       },
       "notConnected": "Sin conexión",
-      "refused": "El servidor rechazó la conexión.",
-      "connecting": "Conectando con el servidor",
+      "refused": "El host rechazó la conexión.",
+      "connecting": "Conectando con el host",
       "none": "No hay sesiones.",
       "noneYet": "Todavía no hay sesiones.",
       "reload": "Recargar",
@@ -1585,26 +1585,26 @@
       "pin": "Fijar",
       "unpin": "Desfijar",
       "show": "Mostrar sesiones",
-      "noneShown": "No hay sesiones aquí; elige otra opción en Mostrar sesiones."
+      "noneShown": "No hay sesiones que coincidan. Prueba otra opción en Mostrar sesiones."
     },
     "footer": {
       "window": "Ventana de contexto del modelo: {window} tokens",
-      "used": "{used} de {window} tokens, según el último turno"
+      "used": "{used} de {window} tokens usados, según el último turno"
     },
     "new": {
-      "unsent": "El mensaje no se envió.",
+      "unsent": "Tu mensaje no se envió.",
       "harness": "Harness",
       "harnessHint": "El harness con el que corre la sesión",
-      "noAgent": "Este servidor no ofrece ningún agente.",
-      "fold": "Ocultar las opciones",
-      "unfold": "Mostrar las opciones",
+      "noAgent": "Este host no ofrece ningún agente.",
+      "fold": "Ocultar opciones",
+      "unfold": "Mostrar opciones",
       "firstMessage": "Primer mensaje",
-      "readingSettings": "Leyendo la configuración",
-      "modelHint": "El modelo que recibe el primer mensaje",
+      "readingSettings": "Cargando la configuración",
+      "modelHint": "El modelo para el primer mensaje",
       "starting": "Iniciando",
       "create": "Crear",
       "start": "Iniciar",
-      "startHint": "Enter inicia, Shift+Enter hace un salto de línea",
+      "startHint": "Enter para iniciar, Shift+Enter para un salto de línea",
       "notCreated": "No se creó",
       "host": "Host",
       "hostHint": "El host en el que corre la sesión",
@@ -1627,7 +1627,7 @@
       "slash": "lista habilidades y comandos",
       "mention": "hace referencia a un archivo",
       "add": "agrega archivos, imágenes y sesiones",
-      "enter": "inicia; con el cuadro vacío crea la sesión sin mensaje",
+      "enter": "inicia la sesión; si no escribes nada, se crea sin mensaje",
       "shiftEnter": "hace un salto de línea"
     },
     "turn": {
@@ -1647,11 +1647,11 @@
       "older": "Cargar turnos anteriores",
       "gone": "Esta sesión ya no existe.",
       "starting": "Iniciando la sesión",
-      "notStarted": "La sesión no se inició",
+      "notStarted": "No se pudo iniciar la sesión",
       "noReason": "No se indicó el motivo.",
-      "sessionUnreadable": "No se puede leer la sesión",
-      "chatUnreadable": "No se puede leer el chat",
-      "reading": "Leyendo el chat",
+      "sessionUnreadable": "No se pudo cargar la sesión",
+      "chatUnreadable": "No se pudo cargar el chat",
+      "reading": "Cargando el chat",
       "empty": "Todavía no hay mensajes."
     },
     "tool": {
@@ -1716,7 +1716,7 @@
         "tools": "Llamadas a herramientas",
         "subagents": "Subagentes"
       },
-      "none": "Ningún paso para mostrar.",
+      "none": "No hay pasos para mostrar.",
       "turn": "Turno {n}",
       "live": "en curso",
       "tokens": "{input} entrada · {output} salida",
@@ -1736,7 +1736,7 @@
         "file": "Archivo"
       },
       "openSubagent": "Abrir subagente",
-      "view": "Cómo se lee",
+      "view": "Ver como",
       "views": {
         "formatted": "Con formato",
         "raw": "Crudo",
@@ -1768,12 +1768,12 @@
       "subagentN": "Subagente {n}",
       "subagentRunning": "en curso",
       "backToChat": "Volver al chat",
-      "view": "Vistas y cómo se lee el chat",
+      "view": "Vistas y opciones de visualización",
       "views": "Vistas",
       "newTerminal": "Nueva terminal",
-      "reads": "Cómo se lee el chat",
+      "reads": "Visualización",
       "hideCalls": "Ocultar llamadas",
-      "showCalls": "Mostrar las llamadas"
+      "showCalls": "Mostrar llamadas"
     }
   },
   "host": {
@@ -1787,9 +1787,9 @@
     "restart": {
       "button": "Reiniciar",
       "done": "El host se está reiniciando",
-      "failed": "El host no se reinició",
+      "failed": "No se pudo reiniciar el host",
       "anyway": "Reiniciar de todos modos",
-      "note": "Todos los clientes quedan desconectados hasta que el host vuelva.",
+      "note": "Reiniciar el host desconecta temporalmente a todos los clientes. Pueden volver a conectarse cuando esté funcionando de nuevo.",
       "confirm": "¿Reiniciar el host?"
     },
     "info": {
@@ -1817,19 +1817,18 @@
       "defaultFolder": "Carpeta predeterminada",
       "activeSessions": "Sesiones activas",
       "automations": "Automatizaciones",
-      "automationsNotOffered": "No disponibles",
-      "automationsReadOnly": "Solo lectura",
-      "automationsCreate": "Los clientes pueden crearlas",
-      "automationsInterval": {
-        "one": "como máximo cada {count} minuto",
-        "other": "como máximo cada {count} minutos"
+      "automationsCount": {
+        "one": "{count} automatización",
+        "other": "{count} automatizaciones"
       },
-      "automationsStoppable": "las ejecuciones se pueden detener",
+      "automationsLastRan": "última ejecución {when}",
+      "automationsNeverRan": "ninguna se ha ejecutado todavía",
+      "automationsNotOffered": "No disponibles",
       "settings": "Configuración",
       "connection": "Conexión",
       "daemon": "Daemon",
-      "statusUnreadable": "No se puede leer el estado del daemon: {error}",
-      "offers": "Ofrece",
+      "statusUnreadable": "No se pudo cargar el estado del daemon: {error}",
+      "offers": "Funciones",
       "terminals": "Terminales",
       "noTerminals": "No hay terminales abiertas.",
       "terminalTitle": "Título",
@@ -1840,9 +1839,9 @@
     },
     "settings": {
       "tab": "Configuración",
-      "unreadable": "No se puede leer la configuración",
-      "reading": "Leyendo la configuración",
-      "none": "Este host no publica ninguna configuración.",
+      "unreadable": "No se pudo cargar la configuración",
+      "reading": "Cargando la configuración",
+      "none": "Este host no tiene configuración para mostrar.",
       "save": "Guardar",
       "fixJson": "Corrige el JSON primero",
       "reset": "Restablecer",
@@ -1895,18 +1894,18 @@
         },
         "theme": {
           "title": "Tema",
-          "description": "Los colores de la página."
+          "description": "El tema de colores de la app."
         },
         "themeMode": {
           "title": "Claro u oscuro",
-          "description": "Sistema sigue al sistema operativo.",
+          "description": "Sistema usa la configuración de tu dispositivo.",
           "system": "Sistema",
           "light": "Claro",
           "dark": "Oscuro"
         },
         "language": {
           "title": "Idioma",
-          "description": "El idioma de la página; el host tiene el suyo."
+          "description": "El idioma de esta app. El idioma del host no cambia."
         },
         "layout": {
           "title": "Área principal",
@@ -1914,7 +1913,7 @@
         },
         "settingsPlace": {
           "title": "La configuración se abre en",
-          "description": "Dónde se abre la configuración; Abrir en la mueve y también cambia esto."
+          "description": "Dónde se abre la configuración. Elegir Abrir en también actualiza esto."
         },
         "sessionViewsPlace": {
           "title": "Información de la sesión y Cambios",
@@ -1924,37 +1923,37 @@
         },
         "toolsExpanded": {
           "title": "Llamadas a herramientas",
-          "description": "Si una llamada a herramienta empieza abierta en el chat.",
+          "description": "Si las llamadas a herramientas empiezan expandidas en el chat.",
           "expanded": "Expandidas",
           "collapsed": "Contraídas"
         },
         "sessionMarkdown": {
           "title": "Markdown",
-          "description": "Si el texto del agente se muestra como Markdown o como texto plano.",
+          "description": "Muestra las respuestas del agente como Markdown con formato o como texto plano.",
           "enabled": "Activado",
-          "disabled": "Desactivar Markdown"
+          "disabled": "Desactivado"
         },
         "confirmStyle": {
-          "title": "Preguntas",
-          "description": "Cómo pregunta la página antes de hacer algo que no se puede deshacer.",
-          "modal": "En el diálogo de la página",
-          "native": "En el diálogo del navegador"
+          "title": "Confirmaciones",
+          "description": "Cómo se te pide confirmar acciones que no se pueden deshacer.",
+          "modal": "En la app",
+          "native": "En un diálogo del navegador"
         },
-        "profileUnread": "No se pudo leer la configuración de la interfaz guardada",
-        "profileUnsaved": "No se pudo guardar la configuración de la interfaz",
-        "atOnce": "La configuración de la interfaz se aplica al cambiarla.",
+        "profileUnread": "No se pudo cargar tu configuración de la interfaz",
+        "profileUnsaved": "No se pudo guardar tu configuración de la interfaz",
+        "atOnce": "Los cambios se aplican al instante.",
         "botChatOpens": {
           "title": "Chat del bot",
           "description": "Dónde se abre un chat de bot.",
           "ask": "Preguntar",
-          "main": "Principal",
+          "main": "Área principal",
           "right": "Barra lateral derecha"
         },
         "customFileOpens": {
           "title": "Archivos de agente",
-          "description": "Dónde se abre para editar el archivo de un agente o skill.",
+          "description": "Dónde se abren para editar los archivos de agentes y skills.",
           "panel": "Panel nuevo",
-          "modal": "Modal"
+          "modal": "Diálogo"
         }
       },
       "tabs": {
@@ -1979,15 +1978,15 @@
       "one": "Reconectado {count} vez",
       "other": "Reconectado {count} veces"
     },
-    "backAgain": "Conectado de nuevo al servidor",
-    "backAgainHost": "Conectado de nuevo a {host}",
-    "lost": "Se perdió la conexión con el servidor",
+    "backAgain": "Reconectado al host",
+    "backAgainHost": "Reconectado a {host}",
+    "lost": "Se perdió la conexión con el host",
     "lostHost": "Se perdió la conexión con {host}",
     "retryNow": "Reintentar ahora",
     "commands": {
-      "reconnect": "Reconectar al servidor"
+      "reconnect": "Reconectar al host"
     },
-    "notConnected": "No hay conexión con el servidor.",
+    "notConnected": "No hay conexión con el host.",
     "untitled": "Sin título",
     "terminal": "Terminal",
     "daemonSilent": "El daemon no respondió.",
@@ -2003,7 +2002,7 @@
     "json": "json",
     "select": "Elegir…",
     "removeItem": "Quitar elemento",
-    "addItem": "+ agregar elemento",
+    "addItem": "+ Agregar elemento",
     "sections": "secciones",
     "fieldActions": "Acciones del ajuste",
     "resetField": "Restablecer ajuste",
@@ -2015,7 +2014,7 @@
     "searchResults": "Resultados de la búsqueda",
     "section": "Sección",
     "edited": "Editado",
-    "noMatch": "Ningún ajuste coincide.",
+    "noMatch": "No hay ajustes que coincidan.",
     "foundOne": "1 ajuste encontrado",
     "foundMany": "ajustes encontrados",
     "allResults": "Todos los resultados"
@@ -2038,7 +2037,7 @@
       "light": "Claro",
       "dark": "Oscuro",
       "system": "Seguir el sistema",
-      "next": "{mode}, haz clic para {next}",
+      "next": "{mode} (haz clic para {next})",
       "label": "Modo del tema: {mode}"
     }
   },
@@ -2077,8 +2076,8 @@
     "state": {
       "connected": "Conectado",
       "connecting": "Conectando",
-      "down": "Caído",
-      "refused": "Token rechazado"
+      "down": "Sin conexión",
+      "refused": "Inicio de sesión rechazado"
     }
   },
   "usage": {
@@ -2087,11 +2086,11 @@
       "filter": "Filtrar uso",
       "period": "Período",
       "group": "Agrupar",
-      "empty": "Aún no se cobró nada.",
-      "notServed": "Ningún host aquí guarda el uso.",
-      "nothing": "Nada cobrado",
+      "empty": "Aún no hay uso registrado.",
+      "notServed": "Ninguno de tus hosts registra el uso.",
+      "nothing": "Sin uso",
       "none": "Ninguno",
-      "refused": "No leído"
+      "refused": "No se pudo cargar"
     },
     "period": {
       "day": "Hoy",
@@ -2130,7 +2129,7 @@
       "title": "Límites",
       "of": "{used} de {amount}",
       "notCounted": "Aún no se cuenta",
-      "total": "En total",
+      "total": "Total",
       "resets": "Se reinicia {date}",
       "ends": "Termina {date}",
       "measure": {
@@ -2158,7 +2157,7 @@
     },
     "notices": {
       "none": "Sin uso",
-      "reading": "Leyendo el uso"
+      "reading": "Cargando el uso"
     },
     "commands": {
       "show": "Mostrar uso",
@@ -2170,7 +2169,7 @@
     "pool": {
       "range": "En un intervalo",
       "records": "Registros",
-      "noRecords": "No hay registros en estos días.",
+      "noRecords": "No hay registros para estas fechas.",
       "openOwner": "Abrir {name}",
       "openSession": "Abrir sesión"
     },
@@ -2196,7 +2195,7 @@
       "cacheWrite": "Caché escrita",
       "time": "Tiempo",
       "charged": "Cobrado",
-      "providerCost": "Del proveedor",
+      "providerCost": "Costo del proveedor",
       "session": "Sesión",
       "chat": "Chat",
       "turn": "Turno",
@@ -2222,8 +2221,8 @@
       "title": "Políticas",
       "filter": "Filtrar políticas",
       "group": "Agrupar",
-      "empty": "Todavía no hay ninguna política.",
-      "notServed": "Ningún host aquí lista sus políticas."
+      "empty": "Aún no hay políticas.",
+      "notServed": "Ninguno de tus hosts muestra políticas."
     },
     "group": {
       "kind": "Por tipo",
@@ -2273,14 +2272,14 @@
       "resets": "se reinicia {at}",
       "ends": "termina {at}",
       "member": "{user}: {used}",
-      "noMembers": "Nadie lo usó todavía",
-      "unread": "No se pudo leer lo que usaron los límites: {why}"
+      "noMembers": "Nadie lo ha usado todavía",
+      "unread": "No se pudo cargar el uso de los límites: {why}"
     },
     "notices": {
       "none": "Sin políticas",
-      "reading": "Leyendo las políticas",
-      "readingLimits": "Leyendo los límites",
-      "readOnly": "Este host no acepta cambios en sus políticas desde aquí."
+      "reading": "Cargando políticas",
+      "readingLimits": "Cargando límites",
+      "readOnly": "Este host no permite cambiar sus políticas desde aquí."
     },
     "commands": {
       "show": "Mostrar políticas",
@@ -2292,18 +2291,18 @@
       "delete": "Eliminar",
       "cancel": "Cancelar",
       "discard": "Descartar cambios",
-      "failed": "La política no se eliminó"
+      "failed": "No se pudo eliminar la política"
     },
     "policy": {
       "id": "ID",
-      "idHint": "Un nombre para la fila, único en este host: policy://<id>. Sin espacios ni barras.",
-      "limits": "Lo que usaron los límites",
+      "idHint": "Un nombre único en este host, que se usa como policy://<id>. Sin espacios ni barras.",
+      "limits": "Uso de los límites",
       "create": "Crear política",
       "save": "Guardar",
-      "gone": "Esta política ya no está en el host.",
-      "noManifest": "Este host no describe cómo se escribe una política.",
+      "gone": "Esta política ya no existe.",
+      "noManifest": "Este host no describe cómo se escriben las políticas.",
       "deleteTitle": "¿Eliminar la política {id}?",
-      "deleteBody": "Ya no se comprueba a nadie con ella, y lo que contaron sus límites queda en los registros de uso."
+      "deleteBody": "Ya no se aplicará a nadie. El uso que ya contó queda en los registros de uso."
     }
   },
   "trust": {
@@ -2312,18 +2311,18 @@
       "body": "{path}\n\nUna carpeta de confianza deja que un agente cargue la configuración, los hooks y las herramientas propias del proyecto. Los agentes que no pueden preguntar antes, como Codex, solo arrancan en una carpeta de confianza. Se pregunta una vez por cada carpeta en este host.",
       "yes": "Confiar",
       "no": "No confiar",
-      "refused": "El host no aceptó la carpeta de confianza"
+      "refused": "El host no pudo guardar la carpeta de confianza"
     },
     "host": {
       "title": "Carpetas de confianza",
-      "hint": "Lo que este navegador respondió cuando una sesión empezó en una carpeta. Las de confianza se envían al host en cada conexión.",
-      "none": "Aún no se respondió por ninguna carpeta.",
+      "hint": "Carpetas en las que confiaste en este navegador. Tus carpetas de confianza se comparten con el host cada vez que te conectas.",
+      "none": "Aún no hay carpetas.",
       "folder": "Carpeta",
-      "answer": "Respuesta",
+      "answer": "Estado",
       "trusted": "De confianza",
       "untrusted": "Sin confianza",
       "forget": "Olvidar",
-      "notForgotten": "El host no aceptó el cambio"
+      "notForgotten": "El host no pudo guardar el cambio"
     }
   },
   "profile": {
@@ -2342,57 +2341,57 @@
       "noMemberships": "Sin membresías.",
       "signIn": "Inicio de sesión",
       "issuer": "Emisor",
-      "issuerDefault": "El de este host",
+      "issuerDefault": "Este host",
       "rolesFrom": "Roles desde",
       "usage": "Uso",
-      "usageFailed": "No se pudo leer tu uso: {error}",
+      "usageFailed": "No se pudo cargar tu uso: {error}",
       "limits": "Límites",
-      "noLimits": "Ningún límite te aplica.",
-      "limitsFailed": "No se pudieron leer tus límites: {error}"
+      "noLimits": "No se te aplica ningún límite.",
+      "limitsFailed": "No se pudieron cargar tus límites: {error}"
     },
     "keys": {
-      "reading": "Leyendo tus claves…",
+      "reading": "Cargando tus claves…",
       "none": "Aún sin claves.",
-      "notServed": "Este host no guarda claves.",
+      "notServed": "Este host no admite claves.",
       "unnamed": "Clave sin nombre",
-      "everyGrant": "Todos los permisos que tienes",
-      "everyGrantOf": "Todos los permisos que tiene {id}",
+      "everyGrant": "Todos tus permisos",
+      "everyGrantOf": "Todos los permisos de {id}",
       "made": "Creada el {day}",
       "expires": "Vence el {day}",
       "expired": "Venció el {day}",
       "neverExpires": "No vence",
       "revoke": "Revocar",
       "revokeTitle": "¿Revocar {name}?",
-      "revokeBody": "Lo que use esta clave ya no podrá iniciar sesión con ella.",
+      "revokeBody": "Todo lo que use esta clave ya no podrá iniciar sesión con ella.",
       "mint": {
         "new": "Nueva clave",
         "label": "Etiqueta",
-        "labelHint": "Para qué es, así la lista la distingue, como laptop o ci.",
+        "labelHint": "Para qué es, así puedes distinguirla, como laptop o ci.",
         "expiry": "Vence",
-        "day": "Día en que vence",
+        "day": "Fecha de vencimiento",
         "expiries": {
           "7": "En 7 días",
           "30": "En 30 días",
           "90": "En 90 días",
           "365": "En un año",
           "never": "Nunca",
-          "date": "Un día"
+          "date": "En una fecha"
         },
         "grants": "Permisos",
-        "grantsHint": "Un permiso que un rol te da al iniciar sesión no aparece aquí; una clave con todos los permisos sigue tus roles cuando cambian.",
-        "noGrants": "Tu registro no lista permisos para elegir.",
+        "grantsHint": "Los permisos que te dan tus roles al iniciar sesión no aparecen aquí. Una clave con todos tus permisos sigue a tus roles cuando cambian.",
+        "noGrants": "No tienes permisos para elegir.",
         "mint": "Crear clave",
         "cancel": "Cancelar",
-        "madeTitle": "{name} está creada",
-        "once": "Copia el secreto ahora. El host lo muestra solo esta vez y guarda solo su hash.",
+        "madeTitle": "{name} creada",
+        "once": "Copia el secreto ahora. No se volverá a mostrar.",
         "copy": "Copiar el secreto",
         "done": "Listo"
       }
     },
     "notices": {
-      "reading": "Leyendo tu perfil…",
-      "none": "No se pudo leer tu perfil",
-      "notPerson": "Esta conexión no inició sesión como una persona, así que no tiene perfil."
+      "reading": "Cargando tu perfil…",
+      "none": "No se pudo cargar tu perfil",
+      "notPerson": "Esta conexión no inició sesión como una persona, así que no hay perfil."
     }
   },
   "plugins": {
@@ -2400,8 +2399,8 @@
       "title": "Plugins",
       "filter": "Filtrar plugins",
       "group": "Agrupar",
-      "empty": "Este host no configura plugins.",
-      "notServed": "Ningún host aquí te muestra sus plugins. Requiere el permiso plugin:list."
+      "empty": "Este host no tiene plugins.",
+      "notServed": "Ninguno de tus hosts te permite ver sus plugins. Esto requiere el permiso plugin:list."
     },
     "group": {
       "state": "Por estado",
@@ -2433,30 +2432,30 @@
       "disable": "Desactivar",
       "enableFailed": "No se pudo activar {id}",
       "disableFailed": "No se pudo desactivar {id}",
-      "reimport": "Importar de nuevo",
-      "reimportFailed": "No se pudo importar de nuevo {id}",
-      "apply": "Aplicar la configuración",
+      "reimport": "Reimportar",
+      "reimportFailed": "No se pudo reimportar {id}",
+      "apply": "Aplicar configuración",
       "applyFailed": "No se pudo aplicar la configuración"
     },
     "notices": {
-      "reading": "Leyendo los plugins…",
-      "none": "No se pudieron leer los plugins"
+      "reading": "Cargando plugins…",
+      "none": "No se pudieron cargar los plugins"
     },
     "page": {
-      "gone": "Este plugin ya no está configurado.",
+      "gone": "Este plugin ya no está instalado.",
       "overview": "Resumen",
       "options": "Opciones",
       "provides": "Ofrece",
-      "providesNothing": "Su manifiesto no nombra nada que ofrezca.",
-      "undeclared": "Se cargó, pero su manifiesto no nombra contratos, así que no se sabe qué ofrece.",
-      "notLoaded": "No se cargó, así que no se sabe qué ofrece.",
+      "providesNothing": "Su manifiesto no indica nada que ofrezca.",
+      "undeclared": "Se cargó, pero su manifiesto no indica qué ofrece.",
+      "notLoaded": "No se ha cargado, así que no se sabe qué ofrece.",
       "spec": "Tal como está configurado",
       "loadFailed": "No se cargó",
       "alerts": "Alertas",
       "failing": "Tiene errores"
     },
     "facts": {
-      "id": "Id",
+      "id": "ID",
       "state": "Estado",
       "version": "Versión",
       "running": "En ejecución",
@@ -2476,15 +2475,15 @@
     "options": {
       "save": "Guardar",
       "reset": "Restablecer",
-      "saved": "Guardado. El host lo aplica en su próximo inicio.",
+      "saved": "Guardado. El cambio se aplica la próxima vez que se inicie el host.",
       "failed": "No se pudo guardar la opción",
-      "none": "Este plugin no tiene opciones para fijar aquí. Un plugin desactivado, o que no se cargó, no muestra ninguna."
+      "none": "Este plugin no tiene opciones para configurar aquí. Los plugins desactivados o que no se cargaron no muestran ninguna."
     },
-    "restart": "El host tiene un cambio que se aplica en su próximo inicio. Reinicia el host para aplicarlo.",
-    "restartShort": "Reinicia el host para aplicar el último cambio.",
+    "restart": "Hay un cambio pendiente. Reinicia el host para aplicarlo.",
+    "restartShort": "Reinicia el host para aplicar tu último cambio.",
     "running": {
       "yes": "Sí",
-      "no": "No, se carga en el próximo inicio del host"
+      "no": "No, se carga la próxima vez que se inicie el host"
     },
     "alerts": {
       "error": {
@@ -2510,9 +2509,9 @@
       "title": "Conectores",
       "filter": "Filtrar conectores",
       "group": "Agrupar",
-      "empty": "No hay conectores que puedas ver.",
+      "empty": "No hay conectores que puedas ver aquí.",
       "noAdapter": "Sin adaptador",
-      "notServed": "Ningún host aquí te muestra sus conectores. Requiere el permiso connector:list."
+      "notServed": "Ninguno de tus hosts te permite ver conectores. Esto requiere el permiso connector:list."
     },
     "group": {
       "adapter": "Por adaptador",
@@ -2530,8 +2529,8 @@
       "unavailable": "No disponible"
     },
     "stateNotes": {
-      "invalid": "Su configuración no encaja con su adaptador, o su adaptador se negó a abrirlo. Cambia su configuración para abrirlo de nuevo.",
-      "unavailable": "Ningún plugin registra su adaptador ahora. Activa el plugin que ofrece {adapter} para abrirlo de nuevo."
+      "invalid": "Su configuración no coincide con su adaptador, o el adaptador no pudo abrirlo. Actualiza su configuración para abrirlo de nuevo.",
+      "unavailable": "Ningún plugin proporciona su adaptador en este momento. Activa el plugin que ofrece {adapter} para abrirlo de nuevo."
     },
     "owners": {
       "me": "Yo",
@@ -2543,60 +2542,60 @@
       "open": "Abrir",
       "delete": "Eliminar",
       "deleteTitle": "¿Eliminar {title}?",
-      "deleteBody": "El host lo cierra y olvida sus secretos. No se puede deshacer.",
+      "deleteBody": "El host lo cierra y elimina sus secretos. Esto no se puede deshacer.",
       "deleteFailed": "No se pudo eliminar {title}"
     },
     "notices": {
-      "reading": "Leyendo los conectores…",
-      "none": "No se pudieron leer los conectores"
+      "reading": "Cargando conectores…",
+      "none": "No se pudieron cargar los conectores"
     },
     "form": {
       "newTitle": "Nuevo conector",
       "adapter": "Adaptador",
-      "id": "Id",
-      "idHint": "Un slug, hecho del título hasta que lo cambies. No puede cambiar después.",
+      "id": "ID",
+      "idHint": "Se genera a partir del título hasta que lo edites. No podrás cambiarlo después.",
       "title": "Título",
-      "titleHint": "Lo que muestra la lista. Vacío, muestra el id.",
+      "titleHint": "Se muestra en la lista. Déjalo vacío para mostrar el ID.",
       "owner": "Dueño",
       "create": "Crear",
       "save": "Guardar",
       "reset": "Restablecer",
       "saved": "Guardado.",
       "failed": "No se pudo guardar el conector",
-      "noAdapters": "Este host no te muestra adaptadores. Crear un conector requiere el permiso connector:list.",
-      "noPut": "Crear un conector requiere el permiso connector:put, que no tienes.",
+      "noAdapters": "Este host no te muestra ningún adaptador. Para crear un conector se necesita el permiso connector:list.",
+      "noPut": "Para crear un conector se necesita el permiso connector:put, que no tienes.",
       "settingsOf": "Configuración de {adapter}",
       "secretKept": "Guardado. Escribe un valor nuevo para reemplazarlo."
     },
     "signIn": {
       "orType": "Inicia sesión, o escribe la clave arriba.",
-      "step": "Inicia sesión en la página que se abrió, copia el código que muestra y pégalo aquí.",
+      "step": "Inicia sesión en la página que se abrió, luego copia el código que muestra y pégalo aquí.",
       "openAgain": "Abrir la página otra vez",
       "code": "Código",
       "finish": "Terminar",
       "cancel": "Cancelar",
-      "failed": "El inicio de sesión no terminó",
+      "failed": "No se completó el inicio de sesión",
       "done": "Sesión iniciada con {provider}. Estado: {state}.",
       "again": "Iniciar sesión de nuevo"
     },
     "page": {
-      "gone": "Este conector ya no está en el host.",
+      "gone": "Este conector ya no existe.",
       "overview": "Resumen",
       "settings": "Configuración",
       "adapter": "Adaptador",
       "plugin": "Plugin",
       "owner": "Dueño",
       "state": "Estado",
-      "id": "Id",
+      "id": "ID",
       "capabilities": "Capacidades ({count})",
-      "noCapabilities": "Su adaptador no declara capacidades.",
+      "noCapabilities": "Su adaptador no declara ninguna capacidad.",
       "input": "Entrada",
       "required": "Obligatorio",
       "url": "URL",
       "copy": "Copiar",
       "copied": "URL copiada",
-      "unknownAdapter": "{adapter}, que ningún plugin registra ahora",
-      "noAdapter": "Su registro no nombra un adaptador, porque lo escribió un host anterior a los adaptadores. Elimínalo y créalo de nuevo.",
+      "unknownAdapter": "{adapter} (ningún plugin lo proporciona en este momento)",
+      "noAdapter": "Este conector lo creó un host anterior y no tiene adaptador. Elimínalo y créalo de nuevo.",
       "noAdapterShort": "Ninguno",
       "models": "Modelos",
       "check": "Última comprobación",
@@ -2628,8 +2627,8 @@
       "failed": "Falló"
     },
     "models": {
-      "reading": "Leyendo los modelos...",
-      "failed": "No se pudieron leer los modelos",
+      "reading": "Cargando modelos…",
+      "failed": "No se pudieron cargar los modelos",
       "search": "Buscar modelos",
       "count": {
         "one": "{count} modelo",
@@ -2639,12 +2638,12 @@
         "one": "{shown} de {count} modelo",
         "other": "{shown} de {count} modelos"
       },
-      "at": "leído a las {when}",
-      "again": "Leer de nuevo",
-      "none": "El proveedor no lista modelos.",
+      "at": "actualizado {when}",
+      "again": "Actualizar",
+      "none": "El proveedor no muestra ningún modelo.",
       "copy": "Copiar el nombre del modelo",
-      "refused": "No puedes llamar a este modelo.",
-      "priceHint": "Dólares por millón de tokens: prompt / respuesta",
+      "refused": "No tienes acceso a este modelo.",
+      "priceHint": "Dólares por millón de tokens: entrada / salida",
       "columns": {
         "model": "Modelo",
         "name": "Nombre",

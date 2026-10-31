@@ -18,8 +18,8 @@ The palette has **Host information**, **Host settings** and **Interface settings
 The **Host** page shows the connection's status. While it is not connected, **Reconnect now** tries again at once. **Settings** opens the settings.
 
 - **Connection**: the status, host, protocol, when it connected, the client, the server's sequence, how many channels it follows, and the last error.
-- **Offers**: **Agents**, which opens the [Agents](AGENTS.md) list, the default folder, how many sessions are active, and whether the host takes automations, and how often they may run.
-- **Trusted folders**: what this browser answered when a session started in a folder. The trusted ones are sent to the host on every connect. **Forget** drops an answer, and forgetting a yes tells the host at once.
+- **Features**: the agents, the default folder, how many sessions are active, and the automations. **Agents** opens the [Agents](AGENTS.md) list. **Automations** shows how many the host has and when one last ran, and opens the [Automations](AUTOMATIONS.md) list. With none, it shows **New automation** when the host lets you create one.
+- **Trusted folders**: the folders you trusted in this browser. Your trusted folders are shared with the host whenever you connect. **Forget** drops an answer, and forgetting a yes tells the host at once.
 - **Terminals**: each terminal's title, and whether it is running or has exited.
 
 ## Settings

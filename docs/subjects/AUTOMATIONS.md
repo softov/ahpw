@@ -12,7 +12,7 @@ From the [Command palette](../use/PALETTE.md): **New automation** and **Show aut
 
 ## The list
 
-Each row shows a status dot (**Running**, **Last run failed**, **On** or **Off**), the title and the next run time. Below that come the schedule in words (or **Run by hand**) and the agent, then how many runs it had and when the last one finished, or **Never run**. With several hosts, the row also names the host.
+Each row shows a status dot (**Running**, **Last run failed**, **On** or **Off**), the title and the next run time. Below that come the schedule in words (or **Run manually**) and the agent, then how many runs it had and when the last one finished, or **Never run**. With several hosts, the row also names the host.
 
 Type in **Filter automations** to narrow the list.
 
@@ -45,13 +45,13 @@ An action shows only when the host allows it.
 
 The page head has **Run now**, **Turn off** or **Turn on**, **Edit** and **Delete**, each shown when the host allows it.
 
-The facts list the agent (**The host default** when none is set), the model (**The agent default**), the folder, the schedule in words with its cron expression and time zone, what happens to missed runs (**Skipped** or **Run once when back**), when it turns off, the next run, the run count, and when it was created and changed. Below them is the **Message**, drawn as Markdown.
+The facts list the agent (**Host default** when none is set), the model (**Agent default**), the folder, the schedule in words with its cron expression and time zone, what happens to missed runs (**Skipped** or **Run once when the host is back**), when it turns off, the next run, the run count, and when it was created and changed. Below them is the **Message**, drawn as Markdown.
 
 <Shot id="automations-page" alt="An automation page with its facts and runs" />
 
 ### Runs
 
-The **Runs** table has a row per run: **Status**, **How**, **Started**, **Took** and **Tokens**. A run is **Waiting**, **Running**, **Done**, **Failed** or **Stopped**. **How** says whether it ran **By hand**, **Scheduled** or as a **Catch-up**, with the time it was due.
+The **Runs** table has a row per run: **Status**, **How**, **Started**, **Took** and **Tokens**. A run is **Waiting**, **Running**, **Done**, **Failed** or **Stopped**. **How** says whether it ran **Manually**, **Scheduled** or as a **Catch-up**, with the time it was due.
 
 **Open session** opens the run's session in [Sessions](SESSIONS.md). **Stop** ends a live run, when the host supports stopping runs. **Load older runs** reads the next page when the host has more.
 
@@ -64,17 +64,17 @@ The **Runs** table has a row per run: **Status**, **How**, **Started**, **Took**
 | **Host** | Which host keeps it. New automations only, with several hosts. |
 | **Title** | Its name. Required. |
 | **Message** | What the agent is told each time it runs. Required. |
-| **Agent** | Which agent runs it. **The host default** leaves the choice to the host. |
-| **Model** | **The agent default**, or a model of that agent. |
+| **Agent** | Which agent runs it. **Host default** leaves the choice to the host. |
+| **Model** | **Agent default**, or a model of that agent. |
 | **Folder** | A folder on the daemon's machine. |
-| **Schedule** | **By hand only**, **Every 10 minutes**, **Every hour**, **Every 6 hours**, **Every day at 09:00**, **Weekdays at 09:00**, **Every Monday at 05:00** or **Custom**. |
+| **Schedule** | **Manual only**, **Every 10 minutes**, **Every hour**, **Every 6 hours**, **Every day at 09:00**, **Weekdays at 09:00**, **Every Monday at 05:00** or **Custom**. |
 | **Cron expression** | Five fields: minute hour day month weekday. The hint says it in words, and names the host's shortest interval. |
 | **Time zone** | Shown when there is a schedule. |
-| **Missed runs** | **Skip them** or **Run once when back**. Shown when there is a schedule. |
+| **Missed runs** | **Skip them** or **Run once when the host is back**. Shown when there is a schedule. |
 | **Turn off after runs** | A whole number of runs. Empty keeps it on. |
 | **Turn off after** | A date. Empty keeps it on. |
 | **On** | Whether the schedule is live. |
 
 **Examples**, on a new automation, opens ready-made automations grouped **For code** and **Everyday**. Picking one fills the title, message and schedule. If you already typed something, ahpw asks first: **Replace** or **Keep mine**.
 
-**Create** or **Save** sends it; **Cancel** closes the form. If the host does not allow it, the form says "This host does not let clients create automations."
+**Create** or **Save** sends it; **Cancel** closes the form. If the host does not allow it, the form says "This host doesn't allow creating automations."

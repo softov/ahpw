@@ -51,7 +51,7 @@ The host's own operations on one file follow, by the name the host gives them.
 
 An operation the host marks as needing a confirmation asks first. What the host answers shows above the files; a link it answers with opens in a new browser tab, and a file it names opens in its viewer.
 
-The grouping is **By review** when the host takes review marks, **Staged and not** when some files are staged, or **Not grouped**.
+The grouping is **By review** when the host takes review marks, **Staged and unstaged** when some files are staged, or **Not grouped**.
 
 ## Commit
 

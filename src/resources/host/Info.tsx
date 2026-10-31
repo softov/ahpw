@@ -1,9 +1,10 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
 import { Alert, Badge, Button, DetailList, Text, type DetailItem } from '@softov/scena/ui';
-import type { AgentInfo, AutomationCapabilities } from '@microsoft/agent-host-protocol';
+import { automationReducer, type AgentInfo, type AutomationCapabilities, type AutomationState } from '@microsoft/agent-host-protocol';
 // import { call } from '../../lib/api.js';
-import { ahpPaths, hostBridge, type Connection, type HostFacts } from '../../bridges/data.js';
+import { AUTOMATIONS, ahpPaths, hostBridge, type Connection, type HostFacts } from '../../bridges/data.js';
+import { useChannel } from '../../bridges/channel.js';
 import { elapsed, folderLabel } from '../../bridges/words.js';
 import { when } from '../sessions/turn.js';
 import { AGENTS_SECTION } from '../agents/index.js';
@@ -13,6 +14,8 @@ import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import { mayRestart } from '../../bridges/restart.js';
 import { RESTART_HOST } from './restart.js';
 import { DangerZone } from '../../shell/controls/DangerZone.js';
+import { AUTOMATIONS_SECTION } from '../automations/index.js';
+import { runFacts, runsByTime } from '../automations/words.js';
 
 /** What `GET /api/status` says about the daemon process. */
 interface DaemonStatus {
@@ -61,6 +64,29 @@ function useNow(): number {
   return now;
 }
 
+/** The host's automations: how many, and when one last ran; with none, a button that creates one. */
+function AutomationsFact({ host, caps }: { host: string; caps: AutomationCapabilities | null }): ReactElement {
+  const scena = useScena();
+  const { t } = useI18n();
+  const { state } = useChannel<AutomationState>(host, caps === null ? undefined : AUTOMATIONS, automationReducer);
+  if (caps === null) return <>{t('host/info/automationsNotOffered')}</>;
+  if (state === undefined) return <>{t('common/loading')}</>;
+  const entries = state.entries;
+  if (entries.length === 0) {
+    return caps.create === undefined
+      ? <>{t('host/info/none')}</>
+      : <Button label={t('automations/commands/new')} onClick={() => void scena.commands.execute('ahp.newAutomation', { host })} />;
+  }
+  const last = entries.flatMap((entry) => runsByTime(entry).slice(0, 1).map((run) => runFacts(run).at)).sort().at(-1);
+  return (
+    <button type="button" className="web-link" onClick={() => void scena.commands.execute('sidebar.activate', { section: AUTOMATIONS_SECTION })}>
+      {plural('host/info/automationsCount', entries.length)}
+      {' \u{00B7} '}
+      {last === undefined ? t('host/info/automationsNeverRan') : t('host/info/automationsLastRan', { when: when(last) })}
+    </button>
+  );
+}
+
 /** The host: the connection to it, the daemon process, and what it offers. */
 export default function HostInfoPage({ host }: { host: string }): ReactElement {
   const scena = useScena();
@@ -107,14 +133,7 @@ export default function HostInfoPage({ host }: { host: string }): ReactElement {
     { label: t('host/info/defaultFolder'), value: home === null || home === undefined ? t('host/info/none') : <code>{folderLabel(home)}</code> },
   ];
   if (facts?.activeSessions !== null && facts?.activeSessions !== undefined) offers.push({ label: t('host/info/activeSessions'), value: String(facts.activeSessions) });
-  offers.push({
-    label: t('host/info/automations'),
-    value: caps === null || caps === undefined ? t('host/info/automationsNotOffered') : [
-      caps.create === undefined ? t('host/info/automationsReadOnly') : t('host/info/automationsCreate'),
-      caps.schedules?.minIntervalMinutes === undefined ? undefined : plural('host/info/automationsInterval', caps.schedules.minIntervalMinutes),
-      caps.runCancellation === undefined ? undefined : t('host/info/automationsStoppable'),
-    ].filter((bit) => bit !== undefined).join(', '),
-  });
+  offers.push({ label: t('host/info/automations'), value: <AutomationsFact host={host} caps={caps ?? null} /> });
 
   const terminals = facts?.terminals ?? [];
   return (

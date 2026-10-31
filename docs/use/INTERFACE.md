@@ -35,7 +35,7 @@ The settings have two tabs, **Host** and **Interface**. **Interface settings** i
 | **Language** | The language of the page; the host keeps its own. It starts from the browser's languages |
 | **Main area** | How the main area shows its tabs: **Tabs** (the default), **Tab groups**, **Split**, **Spatial**, **Stack** or **Single** |
 | **Settings open in** | **Floating window** (the default), **Editor tab**, **Right sidebar** or **Bottom panel** |
-| **Questions** | **In the page's own dialog** (the default) or **In the browser's dialog** |
+| **Confirmations** | **In the app** (the default) or **In a browser dialog** |
 
 A choice made from a menu or the palette is the same setting as the one in this form.
 
@@ -69,10 +69,10 @@ If the browser blocked them, it does not ask again: turn them on in the site set
 
 The host can also send a notification when no ahpw tab is open. Run **Notify me when this tab is closed** from the palette and allow it in the browser. It needs a host that offers push, and a page served over HTTPS or from `localhost`. Click the notification to open the session in ahpw.
 
-By default it notifies about every session of yours. To hear only about the sessions started in this browser, run **Notify me only about sessions this device opened**. To go back, run **Notify me about all my sessions**. To turn it off, run **Stop notifications when this tab is closed**.
+By default it notifies about every session of yours. To hear only about the sessions started in this browser, run **Notify me only about sessions started on this device**. To go back, run **Notify me about all my sessions**. To turn it off, run **Stop notifications when this tab is closed**.
 
 When ahpw runs inside ahp-desk, the desk shows the notifications itself, and these commands are not in the palette.
 
-### Questions
+### Confirmations
 
-When ahpw asks you to confirm, such as before a delete, it asks in its own dialog or in the browser's, as **Questions** says. **Ask in the page's own dialog** and **Ask in the browser's dialog** in the palette switch between the two.
+When ahpw asks you to confirm, such as before a delete, it asks in the app or in a browser dialog. **Confirmations** picks which. **Ask for confirmation in the app** and **Ask for confirmation in the browser** in the palette switch between the two.
