@@ -31,7 +31,7 @@ describe('terminals', () => {
     scena.store.set(ahpPaths(windowHost()).host, host);
     const rows = terminalItems(scena, '');
     expect(rows.map((one) => 'title' in one && one.title)).toEqual(['Terminal: bash', 'Terminal: npm test']);
-    expect(rows.map((one) => 'description' in one && one.description)).toEqual(['Yours', 'Held by a session, exited with 1']);
+    expect(rows.map((one) => 'description' in one && one.description)).toEqual(['Yours', 'In use by a session, exited with 1']);
     expect(terminalItems(scena, 'npm')).toHaveLength(1);
     expect(terminalItems(scena, 'terminal')).toHaveLength(2);
   });

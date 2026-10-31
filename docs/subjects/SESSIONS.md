@@ -61,7 +61,7 @@ Above the box, two pills pick where and who:
 | Folder | Pick a recent folder, or **Open folder…** to browse the host's folders |
 | **Agent** | Pick the agent; `/agent` in the box does the same |
 
-Under the box, pills show the host's settings for the agent, and the model. **Fold the options** hides the pills; **Show the options** shows them again.
+Under the box, pills show the host's settings for the agent, and the model. **Hide options** hides the pills; **Show options** shows them again.
 
 Press Enter or **Start** to start the session with the message. Shift+Enter breaks the line. With an empty box the button reads **Create** and makes the session without a message. If the folder is new to the host, ahpw asks you to trust it first. Leaving the tab with a message not sent asks first.
 
@@ -79,7 +79,7 @@ The header has tools for the session:
 | Terminals | How many terminals it has; opens one, or the session details |
 | Subagents | A menu of the subagents it started |
 | Chats | Switches between the session's chats, when it has more than one |
-| **How the chat reads** | Picks the view (formatted, raw or JSON), which steps to show, and **Hide calls** |
+| **Display** | Picks the view (formatted, raw or JSON), which steps to show, and **Hide calls** |
 
 Tool calls that wait on you show **Approve** and **Deny**, or **Accept result** and **Reject**. A question from the agent shows its choices, with **Back**, **Next**, **Answer** and **Decline**.
 

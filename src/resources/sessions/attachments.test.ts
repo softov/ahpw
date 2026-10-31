@@ -42,11 +42,11 @@ describe('clipboardImage', () => {
   } as unknown as ClipboardItem);
 
   it('says why when the page cannot read the clipboard', async () => {
-    expect(await clipboardImage(undefined)).toBe('Needs https or localhost');
+    expect(await clipboardImage(undefined)).toBe('Needs HTTPS or localhost');
   });
 
   it('says the browser refused when reading throws', async () => {
-    expect(await clipboardImage({ read: () => Promise.reject(new Error('denied')) })).toBe('The browser refused');
+    expect(await clipboardImage({ read: () => Promise.reject(new Error('denied')) })).toBe('The browser blocked clipboard access');
   });
 
   it('says there is no image when the clipboard holds text', async () => {
@@ -54,7 +54,7 @@ describe('clipboardImage', () => {
   });
 
   it('refuses an image over 5 MB', async () => {
-    expect(await clipboardImage({ read: async () => [item('image/png', MAX_EMBEDDED_BYTES + 1)] })).toBe('Over 5 MB');
+    expect(await clipboardImage({ read: async () => [item('image/png', MAX_EMBEDDED_BYTES + 1)] })).toBe('Larger than 5 MB');
   });
 
   it('gives a small image as a file named by its type', async () => {

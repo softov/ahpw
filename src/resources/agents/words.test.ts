@@ -27,8 +27,8 @@ describe('modelsLine', () => {
 describe('capabilitiesOf', () => {
   it('says what an agent does beyond one chat and one folder', () => {
     expect(capabilitiesOf(agent({ capabilities: { multipleChats: { fork: true }, multipleWorkingDirectories: { immutablePrimary: true } } }))).toEqual([
-      'Several chats per session, and forks',
-      'Several folders, the first one fixed',
+      'Multiple chats per session, with forks',
+      "Multiple folders; the first can't change",
     ]);
     expect(capabilitiesOf(agent({}))).toEqual([]);
   });
@@ -37,7 +37,7 @@ describe('capabilitiesOf', () => {
 describe('limitsOf', () => {
   it('gives each of a model\'s limits a size and its full words', () => {
     const model: SessionModelInfo = { id: 'm', provider: 'echo', name: 'M', maxContextWindow: 200000, maxOutputTokens: 8000, supportsVision: true };
-    expect(limitsOf(model).map(({ text, title }) => [text, title])).toEqual([['200k', '200k context'], ['8k', '8k out'], ['', 'images']]);
+    expect(limitsOf(model).map(({ text, title }) => [text, title])).toEqual([['200k', '200k context'], ['8k', '8k output'], ['', 'images']]);
     expect(limitsOf({ id: 'm', provider: 'echo', name: 'M' })).toEqual([]);
   });
 });
@@ -63,7 +63,7 @@ describe('stateOf', () => {
   it('reads an MCP server\'s state by its kind', () => {
     expect(stateOf(mcp(state({ kind: 'ready' })))).toEqual({ tone: 'success', text: 'Ready' });
     expect(stateOf(mcp(state({ kind: 'starting' })))).toEqual({ tone: 'info', text: 'Starting' });
-    expect(stateOf(mcp(state({ kind: 'starting', blocking: true })))).toEqual({ tone: 'info', text: 'Starting; blocks the next turn' });
+    expect(stateOf(mcp(state({ kind: 'starting', blocking: true })))).toEqual({ tone: 'info', text: 'Starting; the next turn waits for it' });
     expect(stateOf(mcp(state({ kind: 'authRequired', reason: 'expired', resource: { resource: 'https://mcp' } })))).toEqual({ tone: 'warning', text: 'Sign-in expired' });
     expect(stateOf(mcp(state({ kind: 'error', error: { errorType: 'spawn', message: 'Not found: npx' } })))).toEqual({ tone: 'danger', text: 'Not found: npx' });
     expect(stateOf(mcp(state({ kind: 'stopped' })))).toEqual({ tone: 'default', text: 'Stopped' });

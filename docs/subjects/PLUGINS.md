@@ -19,19 +19,19 @@ The buttons on the section header:
 | Button | |
 |---|---|
 | **Reload** | Reads the list again. |
-| **Apply the configuration** | Matches each host's running plugins to its configuration file. Shown when the host offers it. |
+| **Apply configuration** | Matches each host's running plugins to its configuration file. Shown when the host offers it. |
 | **Group** | **By state** or **By category**. |
 | **Hosts** | Picks which hosts to show, when there are several. |
 
 A plugin is **Error**, **Missing**, **Incompatible**, **Unconfigured**, **Ready** or **Disabled**. Its categories are **Agent**, **Channel**, **Connector**, **Storage**, **Tool** and **Other**; grouped by category, a plugin shows under each category it names.
 
-Right-click a row for **Open**, **Enable** or **Disable**, and **Import again**. Each shows when the host offers it.
+Right-click a row for **Open**, **Enable** or **Disable**, and **Reimport**. Each shows when the host offers it.
 
-When the host holds a change it applies only at its next start, the list says "Restart the host to apply the last change."
+When the host holds a change it applies only at its next start, the list says "Restart the host to apply your last change."
 
 ## The page
 
-The head shows the state, with **Import again** and **Enable** or **Disable**. A change that waits for a restart is shown at the top. The page has two tabs, **Overview** and **Options**.
+The head shows the state, with **Reimport** and **Enable** or **Disable**. A change that waits for a restart is shown at the top. The page has two tabs, **Overview** and **Options**.
 
 <Shot id="plugins-page" alt="A plugin page on its Overview tab" />
 
@@ -42,7 +42,7 @@ The plugin's description, and what is wrong with it if anything, come first. A p
 | Section | |
 |---|---|
 | **Alerts** | The plugin's errors, warnings, infos and notices. |
-| **Provides** | What it provides: **Agents**, **Adapters**, **Channels**, **Commands**, **Resource schemes**, **Tools** and **Trigger kinds**. An agent opens its page in [Agents](AGENTS.md), an adapter opens [Connectors](CONNECTORS.md). A plugin that has not loaded, or whose manifest names nothing, says so. |
+| **Provides** | What it provides: **Agents**, **Adapters**, **Channels**, **Commands**, **Resource schemes**, **Tools** and **Trigger types**. An agent opens its page in [Agents](AGENTS.md), an adapter opens [Connectors](CONNECTORS.md). A plugin that has not loaded, or whose manifest names nothing, says so. |
 | **As configured** | Its entry in the host's configuration, as JSON. Folded at first. |
 
 ### Options

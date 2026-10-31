@@ -29,12 +29,12 @@ The palette has **Show policies** and **New policy**.
 
 <Shot id="policies-page" alt="A policy page with its form and what its limits used" />
 
-The form comes from the host's own description of a policy. A host that has none shows "This host does not describe how a policy is written." Each field can also be edited as JSON.
+The form comes from the host's own description of a policy. A host that has none shows "This host doesn't describe how policies are written." Each field can also be edited as JSON.
 
 - **ID**: on a new policy only. A name unique on the host, with no spaces and no slash.
 - A new policy starts as one that allows any model to everybody.
 
-**What the limits used** shows each limit's use so far, when it resets or ends, and for a limit on each member, what each one used.
+**Limit usage** shows each limit's use so far, when it resets or ends, and for a limit on each member, what each one used.
 
 **Create policy** or **Save** writes it, and stays off while the JSON is not valid. **Cancel** and **Discard changes** drop your edits. **Delete** asks first. Nobody is checked against a deleted policy, and what its limits counted stays in the usage records.
 

@@ -22,7 +22,7 @@ The list joins two things the host says: the agents it serves now, and the agent
 
 Each row shows the agent's icon and name, then a line with its status, owner, why it is on standby, how many models and sessions it has, and **needs sign-in** when it does. The description comes last. With several hosts, the row also names the host.
 
-Type in **Filter agents** to narrow the list. A host with no agents shows "This server offers no agent."
+Type in **Filter agents** to narrow the list. A host with no agents shows "This host doesn't offer any agents."
 
 Right-click a row for **Open** and **New session**. **New session** shows only for an agent the host serves, and starts a session with it in [Sessions](SESSIONS.md).
 
@@ -36,11 +36,11 @@ An agent with a record has two tabs, **Overview** and **Settings**. An agent wit
 
 ### Overview
 
-The facts name the provider, engine, owner and plugin, the state (**Ready**, **Invalid** or **Unavailable**, with the last health check), the models, the sessions, and what it can do, such as "Several chats per session, and forks" or "One chat in one folder per session".
+The facts name the provider, engine, owner and plugin, the state (**Ready**, **Invalid** or **Unavailable**, with the last health check), the models, the sessions, and what it can do, such as "Multiple chats per session, with forks" or "One chat in one folder per session".
 
 | Section | |
 |---|---|
-| **Models** | Each model's name, id and limits. A model can be marked "Turned off by policy" or "Not set up". An agent that lists no models picks its own. |
+| **Models** | Each model's name, id and limits. A model can be marked "Turned off by a policy" or "Not set up". An agent that lists no models picks its own. |
 | **Customizations** | The plugins, folders and MCP servers the agent loads, as a tree. Click one to see it, with **Copy the name**, **Copy the description** and **Open file**; a Markdown file is shown in place. |
 | **Sign-in** | The resources it asks you to sign in to, with their scopes, and whether each is required or optional. |
 
@@ -66,4 +66,4 @@ Below is the agent's form, drawn from what its engine takes. **Save** sends it, 
 
 Below come the engine's own settings. **Create** makes the agent and opens its page.
 
-If the host lists no engines, the form says "This server lists no engines." If you may not add one, it says "You may not add an agent on this server."
+If the host lists no engines, the form says "This host doesn't list any engines." If you may not add one, it says "You don't have permission to add agents on this host."
