@@ -11,8 +11,13 @@
  * only `^0.10.0`. It is not a published release: VS Code gives it the wire
  * contract of `1.0.0`, and adds only the canvas actions, which the SDK's
  * reducers already fold. A host that answers `0.10.0` is read as a `1.0.0` host.
+ *
+ * The same rewrite adds the page's language as `locale` to `initialize` and
+ * `reconnect`, which the SDK's host runtime leaves out; a host that reads it
+ * answers in that language.
  */
 
+import { getLocale } from '@softov/scena';
 import { SUPPORTED_PROTOCOL_VERSIONS } from '@microsoft/agent-host-protocol';
 import type { AhpTransport } from '@microsoft/agent-host-protocol/client';
 
@@ -26,11 +31,20 @@ export const OFFERED_PROTOCOL_VERSIONS: readonly string[] = Object.freeze(
   ),
 );
 
-/** An `initialize` request offering `OFFERED_PROTOCOL_VERSIONS`; any other frame as it came. */
-export function offeringEveryVersion<T>(message: T): T {
+/**
+ * An `initialize` request offering `OFFERED_PROTOCOL_VERSIONS`, and an
+ * `initialize` or `reconnect` carrying `locale` when one is given; any other
+ * frame as it came.
+ */
+export function offeringEveryVersion<T>(message: T, locale?: string): T {
   const body = record(typeof message === 'string' ? parsed(message) : message);
-  if (body?.method !== 'initialize') return message;
-  const params = { ...record(body.params), protocolVersions: [...OFFERED_PROTOCOL_VERSIONS] };
+  if (body?.method !== 'initialize' && body?.method !== 'reconnect') return message;
+  if (body.method === 'reconnect' && locale === undefined) return message;
+  const params = {
+    ...record(body.params),
+    ...(body.method === 'initialize' ? { protocolVersions: [...OFFERED_PROTOCOL_VERSIONS] } : {}),
+    ...(locale === undefined ? {} : { locale }),
+  };
   const rewritten = { ...body, params };
   return (typeof message === 'string' ? JSON.stringify(rewritten) : rewritten) as T;
 }
@@ -49,10 +63,10 @@ function parsed(text: string): unknown {
   }
 }
 
-/** The same transport, with an `initialize` offering `OFFERED_PROTOCOL_VERSIONS` on its way out. */
+/** The same transport, with an `initialize` offering `OFFERED_PROTOCOL_VERSIONS` and the page's `locale` on its way out. */
 export function offering(inner: AhpTransport): AhpTransport {
   return {
-    send: (message) => inner.send(offeringEveryVersion(message)),
+    send: (message) => inner.send(offeringEveryVersion(message, getLocale())),
     close: () => inner.close(),
     recv: () => inner.recv(),
   };

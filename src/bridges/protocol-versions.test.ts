@@ -44,6 +44,17 @@ test('any other frame goes as it came', () => {
   expect(offeringEveryVersion('not json')).toBe('not json');
 });
 
+test('an initialize and a reconnect carry the locale given', () => {
+  expect(offeringEveryVersion(initialize, 'pt-BR').params).toEqual({ channel: 'ahp-root://', clientId: 'c', protocolVersions: [...OFFERED_PROTOCOL_VERSIONS], locale: 'pt-BR' });
+  const reconnect = { jsonrpc: '2.0', id: 2, method: 'reconnect', params: { clientId: 'c' } };
+  expect(offeringEveryVersion(reconnect, 'pt-BR').params).toEqual({ clientId: 'c', locale: 'pt-BR' });
+});
+
+test('a frame other than initialize or reconnect goes as it came with a locale', () => {
+  const subscribe = { jsonrpc: '2.0', id: 3, method: 'subscribeSessions', params: {} };
+  expect(offeringEveryVersion(subscribe, 'pt-BR')).toBe(subscribe);
+});
+
 /**
  * A host that speaks only `^0.10.0`, as VS Code 1.141's does. It answers
  * `initialize` with `0.10.0` when offered and refuses otherwise, answers
