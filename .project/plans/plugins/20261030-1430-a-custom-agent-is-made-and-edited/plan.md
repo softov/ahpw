@@ -1,7 +1,7 @@
 ---
 title: A custom agent is made and edited
 domain: plugins
-status: active
+status: built
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -84,9 +84,9 @@ host sends a new root state -> the tree shows the new file
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - the editor opens by a setting](task-01-the-editor-opens-by-a-setting.md) | implemented | - |
-| [02 - a written file gets edit](task-02-a-written-file-gets-edit.md) | implemented | 01 |
-| [03 - a writable folder gets new](task-03-a-writable-folder-gets-new.md) | implemented | 01 |
+| [01 - the editor opens by a setting](task-01-the-editor-opens-by-a-setting.md) | done | - |
+| [02 - a written file gets edit](task-02-a-written-file-gets-edit.md) | done | 01 |
+| [03 - a writable folder gets new](task-03-a-writable-folder-gets-new.md) | done | 01 |
 
 ## Risks and tradeoffs
 
@@ -98,8 +98,8 @@ host sends a new root state -> the tree shows the new file
 
 ## Resume state
 
-- **Done so far:** tasks 01 to 03 are implemented on the branch, not committed. See [implemented.md](implemented.md).
-- **Next action:** Softov reviews the branch; then the commit and the PR.
+- **Done so far:** the plan is built and merged in PR #23. See [implemented.md](implemented.md).
+- **Next action:** none.
 - **Open questions:** none.
 - **Watch out for:** an agent shows Edit only when ahpd sends its `file:` URI, which waits on the ahpd brief.
 

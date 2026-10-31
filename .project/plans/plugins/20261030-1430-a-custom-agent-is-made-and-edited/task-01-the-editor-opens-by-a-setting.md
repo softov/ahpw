@@ -1,6 +1,6 @@
 ---
 title: The editor opens by a setting
-status: implemented
+status: done
 depends: []
 layer: "agents"
 refs:

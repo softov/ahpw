@@ -1,6 +1,6 @@
 ---
 title: A writable folder gets New
-status: implemented
+status: done
 depends:
   - task-01-the-editor-opens-by-a-setting.md
 layer: "agents"

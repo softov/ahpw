@@ -2,7 +2,7 @@
 title: A custom agent is made and edited - implemented
 date: 2026-10-30
 refs:
-  - git://7576702
+  - git://5e9ac45
   - "[code://src/resources/agents/custom-files.ts](../../../../src/resources/agents/custom-files.ts)"
   - "[code://src/resources/agents/FileModal.tsx](../../../../src/resources/agents/FileModal.tsx)"
   - "[code://src/resources/agents/words.ts](../../../../src/resources/agents/words.ts)"
