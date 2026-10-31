@@ -9,12 +9,12 @@
     "breadcrumb": "Breadcrumb",
     "host": "Host",
     "dangerZone": "Danger zone",
-    "cannotUndo": "This cannot be undone."
+    "cannotUndo": "This can't be undone."
   },
   "auth": {
-    "subtitle": "Sign in with a token credential.",
+    "subtitle": "Sign in with your access token.",
     "token": "Token",
-    "tokenRequired": "A token is required.",
+    "tokenRequired": "Enter your token.",
     "signIn": "Sign in",
     "forgotPassword": "Forgot password?",
     "createAccount": "Create account",
@@ -24,7 +24,7 @@
     "sendCode": "Send code",
     "sendLink": "Send link",
     "verifyCode": "Verify code",
-    "verifyFailed": "Verify failed"
+    "verifyFailed": "Couldn't verify the code"
   },
   "shell": {
     "toggleLeft": "Toggle left sidebar (Ctrl+B)",
@@ -95,8 +95,8 @@
       "region": "Notifications",
       "more": "{count} more",
       "raised": {
-        "one": "Raised {count} time",
-        "other": "Raised {count} times"
+        "one": "Happened {count} time",
+        "other": "Happened {count} times"
       },
       "dismiss": "Dismiss",
       "showDetails": "Show details",
@@ -105,29 +105,29 @@
       "cancel": "Cancel",
       "commands": {
         "enableAlerts": "Notify me when this tab is in the background",
-        "confirmModal": "Ask in the page's own dialog",
-        "confirmNative": "Ask in the browser's dialog",
+        "confirmModal": "Ask for confirmation in the app",
+        "confirmNative": "Ask for confirmation in the browser",
         "dismissAll": "Dismiss all notifications",
         "enablePush": "Notify me when this tab is closed",
         "disablePush": "Stop notifications when this tab is closed",
-        "pushDevice": "Notify me only about sessions this device opened",
+        "pushDevice": "Notify me only about sessions started on this device",
         "pushPerson": "Notify me about all my sessions"
       },
       "alerts": {
         "alreadyOn": "Background notifications are already on",
         "blocked": "Background notifications are blocked",
-        "blockedHelp": "The browser will not ask again. Turn them on in the site settings beside the address bar.",
+        "blockedHelp": "Your browser won't ask again. To turn them on, open the site settings next to the address bar.",
         "on": "Background notifications are on",
-        "notAllowed": "Background notifications were not allowed"
+        "notAllowed": "Background notifications weren't allowed"
       },
       "push": {
-        "on": "Notifications with the tab closed are on",
-        "off": "Notifications with the tab closed are off",
-        "notOn": "Notifications with the tab closed did not turn on",
-        "notOff": "The host did not remove this device",
-        "person": "This device hears about all your sessions",
-        "device": "This device hears only about sessions it opened",
-        "notSwitched": "The host did not take the change"
+        "on": "You'll be notified even when this tab is closed",
+        "off": "You won't be notified when this tab is closed",
+        "notOn": "Couldn't turn on notifications for when this tab is closed",
+        "notOff": "Couldn't remove this device from the host",
+        "person": "You'll be notified about all your sessions",
+        "device": "You'll be notified only about sessions started on this device",
+        "notSwitched": "The host couldn't save this change"
       }
     },
     "panel": {
@@ -145,7 +145,7 @@
       "status": {
         "connected": "Connected",
         "connecting": "Connecting",
-        "down": "Down"
+        "down": "Offline"
       },
       "minimize": "Minimize",
       "maximize": "Maximize",
@@ -187,9 +187,9 @@
       "share": "Share",
       "copied": "Address copied",
       "openOutside": "Open in a new tab",
-      "refused": "Only http and https addresses open here.",
+      "refused": "Only web addresses (http and https) can open here.",
       "empty": "Open a web page",
-      "emptyBody": "Type an address and press Enter. Many sites with a sign-in do not show here; Open in a new tab opens them."
+      "emptyBody": "Type an address and press Enter. Many sites that need you to sign in can't be shown here, so open those in a new tab."
     }
   },
   "close": {
@@ -257,15 +257,15 @@
       "delete": "Delete"
     },
     "failed": {
-      "newFile": "The file could not be created",
-      "newFolder": "The folder could not be created",
-      "upload": "The upload failed",
-      "copyPath": "The path could not be copied",
-      "download": "The download failed",
-      "rename": "The rename failed",
-      "copy": "The copy failed",
-      "removeFolder": "The folder could not be removed",
-      "delete": "The delete failed"
+      "newFile": "Couldn't create the file",
+      "newFolder": "Couldn't create the folder",
+      "upload": "Upload failed",
+      "copyPath": "Couldn't copy the path",
+      "download": "Download failed",
+      "rename": "Couldn't rename it",
+      "copy": "Couldn't copy it",
+      "removeFolder": "Couldn't remove the folder",
+      "delete": "Couldn't delete it"
     },
     "ask": {
       "create": "Create",
@@ -280,12 +280,12 @@
     "pathCopied": "Path copied",
     "delete": {
       "title": "Delete \"{name}\"?",
-      "body": "Everything in it goes with it."
+      "body": "Everything inside it will be deleted too."
     },
     "name": {
-      "empty": "Give a name.",
-      "slash": "A name has no slash.",
-      "dot": "Give a name other than a dot."
+      "empty": "Enter a name.",
+      "slash": "Names can't contain a slash.",
+      "dot": "Enter a name other than a dot."
     },
     "copyName": "{name} copy{ext}",
     "explorer": {
@@ -294,12 +294,12 @@
       "open": "Open",
       "openWith": "Open with {viewer}",
       "loading": "Loading",
-      "notReadable": "Not readable",
+      "notReadable": "Couldn't open",
       "default": "default",
       "notConnected": "Not connected",
-      "refused": "The server refused the connection.",
-      "connecting": "Connecting to the server",
-      "empty": "The server names no folder yet. Start a session in one.",
+      "refused": "The host refused the connection.",
+      "connecting": "Connecting to the host",
+      "empty": "No folders yet. Start a session in a folder and it shows up here.",
       "folders": "Folders"
     },
     "pick": {
@@ -335,21 +335,21 @@
       "openDiff": "Open diff"
     },
     "openFile": "Open file",
-    "noFile": "No file was named.",
-    "reading": "Reading the file",
-    "notReadable": "Not readable",
+    "noFile": "No file selected.",
+    "reading": "Loading the file",
+    "notReadable": "Couldn't read this file",
     "notText": "This file is not text.",
-    "unsaved": "The changes to this file are not saved.",
-    "changedOnHost": "The file changed on the server since it was opened. Copy your edit, then reopen the file.",
+    "unsaved": "You have unsaved changes in this file.",
+    "changedOnHost": "This file changed on the host after you opened it. Copy your changes, then reopen the file.",
     "readOnly": "Read-only",
     "notSaved": "Not saved",
-    "cut": "This file is over 5 MB. It shows the start, read-only.",
+    "cut": "This file is over 5 MB, so only the beginning is shown, read-only.",
     "edited": "Edited",
     "copyPath": "Copy path",
     "save": "Save",
-    "tooLarge": "This file is {size}. Files over {max} are not shown.",
+    "tooLarge": "This file is too large to show ({size}). The limit is {max}.",
     "audio": {
-      "cannotPlay": "This browser cannot play this file.",
+      "cannotPlay": "Your browser can't play this file.",
       "play": "Play",
       "pause": "Pause",
       "speed": "Speed"
@@ -358,7 +358,7 @@
       "newFile": "new file",
       "deleted": "deleted",
       "viewed": "Viewed",
-      "reading": "Reading both sides",
+      "reading": "Loading the changes",
       "none": "No changes."
     },
     "image": {
@@ -367,8 +367,8 @@
       "fit": "Fit",
       "zoomIn": "Zoom in"
     },
-    "gone": "This file is no longer there.",
-    "readRefused": "The server does not let you read this file."
+    "gone": "This file no longer exists.",
+    "readRefused": "You don't have permission to read this file."
   },
   "changes": {
     "title": "Changes",
@@ -382,7 +382,7 @@
     },
     "grouping": {
       "review": "By review",
-      "staging": "Staged and not",
+      "staging": "Staged and unstaged",
       "none": "Not grouped"
     },
     "status": {
@@ -396,9 +396,9 @@
     "markReviewed": "Mark as reviewed",
     "markNotReviewed": "Mark as not reviewed",
     "noSession": "Open a session to see what it changed.",
-    "untracked": "This session tracks no changes.",
-    "notReadable": "Changes not readable",
-    "computing": "Working out the changes",
+    "untracked": "This session doesn't track changes.",
+    "notReadable": "Couldn't load the changes",
+    "computing": "Finding the changes",
     "none": "No changes.",
     "viewOptions": "View options",
     "view": {
@@ -417,26 +417,26 @@
     "cancel": "Cancel",
     "commit": {
       "staged": {
-        "one": "The {count} staged file is committed. The rest stay as they are.",
-        "other": "The {count} staged files are committed. The rest stay as they are."
+        "one": "The staged file will be committed. Other changes are left as they are.",
+        "other": "The {count} staged files will be committed. Other changes are left as they are."
       },
       "all": {
-        "one": "Nothing is staged, so the {count} changed file is committed.",
-        "other": "Nothing is staged, so all {count} changed files are committed."
+        "one": "Nothing is staged, so the changed file will be committed.",
+        "other": "Nothing is staged, so all {count} changed files will be committed."
       },
       "message": "Commit message",
       "placeholder": "What does this change do?"
     },
     "pr": {
       "title": "Create a pull request",
-      "preparing": "Asking the server for a title and description",
+      "preparing": "Suggesting a title and description",
       "titleLabel": "Title",
-      "titlePlaceholder": "What is this request?",
+      "titlePlaceholder": "Summarize the change",
       "description": "Description",
       "descriptionPlaceholder": "What changed, and why?",
       "draft": "Open as a draft",
-      "cannotCreate": "This server offers no way to create the request.",
-      "explain": "The server commits what is uncommitted, pushes the branch and opens the request only when you press the button."
+      "cannotCreate": "This host can't create pull requests.",
+      "explain": "When you confirm, the host commits any uncommitted changes, pushes the branch and opens the pull request."
     }
   },
   "log": {
@@ -457,16 +457,16 @@
     },
     "copyLine": "Copy the line",
     "all": "All",
-    "levelTip": "Least severe level shown",
+    "levelTip": "Lowest level to show",
     "minLevel": "{level} and up",
-    "filter": "Filter (!word excludes)",
+    "filter": "Filter (use !word to exclude)",
     "copyShown": "Copy the lines shown",
     "empty": "Nothing logged yet.",
-    "noMatch": "Nothing logged matches the filter."
+    "noMatch": "No log lines match the filter."
   },
   "terminals": {
     "terminal": "Terminal",
-    "notConnected": "Not connected to the server.",
+    "notConnected": "Not connected to the host.",
     "commands": {
       "open": "Open terminal",
       "disconnect": "Disconnect terminal",
@@ -476,17 +476,17 @@
     },
     "kill": {
       "title": "Kill \"{title}\"?",
-      "body": "Its process ends on the host.",
+      "body": "This stops its process on the host.",
       "confirm": "Kill"
     },
     "failed": {
-      "kill": "The terminal could not be killed",
-      "create": "The terminal could not be created"
+      "kill": "Couldn't kill the terminal",
+      "create": "Couldn't create the terminal"
     },
     "holder": {
       "you": "Yours",
-      "session": "Held by a session",
-      "another": "Held by another client"
+      "session": "In use by a session",
+      "another": "In use by another client"
     },
     "exited": "{holder}, exited",
     "exitedWith": "{holder}, exited with {code}",
@@ -494,15 +494,15 @@
       "title": "Terminal: {title}",
       "group": "Terminals"
     },
-    "noTerminal": "No terminal was named.",
-    "notReadable": "Not readable",
-    "disconnected": "Disconnected. The terminal keeps running on the host.",
+    "noTerminal": "No terminal selected.",
+    "notReadable": "Couldn't open this terminal",
+    "disconnected": "Disconnected. The terminal is still running on the host.",
     "connect": "Connect",
     "note": {
       "exited": "Exited.",
       "exitedWith": "Exited with {code}.",
-      "session": "A session is running this terminal. Typing is off.",
-      "another": "Another client holds this terminal. Typing is off."
+      "session": "A session is using this terminal, so you can't type here.",
+      "another": "Another client is using this terminal, so you can't type here."
     },
     "takeOver": "Take over",
     "newOn": "New terminal on"
@@ -517,7 +517,7 @@
     "automation": "Automation",
     "editTitle": "Edit {title}",
     "untitled": "Untitled",
-    "byHand": "Run by hand",
+    "byHand": "Run manually",
     "cron": {
       "everyMinutes": {
         "one": "Every minute",
@@ -542,10 +542,10 @@
       }
     },
     "problems": {
-      "title": "Give it a title.",
-      "message": "Say what it sends.",
-      "schedule": "A schedule is five fields: minute, hour, day, month, weekday.",
-      "runs": "Stop after a whole number of runs."
+      "title": "Add a title.",
+      "message": "Add a message.",
+      "schedule": "Use five fields for the schedule: minute, hour, day, month and weekday.",
+      "runs": "Enter a whole number of runs."
     },
     "state": {
       "running": "Running",
@@ -562,18 +562,18 @@
     },
     "notices": {
       "none": "No automations",
-      "reading": "Reading the automations",
-      "gone": "This automation is gone."
+      "reading": "Loading automations",
+      "gone": "This automation no longer exists."
     },
     "defaults": {
-      "host": "The host default",
-      "agent": "The agent default"
+      "host": "Host default",
+      "agent": "Agent default"
     },
     "actions": {
       "deleteTitle": "Delete \"{title}\"?",
-      "deleteBody": "Its run history goes with it.",
+      "deleteBody": "Its run history will be deleted too.",
       "delete": "Delete",
-      "couldNotRun": "The automation could not run",
+      "couldNotRun": "Couldn't run the automation",
       "open": "Open",
       "runNow": "Run now",
       "turnOff": "Turn off",
@@ -603,7 +603,7 @@
       "sort": "Sort automations"
     },
     "origin": {
-      "byHand": "By hand",
+      "byHand": "Manually",
       "scheduled": "Scheduled",
       "scheduledFor": "Scheduled for {time}",
       "catchUp": "Catch-up",
@@ -621,9 +621,9 @@
       "settings": "Settings",
       "schedule": "Schedule",
       "missedRuns": "Missed runs",
-      "runOnce": "Run once when back",
+      "runOnce": "Run once when the host is back",
       "skipped": "Skipped",
-      "byHandOnly": "Run by hand only",
+      "byHandOnly": "Manual runs only",
       "event": "Event",
       "turnsOff": "Turns off",
       "nextRun": "Next run",
@@ -648,7 +648,7 @@
       "loadOlder": "Load older runs"
     },
     "edit": {
-      "noCreate": "This host does not let clients create automations.",
+      "noCreate": "This host doesn't allow creating automations.",
       "host": "Host",
       "examples": {
         "open": "Examples",
@@ -661,14 +661,14 @@
       },
       "title": "Title",
       "message": "Message",
-      "messageHint": "What the agent is told each time it runs.",
+      "messageHint": "The message the agent gets each time it runs.",
       "agent": "Agent",
       "model": "Model",
       "folder": "Folder",
-      "folderHint": "A folder on the daemon's machine.",
+      "folderHint": "A folder on the host's computer.",
       "schedule": "Schedule",
       "presets": {
-        "byHand": "By hand only",
+        "byHand": "Manual only",
         "every10Minutes": "Every 10 minutes",
         "everyHour": "Every hour",
         "every6Hours": "Every 6 hours",
@@ -679,19 +679,19 @@
       "custom": "Custom",
       "cron": "Cron expression",
       "cronPlaceholder": "minute hour day month weekday",
-      "byHandHint": "Runs only when started by hand.",
+      "byHandHint": "Runs only when you start it.",
       "minimum": {
         "one": "At most every minute.",
         "other": "At most every {count} minutes."
       },
       "timeZone": "Time zone",
       "missedRuns": "Missed runs",
-      "missedHint": "What happens to a run due while the daemon was down.",
+      "missedHint": "What to do with runs that were due while the host was offline.",
       "skip": "Skip them",
-      "runOnce": "Run once when back",
+      "runOnce": "Run once when the host is back",
       "afterRuns": "Turn off after runs",
       "afterDate": "Turn off after",
-      "keepsOn": "Empty keeps it on.",
+      "keepsOn": "Leave empty to keep it on.",
       "on": "On",
       "create": "Create",
       "save": "Save",
@@ -736,7 +736,7 @@
       "status": "Show by state",
       "group": "Group computers",
       "empty": "No computers yet.",
-      "notServed": "No host here serves computers."
+      "notServed": "None of your hosts offer computers."
     },
     "group": {
       "none": "No groups",
@@ -757,9 +757,9 @@
     },
     "notices": {
       "none": "No computers",
-      "reading": "Reading the computers",
-      "gone": "This computer is gone.",
-      "oom": "The machine was stopped because it ran out of memory."
+      "reading": "Loading computers",
+      "gone": "This computer no longer exists.",
+      "oom": "This computer was stopped because it ran out of memory."
     },
     "actions": {
       "open": "Open",
@@ -768,9 +768,9 @@
       "restart": "Restart",
       "remove": "Remove",
       "removeTitle": "Remove {name}?",
-      "removeBody": "The machine and what it holds are deleted. Mounted host folders stay.",
+      "removeBody": "The computer and everything on it will be deleted. Mounted host folders are kept.",
       "copyName": "Copy name",
-      "failed": "The host did not do that"
+      "failed": "The host couldn't do that"
     },
     "facts": {
       "image": "Image",
@@ -795,18 +795,18 @@
       "disk": "Disk"
     },
     "page": {
-      "usage": "Use",
+      "usage": "Usage",
       "mounts": "Mounts",
       "readOnly": "read only",
-      "record": "What the runtime says"
+      "record": "Runtime details"
     },
     "new": {
       "host": "Host",
       "name": "Name",
-      "nameHint": "The machine is known by this name; it cannot change later.",
-      "nameSlash": "A name holds no / \\ or ?.",
-      "nameDots": "A name is not . or ..",
-      "noCreate": "This host does not let you make computers.",
+      "nameHint": "You can't change the name later.",
+      "nameSlash": "Names can't contain / \\ or ?.",
+      "nameDots": "Names can't be . or ..",
+      "noCreate": "This host doesn't allow creating computers.",
       "create": "Create",
       "cancel": "Cancel"
     }
@@ -823,23 +823,23 @@
       "title": "Bots",
       "filter": "Filter bots",
       "empty": "No bots yet.",
-      "notServed": "No host here serves bots."
+      "notServed": "None of your hosts offer bots."
     },
     "notices": {
       "none": "No bots",
-      "reading": "Reading the bots",
-      "gone": "This bot is gone."
+      "reading": "Loading bots",
+      "gone": "This bot no longer exists."
     },
     "actions": {
       "open": "Open",
       "chat": "Open chat",
-      "openMain": "Open on main",
-      "openRight": "Open on right",
+      "openMain": "Open in the main area",
+      "openRight": "Open on the right",
       "edit": "Edit",
       "delete": "Delete",
       "deleteTitle": "Delete {name}?",
-      "deleteBody": "The bot is deleted, and its name cannot be given to another bot on this host.",
-      "failed": "The host did not do that"
+      "deleteBody": "The bot will be deleted, and its name can't be reused for another bot on this host.",
+      "failed": "The host couldn't do that"
     },
     "facts": {
       "labels": "Labels",
@@ -853,7 +853,7 @@
       "instructions": "Instructions"
     },
     "edit": {
-      "color": "Colour",
+      "color": "Color",
       "body": "Body",
       "host": "Host",
       "name": "Name",
@@ -861,18 +861,18 @@
       "ownerHint": "Who the bot belongs to.",
       "ownerMe": "Me",
       "ownerHost": "This host",
-      "ownerKept": "A bot keeps its owner.",
+      "ownerKept": "A bot's owner can't be changed.",
       "labels": "Labels",
-      "labelsHint": "Separated by commas.",
+      "labelsHint": "Separate labels with commas.",
       "description": "Description",
       "instructions": "Instructions",
-      "instructionsHint": "What the bot is told in its first chat.",
-      "instructionsLater": "A change reaches the next chats, not the first one already sent.",
+      "instructionsHint": "What the bot is told at the start of each chat.",
+      "instructionsLater": "Changes apply to new chats, not to the ones already started.",
       "create": "Create",
       "save": "Save",
       "cancel": "Cancel",
       "bodyName": "Body name",
-      "bodyUnknown": "bood has no body by that name yet, so it is drawn as a square."
+      "bodyUnknown": "There's no body with this name yet, so the bot is shown as a square."
     },
     "colors": {
       "red": "Red",
@@ -894,17 +894,17 @@
     },
     "chat": {
       "cannot": "You can't chat with this bot.",
-      "noHost": "This host does not run bot chats yet.",
+      "noHost": "This host doesn't support bot chats yet.",
       "opening": "Opening the chat…",
-      "failed": "Could not open the chat",
-      "reading": "Reading the chat",
+      "failed": "Couldn't open the chat",
+      "reading": "Loading the chat",
       "working": "{name} is working",
       "noReply": "{name} finished without a reply",
       "empty": "Say something to {name}.",
       "download": "Save {name}",
       "message": "Message {name}",
       "where": "Where should bot chats open?",
-      "whereBody": "Your answer is kept. Change it in Settings, Interface, Bot."
+      "whereBody": "We'll remember your choice. You can change it in Settings > Interface > Bot."
     }
   },
   "users": {
@@ -914,12 +914,12 @@
       "roles": "Roles",
       "filter": "Filter users and roles",
       "empty": "No users yet.",
-      "notServed": "No host here lists its users."
+      "notServed": "None of your hosts list users."
     },
     "notices": {
       "none": "No users",
-      "reading": "Reading the users",
-      "readOnly": "This host does not let you change these."
+      "reading": "Loading users",
+      "readOnly": "This host doesn't allow changes here."
     },
     "commands": {
       "new": "New",
@@ -932,65 +932,65 @@
     "actions": {
       "open": "Open",
       "delete": "Delete",
-      "failed": "The host did not do that",
+      "failed": "The host couldn't do that",
       "cancel": "Cancel",
       "discard": "Discard changes"
     },
     "user": {
       "deleteTitle": "Delete {id}?",
-      "deleteBody": "They can no longer sign in to this host.",
-      "gone": "This user is gone.",
-      "id": "Id",
-      "idHint": "How they sign in and how the host names them. It cannot be changed later.",
+      "deleteBody": "They won't be able to sign in to this host anymore.",
+      "gone": "This user no longer exists.",
+      "id": "ID",
+      "idHint": "The name they sign in with. You can't change it later.",
       "roles": "Roles",
       "noRoles": "This host defines no roles.",
       "addRole": "Add a role",
-      "dropRole": "Take {role} away",
+      "dropRole": "Remove {role}",
       "noRolesHeld": "No roles yet.",
-      "dropMembership": "Take them out of {name}",
+      "dropMembership": "Remove them from {name}",
       "issuer": "Issuer",
-      "issuerHint": "Where they sign in, when it is not this host: github, or an issuer URL. Empty removes it.",
+      "issuerHint": "Where they sign in, if not on this host: github or an issuer URL. Leave empty to remove it.",
       "rolesFrom": "Roles from",
-      "rolesFromHint": "Extra roles from the issuer: the claim in its sign-in answer that names them, such as groups. Only roles this host defines count, and they are added to the ones above. Empty adds none.",
-      "token": "A token is never shown here. Make one on the host with: ahpd user token {id}",
+      "rolesFromHint": "Extra roles from the issuer, read from a claim in its sign-in response, such as groups. Only roles defined on this host count, and they're added to the roles above. Leave empty to add none.",
+      "token": "Tokens are never shown here. Create one on the host with: ahpd user token {id}",
       "create": "Create user",
       "save": "Save",
-      "dropAdminTitle": "Take admin away from yourself?",
-      "dropAdminBody": "You may not be able to change users or roles on this host again.",
+      "dropAdminTitle": "Remove your own admin role?",
+      "dropAdminBody": "You might not be able to manage users or roles on this host anymore.",
       "addTeam": "Add to a team",
       "everyProject": "every project",
       "signIn": "Sign-in",
       "memberships": "Teams and projects",
       "noMemberships": "No memberships yet.",
-      "noProject": "the team, no project",
+      "noProject": "the team, without a project",
       "whichProjects": "Which projects",
       "primaryMark": "primary",
-      "makePrimary": "Make this the primary",
-      "unmakePrimary": "Take the primary away",
-      "primaryNote": "Primary is what work naming no team or project is charged to.",
+      "makePrimary": "Make primary",
+      "unmakePrimary": "Remove primary",
+      "primaryNote": "Work that doesn't name a team or project is charged to the primary.",
       "keys": "Keys",
-      "keysHint": "Extra keys of {id}, each limited and revoked on its own. Their main secret is made on the host: ahpd user token {id}"
+      "keysHint": "Extra keys for {id}. Each one has its own limits and can be revoked separately. Their main secret is created on the host: ahpd user token {id}"
     },
     "role": {
       "deleteTitle": "Delete the role {id}?",
-      "deleteBody": "The people who hold it lose what it grants.",
-      "gone": "This role is gone.",
-      "id": "Id",
-      "idHint": "The name users hold it by. It cannot be changed later.",
+      "deleteBody": "Everyone with this role loses what it grants.",
+      "gone": "This role no longer exists.",
+      "id": "ID",
+      "idHint": "The name users get this role by. You can't change it later.",
       "grants": "Grants",
-      "grantsHint": "One a line, each subject:operation, such as session:write; read, write or * for every operation.",
-      "badGrant": "Line {line}, {text}, is not subject:operation.",
+      "grantsHint": "One per line, as subject:operation, such as session:write. The operation is read, write or * for all.",
+      "badGrant": "Line {line} ({text}) isn't in subject:operation form.",
       "grantCount": "Grants: {count}",
       "create": "Create role",
       "save": "Save",
       "builtIn": "built in",
-      "builtInNote": "Built into ahpd. Saving writes a role of this name to the host, which then replaces the built-in.",
-      "replacesNote": "This role replaces ahpd's built-in of the same name. Deleting it brings the built-in back.",
+      "builtInNote": "Built into ahpd. Saving creates a role with this name on the host, which replaces the built-in one.",
+      "replacesNote": "This role replaces ahpd's built-in role with the same name. Deleting it restores the built-in one.",
       "views": {
         "controls": "controls",
         "text": "text"
       },
-      "fixText": "Fix the lines that are not grants first.",
+      "fixText": "Fix the lines that aren't valid grants first.",
       "groups": {
         "read": "Read",
         "write": "Write",
@@ -999,15 +999,15 @@
       "reached": "{n} of {of}",
       "legend": {
         "on": "granted",
-        "implied": "covered by a group",
+        "implied": "included in a group",
         "off": "not granted"
       },
       "chip": {
-        "granted": "Granted: {grant}. Click to take it out.",
+        "granted": "Granted: {grant}. Click to remove it.",
         "grant": "Not granted. Click to grant {grant}.",
-        "split": "Covered by {grant}. Click to split it into the rest of its operations.",
-        "wildcard": "Covered by {grant}, which reaches every subject and cannot be narrowed for one.",
-        "coveredBy": "Covered by {grant}."
+        "split": "Included in {grant}. Click to split it into its other operations.",
+        "wildcard": "Included in {grant}, which covers every subject and can't be narrowed for one.",
+        "coveredBy": "Included in {grant}."
       },
       "switch": {
         "read": "Every read: {grant}",
@@ -1015,11 +1015,11 @@
         "all": "Everything: {grant}"
       },
       "everySubject": "Every subject",
-      "everySubjectHint": "A grant here reaches every subject the host has, now and later.",
-      "dropSubject": "Take {subject} out of the role",
+      "everySubjectHint": "A grant here covers every subject on the host, now and in the future.",
+      "dropSubject": "Remove {subject} from the role",
       "addSubject": "Add subject",
       "noGrants": "This role grants nothing yet.",
-      "unknownSubject": "Not served by this host now"
+      "unknownSubject": "Not offered by this host right now"
     }
   },
   "teams": {
@@ -1029,13 +1029,13 @@
       "projects": "Projects",
       "filter": "Filter teams and projects",
       "empty": "No teams yet.",
-      "notServed": "No host here lists its teams.",
+      "notServed": "None of your hosts list teams.",
       "members": "Members: {count}"
     },
     "notices": {
       "none": "No teams",
-      "reading": "Reading the teams",
-      "readOnly": "This host does not let you change these."
+      "reading": "Loading teams",
+      "readOnly": "This host doesn't allow changes here."
     },
     "commands": {
       "new": "New",
@@ -1048,37 +1048,37 @@
     "actions": {
       "open": "Open",
       "delete": "Delete",
-      "failed": "The host did not do that",
+      "failed": "The host couldn't do that",
       "cancel": "Cancel",
       "discard": "Discard changes"
     },
     "named": {
-      "id": "Id",
+      "id": "ID",
       "title": "Title",
-      "titleHint": "What is shown instead of the id. Empty shows the id.",
+      "titleHint": "Shown instead of the ID. Leave empty to show the ID.",
       "save": "Save",
       "members": "Members",
-      "noMembers": "Nobody yet.",
-      "primary": "Their primary",
-      "addWho": "Add somebody",
+      "noMembers": "No members yet.",
+      "primary": "Primary for them",
+      "addWho": "Add a member",
       "through": "Which team",
       "add": "Add"
     },
     "team": {
-      "idHint": "The name memberships are written with. It cannot be changed later.",
+      "idHint": "The name used in memberships. You can't change it later.",
       "create": "Create team",
-      "gone": "This team is gone.",
+      "gone": "This team no longer exists.",
       "deleteTitle": "Delete the team {id}?",
-      "deleteBody": "A host refuses while anybody still belongs to it.",
-      "membersHint": "Everybody whose memberships name this team: the team, every project of it, or one project through it."
+      "deleteBody": "The host won't delete a team that still has members.",
+      "membersHint": "Everyone who belongs to this team, to all its projects, or to one of its projects."
     },
     "project": {
-      "idHint": "The name memberships are written with, after a team. It cannot be changed later.",
+      "idHint": "The name used in memberships, after the team. You can't change it later.",
       "create": "Create project",
-      "gone": "This project is gone.",
+      "gone": "This project no longer exists.",
       "deleteTitle": "Delete the project {id}?",
-      "deleteBody": "A host refuses while anybody still works on it.",
-      "membersHint": "Everybody who works on it through a team, or through every project of a team."
+      "deleteBody": "The host won't delete a project that still has members.",
+      "membersHint": "Everyone who works on it through a team, or through all of a team's projects."
     }
   },
   "agents": {
@@ -1096,14 +1096,14 @@
       }
     },
     "capabilities": {
-      "chatsAndForks": "Several chats per session, and forks",
-      "chats": "Several chats per session",
-      "foldersFirstFixed": "Several folders, the first one fixed",
-      "folders": "Several folders"
+      "chatsAndForks": "Multiple chats per session, with forks",
+      "chats": "Multiple chats per session",
+      "foldersFirstFixed": "Multiple folders; the first can't change",
+      "folders": "Multiple folders"
     },
     "limits": {
       "context": "{size} context",
-      "output": "{size} out",
+      "output": "{size} output",
       "images": "images"
     },
     "kinds": {
@@ -1154,7 +1154,7 @@
     "states": {
       "ready": "Ready",
       "starting": "Starting",
-      "startingBlocking": "Starting; blocks the next turn",
+      "startingBlocking": "Starting; the next turn waits for it",
       "stopped": "Stopped",
       "loading": "Loading"
     },
@@ -1172,8 +1172,8 @@
     "customizations": {
       "copyName": "Copy the name",
       "copyDescription": "Copy the description",
-      "readingFile": "Reading the file",
-      "unreadable": "The file is not readable from here.",
+      "readingFile": "Loading the file",
+      "unreadable": "This file can't be opened from here.",
       "openFile": "Open file",
       "edit": "Edit",
       "discard": "Close without saving",
@@ -1181,7 +1181,7 @@
       "newAgent": "New agent",
       "newSkill": "New skill",
       "create": "Create",
-      "failed": "The file could not be created",
+      "failed": "Couldn't create the file",
       "kinds": {
         "agent": "Agents",
         "skill": "Skills",
@@ -1204,7 +1204,7 @@
       },
       "needsSignIn": "needs sign-in",
       "open": "Open",
-      "empty": "This server offers no agent.",
+      "empty": "This host doesn't offer any agents.",
       "filter": "Filter agents",
       "status": {
         "configured": "configured",
@@ -1212,12 +1212,12 @@
         "standby": "standby"
       },
       "standby": {
-        "unavailable": "engine {engine} is not loaded",
-        "invalid": "settings do not fit the engine"
+        "unavailable": "the {engine} engine isn't loaded",
+        "invalid": "the settings don't match the engine"
       }
     },
     "page": {
-      "gone": "This server no longer offers this agent.",
+      "gone": "This host no longer offers this agent.",
       "facts": {
         "provider": "Provider",
         "models": "Models",
@@ -1231,16 +1231,16 @@
       "oneChat": "One chat in one folder per session",
       "needsSignIn": "Needs sign-in",
       "models": "Models",
-      "noModels": "This agent lists no models; it picks its own.",
+      "noModels": "This agent doesn't list models; it chooses its own.",
       "columns": {
         "name": "Name",
-        "id": "Id",
+        "id": "ID",
         "limits": "Limits",
         "resource": "Resource",
         "scopes": "Scopes"
       },
       "policy": {
-        "disabled": "Turned off by policy",
+        "disabled": "Turned off by a policy",
         "unconfigured": "Not set up"
       },
       "customizations": "Customizations",
@@ -1250,37 +1250,37 @@
       "overview": "Overview",
       "settings": "Settings",
       "standby": {
-        "unavailable": "Engine {engine} is not loaded, so the host does not serve this agent.",
-        "invalid": "These settings do not fit engine {engine}, so the host does not serve this agent."
+        "unavailable": "The {engine} engine isn't loaded, so this agent isn't available.",
+        "invalid": "These settings don't match the {engine} engine, so this agent isn't available."
       }
     },
     "actions": {
       "check": "Check",
-      "checkFailed": "{name} could not be checked",
+      "checkFailed": "Couldn't check {name}",
       "remove": "Remove",
       "removeTitle": "Remove {name}?",
-      "removeBody": "The host stops serving it and forgets its secrets. You cannot undo this.",
-      "removeFailed": "{name} could not be removed"
+      "removeBody": "The host stops offering it and deletes its secrets. This can't be undone.",
+      "removeFailed": "Couldn't remove {name}"
     },
     "form": {
       "newTitle": "New agent",
       "name": "Name",
-      "id": "Id",
-      "idHint": "Lowercase letters, digits and dashes. It cannot change later.",
+      "id": "ID",
+      "idHint": "Lowercase letters, numbers and dashes. You can't change it later.",
       "owner": "Owner",
       "description": "Description",
       "model": "Model",
-      "modelHint": "Leave empty and the agent picks its own.",
-      "modelDefault": "The agent's own",
+      "modelHint": "Leave empty to let the agent choose.",
+      "modelDefault": "Agent's choice",
       "engine": "Engine",
       "startFrom": "Start from",
       "blank": "Blank",
-      "noEngines": "This server lists no engines.",
-      "reading": "Reading",
-      "noPut": "You may not add an agent on this server.",
-      "unknownEngine": "Engine {engine} is not loaded, so its settings cannot be shown.",
+      "noEngines": "This host doesn't list any engines.",
+      "reading": "Loading",
+      "noPut": "You don't have permission to add agents on this host.",
+      "unknownEngine": "The {engine} engine isn't loaded, so its settings can't be shown.",
       "settingsOf": "{engine} settings",
-      "failed": "The agent was not saved",
+      "failed": "Couldn't save the agent",
       "create": "Create",
       "searchEngines": "Search engines",
       "noEngineMatch": "No engine matches."
@@ -1301,26 +1301,26 @@
       "run": "Run command"
     },
     "noManifest": "No manifest",
-    "readingManifest": "Reading the manifest",
-    "readingList": "Reading the list",
+    "readingManifest": "Loading the manifest",
+    "readingList": "Loading the list",
     "remove": "Remove",
     "cancel": "Cancel",
     "explorer": {
-      "noGroup": "This daemon has no {group} commands."
+      "noGroup": "This host has no {group} commands."
     },
     "item": {
-      "gone": "The list no longer has {kind} {title}.",
-      "reading": "Reading"
+      "gone": "{kind} {title} is no longer in the list.",
+      "reading": "Loading"
     },
     "items": {
-      "badShape": "This list came back in a shape that cannot be listed.",
+      "badShape": "This list came back in a format that can't be shown.",
       "empty": "Nothing yet.",
       "reloading": "Reloading",
       "commands": "Commands",
       "search": "Search {title}"
     },
     "page": {
-      "noCommand": "This daemon has no command {id}.",
+      "noCommand": "This host has no command {id}.",
       "run": "Run",
       "lastRun": "Last run {time}",
       "running": "Running",
@@ -1423,25 +1423,25 @@
       "unnamed": "Attachment"
     },
     "clipboard": {
-      "insecure": "Needs https or localhost",
-      "refused": "The browser refused",
-      "tooBig": "Over 5 MB",
+      "insecure": "Needs HTTPS or localhost",
+      "refused": "The browser blocked clipboard access",
+      "tooBig": "Larger than 5 MB",
       "empty": "No image on the clipboard"
     },
     "context": {
       "title": "Add context",
-      "hint": "Attach a file, a session, or a file from this computer",
+      "hint": "Attach files, images or other sessions",
       "files": "Files and folders",
-      "filesHint": "On the server's machine",
+      "filesHint": "On the host",
       "upload": "Upload",
       "uploadHint": "From this computer, up to 5 MB each",
       "image": "Image from clipboard",
       "imageHint": "The image you copied",
       "sessions": "Sessions",
-      "sessionsHint": "Another session's chat",
-      "noSessions": "No other session",
+      "sessionsHint": "Include another session's chat",
+      "noSessions": "No other sessions",
       "commands": "Commands",
-      "commandsHint": "What the agent and this page can do"
+      "commandsHint": "Commands for the agent and this page"
     },
     "values": {
       "default": "default",
@@ -1455,14 +1455,14 @@
     },
     "commands": {
       "model": "Model",
-      "modelHint": "The model the next message is sent to",
+      "modelHint": "The model for the next message",
       "agentDefault": "Agent default",
       "agent": "Agent",
-      "agentHint": "The custom agent the next message names",
-      "agentDefaultHint": "The harness answers as itself",
+      "agentHint": "The custom agent for the next message",
+      "agentDefaultHint": "No custom agent",
       "configureAgents": "Configure custom agents",
       "stop": "Stop",
-      "stopHint": "Stop the turn that is running",
+      "stopHint": "Stop the current turn",
       "newSession": "New session",
       "newSessionHint": "Start another session",
       "showSessions": "Show sessions",
@@ -1470,7 +1470,7 @@
     },
     "upload": {
       "notAttached": "Not attached",
-      "refused": "Over 5 MB or unreadable: {names}"
+      "refused": "Couldn't attach (larger than 5 MB or unreadable): {names}"
     },
     "composer": {
       "steering": "Steering",
@@ -1480,15 +1480,15 @@
       "agentHint": "The agent running this session",
       "message": "Message",
       "placeholder": "What should it do?",
-      "placeholderRunning": "Queue a message for after this turn, or steer it",
-      "modelHint": "The model the next message goes to",
+      "placeholderRunning": "Queue a message for later, or steer the current turn",
+      "modelHint": "The model for the next message",
       "steer": "Steer",
-      "steerHint": "Alt+Enter steers",
+      "steerHint": "Alt+Enter to steer",
       "queue": "Queue",
-      "queueHint": "Enter queues",
+      "queueHint": "Enter to queue",
       "send": "Send",
-      "sendHint": "Enter sends, Shift+Enter breaks the line",
-      "stopHint": "Esc stops"
+      "sendHint": "Enter to send, Shift+Enter for a new line",
+      "stopHint": "Esc to stop"
     },
     "files": {
       "tab": "Files",
@@ -1502,15 +1502,15 @@
       "openTerminal": "Open the terminal",
       "terminal": "Terminal",
       "session": "Session",
-      "sessionId": "Session id",
-      "chatId": "Chat id",
+      "sessionId": "Session ID",
+      "chatId": "Chat ID",
       "agent": "Agent",
       "model": "Model",
       "folder": "Folder",
       "revealFolder": "Show the folder in the explorer",
       "newTerminal": "+ New terminal",
-      "newTerminalHint": "A new terminal",
-      "newTerminalInFolder": "A new terminal in the session's folder",
+      "newTerminalHint": "Open a new terminal",
+      "newTerminalInFolder": "Open a new terminal in the session's folder",
       "project": "Project",
       "started": "Started",
       "changed": "Changed",
@@ -1544,7 +1544,7 @@
       "weekOf": "Week of {date}",
       "pinned": "Pinned",
       "others": "Other sessions",
-      "thenNone": "Nothing more"
+      "thenNone": "None"
     },
     "explorer": {
       "title": "Sessions",
@@ -1558,15 +1558,15 @@
       "copyLink": "Copy link",
       "delete": "Delete",
       "deleteTitle": "Delete \"{title}\"?",
-      "deleteBody": "Its history goes with it.",
-      "deleteFailed": "The session could not be deleted",
+      "deleteBody": "Its whole history will be deleted too.",
+      "deleteFailed": "Couldn't delete the session",
       "files": {
         "one": "{count} file",
         "other": "{count} files"
       },
       "notConnected": "Not connected",
-      "refused": "The server refused the connection.",
-      "connecting": "Connecting to the server",
+      "refused": "The host refused the connection.",
+      "connecting": "Connecting to the host",
       "none": "No sessions.",
       "noneYet": "No sessions yet.",
       "reload": "Reload",
@@ -1585,26 +1585,26 @@
       "pin": "Pin",
       "unpin": "Unpin",
       "show": "Show sessions",
-      "noneShown": "No sessions here; choose another in Show sessions."
+      "noneShown": "No sessions match. Try another option in Show sessions."
     },
     "footer": {
       "window": "The model's context window: {window} tokens",
-      "used": "{used} of {window} tokens, as of the last turn"
+      "used": "{used} of {window} tokens used, as of the last turn"
     },
     "new": {
-      "unsent": "The message is not sent.",
+      "unsent": "Your message wasn't sent.",
       "harness": "Harness",
       "harnessHint": "The harness the session runs on",
-      "noAgent": "This server offers no agent.",
-      "fold": "Fold the options",
-      "unfold": "Show the options",
+      "noAgent": "This host doesn't offer any agents.",
+      "fold": "Hide options",
+      "unfold": "Show options",
       "firstMessage": "First message",
-      "readingSettings": "Reading settings",
-      "modelHint": "The model the first message goes to",
+      "readingSettings": "Loading settings",
+      "modelHint": "The model for the first message",
       "starting": "Starting",
       "create": "Create",
       "start": "Start",
-      "startHint": "Enter starts, Shift+Enter breaks the line",
+      "startHint": "Enter to start, Shift+Enter for a new line",
       "notCreated": "Not created",
       "host": "Host",
       "hostHint": "The host the session runs on",
@@ -1627,7 +1627,7 @@
       "slash": "lists skills and commands",
       "mention": "refers to a file",
       "add": "adds files, images and sessions",
-      "enter": "starts; an empty box creates the session without a message",
+      "enter": "starts the session; with nothing typed, it's created without a message",
       "shiftEnter": "breaks a line"
     },
     "turn": {
@@ -1645,13 +1645,13 @@
     "chat": {
       "loading": "Loading",
       "older": "Load older turns",
-      "gone": "This session is gone.",
+      "gone": "This session no longer exists.",
       "starting": "Starting the session",
-      "notStarted": "The session did not start",
+      "notStarted": "The session couldn't start",
       "noReason": "No reason given.",
-      "sessionUnreadable": "Session not readable",
-      "chatUnreadable": "Chat not readable",
-      "reading": "Reading the chat",
+      "sessionUnreadable": "Couldn't load the session",
+      "chatUnreadable": "Couldn't load the chat",
+      "reading": "Loading the chat",
       "empty": "No messages yet."
     },
     "tool": {
@@ -1665,7 +1665,7 @@
       "cancelled": "Cancelled",
       "output": "Output",
       "exit": "exit {code}",
-      "cutShort": "cut short",
+      "cutShort": "truncated",
       "noOutput": "No output.",
       "openFile": "Open the file",
       "openChange": "Open the change",
@@ -1716,7 +1716,7 @@
         "tools": "Tool calls",
         "subagents": "Subagents"
       },
-      "none": "No step to show.",
+      "none": "No steps to show.",
       "turn": "Turn {n}",
       "live": "running",
       "tokens": "{input} in · {output} out",
@@ -1736,7 +1736,7 @@
         "file": "File"
       },
       "openSubagent": "Open subagent",
-      "view": "How it reads",
+      "view": "View as",
       "views": {
         "formatted": "Formatted",
         "raw": "Raw",
@@ -1768,12 +1768,12 @@
       "subagentN": "Subagent {n}",
       "subagentRunning": "running",
       "backToChat": "Back to the chat",
-      "view": "Views and how the chat reads",
+      "view": "Views and display options",
       "views": "Views",
       "newTerminal": "New terminal",
-      "reads": "How the chat reads",
+      "reads": "Display",
       "hideCalls": "Hide calls",
-      "showCalls": "Show the calls"
+      "showCalls": "Show calls"
     }
   },
   "host": {
@@ -1787,9 +1787,9 @@
     "restart": {
       "button": "Restart",
       "done": "The host is restarting",
-      "failed": "The host did not restart",
+      "failed": "Couldn't restart the host",
       "anyway": "Restart anyway",
-      "note": "Every client is disconnected until the host is back.",
+      "note": "Restarting the host temporarily disconnects all clients. They can reconnect once it's running again.",
       "confirm": "Restart the host?"
     },
     "info": {
@@ -1810,26 +1810,25 @@
       "startedValue": "{when} · up {elapsed}",
       "process": "Process",
       "address": "Address",
-      "automationsKeptIn": "Automations kept in",
-      "sessionsKeptIn": "Sessions kept in",
+      "automationsKeptIn": "Automations stored in",
+      "sessionsKeptIn": "Sessions stored in",
       "agents": "Agents",
       "none": "None",
       "defaultFolder": "Default folder",
       "activeSessions": "Active sessions",
       "automations": "Automations",
-      "automationsNotOffered": "Not offered",
-      "automationsReadOnly": "Read only",
-      "automationsCreate": "Clients can create them",
-      "automationsInterval": {
-        "one": "at most every {count} minute",
-        "other": "at most every {count} minutes"
+      "automationsCount": {
+        "one": "{count} automation",
+        "other": "{count} automations"
       },
-      "automationsStoppable": "runs can be stopped",
+      "automationsLastRan": "last ran {when}",
+      "automationsNeverRan": "none has run yet",
+      "automationsNotOffered": "Not available",
       "settings": "Settings",
       "connection": "Connection",
       "daemon": "Daemon",
-      "statusUnreadable": "The daemon's status is not readable: {error}",
-      "offers": "Offers",
+      "statusUnreadable": "Couldn't load the daemon's status: {error}",
+      "offers": "Features",
       "terminals": "Terminals",
       "noTerminals": "No terminals open.",
       "terminalTitle": "Title",
@@ -1840,9 +1839,9 @@
     },
     "settings": {
       "tab": "Settings",
-      "unreadable": "Settings not readable",
-      "reading": "Reading the settings",
-      "none": "This host publishes no settings.",
+      "unreadable": "Couldn't load the settings",
+      "reading": "Loading settings",
+      "none": "This host has no settings to show.",
       "save": "Save",
       "fixJson": "Fix the JSON first",
       "reset": "Reset",
@@ -1895,18 +1894,18 @@
         },
         "theme": {
           "title": "Theme",
-          "description": "The colours of the page."
+          "description": "The app's color theme."
         },
         "themeMode": {
           "title": "Light or dark",
-          "description": "System follows the operating system.",
+          "description": "System matches your device's setting.",
           "system": "System",
           "light": "Light",
           "dark": "Dark"
         },
         "language": {
           "title": "Language",
-          "description": "The language of the page; the host keeps its own."
+          "description": "The language of this app. The host's language doesn't change."
         },
         "layout": {
           "title": "Main area",
@@ -1914,7 +1913,7 @@
         },
         "settingsPlace": {
           "title": "Settings open in",
-          "description": "Where the settings open; Open in moves them and changes this too."
+          "description": "Where settings open. Choosing Open in also updates this."
         },
         "sessionViewsPlace": {
           "title": "Session Info and Changes",
@@ -1924,37 +1923,37 @@
         },
         "toolsExpanded": {
           "title": "Tool calls",
-          "description": "Whether a tool call starts open in the chat.",
+          "description": "Whether tool calls start expanded in the chat.",
           "expanded": "Expanded",
           "collapsed": "Collapsed"
         },
         "sessionMarkdown": {
           "title": "Markdown",
-          "description": "Whether the agent's text shows as Markdown or as plain text.",
+          "description": "Show the agent's replies as formatted Markdown or as plain text.",
           "enabled": "Enabled",
-          "disabled": "Disable Markdown"
+          "disabled": "Disabled"
         },
         "confirmStyle": {
-          "title": "Questions",
-          "description": "How the page asks before it does something that cannot be undone.",
-          "modal": "In the page's own dialog",
-          "native": "In the browser's dialog"
+          "title": "Confirmations",
+          "description": "How you're asked to confirm actions that can't be undone.",
+          "modal": "In the app",
+          "native": "In a browser dialog"
         },
-        "profileUnread": "The saved interface settings could not be read",
-        "profileUnsaved": "The interface settings could not be saved",
-        "atOnce": "Interface settings apply as you change them.",
+        "profileUnread": "Couldn't load your interface settings",
+        "profileUnsaved": "Couldn't save your interface settings",
+        "atOnce": "Changes apply right away.",
         "botChatOpens": {
           "title": "Bot chat",
           "description": "Where a bot chat opens.",
           "ask": "Ask",
-          "main": "Main",
+          "main": "Main area",
           "right": "Right sidebar"
         },
         "customFileOpens": {
           "title": "Agent files",
-          "description": "Where an agent's or skill's file opens to edit.",
+          "description": "Where agent and skill files open for editing.",
           "panel": "New panel",
-          "modal": "Modal"
+          "modal": "Dialog"
         }
       },
       "tabs": {
@@ -1968,7 +1967,7 @@
       "connecting": "Connecting",
       "connected": "Connected",
       "reconnecting": "Reconnecting",
-      "reconnectingTry": "Reconnecting (try {attempt})",
+      "reconnectingTry": "Reconnecting (attempt {attempt})",
       "disconnected": "Disconnected",
       "failed": "Failed",
       "notConnected": "Not connected"
@@ -1979,20 +1978,20 @@
       "one": "Reconnected {count} time",
       "other": "Reconnected {count} times"
     },
-    "backAgain": "Connected to the server again",
-    "backAgainHost": "Connected to {host} again",
-    "lost": "Lost the connection to the server",
-    "lostHost": "Lost the connection to {host}",
+    "backAgain": "Reconnected to the host",
+    "backAgainHost": "Reconnected to {host}",
+    "lost": "Lost connection to the host",
+    "lostHost": "Lost connection to {host}",
     "retryNow": "Retry now",
     "commands": {
-      "reconnect": "Reconnect to the server"
+      "reconnect": "Reconnect to the host"
     },
-    "notConnected": "Not connected to the server.",
+    "notConnected": "Not connected to the host.",
     "untitled": "Untitled",
     "terminal": "Terminal",
-    "daemonSilent": "The daemon did not answer.",
+    "daemonSilent": "The daemon didn't respond.",
     "hostsUp": "{up} of {total} hosts",
-    "noAnswer": "The host did not answer."
+    "noAnswer": "The host didn't respond."
   },
   "tree": {
     "collapse": "Collapse",
@@ -2003,7 +2002,7 @@
     "json": "json",
     "select": "Select…",
     "removeItem": "Remove item",
-    "addItem": "+ add item",
+    "addItem": "+ Add item",
     "sections": "sections",
     "fieldActions": "Setting actions",
     "resetField": "Reset setting",
@@ -2015,7 +2014,7 @@
     "searchResults": "Search results",
     "section": "Section",
     "edited": "Edited",
-    "noMatch": "No setting matches.",
+    "noMatch": "No settings match.",
     "foundOne": "1 setting found",
     "foundMany": "settings found",
     "allResults": "All results"
@@ -2024,7 +2023,7 @@
     "zoomOut": "Zoom out",
     "zoomIn": "Zoom in",
     "fit": "Fit all cards to viewport",
-    "reset": "Reset zoom + pan",
+    "reset": "Reset zoom and pan",
     "selectedActions": "Selected card actions",
     "zoomPercent": "Zoom percent"
   },
@@ -2038,7 +2037,7 @@
       "light": "Light",
       "dark": "Dark",
       "system": "Follow system",
-      "next": "{mode}, click for {next}",
+      "next": "{mode} (click for {next})",
       "label": "Theme mode: {mode}"
     }
   },
@@ -2068,7 +2067,7 @@
   },
   "hosts": {
     "filter": "Hosts",
-    "every": "Every host",
+    "every": "All hosts",
     "infoTab": "Host: {host}",
     "settingsTab": "Settings: {host}",
     "named": "{host} · {state}",
@@ -2077,8 +2076,8 @@
     "state": {
       "connected": "Connected",
       "connecting": "Connecting",
-      "down": "Down",
-      "refused": "Token refused"
+      "down": "Offline",
+      "refused": "Sign-in rejected"
     }
   },
   "usage": {
@@ -2087,11 +2086,11 @@
       "filter": "Filter usage",
       "period": "Period",
       "group": "Group",
-      "empty": "Nothing was charged yet.",
-      "notServed": "No host here keeps usage.",
-      "nothing": "Nothing charged",
+      "empty": "No usage yet.",
+      "notServed": "None of your hosts track usage.",
+      "nothing": "No usage",
       "none": "None",
-      "refused": "Not read"
+      "refused": "Couldn't load"
     },
     "period": {
       "day": "Today",
@@ -2130,7 +2129,7 @@
       "title": "Limits",
       "of": "{used} of {amount}",
       "notCounted": "Not counted yet",
-      "total": "In total",
+      "total": "Total",
       "resets": "Resets {date}",
       "ends": "Ends {date}",
       "measure": {
@@ -2158,7 +2157,7 @@
     },
     "notices": {
       "none": "No usage",
-      "reading": "Reading the usage"
+      "reading": "Loading usage"
     },
     "commands": {
       "show": "Show usage",
@@ -2170,7 +2169,7 @@
     "pool": {
       "range": "Over a range",
       "records": "Records",
-      "noRecords": "No records in these days.",
+      "noRecords": "No records for these dates.",
       "openOwner": "Open {name}",
       "openSession": "Open session"
     },
@@ -2196,7 +2195,7 @@
       "cacheWrite": "Cache written",
       "time": "Time",
       "charged": "Charged",
-      "providerCost": "From the provider",
+      "providerCost": "Provider cost",
       "session": "Session",
       "chat": "Chat",
       "turn": "Turn",
@@ -2222,8 +2221,8 @@
       "title": "Policies",
       "filter": "Filter policies",
       "group": "Group",
-      "empty": "No policy is written yet.",
-      "notServed": "No host here lists its policies."
+      "empty": "No policies yet.",
+      "notServed": "None of your hosts list policies."
     },
     "group": {
       "kind": "By kind",
@@ -2273,14 +2272,14 @@
       "resets": "resets {at}",
       "ends": "ends {at}",
       "member": "{user}: {used}",
-      "noMembers": "Nobody used it yet",
-      "unread": "What the limits used could not be read: {why}"
+      "noMembers": "Nobody has used it yet",
+      "unread": "Couldn't load limit usage: {why}"
     },
     "notices": {
       "none": "No policies",
-      "reading": "Reading the policies",
-      "readingLimits": "Reading the limits",
-      "readOnly": "This host does not take changes to its policies here."
+      "reading": "Loading policies",
+      "readingLimits": "Loading limits",
+      "readOnly": "This host doesn't allow changes to its policies here."
     },
     "commands": {
       "show": "Show policies",
@@ -2292,18 +2291,18 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "discard": "Discard changes",
-      "failed": "The policy was not deleted"
+      "failed": "Couldn't delete the policy"
     },
     "policy": {
       "id": "ID",
-      "idHint": "A name for the row, unique on this host: policy://<id>. No spaces, no slash.",
-      "limits": "What the limits used",
+      "idHint": "A unique name on this host, used as policy://<id>. No spaces or slashes.",
+      "limits": "Limit usage",
       "create": "Create policy",
       "save": "Save",
-      "gone": "This policy is not on the host any more.",
-      "noManifest": "This host does not describe how a policy is written.",
-      "deleteTitle": "Delete the policy {id}?",
-      "deleteBody": "Nobody is checked against it any more, and what its limits counted stays in the usage records."
+      "gone": "This policy no longer exists.",
+      "noManifest": "This host doesn't describe how policies are written.",
+      "deleteTitle": "Delete policy {id}?",
+      "deleteBody": "It will no longer apply to anyone. Usage it already counted stays in the usage records."
     }
   },
   "trust": {
@@ -2312,18 +2311,18 @@
       "body": "{path}\n\nA trusted folder lets an agent load the project's own settings, hooks and tools. Agents that cannot ask first, such as Codex, start only in a trusted folder. You are asked once for each folder on this host.",
       "yes": "Trust",
       "no": "Don't trust",
-      "refused": "The host did not take the trusted folder"
+      "refused": "The host couldn't save the trusted folder"
     },
     "host": {
       "title": "Trusted folders",
-      "hint": "What this browser answered when a session started in a folder. The trusted ones are sent to the host on every connect.",
-      "none": "No folder answered yet.",
+      "hint": "Folders you've trusted in this browser. Your trusted folders are shared with the host whenever you connect.",
+      "none": "No folders yet.",
       "folder": "Folder",
-      "answer": "Answer",
+      "answer": "Status",
       "trusted": "Trusted",
       "untrusted": "Not trusted",
       "forget": "Forget",
-      "notForgotten": "The host did not take the change"
+      "notForgotten": "The host couldn't save the change"
     }
   },
   "profile": {
@@ -2342,57 +2341,57 @@
       "noMemberships": "No memberships.",
       "signIn": "Sign-in",
       "issuer": "Issuer",
-      "issuerDefault": "This host's own",
+      "issuerDefault": "This host",
       "rolesFrom": "Roles from",
       "usage": "Usage",
-      "usageFailed": "Your usage could not be read: {error}",
+      "usageFailed": "Couldn't load your usage: {error}",
       "limits": "Limits",
-      "noLimits": "No limits hold you.",
-      "limitsFailed": "Your limits could not be read: {error}"
+      "noLimits": "No limits apply to you.",
+      "limitsFailed": "Couldn't load your limits: {error}"
     },
     "keys": {
-      "reading": "Reading your keys…",
+      "reading": "Loading your keys…",
       "none": "No keys yet.",
-      "notServed": "This host keeps no keys.",
+      "notServed": "This host doesn't support keys.",
       "unnamed": "Unnamed key",
-      "everyGrant": "Every grant you hold",
-      "everyGrantOf": "Every grant {id} holds",
-      "made": "Made {day}",
+      "everyGrant": "All of your grants",
+      "everyGrantOf": "All of {id}'s grants",
+      "made": "Created {day}",
       "expires": "Expires {day}",
       "expired": "Expired {day}",
       "neverExpires": "Never expires",
       "revoke": "Revoke",
       "revokeTitle": "Revoke {name}?",
-      "revokeBody": "Whatever uses this key can no longer sign in with it.",
+      "revokeBody": "Anything using this key will no longer be able to sign in with it.",
       "mint": {
         "new": "New key",
         "label": "Label",
-        "labelHint": "What it is for, so the list can tell it apart, such as laptop or ci.",
+        "labelHint": "What it's for, so you can tell it apart, such as laptop or ci.",
         "expiry": "Expires",
-        "day": "Day it expires",
+        "day": "Expiry date",
         "expiries": {
           "7": "In 7 days",
           "30": "In 30 days",
           "90": "In 90 days",
           "365": "In a year",
           "never": "Never",
-          "date": "On a day"
+          "date": "On a date"
         },
         "grants": "Grants",
-        "grantsHint": "A grant a role gives you at sign-in is not listed here; a key with every grant follows your roles as they change.",
-        "noGrants": "Your record lists no grants to pick from.",
-        "mint": "Make key",
+        "grantsHint": "Grants from your roles at sign-in aren't listed here. A key with all of your grants follows your roles as they change.",
+        "noGrants": "You don't have any grants to choose from.",
+        "mint": "Create key",
         "cancel": "Cancel",
-        "madeTitle": "{name} is made",
-        "once": "Copy the secret now. The host shows it this once and keeps only its hash.",
+        "madeTitle": "{name} created",
+        "once": "Copy the secret now. It won't be shown again.",
         "copy": "Copy the secret",
         "done": "Done"
       }
     },
     "notices": {
-      "reading": "Reading your profile…",
-      "none": "Your profile could not be read",
-      "notPerson": "This connection is not signed in as a person, so it has no profile."
+      "reading": "Loading your profile…",
+      "none": "Couldn't load your profile",
+      "notPerson": "This connection isn't signed in as a person, so there's no profile."
     }
   },
   "plugins": {
@@ -2400,8 +2399,8 @@
       "title": "Plugins",
       "filter": "Filter plugins",
       "group": "Group",
-      "empty": "This host configures no plugins.",
-      "notServed": "No host here lists its plugins to you. It takes the plugin:list grant."
+      "empty": "This host has no plugins.",
+      "notServed": "None of your hosts let you see their plugins. This needs the plugin:list grant."
     },
     "group": {
       "state": "By state",
@@ -2431,32 +2430,32 @@
       "open": "Open",
       "enable": "Enable",
       "disable": "Disable",
-      "enableFailed": "{id} could not be enabled",
-      "disableFailed": "{id} could not be disabled",
-      "reimport": "Import again",
-      "reimportFailed": "{id} could not be imported again",
-      "apply": "Apply the configuration",
-      "applyFailed": "The configuration could not be applied"
+      "enableFailed": "Couldn't enable {id}",
+      "disableFailed": "Couldn't disable {id}",
+      "reimport": "Reimport",
+      "reimportFailed": "Couldn't reimport {id}",
+      "apply": "Apply configuration",
+      "applyFailed": "Couldn't apply the configuration"
     },
     "notices": {
-      "reading": "Reading the plugins…",
-      "none": "The plugins could not be read"
+      "reading": "Loading plugins…",
+      "none": "Couldn't load the plugins"
     },
     "page": {
-      "gone": "This plugin is no longer configured.",
+      "gone": "This plugin is no longer installed.",
       "overview": "Overview",
       "options": "Options",
       "provides": "Provides",
-      "providesNothing": "Its manifest names nothing it provides.",
-      "undeclared": "It loaded, but its manifest names no contracts, so what it provides is not known.",
-      "notLoaded": "It has not loaded, so what it provides is not known.",
+      "providesNothing": "Its manifest doesn't list anything it provides.",
+      "undeclared": "It loaded, but its manifest doesn't list what it provides.",
+      "notLoaded": "It hasn't loaded, so what it provides is unknown.",
       "spec": "As configured",
-      "loadFailed": "It did not load",
+      "loadFailed": "It didn't load",
       "alerts": "Alerts",
       "failing": "It has errors"
     },
     "facts": {
-      "id": "Id",
+      "id": "ID",
       "state": "State",
       "version": "Version",
       "running": "Running",
@@ -2471,20 +2470,20 @@
       "methods": "Commands",
       "resourceProviders": "Resource schemes",
       "tools": "Tools",
-      "triggerTypes": "Trigger kinds"
+      "triggerTypes": "Trigger types"
     },
     "options": {
       "save": "Save",
       "reset": "Reset",
-      "saved": "Saved. The host applies it at its next start.",
-      "failed": "The option could not be saved",
-      "none": "This plugin has no options to set here. A plugin that is off, or did not load, shows none."
+      "saved": "Saved. The change applies the next time the host starts.",
+      "failed": "Couldn't save the option",
+      "none": "This plugin has no options to set here. Plugins that are off or didn't load show none."
     },
-    "restart": "The host holds a change that applies at its next start. Restart the host to apply it.",
-    "restartShort": "Restart the host to apply the last change.",
+    "restart": "There's a change waiting to be applied. Restart the host to apply it.",
+    "restartShort": "Restart the host to apply your last change.",
     "running": {
       "yes": "Yes",
-      "no": "No, it loads at the host's next start"
+      "no": "No, it loads the next time the host starts"
     },
     "alerts": {
       "error": {
@@ -2510,9 +2509,9 @@
       "title": "Connectors",
       "filter": "Filter connectors",
       "group": "Group",
-      "empty": "There are no connectors here you can see.",
+      "empty": "There are no connectors you can see here.",
       "noAdapter": "No adapter",
-      "notServed": "No host here lists connectors to you. It takes the connector:list grant."
+      "notServed": "None of your hosts let you see connectors. This needs the connector:list grant."
     },
     "group": {
       "adapter": "By adapter",
@@ -2530,8 +2529,8 @@
       "unavailable": "Unavailable"
     },
     "stateNotes": {
-      "invalid": "Its settings do not fit its adapter, or its adapter refused to open it. Change its settings to open it again.",
-      "unavailable": "No plugin registers its adapter now. Enable the plugin that offers {adapter} to open it again."
+      "invalid": "Its settings don't match its adapter, or the adapter couldn't open it. Update its settings to open it again.",
+      "unavailable": "No plugin provides its adapter right now. Enable the plugin that offers {adapter} to open it again."
     },
     "owners": {
       "me": "Me",
@@ -2543,60 +2542,60 @@
       "open": "Open",
       "delete": "Delete",
       "deleteTitle": "Delete {title}?",
-      "deleteBody": "The host closes it and forgets its secrets. You cannot undo this.",
-      "deleteFailed": "{title} could not be deleted"
+      "deleteBody": "The host closes it and deletes its secrets. This can't be undone.",
+      "deleteFailed": "Couldn't delete {title}"
     },
     "notices": {
-      "reading": "Reading the connectors…",
-      "none": "The connectors could not be read"
+      "reading": "Loading connectors…",
+      "none": "Couldn't load the connectors"
     },
     "form": {
       "newTitle": "New connector",
       "adapter": "Adapter",
-      "id": "Id",
-      "idHint": "A slug, made from the title until you change it. It cannot change later.",
+      "id": "ID",
+      "idHint": "Made from the title until you edit it. You can't change it later.",
       "title": "Title",
-      "titleHint": "What the list shows. Empty, it shows the id.",
+      "titleHint": "Shown in the list. Leave empty to show the ID.",
       "owner": "Owner",
       "create": "Create",
       "save": "Save",
       "reset": "Reset",
       "saved": "Saved.",
-      "failed": "The connector could not be saved",
-      "noAdapters": "This host lists no adapters to you. Making a connector takes the connector:list grant.",
-      "noPut": "Making a connector takes the connector:put grant, which you do not hold.",
+      "failed": "Couldn't save the connector",
+      "noAdapters": "This host doesn't list any adapters for you. Creating a connector needs the connector:list grant.",
+      "noPut": "Creating a connector needs the connector:put grant, which you don't have.",
       "settingsOf": "{adapter} settings",
-      "secretKept": "Kept. Type a new value to replace it."
+      "secretKept": "Saved. Type a new value to replace it."
     },
     "signIn": {
       "orType": "Sign in, or type the key above.",
-      "step": "Sign in on the page that opened, copy the code it shows, and paste it here.",
+      "step": "Sign in on the page that opened, then copy the code it shows and paste it here.",
       "openAgain": "Open the page again",
       "code": "Code",
       "finish": "Finish",
       "cancel": "Cancel",
-      "failed": "The sign-in did not finish",
+      "failed": "Sign-in didn't finish",
       "done": "Signed in with {provider}. State: {state}.",
       "again": "Sign in again"
     },
     "page": {
-      "gone": "This connector is no longer on the host.",
+      "gone": "This connector no longer exists.",
       "overview": "Overview",
       "settings": "Settings",
       "adapter": "Adapter",
       "plugin": "Plugin",
       "owner": "Owner",
       "state": "State",
-      "id": "Id",
+      "id": "ID",
       "capabilities": "Capabilities ({count})",
-      "noCapabilities": "Its adapter declares no capabilities.",
+      "noCapabilities": "Its adapter doesn't declare any capabilities.",
       "input": "Input",
       "required": "Required",
       "url": "URL",
       "copy": "Copy",
       "copied": "URL copied",
-      "unknownAdapter": "{adapter}, which no plugin registers now",
-      "noAdapter": "Its record names no adapter, because a host from before adapters wrote it. Delete it and make it again.",
+      "unknownAdapter": "{adapter} (no plugin provides it right now)",
+      "noAdapter": "This connector was created by an older host and has no adapter. Delete it and create it again.",
       "noAdapterShort": "None",
       "models": "Models",
       "check": "Last check",
@@ -2628,8 +2627,8 @@
       "failed": "Failed"
     },
     "models": {
-      "reading": "Reading the models...",
-      "failed": "The models could not be read",
+      "reading": "Loading models…",
+      "failed": "Couldn't load the models",
       "search": "Search models",
       "count": {
         "one": "{count} model",
@@ -2639,12 +2638,12 @@
         "one": "{shown} of {count} model",
         "other": "{shown} of {count} models"
       },
-      "at": "read at {when}",
-      "again": "Read again",
-      "none": "The provider lists no models.",
+      "at": "updated {when}",
+      "again": "Refresh",
+      "none": "The provider doesn't list any models.",
       "copy": "Copy the model name",
-      "refused": "You may not call this model.",
-      "priceHint": "Dollars per million tokens: prompt / answer",
+      "refused": "You don't have access to this model.",
+      "priceHint": "Dollars per million tokens: input / output",
       "columns": {
         "model": "Model",
         "name": "Name",

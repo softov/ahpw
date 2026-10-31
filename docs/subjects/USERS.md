@@ -13,7 +13,7 @@ The list has two groups:
 - **Users**: each row is a person, with their roles on the line under the name.
 - **Roles**: each row is a role, with "built in" for one of ahpd's own and the number of grants it holds.
 
-Type in "Filter users and roles" to narrow the list. A host that offers no users shows "No host here lists its users."
+Type in "Filter users and roles" to narrow the list. A host that offers no users shows "None of your hosts list users."
 
 | Action | |
 | --- | --- |
@@ -33,7 +33,7 @@ The palette has **New user**, **New role** and **Show users**.
 
 - **Id**: on a new user only. It is how they sign in and how the host names them, and it cannot be changed later.
 - **Roles**: one pill per role. ✕ takes a role away. **Add a role** offers the host's roles and the built-in ones.
-- **Teams and projects**: one row per membership, naming the team and "every project", "the team, no project" or one project. **Add to a team**, then **Which projects**, adds one. The **primary** chip marks the membership that work naming no team or project is charged to. ✕ takes them out.
+- **Teams and projects**: one row per membership, naming the team and "every project", "the team, without a project" or one project. **Add to a team**, then **Which projects**, adds one. The **primary** chip marks the membership that work naming no team or project is charged to. ✕ takes them out.
 - **Sign-in**: **Issuer** is `github` or an issuer URL, and empty removes it. **Roles from** is the issuer's claim that gives roles, such as `groups`.
 
 ahpw never shows a user's token. Make one on the host with `ahpd user token <id>`.
@@ -63,4 +63,4 @@ ahpd has three built-in roles: `admin`, `member` and `guest`. Saving a built-in 
 
 ## When you cannot change them
 
-If the host does not let you write users or roles, the pages show "This host does not let you change these." and are read only.
+If the host does not let you write users or roles, the pages show "This host doesn't allow changes here." and are read only.

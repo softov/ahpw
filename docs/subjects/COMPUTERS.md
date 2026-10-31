@@ -47,7 +47,7 @@ The facts list the **Image** or **Destination**, **Command**, **Working director
 |---|---|
 | **Use** | CPU and memory bars, with processes, network and disk. Read every 5 seconds while it runs. |
 | **Mounts** | Each host folder and where it shows inside, marked read only when it is. |
-| **What the runtime says** | What the host's runtime reports, as raw JSON. Folded at first. |
+| **Runtime details** | What the host's runtime reports, as raw JSON. Folded at first. |
 
 <Shot id="computers-page" alt="A running computer's page with its use bars" />
 

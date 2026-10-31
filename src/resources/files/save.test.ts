@@ -13,7 +13,7 @@ describe('file save', () => {
   it('tells a refused write from one that failed', () => {
     expect(refusesWrite(Object.assign(new Error('denied'), { code: -32009 }))).toBe(true);
     expect(refusesWrite(Object.assign(new Error('missing'), { code: -32008 }))).toBe(false);
-    expect(refusesWrite(new Error('Not connected to the server.'))).toBe(false);
+    expect(refusesWrite(new Error('Not connected to the host.'))).toBe(false);
     expect(refusesWrite(null)).toBe(false);
   });
 
@@ -26,8 +26,8 @@ describe('file save', () => {
 
 describe('readFailure', () => {
   it('says a file gone or refused in words, and keeps any other message as the host gave it', () => {
-    expect(readFailure({ code: AhpErrorCodes.NotFound, message: 'RPC error -32008: No file at file:///x' })).toBe('This file is no longer there.');
-    expect(readFailure({ code: AhpErrorCodes.PermissionDenied })).toBe('The server does not let you read this file.');
-    expect(readFailure(new Error('Not connected to the server.'))).toBe('Not connected to the server.');
+    expect(readFailure({ code: AhpErrorCodes.NotFound, message: 'RPC error -32008: No file at file:///x' })).toBe('This file no longer exists.');
+    expect(readFailure({ code: AhpErrorCodes.PermissionDenied })).toBe("You don't have permission to read this file.");
+    expect(readFailure(new Error('Not connected to the host.'))).toBe('Not connected to the host.');
   });
 });

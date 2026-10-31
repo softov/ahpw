@@ -18,15 +18,15 @@ Info is read only. ahpd lets a person read their own record.
 
 - **Roles**: the roles you hold.
 - **Teams and projects**: your memberships, with the primary one marked.
-- **Sign-in**: **Issuer**, or "This host's own", and **Roles from**.
+- **Sign-in**: **Issuer**, or "This host", and **Roles from**.
 - **Usage**: what was charged to you **Today**, **This week** and **This month**. It shows only when the host keeps usage.
-- **Limits**: the limits that hold you, each with a meter, or "No limits hold you."
+- **Limits**: the limits that hold you, each with a meter, or "No limits apply to you."
 
 Each part is read on its own, so one that fails does not hide the rest.
 
 ## Keys
 
-A key is a secret you use to sign in to the host, limited and revoked on its own. The tab needs a host that keeps keys. Otherwise it shows "This host keeps no keys."
+A key is a secret you use to sign in to the host, limited and revoked on its own. The tab needs a host that keeps keys. Otherwise it shows "This host doesn't support keys."
 
 <Shot id="profile-keys" alt="The Keys tab with the new key form and the key list" />
 
@@ -35,12 +35,12 @@ A key is a secret you use to sign in to the host, limited and revoked on its own
 | Field | |
 | --- | --- |
 | **Label** | What it is for, so the list can tell it apart, such as laptop or ci |
-| **Expires** | In 7 days, 30 days, 90 days (the default) or a year, **Never**, or **On a day** with a date |
-| **Grants** | **Every grant you hold**, or pick from the grants your record lists |
+| **Expires** | In 7 days, 30 days, 90 days (the default) or a year, **Never**, or **On a date** with a date |
+| **Grants** | **All of your grants**, or pick from the grants your record lists |
 
 A grant a role gives you at sign-in is not in the pick list. A key with every grant follows your roles as they change.
 
-**Make key** makes it. The host shows the secret this once and keeps only its hash, so use **Copy the secret** before **Done**.
+**Create key** makes it. The host shows the secret this once and keeps only its hash, so use **Copy the secret** before **Done**.
 
 The list shows the newest key first, with its label or "Unnamed key", its grants, and when it was made and expires. **Revoke** asks first, then whatever uses the key can no longer sign in with it.
 

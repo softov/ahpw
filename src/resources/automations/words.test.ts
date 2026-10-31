@@ -79,7 +79,7 @@ describe('draftOf and definitionOf', () => {
 
   it('names what is missing', () => {
     const empty = draftOf(undefined);
-    expect(draftProblem(empty)).toBe('Give it a title.');
+    expect(draftProblem(empty)).toBe('Add a title.');
     expect(draftProblem({ ...empty, title: 't', message: 'm', expression: '0 9 *' })).toMatch(/five fields/);
     expect(draftProblem({ ...empty, title: 't', message: 'm' })).toBeUndefined();
   });

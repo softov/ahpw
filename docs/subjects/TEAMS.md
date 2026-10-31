@@ -40,4 +40,4 @@ The **Members** section shows who belongs, worked out from each user's membershi
 
 A member's name opens their user page in [Users and roles](USERS.md). Their chips show how they belong, and the primary chip is lit when this is their primary.
 
-**Add somebody** adds a person, then asks **Which projects** on a team or **Which team** on a project. ✕ takes a person out. Adding and removing writes that user's record, so it needs the host to let you change users.
+**Add a member** adds a person, then asks **Which projects** on a team or **Which team** on a project. ✕ takes a person out. Adding and removing writes that user's record, so it needs the host to let you change users.

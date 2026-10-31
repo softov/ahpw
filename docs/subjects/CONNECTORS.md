@@ -40,11 +40,11 @@ The adapter's description comes first. The facts list the **Id**, **State**, **A
 
 ### Models
 
-The models the connector serves, as the host last read them from the provider. Each row has the name you send as `model` to the host's model proxy, with a copy button, the provider's name for it, its context and its price in dollars per million tokens, prompt / answer. A model you may not call is dimmed. **Search models** narrows the list by id or name, and **Read again** asks the host again.
+The models the connector serves, as the host last read them from the provider. Each row has the name you send as `model` to the host's model proxy, with a copy button, the provider's name for it, its context and its price in dollars per million tokens, prompt / answer. A model you may not call is dimmed. **Search models** narrows the list by id or name, and **Refresh** asks the host again.
 
 ### Settings
 
-The same form as a new connector, with the adapter and id fixed. **Save** sends your changes, **Reset** goes back to what the host holds. A secret the host already holds reads "Kept. Type a new value to replace it."
+The same form as a new connector, with the adapter and id fixed. **Save** sends your changes, **Reset** goes back to what the host holds. A secret the host already holds reads "Saved. Type a new value to replace it."
 
 ## Make one
 

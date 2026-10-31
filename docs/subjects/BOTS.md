@@ -35,7 +35,7 @@ The page shows the bot's figure, name and description, with **Open chat**, **Edi
 
 | Field | |
 |---|---|
-| **Colour** | One of the swatches. |
+| **Color** | One of the swatches. |
 | **Body** | One of the bodies, or a name typed in **Body name**. A body ahpw does not know is drawn as a square. |
 | **Host** | Which host keeps it. New bots only, with more than one host. |
 | **Name** | Its name. An empty name, or the one the old body gave, follows the body when you change it; a name you typed stays. |

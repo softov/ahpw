@@ -49,7 +49,7 @@ A host is `{ id, name, url }`, where `url` is the host's WebSocket address, such
 - Every host shares the app's origin, so ahpw keeps each host's tabs, layout and folders under that host's address. A `multi` window keeps its own.
 - The title bar shows a host menu. It lists each host with its status, then **Manage hosts** and **Add host**, which call `manageHosts`.
   - In `mono`, a pick calls `switchHost`.
-  - In `multi`, the menu also has **Every host**, and a pick shows only that host in the lists, as **Hosts** does in each list header. Each host's **Options for** menu has **Info**, **Settings**, **Sign in** or **Retry** while it is not connected, and **Edit host**.
+  - In `multi`, the menu also has **All hosts**, and a pick shows only that host in the lists, as **Hosts** does in each list header. Each host's **Options for** menu has **Info**, **Settings**, **Sign in** or **Retry** while it is not connected, and **Edit host**.
 
 ### `window`
 
