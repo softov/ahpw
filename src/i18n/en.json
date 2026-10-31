@@ -331,6 +331,7 @@
     "cut": "This file is over 5 MB. It shows the start, read-only.",
     "edited": "Edited",
     "copyPath": "Copy path",
+    "save": "Save",
     "tooLarge": "This file is {size}. Files over {max} are not shown.",
     "audio": {
       "cannotPlay": "This browser cannot play this file.",
@@ -1120,6 +1121,10 @@
         "one": "{count} MCP server",
         "other": "{count} MCP servers"
       },
+      "plugin": {
+        "one": "{count} plugin",
+        "other": "{count} plugins"
+      },
       "item": {
         "one": "{count} item",
         "other": "{count} items"
@@ -1161,7 +1166,20 @@
       "newAgent": "New agent",
       "newSkill": "New skill",
       "create": "Create",
-      "failed": "The file could not be created"
+      "failed": "The file could not be created",
+      "kinds": {
+        "agent": "Agents",
+        "skill": "Skills",
+        "prompt": "Prompts",
+        "rule": "Rules",
+        "hook": "Hooks",
+        "mcpServer": "MCP servers",
+        "plugin": "Plugins"
+      },
+      "none": "No customizations.",
+      "noneOf": "None: {kinds}",
+      "search": "Search",
+      "noMatch": "Nothing matches."
     },
     "explorer": {
       "title": "Agents",

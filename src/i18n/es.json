@@ -331,6 +331,7 @@
     "cut": "Este archivo supera los 5 MB. Se muestra el inicio, en solo lectura.",
     "edited": "Editado",
     "copyPath": "Copiar ruta",
+    "save": "Guardar",
     "tooLarge": "Este archivo pesa {size}. Los archivos de más de {max} no se muestran.",
     "audio": {
       "cannotPlay": "Este navegador no puede reproducir este archivo.",
@@ -1120,6 +1121,10 @@
         "one": "{count} servidor MCP",
         "other": "{count} servidores MCP"
       },
+      "plugin": {
+        "one": "{count} plugin",
+        "other": "{count} plugins"
+      },
       "item": {
         "one": "{count} elemento",
         "other": "{count} elementos"
@@ -1161,7 +1166,20 @@
       "newAgent": "Nuevo agente",
       "newSkill": "Nueva skill",
       "create": "Crear",
-      "failed": "No se pudo crear el archivo"
+      "failed": "No se pudo crear el archivo",
+      "kinds": {
+        "agent": "Agentes",
+        "skill": "Skills",
+        "prompt": "Prompts",
+        "rule": "Reglas",
+        "hook": "Hooks",
+        "mcpServer": "Servidores MCP",
+        "plugin": "Plugins"
+      },
+      "none": "Sin personalizaciones.",
+      "noneOf": "Ninguno: {kinds}",
+      "search": "Buscar",
+      "noMatch": "Nada coincide."
     },
     "explorer": {
       "title": "Agentes",

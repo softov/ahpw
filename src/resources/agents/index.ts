@@ -84,9 +84,9 @@ export function registerAgents(scena: Scena): Disposable {
         if (target?.provider === undefined) return;
         const { provider, host = windowHost() } = target;
         ctx.store.set(ACTIVE_AGENT, { host, provider });
-        // A part to show: the page opens on its tab and scrolls to it, open already or not.
+        // A part to show: the page opens on its tab, open already or not.
         if (target.section !== undefined) {
-          keepAgentTabKey('overview');
+          keepAgentTabKey(target.section);
           ctx.store.set(AGENT_SECTION, { host, provider, section: target.section, at: Date.now() } satisfies SectionAsk);
         }
         // A record the host does not serve is in its channel only, so its title comes from there.

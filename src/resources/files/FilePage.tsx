@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { useCloseGuard, useI18n } from '@softov/scena/react';
-import { Alert, Spinner } from '@softov/scena/ui';
+import { Alert, Button, Spinner } from '@softov/scena/ui';
 import { hostBridge } from '../../bridges/data.js';
 import CodeEditor from '../editor/CodeEditor.js';
 import { languageOf } from '../editor/languages.js';
@@ -14,7 +14,7 @@ interface SaveFailure {
   refused: boolean;
 }
 
-/** A file the daemon can read, in an editor that saves with Mod-s, scrolled to the lines a link named. */
+/** A file the daemon can read, in an editor that saves with Mod-s or its Save button, scrolled to the lines a link named. */
 export default function FilePage({ host, uri, line, end, onDirty }: { host: string; uri?: string; line?: number | null; end?: number | null; onDirty?: (dirty: boolean) => void }): ReactElement {
   const { t } = useI18n();
   const state = useFileText(host, uri);
@@ -76,16 +76,19 @@ export default function FilePage({ host, uri, line, end, onDirty }: { host: stri
   if ('error' in state) return <div className="web-file">{head}<Alert tone="danger" title={t('files/notReadable')} message={state.error} /></div>;
   if (loaded === null) return <div className="web-file">{head}<p className="web-note">{t('files/notText')}</p></div>;
 
+  const readOnly = loaded.cut || failure?.refused === true;
   return (
     <div className="web-file">
-      {head}
+      <FileHead uri={uri} dirty={dirty}>
+        {readOnly ? null : <Button label={t('files/save')} size="sm" variant="primary" disabled={!dirty} onClick={() => save(draft.current)} />}
+      </FileHead>
       {failure === null ? null : <Alert tone="danger" title={failure.refused ? t('files/readOnly') : t('files/notSaved')} message={failure.message} />}
       {loaded.cut ? <p className="web-note">{t('files/cut')}</p> : null}
       <div className="web-file__body web-file__body--editor">
         <CodeEditor
           value={loaded.text}
           language={languageOf(uri)}
-          readOnly={loaded.cut || failure?.refused === true}
+          readOnly={readOnly}
           line={line ?? null}
           end={end ?? null}
           onChange={change}

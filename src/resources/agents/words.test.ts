@@ -13,7 +13,7 @@ import type {
   SessionModelInfo,
   SkillCustomization,
 } from '@microsoft/agent-host-protocol';
-import { withoutFrontmatter, capabilitiesOf, childFlags, childLine, countOf, customizationRows, limitsOf, modelsLine, shortPath, signInOf, slashCommandsOf, stateOf } from './words.js';
+import { withoutFrontmatter, frontmatterOf, capabilitiesOf, childFlags, childLine, countOf, customizationRows, limitsOf, modelsLine, shortPath, signInOf, slashCommandsOf, stateOf } from './words.js';
 
 const agent = (fields: Partial<AgentInfo>): AgentInfo => ({ provider: 'echo', displayName: 'Echo', description: '', models: [], ...fields });
 
@@ -137,7 +137,7 @@ describe('customizationRows', () => {
   it('words a row: path, count, read-only, version and on or off', () => {
     const [row] = customizationRows([plugin({ version: '1.2.0', enablement: [{ kind: 'session', enabled: false } as CustomizationEnablement], children: [skill({ enabled: false })] })]);
     expect(row).toMatchObject({ name: 'tidy', kind: 'Plugin', path: '~/.plugins/tidy', meta: ['1 skill', 'v1.2.0', 'off'], enabled: false });
-    expect(row?.children).toEqual([{ id: 's', name: 'lint', label: '/lint', line: '', description: '', flags: [], enabled: false, open: { uri: 'file:///x/SKILL.md', line: null }, editable: false }]);
+    expect(row?.children).toEqual([{ id: 's', type: 'skill', name: 'lint', label: '/lint', line: '', description: '', flags: [], enabled: false, open: { uri: 'file:///x/SKILL.md', line: null }, editable: false }]);
     expect(row?.open).toBeUndefined();
     const [read] = customizationRows([folder({ writable: false, children: [] })]);
     expect(read?.meta).toEqual(['0 skills', 'read-only', 'on']);
@@ -205,6 +205,14 @@ describe('withoutFrontmatter', () => {
     expect(withoutFrontmatter('---\nname: a\ndescription: b\n---\n\n# A\n\n---\nmore')).toBe('# A\n\n---\nmore');
     expect(withoutFrontmatter('# Plain\n')).toBe('# Plain\n');
     expect(withoutFrontmatter('---\r\nname: a\r\n---\r\nbody')).toBe('body');
+  });
+});
+
+describe('frontmatterOf', () => {
+  it('keeps the block at the top without its lines, and is empty with none', () => {
+    expect(frontmatterOf('---\nname: a\ndescription: b\n---\n\n# A')).toBe('name: a\ndescription: b');
+    expect(frontmatterOf('# Plain\n---\nname: a\n---\n')).toBe('');
+    expect(frontmatterOf('---\r\nname: a\r\n---\r\nbody')).toBe('name: a');
   });
 });
 
