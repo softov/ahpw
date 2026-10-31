@@ -14,6 +14,7 @@ import { COMPUTERS, computersReducer, computersRoot, computerUri, factsOf, stand
 import { sizeWords, usageOf, type Usage } from './usage.js';
 import { EMOJIcon } from '../emojis.js';
 import { PageTitle } from '../../shell/HostIcon.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 type Tone = 'default' | 'success' | 'warning' | 'danger' | 'info';
 const TONE: Record<Standing, Tone> = { running: 'success', problem: 'danger', stopped: 'default' };
@@ -117,7 +118,6 @@ export default function ComputerPage({ host, machine: id }: { host: string; mach
               : <Button label={t('computers/actions/start')} variant="primary" onClick={() => void act(host, offers, id, 'start')} />
           ) : null}
           {writable && facts.running ? <Button label={t('computers/actions/restart')} onClick={() => void act(host, offers, id, 'restart')} /> : null}
-          {facts.controlled && may(offers, 'delete') ? <Button label={t('computers/actions/remove')} onClick={() => void act(host, offers, id, 'remove')} /> : null}
         </div>
       </div>
 
@@ -152,6 +152,8 @@ export default function ComputerPage({ host, machine: id }: { host: string; mach
         <summary>{t('computers/page/record')}</summary>
         <pre>{JSON.stringify(entry.record.status, null, 2)}</pre>
       </details>
+
+      {facts.controlled && may(offers, 'delete') ? <DangerZone label={t('computers/actions/remove')} onClick={() => void act(host, offers, id, 'remove')} /> : null}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { TokenList } from '../profile/TokenList.js';
 import { servesTokens } from '../../bridges/tokens.js';
 import { EMOJIcon } from '../emojis.js';
 import { PageTitle } from '../../shell/HostIcon.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 const usersReducer = peopleReducer('users');
 const rolesReducer = peopleReducer('roles');
@@ -136,12 +137,8 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? 'users/user/create' : 'users/user/save')} variant="primary" disabled={!ready} onClick={() => void save()} />
-          {fresh ? <Button label={t('users/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : (
-            <>
-              {dirty ? <Button label={t('users/actions/discard')} onClick={() => setDraft(null)} /> : null}
-              <Button label={t('users/actions/delete')} variant="danger" onClick={() => void scena.commands.execute('ahp.deleteUser', { host, id })} />
-            </>
-          )}
+          {fresh ? <Button label={t('users/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : null}
+          {!fresh && dirty ? <Button label={t('users/actions/discard')} onClick={() => setDraft(null)} /> : null}
         </div>
       ) : null}
 
@@ -153,6 +150,8 @@ export default function UserPage({ host, person: id }: { host: string; person?: 
           <TokenList host={host} {...(self ? {} : { user: id })} reads={keyReads} onRefused={setKeysRefused} />
         </div>
       ))}
+
+      {fresh || !writes ? null : <DangerZone label={t('users/actions/delete')} onClick={() => void scena.commands.execute('ahp.deleteUser', { host, id })} />}
     </div>
   );
 }

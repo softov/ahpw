@@ -17,6 +17,7 @@ import { isRecordId } from '../users/form.js';
 import { JsonCodeEditor } from '../editor/JsonCodeEditor.js';
 import { policyTab } from './state.js';
 import { limitWord, usedWord } from './words.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 /** What a new row starts as: everybody, allowed every model; the person names it and narrows it. */
 const FRESH: Record<string, unknown> = { id: '', scope: 'all', kind: 'model', effect: 'allow', match: {} };
@@ -185,14 +186,12 @@ export default function PolicyPage({ host, policy: id }: { host: string; policy?
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? 'policies/policy/create' : 'policies/policy/save')} variant="primary" disabled={!ready} {...(jsonValid ? {} : { title: t('host/settings/fixJson') })} onClick={() => void save()} />
-          {fresh ? <Button label={t('policies/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : (
-            <>
-              {dirty ? <Button label={t('policies/actions/discard')} onClick={() => setDraft(null)} /> : null}
-              <Button label={t('policies/actions/delete')} variant="danger" onClick={() => void scena.commands.execute('ahp.deletePolicy', { host, id })} />
-            </>
-          )}
+          {fresh ? <Button label={t('policies/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : null}
+          {!fresh && dirty ? <Button label={t('policies/actions/discard')} onClick={() => setDraft(null)} /> : null}
         </div>
       ) : null}
+
+      {fresh || !writes ? null : <DangerZone label={t('policies/actions/delete')} onClick={() => void scena.commands.execute('ahp.deletePolicy', { host, id })} />}
     </div>
   );
 }

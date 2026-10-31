@@ -7,7 +7,9 @@
     "dismiss": "Dispensar",
     "moreActions": "Mais ações",
     "breadcrumb": "Trilha de navegação",
-    "host": "Host"
+    "host": "Host",
+    "dangerZone": "Zona de perigo",
+    "cannotUndo": "Isso não pode ser desfeito."
   },
   "auth": {
     "subtitle": "Entre com um token.",

@@ -14,6 +14,7 @@ import { personTab } from './state.js';
 import { RoleGrants } from './RoleGrants.js';
 import { EMOJIcon } from '../emojis.js';
 import { PageTitle } from '../../shell/HostIcon.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 const rolesReducer = peopleReducer('roles');
 
@@ -134,14 +135,12 @@ export default function RolePage({ host, person: id }: { host: string; person?: 
       {writes ? (
         <div className="web-page__actions">
           <Button label={t(fresh ? 'users/role/create' : 'users/role/save')} variant="primary" disabled={!ready} onClick={() => void save()} />
-          {fresh ? <Button label={t('users/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : (
-            <>
-              {dirty ? <Button label={t('users/actions/discard')} onClick={() => setDraft(null)} /> : null}
-              {builtIn === undefined ? <Button label={t('users/actions/delete')} variant="danger" onClick={() => void scena.commands.execute('ahp.deleteRole', { host, id })} /> : null}
-            </>
-          )}
+          {fresh ? <Button label={t('users/actions/cancel')} onClick={() => scena.surfaces.close(tab)} /> : null}
+          {!fresh && dirty ? <Button label={t('users/actions/discard')} onClick={() => setDraft(null)} /> : null}
         </div>
       ) : null}
+
+      {fresh || !writes || builtIn !== undefined ? null : <DangerZone label={t('users/actions/delete')} onClick={() => void scena.commands.execute('ahp.deleteRole', { host, id })} />}
     </div>
   );
 }

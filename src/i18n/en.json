@@ -7,7 +7,9 @@
     "dismiss": "Dismiss",
     "moreActions": "More actions",
     "breadcrumb": "Breadcrumb",
-    "host": "Host"
+    "host": "Host",
+    "dangerZone": "Danger zone",
+    "cannotUndo": "This cannot be undone."
   },
   "auth": {
     "subtitle": "Sign in with a token credential.",

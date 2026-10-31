@@ -12,6 +12,7 @@ import { Models } from './Models.js';
 import { Overview } from './Overview.js';
 import { connectorTab, connectorTabKey, keepConnectorTabKey } from './state.js';
 import { PageTitle } from '../../shell/HostIcon.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 const TONE: Record<ConnectorState, BadgeTone> = {
   ready: 'success',
@@ -19,7 +20,7 @@ const TONE: Record<ConnectorState, BadgeTone> = {
   unavailable: 'danger',
 };
 
-/** One connector: its head with its state and Delete, over Overview, Models when its adapter serves models, and Settings. */
+/** One connector: its head with its state, over Overview, Models when its adapter serves models, and Settings with Delete at its bottom. */
 export default function ConnectorPage({ host, connector: id }: { host: string; connector: string }): ReactElement {
   const scena = useScena();
   const { t } = useI18n();
@@ -47,14 +48,6 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
           uri={`${CONNECTORS.channel}${id}`}
           state={<Badge tone={TONE[row.state]} text={t(`connectors/states/${row.state}`)} />}
         />
-        <div className="web-page__actions">
-          <Button
-            size="sm"
-            variant="danger"
-            label={t('connectors/actions/delete')}
-            onClick={() => void deleteConnector(host, row).then((gone) => { if (gone) scena.surfaces.close(connectorTab(host, id)); })}
-          />
-        </div>
       </div>
       {row.state === 'ready' ? null : (
         <Alert tone={row.state === 'unavailable' ? 'danger' : 'warning'} message={row.adapter === undefined ? t('connectors/page/noAdapter') : t(`connectors/stateNotes/${row.state}`, { adapter: row.adapter })} />
@@ -63,7 +56,15 @@ export default function ConnectorPage({ host, connector: id }: { host: string; c
         tabs={[
           { key: 'overview', title: t('connectors/page/overview'), child: <Overview host={host} row={row} adapter={adapter} /> },
           ...(servesModels ? [{ key: 'models', title: t('connectors/page/models'), child: <Models host={host} id={id} /> }] : []),
-          { key: 'settings', title: t('connectors/page/settings'), child: <ConnectorForm host={host} connector={row} /> },
+          { key: 'settings', title: t('connectors/page/settings'), child: (
+            <>
+              <ConnectorForm host={host} connector={row} />
+              <DangerZone
+                label={t('connectors/actions/delete')}
+                onClick={() => void deleteConnector(host, row).then((gone) => { if (gone) scena.surfaces.close(connectorTab(host, id)); })}
+              />
+            </>
+          ) },
         ]}
         defaultValue={chosen === 'models' && !servesModels ? 'overview' : chosen}
         onChange={keepConnectorTabKey}
