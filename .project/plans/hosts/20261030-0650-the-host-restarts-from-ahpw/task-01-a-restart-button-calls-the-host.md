@@ -1,6 +1,6 @@
 ---
 title: A Restart button calls the host
-status: todo
+status: implemented
 depends: []
 layer: "bridges, host, plugins"
 refs:

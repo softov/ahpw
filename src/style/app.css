@@ -64,6 +64,11 @@
   margin-inline: var(--web-page-gutter);
 }
 
+/* A table's full width is the page's less both gutters, or its margins push it past the edge. */
+.web-page > table {
+  width: calc(100% - 2 * var(--web-page-gutter));
+}
+
 .web-page > .oo-tabs > .oo-tabs__strip {
   padding-inline: var(--web-page-gutter);
   overflow-x: auto;

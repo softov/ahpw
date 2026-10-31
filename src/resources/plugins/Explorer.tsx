@@ -1,6 +1,6 @@
 import { useMemo, type ReactElement } from 'react';
 import { useI18n, useScena, useStore } from '@softov/scena/react';
-import { Alert, Spinner } from '@softov/scena/ui';
+import { Alert, Button, Spinner } from '@softov/scena/ui';
 import type { PickerAction } from '@softov/scena/types';
 import { ahpPaths, ROOT } from '../../bridges/data.js';
 import { rootReducer, type RootState } from '@microsoft/agent-host-protocol';
@@ -10,6 +10,8 @@ import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
 import type { PeopleState } from '../../bridges/people.js';
 import { PLUGINS, pluginsReducer, restartNeeded, specEnabled, type PluginRow } from '../../bridges/plugins.js';
 import { useServingHosts } from '../../bridges/served.js';
+import { mayRestart } from '../../bridges/restart.js';
+import { RESTART_HOST } from '../host/restart.js';
 import { embedMode } from '../../shell/embed/index.js';
 import { ExplorerList } from '../../shell/explorer/ExplorerList.js';
 import { mayReload, mayToggle, reloadOne, saidOf, toggleMethod, togglePlugin } from './actions.js';
@@ -77,6 +79,11 @@ export default function PluginsExplorer(): ReactElement {
   // One host's notice in mono; in multi a host that is down says so in its own place.
   const error = multi ? null : errors[0] ?? null;
   const state = multi ? states.find((one) => one !== undefined) : states[0];
+  // The hosts that hold a change only a restart applies, and offer that restart.
+  const restartable = hosts.filter((host, at) => restartNeeded(roots.states[at]) && mayRestart(offers[at] ?? NO_OFFERS));
+  const restart = restartable.length === 0 ? null : (
+    <Button size="sm" label={t('host/restart/button')} onClick={() => { for (const host of restartable) void scena.commands.execute(RESTART_HOST, { host }); }} />
+  );
   const notice = hosts.length === 0
     ? <p className="web-note web-explorer__empty">{t('plugins/explorer/notServed')}</p>
     : error !== null
@@ -84,7 +91,7 @@ export default function PluginsExplorer(): ReactElement {
       : state === undefined
         ? <Spinner label={t('plugins/notices/reading')} />
         : rows.length === 0 ? <p className="web-note web-explorer__empty">{t('plugins/explorer/empty')}</p>
-          : roots.states.some(restartNeeded) ? <p className="web-note web-explorer__empty web-plugins__restart">{t('plugins/restartShort')}</p> : null;
+          : roots.states.some(restartNeeded) ? <p className="web-note web-explorer__empty web-plugins__restart">{t('plugins/restartShort')} {restart}</p> : null;
   const selected = active === undefined ? null : rows.find((row) => entryKeyOf(row.key) === refKey(active.host, active.id))?.key ?? null;
 
   return (

@@ -1,7 +1,7 @@
 ---
 title: The host restarts from ahpw
 domain: hosts
-status: planned
+status: active
 priority: medium
 created: 2026-10-30
 revalidated: 2026-10-30
@@ -66,7 +66,7 @@ Restart button -> ahp.restartHost { host } -> bridge.request('x-ahpd/restart', {
 
 | Task | Status | Depends on |
 | --- | --- | --- |
-| [01 - A Restart button calls the host](task-01-a-restart-button-calls-the-host.md) | todo | - |
+| [01 - A Restart button calls the host](task-01-a-restart-button-calls-the-host.md) | implemented | - |
 
 ## Risks and tradeoffs
 
@@ -74,8 +74,8 @@ Restart button -> ahp.restartHost { host } -> bridge.request('x-ahpd/restart', {
 
 ## Resume state
 
-- **Done so far:** nothing.
-- **Next action:** build the ahpd plan first, then [task-01-a-restart-button-calls-the-host.md](task-01-a-restart-button-calls-the-host.md).
+- **Done so far:** task 01 is implemented. See [implemented.md](implemented.md).
+- **Next action:** Softov does the checks in [hosts-restart-checks.md](../../../pending/hosts-restart-checks.md), then the plan closes.
 - **Open questions:** none.
 - **Watch out for:** the answer comes before the host stops, so the page goes to the reconnect state after a success.
 

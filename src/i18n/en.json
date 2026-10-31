@@ -1768,7 +1768,16 @@
     "commands": {
       "info": "Host information",
       "settings": "Host settings",
-      "interface": "Interface settings"
+      "interface": "Interface settings",
+      "restart": "Restart host"
+    },
+    "restart": {
+      "button": "Restart",
+      "done": "The host is restarting",
+      "failed": "The host did not restart",
+      "anyway": "Restart anyway",
+      "note": "Every client is disconnected until the host is back.",
+      "confirm": "Restart the host?"
     },
     "info": {
       "status": "Status",

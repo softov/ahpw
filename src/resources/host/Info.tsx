@@ -9,6 +9,10 @@ import { when } from '../sessions/turn.js';
 import { AGENTS_SECTION } from '../agents/index.js';
 import { plural } from '../../i18n/locales.js';
 import { TrustedFolders } from './Trusted.js';
+import { NO_OFFERS, type Offers } from '../../bridges/offers.js';
+import { mayRestart } from '../../bridges/restart.js';
+import { RESTART_HOST } from './restart.js';
+import { DangerZone } from '../../shell/controls/DangerZone.js';
 
 /** What `GET /api/status` says about the daemon process. */
 interface DaemonStatus {
@@ -66,6 +70,7 @@ export default function HostInfoPage({ host }: { host: string }): ReactElement {
   const agents = useStore<AgentInfo[]>(ahpPaths(host).agents) ?? [];
   const home = useStore<string | null>(ahpPaths(host).defaultDirectory);
   const caps = useStore<AutomationCapabilities | null>(ahpPaths(host).automationCaps);
+  const hostOffers = useStore<Offers>(ahpPaths(host).offers) ?? NO_OFFERS;
   const { status, error } = useDaemonStatus(connection?.generation ?? 0);
   const now = useNow();
   const shown = CONNECTION[connection?.status ?? 'disconnected'] ?? CONNECTION['disconnected']!;
@@ -156,6 +161,8 @@ export default function HostInfoPage({ host }: { host: string }): ReactElement {
           </tbody>
         </table>
       )}
+
+      {mayRestart(hostOffers) ? <DangerZone label={t('host/restart/button')} note={t('host/restart/note')} onClick={() => void scena.commands.execute(RESTART_HOST, { host })} /> : null}
     </div>
   );
 }

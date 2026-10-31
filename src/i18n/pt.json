@@ -1768,7 +1768,16 @@
     "commands": {
       "info": "Informações do host",
       "settings": "Configurações do host",
-      "interface": "Configurações de interface"
+      "interface": "Configurações de interface",
+      "restart": "Reiniciar host"
+    },
+    "restart": {
+      "button": "Reiniciar",
+      "done": "O host está reiniciando",
+      "failed": "O host não reiniciou",
+      "anyway": "Reiniciar mesmo assim",
+      "note": "Todos os clientes ficam desconectados até o host voltar.",
+      "confirm": "Reiniciar o host?"
     },
     "info": {
       "status": "Status",
