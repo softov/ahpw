@@ -385,6 +385,11 @@
       "staging": "Staged and unstaged",
       "none": "Not grouped"
     },
+    "sort": {
+      "name": "Sort by name",
+      "path": "Sort by path",
+      "status": "Sort by status"
+    },
     "status": {
       "added": "Added",
       "modified": "Modified",

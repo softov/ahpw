@@ -75,7 +75,7 @@ The header has tools for the session:
 
 | Tool | |
 | --- | --- |
-| Changes | The lines added and removed; opens [Changes](CHANGES.md) in the right sidebar |
+| Changes | How many files changed, and the lines added and removed; opens [Changes](CHANGES.md) in the right sidebar |
 | Terminals | How many terminals it has; opens one, or the session details |
 | Subagents | A menu of the subagents it started |
 | Chats | Switches between the session's chats, when it has more than one |

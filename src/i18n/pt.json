@@ -385,6 +385,11 @@
       "staging": "Preparados e não preparados",
       "none": "Sem agrupar"
     },
+    "sort": {
+      "name": "Ordenar por nome",
+      "path": "Ordenar por caminho",
+      "status": "Ordenar por status"
+    },
     "status": {
       "added": "Adicionado",
       "modified": "Modificado",

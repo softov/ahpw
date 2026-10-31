@@ -47,11 +47,13 @@ The host's own operations on one file follow, by the name the host gives them.
 | --- | --- |
 | Host operations | The host's operations on all the changes, by the name the host gives them |
 | **Reload** | Reads the changes again |
-| **View options** | The host's operations again, list or tree, the grouping, **Expand all** and **Collapse all** |
+| **View options** | The host's operations again, list or tree, the grouping, the sort, **Expand all** and **Collapse all** |
 
 An operation the host marks as needing a confirmation asks first. What the host answers shows above the files; a link it answers with opens in a new browser tab, and a file it names opens in its viewer.
 
 The grouping is **By review** when the host takes review marks, **Staged and unstaged** when some files are staged, or **Not grouped**.
+
+The files are sorted by path unless you pick **Sort by name** or **Sort by status**. In a tree, folders are always in name order. The browser keeps the sort.
 
 ## Commit
 

@@ -110,6 +110,7 @@ export function SessionHeaderTools({ host, summary, session, chat, chatUri, onCh
     <div className="web-chat__tools">
       {changes?.files === undefined || changes.files === 0 ? null : (
         <button type="button" className="web-chat__tool" title={plural('sessions/header/files', changes.files)} onClick={() => run('ahp.showRight.changes:explorer')}>
+          <span>{`${EMOJIcon.file} ${String(changes.files)}`}</span>
           <span className="web-diff--add">+{changes.additions ?? 0}</span>
           <span className="web-diff--remove">{'\u{2212}'}{changes.deletions ?? 0}</span>
         </button>
